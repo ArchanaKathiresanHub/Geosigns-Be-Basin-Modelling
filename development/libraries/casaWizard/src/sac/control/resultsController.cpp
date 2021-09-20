@@ -29,6 +29,7 @@
 
 #include "ConstantsMathematics.h"
 
+#include <QButtonGroup>
 #include <QFileDialog>
 #include <QInputDialog>
 #include <QListWidget>
@@ -51,8 +52,11 @@ ResultsController::ResultsController(ResultsTab* resultsTab,
   scenario_{scenario},
   scriptRunController_{scriptRunController},
   selectedWellsIDs_{},
-  activeProperty_{""}
+  activeProperty_{""},
+  wellPrepWells_{false}
 {
+  connect(resultsTab_->wellPrepOrSAC(), SIGNAL(buttonClicked(int)), this, SLOT(slotWellPrepOrSAC(int)));
+
   connect(resultsTab_->plotOptions(), SIGNAL(activeChanged()), this, SLOT(slotActiveChanged()));
   connect(resultsTab_->plotOptions(), SIGNAL(plotTypeChange(int)), this, SLOT(slotTogglePlotType(int)));
   connect(resultsTab_->wellCorrelationPlotLayout(), SIGNAL(propertyChanged(QString)), this, SLOT(slotUpdateProperty(QString)));
@@ -65,6 +69,11 @@ ResultsController::ResultsController(ResultsTab* resultsTab,
   connect(resultsTab_->multiWellPlot(), SIGNAL(fitRangeToDataChanged(bool)), this, SLOT(slotUpdateFitRangeToData(bool)));
 }
 
+const CalibrationTargetManager& ResultsController::calibrationTargetManager() const
+{
+  return wellPrepWells_ ? scenario_.calibrationTargetManagerWellPrep() : scenario_.calibrationTargetManager();
+}
+
 void ResultsController::refreshGUI()
 {
   setActiveWells();
@@ -72,19 +81,19 @@ void ResultsController::refreshGUI()
 
   setGuiOptionsInPlots();
   setDomainBirdsView();  
+
+  initializeWellSelection();
 }
 
 void ResultsController::setActiveWells()
 {
-  const CalibrationTargetManager& ctManager = scenario_.calibrationTargetManager();
-  resultsTab_->updateWellList(ctManager.activeWells());
-  resultsTab_->updateBirdsView(ctManager.activeWells());
+  resultsTab_->updateWellList(calibrationTargetManager().activeWells());
+  resultsTab_->updateBirdsView(calibrationTargetManager().activeWells());
 }
 
 void ResultsController::setActivePropertiesToWells()
-{
-  const CalibrationTargetManager& ctManager = scenario_.calibrationTargetManager();
-  resultsTab_->updateActivePropertyUserNames(ctManager.activePropertyUserNames());
+{  
+  resultsTab_->updateActivePropertyUserNames(calibrationTargetManager().activePropertyUserNames());
 }
 
 void ResultsController::setGuiOptionsInPlots()
@@ -125,9 +134,14 @@ void ResultsController::slotUpdateTabGUI(int tabID)
     return;
   }
 
-  refreshGUI();
+  refreshGUI();  
+}
 
-  initializeWellSelection();   
+void ResultsController::slotWellPrepOrSAC(int buttonId)
+{
+  wellPrepWells_ = (buttonId == 1);
+
+  refreshGUI();
 }
 
 void ResultsController::initializeWellSelection()
@@ -146,8 +160,7 @@ void ResultsController::initializeWellSelection()
   {
     QSignalBlocker blocker(wellsList);
 
-    const CalibrationTargetManager& calibrationManager = scenario_.calibrationTargetManager();
-    const QVector<const Well*> activeWells = calibrationManager.activeWells();
+    const QVector<const Well*> activeWells = calibrationTargetManager().activeWells();
     for( int i = 0; i < activeWells.size(); ++i)
     {
       int wellID = activeWells[i]->id();
@@ -169,9 +182,8 @@ void ResultsController::slotUpdateWell()
 {
   selectedWellsIDs_ = selectedWellsIDs();
   if (selectedWellsIDs_.size() == 1)
-  {    
-    const CalibrationTargetManager& ctManager = scenario_.calibrationTargetManager();
-    Logger::log() << "Selected well " << ctManager.well(selectedWellsIDs_.front()).name() << Logger::endl();
+  {        
+    Logger::log() << "Selected well " << calibrationTargetManager().well(selectedWellsIDs_.front()).name() << Logger::endl();
   }
 
   updateBirdView();
@@ -241,8 +253,7 @@ void ResultsController::updateOptimizedTable()
   double xLoc = 0.0;
   double yLoc = 0.0;
 
-  const CalibrationTargetManager& ctManager = scenario_.calibrationTargetManager();
-  const Well& well = ctManager.well(selectedWellsIDs_.front());
+  const Well& well = calibrationTargetManager().well(selectedWellsIDs_.front());
   xLoc = well.x();
   yLoc = well.y();
 
@@ -299,15 +310,22 @@ void ResultsController::slotUpdateWellFromBirdView(const int lineIndex, const in
 }
 
 void ResultsController::slotSelectedWellFromCorrelation(const int wellIndex)
-{
-  const CalibrationTargetManager& mgr = scenario_.calibrationTargetManager();
-  const QVector<const Well*> wells = mgr.wells();
+{  
+  const QVector<const Well*> wells = calibrationTargetManager().wells();
   if (wellIndex>=wells.size())
   {
     return;
   }
 
   Logger::log() << "Selected point is in well " << wells[wellIndex]->name() << Logger::endl();
+}
+
+QVector<QVector<WellTrajectory>> ResultsController::getAllTrajectories(const QStringList& propertyUserNames) const
+{
+  WellTrajectoryManager mgrWellPrep;
+  if (wellPrepWells_) mgrWellPrep.updateWellTrajectories(calibrationTargetManager());
+  const WellTrajectoryManager& wellTrajectoryManager = wellPrepWells_ ? mgrWellPrep : scenario_.wellTrajectoryManager();
+  return wellTrajectoryManager.trajectoriesInWell(selectedWellsIDs_, propertyUserNames);
 }
 
 void ResultsController::updateWellPlot()
@@ -321,16 +339,12 @@ void ResultsController::updateWellPlot()
     return;
   }
 
-  QStringList propertyUserNames;
-  const CalibrationTargetManager& calibrationManager = scenario_.calibrationTargetManager();
-  const QVector<QVector<const CalibrationTarget*>> targetsInWell = calibrationManager.extractWellTargets(propertyUserNames, selectedWellsIDs_);
-
-  const WellTrajectoryManager& wellTrajectoryManager = scenario_.wellTrajectoryManager();
-  const QVector<QVector<WellTrajectory>> allTrajectories = wellTrajectoryManager.trajectoriesInWell(selectedWellsIDs_, propertyUserNames);  
+  QStringList propertyUserNames;  
+  const QVector<QVector<const CalibrationTarget*>> targetsInWell = calibrationTargetManager().extractWellTargets(propertyUserNames, selectedWellsIDs_);
 
   resultsTab_->updateWellPlot(targetsInWell,
-                              getUnitsForProperties(allTrajectories),
-                              allTrajectories,
+                              getUnitsForProperties(targetsInWell),
+                              getAllTrajectories(propertyUserNames),
                               scenario_.activePlots(),
                               getSurfaceValues(),
                               scenario_.fitRangeToData());
@@ -340,9 +354,8 @@ QMap<QString, double> ResultsController::getSurfaceValues()
 {
   QMap<QString, double> surfaceValues;
   if (scenario_.showSurfaceLines())
-  {
-    const CalibrationTargetManager& calibrationManager = scenario_.calibrationTargetManager();
-    const casaWizard::Well& well = calibrationManager.well(selectedWellsIDs_[0]);
+  {    
+    const casaWizard::Well& well = calibrationTargetManager().well(selectedWellsIDs_[0]);
     CMBMapReader mapReader;
     mapReader.load(scenario_.project3dPath().toStdString());
     QStringList surfaceNames = scenario_.projectReader().surfaceNames();
@@ -357,16 +370,14 @@ QMap<QString, double> ResultsController::getSurfaceValues()
   return surfaceValues;
 }
 
-QStringList ResultsController::getUnitsForProperties(const QVector<QVector<WellTrajectory>>& allTrajectories)
-{
-  const CalibrationTargetManager& calibrationManager = scenario_.calibrationTargetManager();
+QStringList ResultsController::getUnitsForProperties(const QVector<QVector<const CalibrationTarget*>> targets)
+{  
   QStringList units;
-  for (int i = 0; i < allTrajectories[0].size(); i++)
+  for (QVector<const CalibrationTarget*> target : targets)
   {
-    QString cauldronName = calibrationManager.getCauldronPropertyName(allTrajectories[0][i].propertyUserName());
+    const QString cauldronName = calibrationTargetManager().getCauldronPropertyName(target.at(0)->propertyUserName());
     units.push_back(scenario_.projectReader().getUnit(cauldronName));
   }
-
   return units;
 }
 
@@ -374,9 +385,8 @@ void ResultsController::updateCorrelationPlot()
 {
   QSignalBlocker blocker(resultsTab_->wellCorrelationPlotLayout());
 
-  QStringList propertyUserNames;
-  const CalibrationTargetManager& calibrationManager = scenario_.calibrationTargetManager();
-  QVector<QVector<const CalibrationTarget*>> targetsInWell = calibrationManager.extractWellTargets(propertyUserNames, selectedWellsIDs_);
+  QStringList propertyUserNames;  
+  QVector<QVector<const CalibrationTarget*>> targetsInWell = calibrationTargetManager().extractWellTargets(propertyUserNames, selectedWellsIDs_);
 
   if (propertyUserNames.empty())
   {
@@ -387,15 +397,14 @@ void ResultsController::updateCorrelationPlot()
   int iProperty = 0;
   for (const QString& property: propertyUserNames)
   {
-    if (iProperty != 0 && calibrationManager.getCauldronPropertyName(property) == "TwoWayTime")
+    if (iProperty != 0 && calibrationTargetManager().getCauldronPropertyName(property) == "TwoWayTime")
     {
       propertyUserNames.move(iProperty, 0);
     }
     iProperty++;
   }
 
-  const WellTrajectoryManager& wellTrajectoryManager = scenario_.wellTrajectoryManager();
-  QVector<QVector<WellTrajectory>> allTrajectories = wellTrajectoryManager.trajectoriesInWell(selectedWellsIDs_, propertyUserNames);
+  const QVector<QVector<WellTrajectory>> allTrajectories = getAllTrajectories(propertyUserNames);
 
   assert(targetsInWell.size() ==  allTrajectories[0].size());
   int activePropertyIndex = propertyUserNames.indexOf(activeProperty_);
@@ -488,9 +497,8 @@ void ResultsController::updateBirdView()
 }
 
 QVector<int> ResultsController::selectedWellsIDs()
-{
-  const CalibrationTargetManager& calibrationManager = scenario_.calibrationTargetManager();
-  const QVector<const Well*> activeWells = calibrationManager.activeWells();
+{  
+  const QVector<const Well*> activeWells = calibrationTargetManager().activeWells();
 
   QModelIndexList indices = resultsTab_->wellsList()->selectionModel()->selectedIndexes();
 

@@ -12,9 +12,7 @@
 #include "control/casaScriptWriter.h"
 #include "control/dataExtractionController.h"
 #include "control/functions/folderOperations.h"
-#include "control/importWellPopupController.h"
 #include "control/lithofractionController.h"
-#include "control/loadTargetsThread.h"
 #include "control/objectiveFunctionControllerSAC.h"
 #include "control/run3dCaseController.h"
 #include "control/scriptRunController.h"
@@ -59,28 +57,21 @@ SACcontroller::SACcontroller(SACtab* sacTab,
   QObject(parent),
   sacTab_{sacTab},
   casaScenario_{casaScenario},
-  scriptRunController_{scriptRunController},
-  importingPopup_{},
+  scriptRunController_{scriptRunController},  
   calibrationTargetController_{new CalibrationTargetController(sacTab->calibrationTargetTable(), casaScenario_, this)},
   dataExtractionController_{new DataExtractionController(casaScenario_, scriptRunController_, this)},
   lithofractionController_{new LithofractionController(sacTab->lithofractionTable() , casaScenario_, this)},
-  objectiveFunctionController_{new ObjectiveFunctionControllerSAC(sacTab->objectiveFunctionTable(), casaScenario_.calibrationTargetManager(), casaScenario, this)},
-  importWellPopupController_{new ImportWellPopupController(sacTab->importWellPopup(), this)}
+  objectiveFunctionController_{new ObjectiveFunctionControllerSAC(sacTab->objectiveFunctionTable(), casaScenario_.calibrationTargetManager(), casaScenario, this)}
 {
-  importingPopup_.setIcon(QMessageBox::Icon::Information);
-  importingPopup_.setWindowTitle("Importing");
-  importingPopup_.setText("Please wait while the wells are imported and validated.");
-  importingPopup_.setStandardButtons(nullptr);
   sacTab_->lineEditProject3D()->setText("");
   sacTab_->comboBoxCluster()->setCurrentText(casaScenario_.clusterName());
 
   connect( parent, SIGNAL(signalReload1Ddata()), this, SLOT(slotExtractData()));
 
   connect(sacTab_->pushButtonSACrunCASA(),  SIGNAL(clicked()),    this, SLOT(slotPushButtonSACrunCasaClicked()));
-  connect(sacTab_->pushSelectProject3D(),   SIGNAL(clicked()),    this, SLOT(slotPushSelectProject3dClicked()));
-  connect(sacTab_->pushSelectCalibration(), SIGNAL(clicked()),    this, SLOT(slotPushSelectCalibrationClicked()));
-  connect(sacTab_->pushSelectAllWells(), SIGNAL(clicked()),       this, SLOT(slotPushSelectAllWellsClicked()));
-  connect(sacTab_->pushClearSelection(), SIGNAL(clicked()),       this, SLOT(slotPushClearSelectionClicked()));
+  connect(sacTab_->pushSelectProject3D(),   SIGNAL(clicked()),    this, SLOT(slotPushSelectProject3dClicked()));  
+  connect(sacTab_->pushSelectAllWells(), SIGNAL(clicked()),       calibrationTargetController_, SLOT(slotSelectAllWells()));
+  connect(sacTab_->pushClearSelection(), SIGNAL(clicked()),       calibrationTargetController_, SLOT(slotClearWellSelection()));
 
   connect(sacTab_->buttonRunOriginal1D(),     SIGNAL(clicked()), this, SLOT(slotRunOriginal1D()));
   connect(sacTab_->buttonRunOriginal3D(),     SIGNAL(clicked()), this, SLOT(slotRunOriginal3D()));
@@ -116,16 +107,6 @@ void SACcontroller::slotUpdateTabGUI(int tabID)
   }
 
   refreshGUI();
-}
-
-void SACcontroller::slotPushSelectAllWellsClicked()
-{
-  calibrationTargetController_->selectAllWells();
-}
-
-void SACcontroller::slotPushClearSelectionClicked()
-{
-  calibrationTargetController_->clearWellSelection();
 }
 
 void SACcontroller::slotExtractData()
@@ -301,11 +282,6 @@ void SACcontroller::slotRunOriginal3D()
   }
 }
 
-void SACcontroller::slotCloseWaitingDialog()
-{
-  importingPopup_.done(0);
-}
-
 void SACcontroller::slotPushSelectProject3dClicked()
 {
   QString fileName = QFileDialog::getOpenFileName(sacTab_,
@@ -357,63 +333,6 @@ void SACcontroller::slotPushSelectProject3dClicked()
 
   scenarioBackup::backup(casaScenario_);
   refreshGUI();
-}
-
-void SACcontroller::slotPushSelectCalibrationClicked()
-{
-  if (casaScenario_.project3dPath().isEmpty())
-  {
-    return;
-  }
-  QString fileName = QFileDialog::getOpenFileName(sacTab_,
-                                                  "Select calibration targets",
-                                                  "",
-                                                  "Spreadsheet (*.xlsx)");
-  if (fileName == "")
-  {
-    return;
-  }
-
-  CalibrationTargetManager& temporaryImportCalibrationTargetManager = importWellPopupController_->importCalibrationTargetManager();
-  temporaryImportCalibrationTargetManager.clear();
-
-  importOnSeparateThread(temporaryImportCalibrationTargetManager, fileName);
-  importingPopup_.exec();
-
-  CalibrationTargetManager& ctManager = casaScenario_.calibrationTargetManager();
-  temporaryImportCalibrationTargetManager.copyMappingFrom(ctManager);
-
-  if (importWellPopupController_->executeImportWellPopup() != QDialog::Accepted)
-  {
-    return;
-  }
-
-  ctManager.appendFrom(temporaryImportCalibrationTargetManager);
-  ctManager.updateObjectiveFunctionFromTargets();
-
-  if (ctManager.objectiveFunctionManager().indexOfCauldronName("Velocity") != -1)
-  {
-    QMessageBox velocityDisabled(QMessageBox::Icon::Information,
-                          "Velocity calibration data disabled",
-                          "It is not possible to optimize using velocity calibration data. If you want to use the velocity data, first convert to SonicSlowness (DT)",
-                          QMessageBox::Ok);
-    velocityDisabled.exec();
-  }
-
-  WellTrajectoryManager& wtManager = casaScenario_.wellTrajectoryManager();
-  wtManager.updateWellTrajectories(ctManager);
-  ctManager.disableInvalidWells(casaScenario_.project3dPath().toStdString(), casaScenario_.projectReader().getDepthGridName(0).toStdString());
-
-  scenarioBackup::backup(casaScenario_);
-  refreshGUI();
-}
-
-void SACcontroller::importOnSeparateThread(CalibrationTargetManager& temporaryImportCalibrationTargetManager, const QString& fileName)
-{
-  LoadTargetsThread* loadTargetsThread = new LoadTargetsThread(casaScenario_, temporaryImportCalibrationTargetManager, fileName, this);
-  loadTargetsThread->start();
-  connect (loadTargetsThread, &LoadTargetsThread::finished, this, &SACcontroller::slotCloseWaitingDialog);
-  connect (loadTargetsThread, &LoadTargetsThread::finished, loadTargetsThread, &QObject::deleteLater);
 }
 
 void SACcontroller::slotComboBoxClusterCurrentTextChanged(QString clusterName)

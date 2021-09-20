@@ -13,13 +13,16 @@ class CalibrationTargetTable : public QTableWidget
 public:
   explicit CalibrationTargetTable(QWidget* parent = nullptr);
 
-  void updateTable(const QVector<const Well *> wells);
+  void updateTable(const QVector<const Well *> wells, const QMap<QString, QSet<int>>& propertyNamesPerWell);
 
   void selectAllWells();
   void clearWellSelection();
 
 signals:
   void checkBoxChanged(int, int);
+
+private:
+  void stretchColumns();
 
 };
 

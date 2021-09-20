@@ -6,6 +6,8 @@
 namespace casaWizard
 {
 
+class WellPrepTab;
+
 namespace sac
 {
 
@@ -21,6 +23,7 @@ class Window : public MainWindow
 public:
   Window(QWidget* parent = nullptr);
 
+  WellPrepTab* wellPrepTab() const;
   SACtab* sacTab() const;
   T2Ztab* t2zTab() const;
   ResultsTab* resultsTab() const;
@@ -28,6 +31,7 @@ public:
   MenuBar* menu() const override;
 
 private:
+  WellPrepTab* wellPrepTab_;
   SACtab* sacTab_;
   T2Ztab* t2zTab_;
   ResultsTab* resultsTab_;

@@ -52,7 +52,10 @@ void CalibrationTargetManager::appendFrom(const CalibrationTargetManager& calibr
   userNameToCauldronNameMapping_ = calibrationTargetManager.userNameToCauldronNameMapping_;
   for (const Well& well : calibrationTargetManager.wells_)
   {
-    addWell(well);
+    if (well.isActive())
+    {
+      addWell(well);
+    }
   }
 }
 

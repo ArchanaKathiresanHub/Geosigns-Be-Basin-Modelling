@@ -96,7 +96,7 @@ QString CMBProjectReader::getUnit(const QString& cauldronName) const
 {
   if (!loaded_)
   {
-    return QString();
+    return QString("?");
   }
   std::string unit = "";
   cmbModel_->getUnit(cauldronName.toStdString(), unit);

@@ -5,6 +5,7 @@
 
 class CustomTitle;
 
+class QButtonGroup;
 class QLabel;
 class QListWidget;
 class QPushButton;
@@ -45,6 +46,7 @@ public:
   WellCorrelationPlot* wellCorrelationPlot() const;
   WellCorrelationPlotLayout* wellCorrelationPlotLayout() const;
   MultiWellPlot* multiWellPlot() const;
+  QButtonGroup* wellPrepOrSAC() const;
 
   void clearWellCorrelationPlot();
 
@@ -69,11 +71,13 @@ public:
   void setPlotType(const int currentIndex);
 
   void setRangeBirdsView(const double xMin, const double xMax, const double yMin, const double yMax);
+
 private:
   void addLithofractionRow(int &row, QVector<QTableWidgetItem*> items, const double diff);
   void setVisibleLithofractionColumn(const bool visible);
   QTableWidgetItem* createHeaderItem(const QString& name, int align);
 
+  QButtonGroup* wellPrepOrSAC_;
   QPushButton* selectAll_;
   QPushButton* selectClear_;
   QListWidget* wellsList_;

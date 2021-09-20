@@ -52,6 +52,9 @@ public:
   CalibrationTargetManager& calibrationTargetManager();
   const CalibrationTargetManager& calibrationTargetManager() const;
 
+  CalibrationTargetManager& calibrationTargetManagerWellPrep();
+  const CalibrationTargetManager& calibrationTargetManagerWellPrep() const;
+
   const ProjectReader& projectReader() const;
 
   virtual void writeToFile(ScenarioWriter& writer) const override;
@@ -65,6 +68,7 @@ public:
 private:
   QString applicationName_;
   CalibrationTargetManager calibrationTargetManager_;
+  CalibrationTargetManager calibrationTargetManagerWellPrep_;
   QString clusterName_;
   bool expertUser_;
   int numberCPUs_;

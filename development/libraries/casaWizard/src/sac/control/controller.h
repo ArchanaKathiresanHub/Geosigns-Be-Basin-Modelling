@@ -15,6 +15,7 @@ class MapsController;
 class ResultsController;
 class SACcontroller;
 class T2Zcontroller;
+class WellPrepSACcontroller;
 
 class Controller : public MainController
 {
@@ -29,6 +30,7 @@ private:
   Window ui_;
   SACScenario scenario_;
 
+  WellPrepSACcontroller* wellPrepSACcontroller_;
   SACcontroller* sacController_;  
   MapsController* mapsController_;
   T2Zcontroller* t2zController_;

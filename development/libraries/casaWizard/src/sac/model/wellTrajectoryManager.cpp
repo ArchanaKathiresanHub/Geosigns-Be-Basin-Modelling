@@ -33,7 +33,7 @@ QVector<QVector<WellTrajectory> > WellTrajectoryManager::trajectories() const
 QVector<QVector<WellTrajectory>> WellTrajectoryManager::trajectoriesInWell(const QVector<int> wellIndices, const QStringList properties) const
 {
   QVector<QVector<WellTrajectory>> trajectoriesInWell(4,{});
-  for (int i = 0; i < trajectoriesInWell.size(); ++i)
+  for (int i = 0; i < 4; ++i)
   {
     trajectoriesInWell[i] = selectFromWell(trajectories_[i], wellIndices, properties);
   }

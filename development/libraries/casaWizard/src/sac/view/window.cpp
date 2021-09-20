@@ -6,6 +6,7 @@
 #include "view/sacTab.h"
 #include "view/sacTabIDs.h"
 #include "view/t2zTab.h"
+#include "view/wellPrepTab.h"
 
 #include <cassert>
 
@@ -17,6 +18,7 @@ namespace sac
 
 Window::Window(QWidget* parent) :
   MainWindow(parent),
+  wellPrepTab_{new WellPrepTab{this}},
   sacTab_{new SACtab{this}},  
   t2zTab_ {new T2Ztab{this}},
   resultsTab_{new ResultsTab{this}},
@@ -27,6 +29,7 @@ Window::Window(QWidget* parent) :
 
   setWindowTitle("SAC Wizard");
 
+  tabWidget()->addTab(wellPrepTab_, "Well preparation");
   tabWidget()->addTab(sacTab_, "Input");
   tabWidget()->addTab(resultsTab_, "Well log plots and Results");
   tabWidget()->addTab(mapsTab_, "Maps");
@@ -35,6 +38,11 @@ Window::Window(QWidget* parent) :
   setStyleSheet("QToolTip{ color: #ffffff; background-color: #323232; border: 0px; }");
 
   assert(tabWidget()->count() == static_cast<int>(TabID::Count));
+}
+
+WellPrepTab* Window::wellPrepTab() const
+{
+  return wellPrepTab_;
 }
 
 SACtab* Window::sacTab() const

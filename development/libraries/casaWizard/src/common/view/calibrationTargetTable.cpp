@@ -22,29 +22,38 @@ CalibrationTargetTable::CalibrationTargetTable(QWidget* parent)
   setHorizontalHeaderItem(2, new QTableWidgetItem("x [m]"));
   setHorizontalHeaderItem(3, new QTableWidgetItem("y [m]"));
 
-  horizontalHeader()->sectionSizeHint(100);
-  horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-
-  resizeColumnsToContents();
+  stretchColumns();
 
   disconnect(horizontalHeader(), SIGNAL(sectionPressed(int)), this, SLOT(selectColumn(int)));
   disconnect(verticalHeader(), SIGNAL(sectionPressed(int)), this, SLOT(selectRow(int)));
 }
 
-void CalibrationTargetTable::updateTable(const QVector<const Well*> wells)
+void CalibrationTargetTable::stretchColumns()
+{
+  horizontalHeader()->sectionSizeHint(100);
+  horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+  resizeColumnsToContents();
+}
+
+void CalibrationTargetTable::updateTable(const QVector<const Well*> wells, const QMap<QString, QSet<int>>& propertyNamesPerWell)
 {
   QSignalBlocker blocker(this);
   clearContents();
-  setRowCount(0);
-  int row = 0;
+  setRowCount(0);  
 
+  for (int i = columnCount() - 1; i>3; --i)
+  {
+    removeColumn(i);
+  }
+
+  int row = 0;
   for (const Well* well : wells)
   {
     QWidget* checkBoxWidget = new QWidget();
     CustomCheckbox* itemCheckBox = new CustomCheckbox();
     itemCheckBox->setCheckState(well->isActive() ? Qt::Checked : Qt::Unchecked);
 
-    QHBoxLayout *layoutCheckBox = new QHBoxLayout(checkBoxWidget);
+    QHBoxLayout* layoutCheckBox = new QHBoxLayout(checkBoxWidget);
     layoutCheckBox->addWidget(itemCheckBox);
     layoutCheckBox->setAlignment(Qt::AlignCenter);
     layoutCheckBox->setContentsMargins(0,0,0,0);
@@ -69,6 +78,32 @@ void CalibrationTargetTable::updateTable(const QVector<const Well*> wells)
     }
     ++row;
   }
+
+  QIcon icon(":/Done.png");
+  QPixmap pixmapDone = icon.pixmap(20,20);
+  setColumnCount(4 + propertyNamesPerWell.size());
+  int col = 4;
+  for (const QString& propertyName : propertyNamesPerWell.keys())
+  {
+    setHorizontalHeaderItem(col, new QTableWidgetItem(propertyName));
+    for (const int row : propertyNamesPerWell[propertyName])
+    {
+      QWidget* checkWidget = new QWidget();
+      QLabel* checkItem = new QLabel();
+      checkItem->setPixmap(pixmapDone);
+      checkItem->setAlignment(Qt::AlignHCenter);
+
+      QHBoxLayout* layoutCheckBox = new QHBoxLayout(checkWidget);
+      layoutCheckBox->addWidget(checkItem);
+      layoutCheckBox->setAlignment(Qt::AlignCenter);
+      layoutCheckBox->setContentsMargins(0,0,0,0);
+
+      setCellWidget(row, col, checkWidget);
+    }
+    col++;
+  }
+
+  stretchColumns();
 }
 
 void CalibrationTargetTable::selectAllWells()

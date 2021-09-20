@@ -22,6 +22,8 @@ const int defaultNumberCPUs{1};
 
 CasaScenario::CasaScenario(ProjectReader* projectReader) :
   applicationName_(defaultApplication),
+  calibrationTargetManager_(),
+  calibrationTargetManagerWellPrep_(),
   clusterName_(defaultClusterName),
   expertUser_(defaultExpertUser),
   numberCPUs_(defaultNumberCPUs),
@@ -132,6 +134,16 @@ CalibrationTargetManager& CasaScenario::calibrationTargetManager()
 const CalibrationTargetManager& CasaScenario::calibrationTargetManager() const
 {
   return calibrationTargetManager_;
+}
+
+CalibrationTargetManager& CasaScenario::calibrationTargetManagerWellPrep()
+{
+  return calibrationTargetManagerWellPrep_;
+}
+
+const CalibrationTargetManager& CasaScenario::calibrationTargetManagerWellPrep() const
+{
+  return calibrationTargetManagerWellPrep_;
 }
 
 QString CasaScenario::workingDirectory() const

@@ -8,6 +8,7 @@ class QTableWidgetItem;
 namespace casaWizard
 {
 
+class CalibrationTargetManager;
 class CalibrationTargetTable;
 class CasaScenario;
 
@@ -20,16 +21,25 @@ public:
                               CasaScenario& casaScenario,
                               QObject* parent);
 
-  void selectAllWells();
-  void clearWellSelection();
+
   void validateWells();
+
+  virtual CalibrationTargetManager& calibrationTargetManager();
+  virtual const CalibrationTargetManager& calibrationTargetManager() const;
+  virtual QMap<QString, QSet<int>> getPropertyNamesPerWell() const;
+
+  CasaScenario& casaScenario() const;
+
+public slots:
+  void slotSelectAllWells();
+  void slotClearWellSelection();
 
 private slots:
   void slotCalibrationTargetCheckBoxStateChanged(int state, int wellIndex);
   void slotRefresh();
 
 private:
-  CalibrationTargetTable* calibrationTable_;
+  CalibrationTargetTable* calibrationTable_;  
   CasaScenario& casaScenario_;
 };
 

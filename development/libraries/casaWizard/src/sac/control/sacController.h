@@ -10,7 +10,6 @@
 
 #include <QObject>
 #include <QVector>
-#include <QMessageBox>
 
 class QString;
 class QTableWidgetItem;
@@ -23,7 +22,6 @@ class CalibrationTargetController;
 class CalibrationTargetManager;
 class ScriptRunController;
 class ObjectiveFunctionControllerSAC;
-class ImportWellPopupController;
 
 namespace sac
 {
@@ -45,8 +43,7 @@ public:
                 QObject* parent);
 
 private slots:
-  void slotPushSelectProject3dClicked();
-  void slotPushSelectCalibrationClicked();
+  void slotPushSelectProject3dClicked();  
   void slotPushButtonSACrunCasaClicked();
 
   void slotComboBoxClusterCurrentTextChanged(QString clusterName);
@@ -54,31 +51,24 @@ private slots:
 
   void slotExtractData();
   void slotUpdateTabGUI(int tabID);
-  void slotPushSelectAllWellsClicked();
-  void slotPushClearSelectionClicked();
 
   void slotRunOriginal1D();
-  void slotRunOriginal3D();
-
-  void slotCloseWaitingDialog();
+  void slotRunOriginal3D();  
 
 signals:
   void signalRefreshChildWidgets();
 
 private:
-  void refreshGUI();
-  void importOnSeparateThread(casaWizard::CalibrationTargetManager& temporaryImportCalibrationTargetManager, const QString& fileName);
+  void refreshGUI();  
 
   SACtab* sacTab_;
   SACScenario& casaScenario_;
   ScriptRunController& scriptRunController_;
-  QMessageBox importingPopup_;
 
   CalibrationTargetController* calibrationTargetController_;
   DataExtractionController* dataExtractionController_;
   LithofractionController* lithofractionController_;
-  ObjectiveFunctionControllerSAC* objectiveFunctionController_;
-  ImportWellPopupController* importWellPopupController_;
+  ObjectiveFunctionControllerSAC* objectiveFunctionController_;  
 };
 
 } // namespace sac

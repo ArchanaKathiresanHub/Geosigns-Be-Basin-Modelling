@@ -6,7 +6,6 @@
 #include "view/components/customtitle.h"
 #include "view/components/emphasisbutton.h"
 #include "view/components/helpLabel.h"
-#include "view/importWellPopup.h"
 
 #include <QComboBox>
 #include <QHBoxLayout>
@@ -30,15 +29,13 @@ SACtab::SACtab(QWidget* parent) :
   calibrationTargetTable_{new CalibrationTargetTable(this)},
   lithofractionTable_{new LithofractionTable(this)},
   objectiveFunctionTable_{new ObjectiveFunctionTableSAC(this)},
-  pushSelectCalibration_{new QPushButton("Select input file", this)},
   pushSelectAllWells_{new QPushButton("Select all", this)},
   pushClearSelection_{new QPushButton("Deselect all", this)},
   comboBoxApplication_{new QComboBox(this)},
   comboBoxCluster_{new QComboBox(this)},
   pushButtonSACrunCASA_{new EmphasisButton("Run 1D optimization", this)},
   buttonRunOriginal1D_{new QPushButton("Run original 1D", this)},
-  buttonRunOriginal3D_{new QPushButton("Run original 3D", this)},
-  importWellPopup_{new ImportWellPopup()}
+  buttonRunOriginal3D_{new QPushButton("Run original 3D", this)}
 {
   comboBoxApplication_->insertItems(0, {"Iteratively Coupled", "Hydrostatic"});
   comboBoxCluster_->insertItems(0, {"LOCAL", "CLUSTER"});
@@ -51,7 +48,7 @@ SACtab::SACtab(QWidget* parent) :
   lineEditProject3D_->setReadOnly(true);
 
   QHBoxLayout* layoutCalibrationOptions = new QHBoxLayout();
-  layoutCalibrationOptions->addWidget(pushSelectCalibration_);
+  layoutCalibrationOptions->addWidget(new CustomTitle("Calibration Targets"));
   layoutCalibrationOptions->addWidget(pushSelectAllWells_);
   layoutCalibrationOptions->addWidget(pushClearSelection_);
   layoutCalibrationOptions->setStretch(0,4);
@@ -88,8 +85,7 @@ SACtab::SACtab(QWidget* parent) :
   lithofractionLayout->addWidget(lithofractionTable_);
   layoutTablesAndOptions->addLayout(lithofractionLayout,0,0,1,3);
 
-  QVBoxLayout* calibrationTargetTableLayout = new QVBoxLayout();
-  calibrationTargetTableLayout->addWidget(new CustomTitle("Calibration Targets"));
+  QVBoxLayout* calibrationTargetTableLayout = new QVBoxLayout();  
   calibrationTargetTableLayout->addLayout(layoutCalibrationOptions);
   calibrationTargetTableLayout->addWidget(calibrationTargetTable_);
 
@@ -143,11 +139,6 @@ QComboBox* SACtab::comboBoxCluster() const
   return comboBoxCluster_;
 }
 
-const QPushButton* SACtab::pushSelectCalibration() const
-{
-  return pushSelectCalibration_;
-}
-
 const QPushButton*SACtab::pushSelectAllWells() const
 {
   return pushSelectAllWells_;
@@ -171,11 +162,6 @@ const QPushButton* SACtab::buttonRunOriginal1D() const
 const QPushButton* SACtab::buttonRunOriginal3D() const
 {
   return buttonRunOriginal3D_;
-}
-
-ImportWellPopup* SACtab::importWellPopup() const
-{
-  return importWellPopup_;
 }
 
 } // namespace sac

@@ -16,7 +16,9 @@
 #include "model/wellTrajectory.h"
 
 #include "view/components/customtitle.h"
+#include "view/components/customradiobutton.h"
 
+#include <QButtonGroup>
 #include <QHeaderView>
 #include <QLabel>
 #include <QLayout>
@@ -37,6 +39,7 @@ namespace sac
 
 ResultsTab::ResultsTab(QWidget* parent) :
   QWidget(parent),
+  wellPrepOrSAC_{new QButtonGroup(this)},
   selectAll_{new QPushButton("Select all", this)},
   selectClear_{new QPushButton("Clear selection", this)},
   wellsList_{new QListWidget(this)},
@@ -50,6 +53,17 @@ ResultsTab::ResultsTab(QWidget* parent) :
 {
   colorMap_->setColorMapType("Gray scale");
 
+  CustomRadioButton* sacDataButton = new CustomRadioButton("SAC data", this);
+  sacDataButton->setChecked(true);
+  CustomRadioButton* wellPrepDataButton = new CustomRadioButton("WellPrep data", this);
+
+  wellPrepOrSAC_->addButton(sacDataButton, 0);
+  wellPrepOrSAC_->addButton(wellPrepDataButton, 1);
+  QHBoxLayout* dataLayout = new QHBoxLayout();
+  dataLayout->addWidget(sacDataButton);
+  dataLayout->addWidget(wellPrepDataButton);
+
+
   QHBoxLayout* selectionLayout = new QHBoxLayout();
   selectionLayout->addWidget(selectAll_);
   selectionLayout->addWidget(selectClear_);
@@ -59,6 +73,7 @@ ResultsTab::ResultsTab(QWidget* parent) :
   // List with wells
   QVBoxLayout* wellList = new QVBoxLayout();
   wellList->addWidget(new CustomTitle("Wells"), 0);
+  wellList->addLayout(dataLayout, 0);
   wellList->addWidget(wellsList_, 1);
   wellList->addLayout(selectionLayout);
   wellList->addWidget(wellBirdsView_, 0);
@@ -104,6 +119,11 @@ QTableWidgetItem* ResultsTab::createHeaderItem(const QString& name, int align)
   item->setFont(font);
   item->setTextAlignment(align);
   return item;
+}
+
+QButtonGroup* ResultsTab::wellPrepOrSAC() const
+{
+  return wellPrepOrSAC_;
 }
 
 QListWidget* ResultsTab::wellsList() const

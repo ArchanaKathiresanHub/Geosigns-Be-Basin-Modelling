@@ -17,26 +17,21 @@ namespace casaWizard
 
 class CalibrationTargetManager;
 
-namespace sac
-{
-
-class SACScenario;
+class CasaScenario;
 
 class LoadTargetsThread : public QThread
 {
   Q_OBJECT
 public:
-  LoadTargetsThread(SACScenario& casaScenario, casaWizard::CalibrationTargetManager& calibrationTargetManager, const QString& fileName, QObject* parent = nullptr);
+  LoadTargetsThread(CasaScenario& casaScenario, casaWizard::CalibrationTargetManager& calibrationTargetManager, const QString& fileName, QObject* parent = nullptr);
   void run() override;
 
 private:
-  SACScenario& casaScenario_;
+  CasaScenario& casaScenario_;
   const QString& fileName_;
   CalibrationTargetManager& calibrationTargetManager_;
 
 };
-
-} // namespace sac
 
 } // namespace casaWizard
 

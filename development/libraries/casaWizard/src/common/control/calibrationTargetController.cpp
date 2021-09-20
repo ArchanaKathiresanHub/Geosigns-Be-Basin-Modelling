@@ -23,32 +23,49 @@ CalibrationTargetController::CalibrationTargetController(CalibrationTargetTable*
   connect(parent, SIGNAL(signalRefreshChildWidgets()), this, SLOT(slotRefresh()));
 }
 
-void CalibrationTargetController::validateWells()
+CalibrationTargetManager& CalibrationTargetController::calibrationTargetManager()
 {
-  CalibrationTargetManager& calibrationTargetManager = casaScenario_.calibrationTargetManager();
-  calibrationTargetManager.disableInvalidWells(casaScenario_.project3dPath().toStdString(), casaScenario_.projectReader().getDepthGridName(0).toStdString());
+  return casaScenario_.calibrationTargetManager();
 }
 
-void CalibrationTargetController::selectAllWells()
+const CalibrationTargetManager& CalibrationTargetController::calibrationTargetManager() const
+{
+  return casaScenario_.calibrationTargetManager();
+}
+
+QMap<QString, QSet<int>> CalibrationTargetController::getPropertyNamesPerWell() const
+{
+  return {};
+}
+
+void CalibrationTargetController::validateWells()
+{  
+  calibrationTargetManager().disableInvalidWells(casaScenario_.project3dPath().toStdString(), casaScenario_.projectReader().getDepthGridName(0).toStdString());
+}
+
+void CalibrationTargetController::slotSelectAllWells()
 {
   calibrationTable_->selectAllWells();
 }
 
-void CalibrationTargetController::clearWellSelection()
+void CalibrationTargetController::slotClearWellSelection()
 {
   calibrationTable_->clearWellSelection();
 }
 
 void CalibrationTargetController::slotRefresh()
+{  
+  calibrationTable_->updateTable(calibrationTargetManager().wells(), getPropertyNamesPerWell());
+}
+
+CasaScenario& CalibrationTargetController::casaScenario() const
 {
-  const CalibrationTargetManager& calibrationTargetManager = casaScenario_.calibrationTargetManager();
-  calibrationTable_->updateTable(calibrationTargetManager.wells());
+  return casaScenario_;
 }
 
 void CalibrationTargetController::slotCalibrationTargetCheckBoxStateChanged(int state, int wellIndex)
-{
-  CalibrationTargetManager& calibrationTargetManager = casaScenario_.calibrationTargetManager();
-  calibrationTargetManager.setWellIsActive(state == Qt::Checked, wellIndex);
+{  
+  calibrationTargetManager().setWellIsActive(state == Qt::Checked, wellIndex);
 }
 
 }  // namespace casaWizard

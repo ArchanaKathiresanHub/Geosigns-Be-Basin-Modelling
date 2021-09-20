@@ -9,15 +9,12 @@
 #include "loadTargetsThread.h"
 
 #include "model/input/calibrationTargetCreator.h"
-#include "model/sacScenario.h"
+#include "model/casaScenario.h"
 
 namespace casaWizard
 {
 
-namespace sac
-{
-
-LoadTargetsThread::LoadTargetsThread(SACScenario& casaScenario, CalibrationTargetManager& calibrationTargetManager, const QString& fileName, QObject* parent) :
+LoadTargetsThread::LoadTargetsThread(CasaScenario& casaScenario, CalibrationTargetManager& calibrationTargetManager, const QString& fileName, QObject* parent) :
   QThread(parent),
   casaScenario_{casaScenario},
   fileName_{fileName},
@@ -30,7 +27,5 @@ void LoadTargetsThread::run()
   CalibrationTargetCreator targetCreator(casaScenario_, calibrationTargetManager_);
   targetCreator.createFromExcel(fileName_);
 }
-
-} // namespace sac
 
 } // namespace casaWizard
