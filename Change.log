@@ -36,6 +36,17 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2021-09-20  Erik.vandenBoogaard  <Erik.vandenBoogaard@shell.com>
+
+	chg: Well prep tab.
+	* Well prep tab is added according to UX design
+
+	* Related work items: #417583
+
+	================== COMMIT-END ========================
+	Commit-ID:<0a411d4e71fe9183c25111c3df7682a82a18b408>	  (refs/heads/master)
+
+++
 2021-09-15  Richard Faasse  <Richard.Faasse@shell.com>
 
 	fix: Moved title to window title of well import pop-up SAC wizard !minor
