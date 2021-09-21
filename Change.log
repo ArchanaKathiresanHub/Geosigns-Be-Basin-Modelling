@@ -36,6 +36,15 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2021-09-21  Richard Faasse  <Richard.Faasse@shell.com>
+
+	chg: Added filter functionality in the well preparation tool-kit.
+	* This includes the functionality to remove wells outside of the basin area in the xy plane and below the basement/above the mudline
+	* Related work items: #417593
+	================== COMMIT-END ========================
+	Commit-ID:<b54e9420978fa0d6c510790e2e9ae7e7c007a480>	  (refs/heads/master, refs/heads/Developers/Richard.Faasse/UpdateChangeLog)
+
+++
 2021-09-20  Erik.vandenBoogaard  <Erik.vandenBoogaard@shell.com>
 
 	chg: Well prep tab.
