@@ -443,4 +443,42 @@ QString CalibrationTargetManager::getCauldronPropertyName(const QString& userPro
   return userNameToCauldronNameMapping_.value(userPropertyName, "Unknown");
 }
 
+void CalibrationTargetManager::removeDataOutsideModelDepths(const std::vector<double>& basementDepthsAtActiveWellLocations, const std::vector<double>& mudlineDepthsAtActiveWellLocations)
+{
+  int counter = 0;
+  for (Well& well : wells_)
+  {
+    if (well.isActive())
+    {
+      if (well.removeDataBelowDepth(basementDepthsAtActiveWellLocations[counter]))
+      {
+        Logger::log() << "Data below the basement has been removed for well: " << well.name() << Logger::endl();
+      }
+      if (well.removeDataAboveDepth(mudlineDepthsAtActiveWellLocations[counter]))
+      {
+        Logger::log() << "Data above the mudline has been removed for well: " << well.name() << Logger::endl();
+      }
+      counter++;
+    }
+  }
+}
+
+void CalibrationTargetManager::removeWellsOutsideBasinOutline(const std::string& projectFileName, const std::string& depthGridName)
+{
+  CMBMapReader mapReader;
+  mapReader.load(projectFileName);
+  WellValidator validator(mapReader);
+  QStringList usedWellNames;
+  for (int i = wells_.size() - 1; i >= 0; i--)
+  {
+    const WellState wellState = validator.wellState(wells_[i], depthGridName, usedWellNames);
+
+    if (wellState == WellState::invalidLocation)
+    {
+      Logger::log() << "Well " << wells_[i].name() << " is outside of the basin model outline and is therefore removed." << Logger::endl();
+      wells_.remove(i);
+    }
+  }
+}
+
 } // namespace casaWizard

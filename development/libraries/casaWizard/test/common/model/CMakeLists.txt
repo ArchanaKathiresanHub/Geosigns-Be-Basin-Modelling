@@ -9,6 +9,7 @@ add_casawizard_common_gtest( NAME TargetMapCreator         SOURCES testTargetMap
 add_casawizard_common_gtest( NAME LithofractionMap         SOURCES testLithofractionMap.cpp )
 add_casawizard_common_gtest( NAME ScenarioBackup           SOURCES testScenarioBackup.cpp )
 add_casawizard_common_gtest( NAME WellValidator            SOURCES testWellValidator.cpp )
+add_casawizard_common_gtest( NAME Well                     SOURCES testWell.cpp )
 
 configure_file( TestWellValidator.project3d TestWellValidator.project3d COPYONLY )
 configure_file( Inputs.HDF Inputs.HDF COPYONLY )

@@ -29,20 +29,24 @@ public:
   Well() = default;
   explicit Well(const int id, const QString& name, const double x, const double y, const bool isActive = true, const bool isExcluded = false,
                 const QVector<CalibrationTarget> calibrationTargets = {});
-  int version() const;
 
+  int version() const;
   void writeToFile(ScenarioWriter& writer) const override;
   void readFromFile(const ScenarioReader& reader) override;
   void readFromFile(const ScenarioReader& reader, const int wellIndex);
   void clear() override;
 
-  int id() const;
-  void setId(const int id);
+  QVector<const CalibrationTarget*> calibrationTargets() const;
   QString name() const;
   double x() const;
   double y() const;
+
+  int id() const;
+  void setId(const int id);
+
   bool isActive() const;
   void setIsActive(const bool isActive);
+
   bool isExcluded() const;
   void setIsExcluded(const bool isExcluded);
 
@@ -52,15 +56,12 @@ public:
   QVector<bool> hasDataInLayer() const;
   void setHasDataInLayer(QVector<bool> hasDataInLayer);
 
-  QVector<const CalibrationTarget*> calibrationTargets() const;
-  void setCalibrationTargets(const QVector<CalibrationTarget>& calibrationTargets);
   void addCalibrationTarget(const QString& name, const QString& propertyUserName, const double z, const double value);
-
   void applyObjectiveFunction(const ObjectiveFunctionManager& objectiveFunction);
-
   void shift(const double xShift);
-
   void renameUserPropertyName(const QString& oldName, const QString& newName);
+  bool removeDataBelowDepth(const double depth);
+  bool removeDataAboveDepth(const double depth);
 
 private:
   int id_;

@@ -343,3 +343,34 @@ TEST(CalibrationTargetManagerTest, testRenamePropertyUserName)
     EXPECT_EQ(calibrationTarget->propertyUserName().toStdString(), "newPropertyUserName");
   }
 }
+
+TEST(CalibrationTargetManagerTest, testRemoveDataOutofModelDepths)
+{
+  std::vector<double> basementDepthsActiveAtWellLocations = {6000, 5000};
+  std::vector<double> mudlineDepthsAtActiveWellLocations = {0, 150};
+
+  casaWizard::CalibrationTargetManager manager;
+  manager.addWell("Well1", 100, 200);
+  manager.addCalibrationTarget("Calibrationtarget1", "TWTT", 0, -10, 4.0); // Invalid
+  manager.addCalibrationTarget("Calibrationtarget2", "TWTT", 0, 100, 4.0);
+  manager.addCalibrationTarget("Calibrationtarget3", "TWTT", 0, 5500, 4.0);
+  manager.addCalibrationTarget("Calibrationtarget4", "TWTT", 0, 8000, 4.0); // Invalid
+
+  manager.addWell("Well2", 200, 100);
+  manager.addCalibrationTarget("Calibrationtarget1", "TWTT", 1, -10, 4.0);
+  manager.addCalibrationTarget("Calibrationtarget2", "TWTT", 1, 100, 4.0);
+  manager.addCalibrationTarget("Calibrationtarget3", "TWTT", 1, 5500, 4.0);
+  manager.addCalibrationTarget("Calibrationtarget4", "TWTT", 1, 8000, 4.0);
+  manager.setWellIsActive(false, 1);
+
+  manager.addWell("Well3", 300, 100);
+  manager.addCalibrationTarget("Calibrationtarget1", "TWTT", 2, -10, 4.0); // Invalid
+  manager.addCalibrationTarget("Calibrationtarget2", "TWTT", 2, 100, 4.0); // Invalid
+  manager.addCalibrationTarget("Calibrationtarget3", "TWTT", 2, 5500, 4.0); // Invalid
+  manager.addCalibrationTarget("Calibrationtarget4", "TWTT", 2, 8000, 4.0); // Invalid
+
+  manager.removeDataOutsideModelDepths(basementDepthsActiveAtWellLocations, mudlineDepthsAtActiveWellLocations);
+  EXPECT_EQ(manager.wells()[0]->calibrationTargets().size(), 2);
+  EXPECT_EQ(manager.wells()[1]->calibrationTargets().size(), 4); // Well was inactive, so nothing happened
+  EXPECT_EQ(manager.wells()[2]->calibrationTargets().size(), 0);
+}

@@ -1,10 +1,15 @@
 #include "well.h"
 
+#include "logger.h"
 #include "model/scenarioIO.h"
 #include "objectiveFunctionManager.h"
 #include "scenarioReader.h"
 #include "scenarioWriter.h"
+
+
 #include <QStringList>
+
+#include <cmath>
 
 namespace casaWizard
 {
@@ -158,11 +163,6 @@ QVector<const CalibrationTarget*> Well::calibrationTargets() const
   return targets;
 }
 
-void Well::setCalibrationTargets(const QVector<CalibrationTarget>& calibrationTargets)
-{
-  calibrationTargets_ = calibrationTargets;
-}
-
 void Well::addCalibrationTarget(const QString& name, const QString& propertyUserName,
                                 const double z, const double value)
 {
@@ -202,6 +202,36 @@ void Well::renameUserPropertyName(const QString& oldName, const QString& newName
       target.setPropertyUserName(newName);
     }
   }
+}
+
+bool Well::removeDataBelowDepth(const double depth)
+{
+  bool hasRemovedData = false;
+  for (int i = calibrationTargets_.size() - 1; i >= 0; i--)
+  {
+    if (calibrationTargets_[i].z() > depth)
+    {
+      calibrationTargets_.remove(i);
+      hasRemovedData = true;
+    }
+  }
+
+  return hasRemovedData;
+}
+
+bool Well::removeDataAboveDepth(const double depth)
+{
+  bool hasRemovedData = false;
+  for (int i = calibrationTargets_.size() - 1; i >= 0; i--)
+  {
+    if (calibrationTargets_[i].z() < depth)
+    {
+      calibrationTargets_.remove(i);
+      hasRemovedData = true;
+    }
+  }
+
+  return hasRemovedData;
 }
 
 } // namespace casaWizard

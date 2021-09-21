@@ -53,6 +53,8 @@ public:
   void addToMapping(const QString& userName, const QString& cauldronName);
   QString getCauldronPropertyName(const QString& userPropertyName) const;
 
+  void removeDataOutsideModelDepths(const std::vector<double>& basementDepthsAtActiveWellLocations, const std::vector<double>& mudlineDepthsAtActiveWellLocations);
+  void removeWellsOutsideBasinOutline(const std::string& projectFileName, const std::string& depthGridName);
   void clear() override;
   void writeToFile(ScenarioWriter& writer) const override;
   void readFromFile(const ScenarioReader& reader) override;

@@ -38,7 +38,7 @@ WellPrepTab::WellPrepTab(QWidget* parent) :
   buttonVPtoDT_{new QPushButton("Convert VP log to DT log", this)},
   buttonDTtoTWT_{new QPushButton("Convert DT log to TWT log", this)},
   buttonCropOutline_{new QPushButton("Remove locations outside basin outline", this)},
-  buttonCropBasement_{new QPushButton("Remove data below basement", this)},
+  buttonCropBasement_{new QPushButton("Remove data below basement and above mudline", this)},
   buttonExport_{new QPushButton("Export selected wells", this)},
   buttonToSAC_{new QPushButton("Save selection for SAC", this)},
   buttonSelectAll_{new QPushButton("Select all",this)},

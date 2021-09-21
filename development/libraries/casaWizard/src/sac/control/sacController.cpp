@@ -284,10 +284,10 @@ void SACcontroller::slotRunOriginal3D()
 
 void SACcontroller::slotPushSelectProject3dClicked()
 {
-  QString fileName = QFileDialog::getOpenFileName(sacTab_,
-                                                  "Select project file",
-                                                  casaScenario_.project3dPath(),
-                                                  "Project files (*.project3d *.project1d)");
+  const QString fileName = QFileDialog::getOpenFileName(sacTab_,
+                                                        "Select project file",
+                                                        casaScenario_.project3dPath(),
+                                                        "Project files (*.project3d *.project1d)");
   if (fileName == "")
   {
     return;

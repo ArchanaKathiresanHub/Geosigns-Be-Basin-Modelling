@@ -14,6 +14,10 @@
 #include "control/importWellPopupController.h"
 #include "control/loadTargetsThread.h"
 #include "model/casaScenario.h"
+#include "model/input/cmbMapReader.h"
+#include "model/logger.h"
+#include "model/wellValidator.h"
+
 #include "view/wellPrepTab.h"
 #include "view/calibrationTargetTable.h"
 #include "view/components/emphasisbutton.h"
@@ -46,6 +50,8 @@ WellPrepController::WellPrepController(WellPrepTab* wellPrepTab,
   connect(wellPrepTab->buttonDeselectAll(), SIGNAL(clicked()), calibrationTargetController_, SLOT(slotClearWellSelection()));
 
   connect(wellPrepTab->openDataFileButton(), SIGNAL(clicked()), this, SLOT(slotPushSelectCalibrationClicked()));
+  connect(wellPrepTab->buttonCropBasement(), SIGNAL(clicked()), this, SLOT(slotRemoveDataBelowBasementAndAboveMudline()));
+  connect(wellPrepTab->buttonCropOutline(), SIGNAL(clicked()), this, SLOT(slotRemoveWellsOutOfBasinOutline()));
 }
 
 void WellPrepController::slotUpdateTabGUI(int tabID)
@@ -119,6 +125,46 @@ void WellPrepController::importOnSeparateThread(CalibrationTargetManager& tempor
 void WellPrepController::slotCloseWaitingDialog()
 {
   importingPopup_.done(0);
+}
+
+void WellPrepController::slotRemoveDataBelowBasementAndAboveMudline()
+{
+  Logger::log() << "Starting removal of data below the basement or above the mudline of the domain model..." << Logger::endl();
+
+  CalibrationTargetManager& calibrationManager = casaScenario_.calibrationTargetManager();
+  CMBMapReader mapReader;
+  mapReader.load(casaScenario_.project3dPath().toStdString());
+  const QStringList surfaceNames = casaScenario_.projectReader().surfaceNames();
+  const QString basementGridName = casaScenario_.projectReader().getDepthGridName(surfaceNames.size() - 1);
+  const QString mudlineGridName = casaScenario_.projectReader().getDepthGridName(0);
+
+  std::vector<double> basementDepthsAtActiveWellLocations;
+  std::vector<double> mudlineDepthsAtActiveWellLocations;
+
+  for (const Well* well : calibrationManager.activeWells())
+  {
+    if (well->isActive())
+    {
+      basementDepthsAtActiveWellLocations.push_back(mapReader.getValue(well->x(), well->y(), basementGridName.toStdString()));
+      mudlineDepthsAtActiveWellLocations.push_back(mapReader.getValue(well->x(), well->y(), mudlineGridName.toStdString()));
+    }
+  }
+
+  calibrationManager.removeDataOutsideModelDepths(basementDepthsAtActiveWellLocations, mudlineDepthsAtActiveWellLocations);
+
+  Logger::log() << "Done!" << Logger::endl();
+}
+
+void WellPrepController::slotRemoveWellsOutOfBasinOutline()
+{
+  Logger::log() << "Starting removal of wells outside of the basin outline model..." << Logger::endl();
+
+  casaScenario_.calibrationTargetManagerWellPrep().removeWellsOutsideBasinOutline(casaScenario_.project3dPath().toStdString(),
+                                                                                  casaScenario_.projectReader().getDepthGridName(0).toStdString());
+
+  refreshGUI();
+
+  Logger::log() << "Done!" << Logger::endl();
 }
 
 } // namespace casaWizard

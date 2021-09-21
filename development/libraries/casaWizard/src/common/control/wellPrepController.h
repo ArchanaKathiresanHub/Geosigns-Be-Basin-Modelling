@@ -44,9 +44,11 @@ public slots:
 private slots:
   void slotPushSelectCalibrationClicked();
   void slotCloseWaitingDialog();
+  void slotRemoveDataBelowBasementAndAboveMudline();
+  void slotRemoveWellsOutOfBasinOutline();
 
 private:
-
+  bool allActiveWellsHave1DResults();
   void importOnSeparateThread(CalibrationTargetManager& temporaryImportCalibrationTargetManager, const QString& fileName);
 
   WellPrepTab* wellPrepTab_;
