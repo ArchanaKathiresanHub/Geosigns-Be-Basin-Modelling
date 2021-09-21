@@ -38,7 +38,7 @@ create_bm_library( TARGET ${CASAWIZARD_COMMON_LIBNAME}
                    ADD_HEADERS ${CASAWIZARD_COMMON_H_HEADERS} )
 
 create_bm_library( TARGET ${CASAWIZARD_COMMON_MODEL_LIBNAME}
-                  LIBRARIES Qt5::Core QtXlsx cmbapi utilities DataAccess SerialDataAccess TableIO DataModel
+                  LIBRARIES Qt5::Core QtXlsx cmbapi utilities DataAccess SerialDataAccess TableIO DataModel DataExtraction
                   ADD_SOURCES ${CASAWIZARD_COMMON_MODEL_CPP_SOURCES}
                   ADD_HEADERS ${CASAWIZARD_COMMON_MODEL_H_HEADERS} )
 

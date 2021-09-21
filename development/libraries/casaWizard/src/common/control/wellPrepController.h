@@ -42,13 +42,16 @@ public slots:
   void slotUpdateTabGUI(int tabID);
 
 private slots:
-  void slotPushSelectCalibrationClicked();
   void slotCloseWaitingDialog();
+  void slotConvertDTToTWT();
+  void slotPushSelectCalibrationClicked();
   void slotRemoveDataBelowBasementAndAboveMudline();
   void slotRemoveWellsOutOfBasinOutline();
+  void slotWellSelectionChanged();
 
 private:
-  bool allActiveWellsHave1DResults();
+  bool allActiveWellsHave1DResults() const;
+  void checkEnabledStateButtons() const;
   void importOnSeparateThread(CalibrationTargetManager& temporaryImportCalibrationTargetManager, const QString& fileName);
 
   WellPrepTab* wellPrepTab_;

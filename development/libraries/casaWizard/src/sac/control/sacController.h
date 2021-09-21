@@ -60,6 +60,7 @@ signals:
 
 private:
   void refreshGUI();  
+  void renameCaseFolders(const QString& pathName);
 
   SACtab* sacTab_;
   SACScenario& casaScenario_;

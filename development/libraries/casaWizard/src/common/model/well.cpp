@@ -204,6 +204,17 @@ void Well::renameUserPropertyName(const QString& oldName, const QString& newName
   }
 }
 
+void Well::removeCalibrationTargetsWithPropertyUserName(const QString& propertyUserName)
+{
+  for (int i = calibrationTargets_.size() - 1; i >= 0  ; i--)
+  {
+    if (calibrationTargets_[i].propertyUserName() == propertyUserName)
+    {
+      calibrationTargets_.remove(i);
+    }
+  }
+}
+
 bool Well::removeDataBelowDepth(const double depth)
 {
   bool hasRemovedData = false;

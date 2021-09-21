@@ -11,6 +11,7 @@
 #include "control/casaScriptWriter.h"
 #include "control/scriptRunController.h"
 #include "model/case3DTrajectoryConvertor.h"
+#include "model/functions/cauldronPropertyUnits.h"
 #include "model/functions/interpolateVector.h"
 #include "model/input/case3DTrajectoryReader.h"
 #include "model/input/cmbMapReader.h"
@@ -26,6 +27,7 @@
 #include "view/resultsTab.h"
 #include "view/sacTabIDs.h"
 #include "view/wellCorrelationPlotLayout.h"
+
 
 #include "ConstantsMathematics.h"
 
@@ -140,6 +142,7 @@ void ResultsController::slotUpdateTabGUI(int tabID)
 void ResultsController::slotWellPrepOrSAC(int buttonId)
 {
   wellPrepWells_ = (buttonId == 1);
+  selectedWellsIDs_.clear();
 
   refreshGUI();
 }
@@ -376,7 +379,7 @@ QStringList ResultsController::getUnitsForProperties(const QVector<QVector<const
   for (QVector<const CalibrationTarget*> target : targets)
   {
     const QString cauldronName = calibrationTargetManager().getCauldronPropertyName(target.at(0)->propertyUserName());
-    units.push_back(scenario_.projectReader().getUnit(cauldronName));
+    units.push_back(QString::fromStdString(functions::getUnit(cauldronName.toStdString())));
   }
   return units;
 }

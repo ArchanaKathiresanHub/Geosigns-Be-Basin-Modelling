@@ -1,3 +1,4 @@
 add_casawizard_common_gtest( NAME InterpolateVector SOURCES testInterpolateVector.cpp )
 add_casawizard_common_gtest( NAME SortedByXWellIndices SOURCES testSortedByXWellIndices.cpp )
 add_casawizard_common_gtest( NAME RmseCalibrationTarget SOURCES testRmseCalibrationTarget.cpp )
+add_casawizard_common_gtest( NAME cauldronPropertyUnits SOURCES testCauldronPropertyUnits.cpp )

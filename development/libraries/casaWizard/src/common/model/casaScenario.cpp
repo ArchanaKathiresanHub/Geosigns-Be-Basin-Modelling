@@ -29,6 +29,7 @@ CasaScenario::CasaScenario(ProjectReader* projectReader) :
   numberCPUs_(defaultNumberCPUs),
   project3dFilename_(""),
   projectReader_(projectReader),
+  original1dDirectory_{"original1d"},
   runLocation_(defaultRunLocation),
   workingDirectory_("")
 {
@@ -149,6 +150,11 @@ const CalibrationTargetManager& CasaScenario::calibrationTargetManagerWellPrep()
 QString CasaScenario::workingDirectory() const
 {
   return workingDirectory_;
+}
+
+QString CasaScenario::original1dDirectory() const
+{
+  return workingDirectory() + "/" + original1dDirectory_;
 }
 
 QString CasaScenario::runLocation() const

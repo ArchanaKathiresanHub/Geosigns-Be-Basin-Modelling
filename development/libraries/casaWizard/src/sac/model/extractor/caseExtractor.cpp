@@ -66,7 +66,15 @@ void CaseExtractor::extractCase(const Well* well, const int caseIndex)
     Logger::log() << "Cannot read for " << well->name() << " because the iteration path is not set" << Logger::endl();
     return;
   }
-  const QString relativeDataFolder = "Case_" + QString::number(caseIndex);
+  QString relativeDataFolder;
+  if (iterationPath_.contains(scenario_.original1dDirectory()))
+  {
+    relativeDataFolder = well->name();
+  }
+  else
+  {
+    relativeDataFolder = "Case_" + QString::number(caseIndex);
+  }
 
   QDir data{iterationPath_ + "/" + relativeDataFolder};
   if (!data.exists())

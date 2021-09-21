@@ -40,7 +40,7 @@ public:
   const QPushButton* buttonApplySubsampling() const;
 
   const QPushButton* buttonVPtoDT() const;
-  const QPushButton* buttonDTtoTWT() const;
+  QPushButton* buttonDTtoTWT() const;
   QPushButton* buttonCropOutline() const;
   QPushButton* buttonCropBasement() const;
   const QPushButton* buttonExport() const;

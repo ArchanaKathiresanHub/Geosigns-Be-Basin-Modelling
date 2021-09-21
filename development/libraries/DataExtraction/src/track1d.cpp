@@ -126,7 +126,7 @@ std::vector<unsigned int> Track1d::retrieveKs( const FormationSurface& formation
   return ks;
 }
 
-void Track1d::acquireCoordinatePairs( DoublePairVector& realWorldCoordinatePairs, DoublePairVector& logicalCoordinatePairs )
+void Track1d::acquireCoordinatePairs( const DoublePairVector& realWorldCoordinatePairs, const DoublePairVector& logicalCoordinatePairs )
 {
   for ( const DoublePair& coordinatePair : realWorldCoordinatePairs )
   {
@@ -699,6 +699,39 @@ void Track1d::writeOutputStream( std::ostream& outputStream,
       }
     }
   }
+}
+
+std::vector<double> Track1d::getData(const string& propertyName)
+{
+  std::vector<double> propertyData;
+  for ( int coordPair = 0; coordPair < m_realWorldCoordinatePairs.size(); ++coordPair )
+  {
+    for ( const Snapshot* snapshot : m_snapshots )
+    {
+      for ( const FormationSurface& formationSurfacePair : m_formationSurfacePairs )
+      {
+        const Formation* formation = formationSurfacePair.first;
+        const Surface* surface = formationSurfacePair.second;
+
+        if ( m_allOutputPropertyValues[ snapshot ][ formation ][coordPair][ m_properties[ 0 ]].empty() ) continue;
+
+        const std::vector<unsigned int> ks = retrieveKs( formationSurfacePair );
+        for ( unsigned int k : ks )
+        {
+          const std::string formationSurfaceName = getFormationSurfaceName( ks, k, formation, surface);
+          for ( const Property* property : m_properties )
+          {
+            if (property->getName() == propertyName)
+            {
+              propertyData.push_back(m_allOutputPropertyValues[snapshot][formation][coordPair][property][k]);
+            }
+          }
+        }
+      }
+    }
+  }
+
+  return propertyData;
 }
 
 void Track1d::outputSnapshotFormationData( std::ostream& outputStream, double x, double y, double i, double j,

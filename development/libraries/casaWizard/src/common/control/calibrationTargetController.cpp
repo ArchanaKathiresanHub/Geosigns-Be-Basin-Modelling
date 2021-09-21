@@ -66,6 +66,7 @@ CasaScenario& CalibrationTargetController::casaScenario() const
 void CalibrationTargetController::slotCalibrationTargetCheckBoxStateChanged(int state, int wellIndex)
 {  
   calibrationTargetManager().setWellIsActive(state == Qt::Checked, wellIndex);
+  emit wellSelectionChanged();
 }
 
 }  // namespace casaWizard

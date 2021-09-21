@@ -28,6 +28,8 @@ public:
   QString workingDirectory() const;
   void setWorkingDirectory(const QString& workingDirectory);
 
+  QString original1dDirectory() const;
+
   QString clusterName() const;
   void setClusterName(const QString& clusterName);
 
@@ -74,6 +76,7 @@ private:
   int numberCPUs_;
   QString project3dFilename_;
   std::unique_ptr<ProjectReader> projectReader_;
+  QString original1dDirectory_;
   QString runLocation_;
   QString timeStamp_;
   QString workingDirectory_;

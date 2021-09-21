@@ -12,6 +12,7 @@
 
 #include "view/components/emphasisbutton.h"
 #include "view/components/customtitle.h"
+#include "view/components/helpLabel.h"
 #include "view/importWellPopup.h"
 
 #include <QComboBox>
@@ -88,13 +89,26 @@ WellPrepTab::WellPrepTab(QWidget* parent) :
 
   optionsLayout->addSpacing(20);
 
-  optionsLayout->addWidget(new CustomTitle("Data type conversions", this), 0, Qt::AlignLeft);
+  QHBoxLayout* dataTypeConversions = new QHBoxLayout();
+  dataTypeConversions->addWidget(new CustomTitle("Data type conversions", this), Qt::AlignLeft);
+  HelpLabel* helpLabeldataTypeConversion = new HelpLabel(this, "Use this section to convert data types for the selected wells. "
+                                                               "To enable a DT to TWT conversion, first run an Original 1d run "
+                                                               "on the Input Tab.");
+  dataTypeConversions->addWidget(helpLabeldataTypeConversion);
+  optionsLayout->addLayout(dataTypeConversions);
+
   optionsLayout->addWidget(buttonVPtoDT_);
   optionsLayout->addWidget(buttonDTtoTWT_);
 
   optionsLayout->addSpacing(20);
 
-  optionsLayout->addWidget(new CustomTitle("Cropping", this), 0, Qt::AlignLeft);
+  QHBoxLayout* cropping = new QHBoxLayout();
+  cropping->addWidget(new CustomTitle("Cropping", this), Qt::AlignLeft);
+  HelpLabel* helpLabelCropping = new HelpLabel(this, "Use this section to remove data outside of the basin model. To enable this "
+                                                     "functionality, select a Project File in the Input Tab");
+  cropping->addWidget(helpLabelCropping);
+  optionsLayout->addLayout(cropping);
+
   optionsLayout->addWidget(buttonCropOutline_);
   optionsLayout->addWidget(buttonCropBasement_);
 
@@ -169,7 +183,7 @@ const QPushButton* WellPrepTab::buttonVPtoDT() const
   return buttonVPtoDT_;
 }
 
-const QPushButton* WellPrepTab::buttonDTtoTWT() const
+QPushButton* WellPrepTab::buttonDTtoTWT() const
 {
   return buttonDTtoTWT_;
 }

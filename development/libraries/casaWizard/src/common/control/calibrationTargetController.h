@@ -38,6 +38,9 @@ private slots:
   void slotCalibrationTargetCheckBoxStateChanged(int state, int wellIndex);
   void slotRefresh();
 
+signals:
+  void wellSelectionChanged();
+
 private:
   CalibrationTargetTable* calibrationTable_;  
   CasaScenario& casaScenario_;

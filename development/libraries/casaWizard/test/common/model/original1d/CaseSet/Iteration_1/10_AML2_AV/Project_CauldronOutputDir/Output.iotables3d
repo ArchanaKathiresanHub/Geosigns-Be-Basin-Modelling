@@ -1,0 +1,534 @@
+;
+; START - Project_CauldronOutputDir/Output.iotables3d Tue Sep 14 09:13:00 2021
+;
+;
+; TimeIoTbl
+;
+[TimeIoTbl]
+;v100
+PropertyName Time SurfaceName FormationName MapFileName Average Minimum Maximum Sum Sum2 NP PropertyGrid
+  () (Ma)   ()   ()   ()   ()   ()   ()   ()   ()   ()   ()
+"ErosionFactor" 0 "" "Upper_North_Sea_Group_SL" "HydrostaticTemperature_Results.HDF" 1 1 1 4 4 4 "ErosionFactor_0__Upper_North_Sea_Group_SL"
+"ErosionFactor" 0 "" "Breda_on_Rupel_Lt_Oligo_hiatus" "HydrostaticTemperature_Results.HDF" 1 1 1 4 4 4 "ErosionFactor_0__Breda_on_Rupel_Lt_Oligo_hiatus"
+"ErosionFactor" 0 "" "Middle_North_Sea_Group_SL" "HydrostaticTemperature_Results.HDF" 1 1 1 4 4 4 "ErosionFactor_0__Middle_North_Sea_Group_SL"
+"ErosionFactor" 0 "" "Lower_North_Sea_Group_SL" "HydrostaticTemperature_Results.HDF" 1 1 1 4 4 4 "ErosionFactor_0__Lower_North_Sea_Group_SL"
+"ErosionFactor" 0 "" "Upper_Ommeland_Chalk_Group" "HydrostaticTemperature_Results.HDF" 1 1 1 4 4 4 "ErosionFactor_0__Upper_Ommeland_Chalk_Group"
+"ErosionFactor" 0 "" "Lower_Ommeland_Chalk_Group" "HydrostaticTemperature_Results.HDF" 1 1 1 4 4 4 "ErosionFactor_0__Lower_Ommeland_Chalk_Group"
+"ErosionFactor" 0 "" "Texel_Lr_Cret_undiff" "HydrostaticTemperature_Results.HDF" 1 1 1 4 4 4 "ErosionFactor_0__Texel_Lr_Cret_undiff"
+"ErosionFactor" 0 "" "Base_Cret_on_Trias_hiatus" "HydrostaticTemperature_Results.HDF" 1 1 1 4 4 4 "ErosionFactor_0__Base_Cret_on_Trias_hiatus"
+"ErosionFactor" 0 "" "Roer" "HydrostaticTemperature_Results.HDF" 1 1 1 4 4 4 "ErosionFactor_0__Roer"
+"ErosionFactor" 0 "" "Bunter" "HydrostaticTemperature_Results.HDF" 1 1 1 4 4 4 "ErosionFactor_0__Bunter"
+"ErosionFactor" 0 "" "Zechstein_Bunter_hiatus" "HydrostaticTemperature_Results.HDF" 1 1 1 4 4 4 "ErosionFactor_0__Zechstein_Bunter_hiatus"
+"ErosionFactor" 0 "" "Upper_Zechstein" "HydrostaticTemperature_Results.HDF" 1 1 1 4 4 4 "ErosionFactor_0__Upper_Zechstein"
+"ErosionFactor" 0 "" "Lowest_Zechstein" "HydrostaticTemperature_Results.HDF" 1 1 1 4 4 4 "ErosionFactor_0__Lowest_Zechstein"
+"ErosionFactor" 0 "" "Rotliegend" "HydrostaticTemperature_Results.HDF" 1 1 1 4 4 4 "ErosionFactor_0__Rotliegend"
+"ALCStepTopBasaltDepth" 0 "" "Crust" "HydrostaticTemperature_Results.HDF" 34050.6362312019 34050.6362312019 34050.6362312019 136202.544924808 4637783310.99856 4 "ALCStepTopBasaltDepth_0__Crust"
+"ALCStepMohoDepth" 0 "" "Crust" "HydrostaticTemperature_Results.HDF" 34050.6362312019 34050.6362312019 34050.6362312019 136202.544924808 4637783310.99856 4 "ALCStepMohoDepth_0__Crust"
+"Depth" 0 "Water_Bottom" "" "HydrostaticTemperature_Results.HDF" 0 0 0 0 0 4 "Depth_0_Water_Bottom_"
+"Depth" 0 "Base_Breda_Clay" "" "HydrostaticTemperature_Results.HDF" 562.183044433594 562.183044433594 562.183044433594 2248.73217773438 1264199.1017945 4 "Depth_0_Base_Breda_Clay_"
+"Depth" 0 "Top_Rupel" "" "HydrostaticTemperature_Results.HDF" 562.183044433594 562.183044433594 562.183044433594 2248.73217773438 1264199.1017945 4 "Depth_0_Top_Rupel_"
+"Depth" 0 "Top_Ieper" "" "HydrostaticTemperature_Results.HDF" 865.552001953125 865.552001953125 865.552001953125 3462.2080078125 2996721.07234025 4 "Depth_0_Top_Ieper_"
+"Depth" 0 "Top_Chalk_nr_20_NS_B" "" "HydrostaticTemperature_Results.HDF" 1228.33825683594 1228.33825683594 1228.33825683594 4913.35302734376 6035259.49282702 4 "Depth_0_Top_Chalk_nr_20_NS_B_"
+"Depth" 0 "Top_Lower_Ommeland_Chalk" "" "HydrostaticTemperature_Results.HDF" 1508.43237304688 1508.43237304688 1508.43237304688 6033.72949218752 9101472.89622336 4 "Depth_0_Top_Lower_Ommeland_Chalk_"
+"Depth" 0 "Top_Texel_nr_30_CK_B" "" "HydrostaticTemperature_Results.HDF" 1987.46350097656 1987.46350097656 1987.46350097656 7949.85400390624 15800044.670856 4 "Depth_0_Top_Texel_nr_30_CK_B_"
+"Depth" 0 "Base_Cretaceous_Hiatus_Unconformity" "" "HydrostaticTemperature_Results.HDF" 2187.2099609375 2187.2099609375 2187.2099609375 8748.83984375 19135549.6528969 4 "Depth_0_Base_Cretaceous_Hiatus_Unconformity_"
+"Depth" 0 "Eroded_top_Roer_nr_45_TR_T" "" "HydrostaticTemperature_Results.HDF" 2187.2099609375 2187.2099609375 2187.2099609375 8748.83984375 19135549.6528969 4 "Depth_0_Eroded_top_Roer_nr_45_TR_T_"
+"Depth" 0 "Eroded_top_Buntsandstein" "" "HydrostaticTemperature_Results.HDF" 2334.1787109375 2334.1787109375 2334.1787109375 9336.71484375 21793561.0183754 4 "Depth_0_Eroded_top_Buntsandstein_"
+"Depth" 0 "Base_Bunter_on_hiatus_nr_50_ZE_T" "" "HydrostaticTemperature_Results.HDF" 2385.61743164062 2385.61743164062 2385.61743164062 9542.46972656248 22764682.1205903 4 "Depth_0_Base_Bunter_on_hiatus_nr_50_ZE_T_"
+"Depth" 0 "Top_Zechstein_under_hiatus_nr_50_ZE_T" "" "HydrostaticTemperature_Results.HDF" 2385.61743164062 2385.61743164062 2385.61743164062 9542.46972656248 22764682.1205903 4 "Depth_0_Top_Zechstein_under_hiatus_nr_50_ZE_T_"
+"Depth" 0 "Top_Z2_nr_59_ZEZ2A_T" "" "HydrostaticTemperature_Results.HDF" 3308.86059570312 3308.86059570312 3308.86059570312 13235.4423828125 43794233.7671872 4 "Depth_0_Top_Z2_nr_59_ZEZ2A_T_"
+"Depth" 0 "Nr_Top_Rotliegend" "" "HydrostaticTemperature_Results.HDF" 3392.53149414062 3392.53149414062 3392.53149414062 13570.1259765625 46037079.754944 4 "Depth_0_Nr_Top_Rotliegend_"
+"Depth" 0 "Nr_Base_Rotliegend" "" "HydrostaticTemperature_Results.HDF" 4020.60620117188 4020.60620117188 4020.60620117188 16082.4248046875 64661096.8996071 4 "Depth_0_Nr_Base_Rotliegend_"
+"Depth" 0 "Bottom of Crust" "" "HydrostaticTemperature_Results.HDF" 34050.6362312019 34050.6362312019 34050.6362312019 136202.544924808 4637783310.99856 4 "Depth_0_Bottom_of_Crust_"
+"Depth" 0 "Bottom of Lithospheric Mantle" "" "HydrostaticTemperature_Results.HDF" 114050.636231202 114050.636231202 114050.636231202 456202.544924808 52030190498.9678 4 "Depth_0_Bottom_of_Lithospheric_Mantle_"
+"MaxVesVec2" 0 "Water_Bottom" "Upper_North_Sea_Group_SL" "HydrostaticTemperature_Results.HDF" 0 0 0 0 0 4 "MaxVesVec2_0_Water_Bottom_Upper_North_Sea_Group_SL"
+"MaxVesVec2" 0 "Base_Breda_Clay" "Upper_North_Sea_Group_SL" "HydrostaticTemperature_Results.HDF" 5350298.71389322 5350298.71389322 5350298.71389322 21401194.8555729 114502785311550 4 "MaxVesVec2_0_Base_Breda_Clay_Upper_North_Sea_Group_SL"
+"MaxVesVec2" 0 "Base_Breda_Clay" "Breda_on_Rupel_Lt_Oligo_hiatus" "HydrostaticTemperature_Results.HDF" 5350298.71389322 5350298.71389322 5350298.71389322 21401194.8555729 114502785311550 4 "MaxVesVec2_0_Base_Breda_Clay_Breda_on_Rupel_Lt_Oligo_hiatus"
+"MaxVesVec2" 0 "Top_Rupel" "Breda_on_Rupel_Lt_Oligo_hiatus" "HydrostaticTemperature_Results.HDF" 5350298.71389322 5350298.71389322 5350298.71389322 21401194.8555729 114502785311550 4 "MaxVesVec2_0_Top_Rupel_Breda_on_Rupel_Lt_Oligo_hiatus"
+"MaxVesVec2" 0 "Top_Rupel" "Middle_North_Sea_Group_SL" "HydrostaticTemperature_Results.HDF" 5350298.71389322 5350298.71389322 5350298.71389322 21401194.8555729 114502785311550 4 "MaxVesVec2_0_Top_Rupel_Middle_North_Sea_Group_SL"
+"MaxVesVec2" 0 "Top_Ieper" "Middle_North_Sea_Group_SL" "HydrostaticTemperature_Results.HDF" 8501323.09083578 8501323.09083578 8501323.09083578 34005292.3633431 289089977179110 4 "MaxVesVec2_0_Top_Ieper_Middle_North_Sea_Group_SL"
+"MaxVesVec2" 0 "Top_Ieper" "Lower_North_Sea_Group_SL" "HydrostaticTemperature_Results.HDF" 8501323.09083578 8501323.09083578 8501323.09083578 34005292.3633431 289089977179110 4 "MaxVesVec2_0_Top_Ieper_Lower_North_Sea_Group_SL"
+"MaxVesVec2" 0 "Top_Chalk_nr_20_NS_B" "Lower_North_Sea_Group_SL" "HydrostaticTemperature_Results.HDF" 12715576.0815826 12715576.0815826 12715576.0815826 50862304.3263306 646743500346066 4 "MaxVesVec2_0_Top_Chalk_nr_20_NS_B_Lower_North_Sea_Group_SL"
+"MaxVesVec2" 0 "Top_Chalk_nr_20_NS_B" "Upper_Ommeland_Chalk_Group" "HydrostaticTemperature_Results.HDF" 12715576.0815826 12715576.0815826 12715576.0815826 50862304.3263306 646743500346066 4 "MaxVesVec2_0_Top_Chalk_nr_20_NS_B_Upper_Ommeland_Chalk_Group"
+"MaxVesVec2" 0 "Top_Lower_Ommeland_Chalk" "Upper_Ommeland_Chalk_Group" "HydrostaticTemperature_Results.HDF" 16301819.4648226 16301819.4648226 16301819.4648226 65207277.8592905 1.06299727145468e+15 4 "MaxVesVec2_0_Top_Lower_Ommeland_Chalk_Upper_Ommeland_Chalk_Group"
+"MaxVesVec2" 0 "Top_Lower_Ommeland_Chalk" "Lower_Ommeland_Chalk_Group" "HydrostaticTemperature_Results.HDF" 16301819.4648226 16301819.4648226 16301819.4648226 65207277.8592905 1.06299727145468e+15 4 "MaxVesVec2_0_Top_Lower_Ommeland_Chalk_Lower_Ommeland_Chalk_Group"
+"MaxVesVec2" 0 "Top_Texel_nr_30_CK_B" "Lower_Ommeland_Chalk_Group" "HydrostaticTemperature_Results.HDF" 22829285.8552408 22829285.8552408 22829285.8552408 91317143.420963 2.08470517064118e+15 4 "MaxVesVec2_0_Top_Texel_nr_30_CK_B_Lower_Ommeland_Chalk_Group"
+"MaxVesVec2" 0 "Top_Texel_nr_30_CK_B" "Texel_Lr_Cret_undiff" "HydrostaticTemperature_Results.HDF" 22829285.8552408 22829285.8552408 22829285.8552408 91317143.420963 2.08470517064118e+15 4 "MaxVesVec2_0_Top_Texel_nr_30_CK_B_Texel_Lr_Cret_undiff"
+"MaxVesVec2" 0 "Base_Cretaceous_Hiatus_Unconformity" "Texel_Lr_Cret_undiff" "HydrostaticTemperature_Results.HDF" 25714164.8415562 25714164.8415562 25714164.8415562 102856659.366225 2.64487309399491e+15 4 "MaxVesVec2_0_Base_Cretaceous_Hiatus_Unconformity_Texel_Lr_Cret_undiff"
+"MaxVesVec2" 0 "Base_Cretaceous_Hiatus_Unconformity" "Base_Cret_on_Trias_hiatus" "HydrostaticTemperature_Results.HDF" 25714164.8415562 25714164.8415562 25714164.8415562 102856659.366225 2.64487309399491e+15 4 "MaxVesVec2_0_Base_Cretaceous_Hiatus_Unconformity_Base_Cret_on_Trias_hiatus"
+"MaxVesVec2" 0 "Eroded_top_Roer_nr_45_TR_T" "Base_Cret_on_Trias_hiatus" "HydrostaticTemperature_Results.HDF" 25714164.8415562 25714164.8415562 25714164.8415562 102856659.366225 2.64487309399491e+15 4 "MaxVesVec2_0_Eroded_top_Roer_nr_45_TR_T_Base_Cret_on_Trias_hiatus"
+"MaxVesVec2" 0 "Eroded_top_Roer_nr_45_TR_T" "Roer" "HydrostaticTemperature_Results.HDF" 25714164.8415562 25714164.8415562 25714164.8415562 102856659.366225 2.64487309399491e+15 4 "MaxVesVec2_0_Eroded_top_Roer_nr_45_TR_T_Roer"
+"MaxVesVec2" 0 "Eroded_top_Buntsandstein" "Roer" "HydrostaticTemperature_Results.HDF" 27787653.3271685 27787653.3271685 27787653.3271685 111150613.308674 3.0886147097236e+15 4 "MaxVesVec2_0_Eroded_top_Buntsandstein_Roer"
+"MaxVesVec2" 0 "Eroded_top_Buntsandstein" "Bunter" "HydrostaticTemperature_Results.HDF" 27787653.3271685 27787653.3271685 27787653.3271685 111150613.308674 3.0886147097236e+15 4 "MaxVesVec2_0_Eroded_top_Buntsandstein_Bunter"
+"MaxVesVec2" 0 "Base_Bunter_on_hiatus_nr_50_ZE_T" "Bunter" "HydrostaticTemperature_Results.HDF" 28491356.9588245 28491356.9588245 28491356.9588245 113965427.835298 3.24702968542063e+15 4 "MaxVesVec2_0_Base_Bunter_on_hiatus_nr_50_ZE_T_Bunter"
+"MaxVesVec2" 0 "Base_Bunter_on_hiatus_nr_50_ZE_T" "Zechstein_Bunter_hiatus" "HydrostaticTemperature_Results.HDF" 28491356.9588245 28491356.9588245 28491356.9588245 113965427.835298 3.24702968542063e+15 4 "MaxVesVec2_0_Base_Bunter_on_hiatus_nr_50_ZE_T_Zechstein_Bunter_hiatus"
+"MaxVesVec2" 0 "Top_Zechstein_under_hiatus_nr_50_ZE_T" "Zechstein_Bunter_hiatus" "HydrostaticTemperature_Results.HDF" 28491356.9588245 28491356.9588245 28491356.9588245 113965427.835298 3.24702968542063e+15 4 "MaxVesVec2_0_Top_Zechstein_under_hiatus_nr_50_ZE_T_Zechstein_Bunter_hiatus"
+"MaxVesVec2" 0 "Top_Zechstein_under_hiatus_nr_50_ZE_T" "Upper_Zechstein" "HydrostaticTemperature_Results.HDF" 28491356.9588245 28491356.9588245 28491356.9588245 113965427.835298 3.24702968542063e+15 4 "MaxVesVec2_0_Top_Zechstein_under_hiatus_nr_50_ZE_T_Upper_Zechstein"
+"MaxVesVec2" 0 "Top_Z2_nr_59_ZEZ2A_T" "Upper_Zechstein" "HydrostaticTemperature_Results.HDF" 37685707.8220449 37685707.8220449 37685707.8220449 150742831.288179 5.68085029619414e+15 4 "MaxVesVec2_0_Top_Z2_nr_59_ZEZ2A_T_Upper_Zechstein"
+"MaxVesVec2" 0 "Top_Z2_nr_59_ZEZ2A_T" "Lowest_Zechstein" "HydrostaticTemperature_Results.HDF" 37685707.8220449 37685707.8220449 37685707.8220449 150742831.288179 5.68085029619414e+15 4 "MaxVesVec2_0_Top_Z2_nr_59_ZEZ2A_T_Lowest_Zechstein"
+"MaxVesVec2" 0 "Nr_Top_Rotliegend" "Lowest_Zechstein" "HydrostaticTemperature_Results.HDF" 38897883.9066483 38897883.9066483 38897883.9066483 155591535.626593 6.05218148966036e+15 4 "MaxVesVec2_0_Nr_Top_Rotliegend_Lowest_Zechstein"
+"MaxVesVec2" 0 "Nr_Top_Rotliegend" "Rotliegend" "HydrostaticTemperature_Results.HDF" 38897883.9066483 38897883.9066483 38897883.9066483 155591535.626593 6.05218148966036e+15 4 "MaxVesVec2_0_Nr_Top_Rotliegend_Rotliegend"
+"MaxVesVec2" 0 "Nr_Base_Rotliegend" "Rotliegend" "HydrostaticTemperature_Results.HDF" 47880480.6704556 47880480.6704556 47880480.6704556 191521922.681822 9.17016171693548e+15 4 "MaxVesVec2_0_Nr_Base_Rotliegend_Rotliegend"
+"Pressure" 0 "Water_Bottom" "" "HydrostaticTemperature_Results.HDF" 0.1 0.1 0.1 0.4 0.04 4 "Pressure_0_Water_Bottom_"
+"Pressure" 0 "Base_Breda_Clay" "" "HydrostaticTemperature_Results.HDF" 5.67591577751398 5.67591577751398 5.67591577751398 22.7036631100559 128.864079653728 4 "Pressure_0_Base_Breda_Clay_"
+"Pressure" 0 "Top_Rupel" "" "HydrostaticTemperature_Results.HDF" 5.67591577751398 5.67591577751398 5.67591577751398 22.7036631100559 128.864079653728 4 "Pressure_0_Top_Rupel_"
+"Pressure" 0 "Top_Ieper" "" "HydrostaticTemperature_Results.HDF" 8.68482857449345 8.68482857449345 8.68482857449345 34.7393142979738 301.704989473352 4 "Pressure_0_Top_Ieper_"
+"Pressure" 0 "Top_Chalk_nr_20_NS_B" "" "HydrostaticTemperature_Results.HDF" 12.283061609971 12.283061609971 12.283061609971 49.132246439884 603.494410057372 4 "Pressure_0_Top_Chalk_nr_20_NS_B_"
+"Pressure" 0 "Top_Lower_Ommeland_Chalk" "" "HydrostaticTemperature_Results.HDF" 15.0611268989071 15.0611268989071 15.0611268989071 60.2445075956285 907.350173859936 4 "Pressure_0_Top_Lower_Ommeland_Chalk_"
+"Pressure" 0 "Top_Texel_nr_30_CK_B" "" "HydrostaticTemperature_Results.HDF" 19.812314702578 19.812314702578 19.812314702578 79.2492588103118 1570.11125549595 4 "Pressure_0_Top_Texel_nr_30_CK_B_"
+"Pressure" 0 "Base_Cretaceous_Hiatus_Unconformity" "" "HydrostaticTemperature_Results.HDF" 21.7934655904012 21.7934655904012 21.7934655904012 87.1738623616046 1899.82056976 4 "Pressure_0_Base_Cretaceous_Hiatus_Unconformity_"
+"Pressure" 0 "Eroded_top_Roer_nr_45_TR_T" "" "HydrostaticTemperature_Results.HDF" 21.7934655904012 21.7934655904012 21.7934655904012 87.1738623616046 1899.82056976 4 "Pressure_0_Eroded_top_Roer_nr_45_TR_T_"
+"Pressure" 0 "Eroded_top_Buntsandstein" "" "HydrostaticTemperature_Results.HDF" 23.2511498447389 23.2511498447389 23.2511498447389 93.0045993789556 2162.46387641001 4 "Pressure_0_Eroded_top_Buntsandstein_"
+"Pressure" 0 "Base_Bunter_on_hiatus_nr_50_ZE_T" "" "HydrostaticTemperature_Results.HDF" 23.7613359437036 23.7613359437036 23.7613359437036 95.0453437748143 2258.40434331816 4 "Pressure_0_Base_Bunter_on_hiatus_nr_50_ZE_T_"
+"Pressure" 0 "Top_Zechstein_under_hiatus_nr_50_ZE_T" "" "HydrostaticTemperature_Results.HDF" 23.7613359437036 23.7613359437036 23.7613359437036 95.0453437748143 2258.40434331816 4 "Pressure_0_Top_Zechstein_under_hiatus_nr_50_ZE_T_"
+"Pressure" 0 "Top_Z2_nr_59_ZEZ2A_T" "" "HydrostaticTemperature_Results.HDF" 34.1481059216027 34.1481059216027 34.1481059216027 136.592423686411 4664.37255213199 4 "Pressure_0_Top_Z2_nr_59_ZEZ2A_T_"
+"Pressure" 0 "Nr_Top_Rotliegend" "" "HydrostaticTemperature_Results.HDF" 35.089429301773 35.089429301773 35.089429301773 140.357717207092 4925.07219489651 4 "Pressure_0_Nr_Top_Rotliegend_"
+"Pressure" 0 "Nr_Base_Rotliegend" "" "HydrostaticTemperature_Results.HDF" 41.7365290407774 41.7365290407774 41.7365290407774 166.94611616311 6967.75142548663 4 "Pressure_0_Nr_Base_Rotliegend_"
+"Pressure" 0 "Bottom of Crust" "" "HydrostaticTemperature_Results.HDF" 0 0 0 0 0 4 "Pressure_0_Bottom_of_Crust_"
+"Pressure" 0 "Bottom of Lithospheric Mantle" "" "HydrostaticTemperature_Results.HDF" 0 0 0 0 0 4 "Pressure_0_Bottom_of_Lithospheric_Mantle_"
+"Temperature" 0 "Water_Bottom" "" "HydrostaticTemperature_Results.HDF" 10 10 10 40 400 4 "Temperature_0_Water_Bottom_"
+"Temperature" 0 "Base_Breda_Clay" "" "HydrostaticTemperature_Results.HDF" 29.2680756536135 29.2680756536135 29.2680756536135 117.072302614454 3426.48100986257 4 "Temperature_0_Base_Breda_Clay_"
+"Temperature" 0 "Top_Rupel" "" "HydrostaticTemperature_Results.HDF" 29.2680756536135 29.2680756536135 29.2680756536135 117.072302614454 3426.48100986257 4 "Temperature_0_Top_Rupel_"
+"Temperature" 0 "Top_Ieper" "" "HydrostaticTemperature_Results.HDF" 41.3009809368915 41.3009809368915 41.3009809368915 165.203923747566 6823.08410539791 4 "Temperature_0_Top_Ieper_"
+"Temperature" 0 "Top_Chalk_nr_20_NS_B" "" "HydrostaticTemperature_Results.HDF" 55.4472019905656 55.4472019905656 55.4472019905656 221.788807962262 12297.5688343303 4 "Temperature_0_Top_Chalk_nr_20_NS_B_"
+"Temperature" 0 "Top_Lower_Ommeland_Chalk" "" "HydrostaticTemperature_Results.HDF" 64.9126461346024 64.9126461346024 64.9126461346024 259.65058453841 16854.6065127845 4 "Temperature_0_Top_Lower_Ommeland_Chalk_"
+"Temperature" 0 "Top_Texel_nr_30_CK_B" "" "HydrostaticTemperature_Results.HDF" 78.4865775206938 78.4865775206938 78.4865775206938 313.946310082775 24640.5714036475 4 "Temperature_0_Top_Texel_nr_30_CK_B_"
+"Temperature" 0 "Base_Cretaceous_Hiatus_Unconformity" "" "HydrostaticTemperature_Results.HDF" 84.59322870665 84.59322870665 84.5932287066501 338.3729148266 28624.0573720624 4 "Temperature_0_Base_Cretaceous_Hiatus_Unconformity_"
+"Temperature" 0 "Eroded_top_Roer_nr_45_TR_T" "" "HydrostaticTemperature_Results.HDF" 84.59322870665 84.59322870665 84.5932287066501 338.3729148266 28624.0573720624 4 "Temperature_0_Eroded_top_Roer_nr_45_TR_T_"
+"Temperature" 0 "Eroded_top_Buntsandstein" "" "HydrostaticTemperature_Results.HDF" 88.5193293864211 88.519329386421 88.5193293864211 354.077317545684 31342.6867000868 4 "Temperature_0_Eroded_top_Buntsandstein_"
+"Temperature" 0 "Base_Bunter_on_hiatus_nr_50_ZE_T" "" "HydrostaticTemperature_Results.HDF" 89.7127205194563 89.7127205194563 89.7127205194563 358.850882077825 32193.4888920083 4 "Temperature_0_Base_Bunter_on_hiatus_nr_50_ZE_T_"
+"Temperature" 0 "Top_Zechstein_under_hiatus_nr_50_ZE_T" "" "HydrostaticTemperature_Results.HDF" 89.7127205194563 89.7127205194563 89.7127205194563 358.850882077825 32193.4888920083 4 "Temperature_0_Top_Zechstein_under_hiatus_nr_50_ZE_T_"
+"Temperature" 0 "Top_Z2_nr_59_ZEZ2A_T" "" "HydrostaticTemperature_Results.HDF" 98.8700173326586 98.8700173326586 98.8700173326586 395.480069330634 39101.1213094408 4 "Temperature_0_Top_Z2_nr_59_ZEZ2A_T_"
+"Temperature" 0 "Nr_Top_Rotliegend" "" "HydrostaticTemperature_Results.HDF" 101.225384249155 101.225384249155 101.225384249156 404.901536996622 40986.3136655567 4 "Temperature_0_Nr_Top_Rotliegend_"
+"Temperature" 0 "Nr_Base_Rotliegend" "" "HydrostaticTemperature_Results.HDF" 115.641182436946 115.641182436946 115.641182436946 462.564729747786 53491.5323016605 4 "Temperature_0_Nr_Base_Rotliegend_"
+"Temperature" 0 "Bottom of Crust" "" "HydrostaticTemperature_Results.HDF" 513.498611100355 513.498611100355 513.498611100355 2053.99444440142 1054723.29440797 4 "Temperature_0_Bottom_of_Crust_"
+"Temperature" 0 "Bottom of Lithospheric Mantle" "" "HydrostaticTemperature_Results.HDF" 1333 1333 1333 5332 7107556 4 "Temperature_0_Bottom_of_Lithospheric_Mantle_"
+"Ves"   0 "Water_Bottom" "" "HydrostaticTemperature_Results.HDF" 0 0 0 0 0 4 "Ves_0_Water_Bottom_"
+"Ves"   0 "Base_Breda_Clay" "" "HydrostaticTemperature_Results.HDF" 5350298.71389322 5350298.71389322 5350298.71389322 21401194.8555729 114502785311550 4 "Ves_0_Base_Breda_Clay_"
+"Ves"   0 "Top_Rupel" "" "HydrostaticTemperature_Results.HDF" 5350298.71389322 5350298.71389322 5350298.71389322 21401194.8555729 114502785311550 4 "Ves_0_Top_Rupel_"
+"Ves"   0 "Top_Ieper" "" "HydrostaticTemperature_Results.HDF" 8501323.09083578 8501323.09083578 8501323.09083578 34005292.3633431 289089977179110 4 "Ves_0_Top_Ieper_"
+"Ves"   0 "Top_Chalk_nr_20_NS_B" "" "HydrostaticTemperature_Results.HDF" 12715576.0815826 12715576.0815826 12715576.0815826 50862304.3263306 646743500346066 4 "Ves_0_Top_Chalk_nr_20_NS_B_"
+"Ves"   0 "Top_Lower_Ommeland_Chalk" "" "HydrostaticTemperature_Results.HDF" 16301819.4648226 16301819.4648226 16301819.4648226 65207277.8592905 1.06299727145468e+15 4 "Ves_0_Top_Lower_Ommeland_Chalk_"
+"Ves"   0 "Top_Texel_nr_30_CK_B" "" "HydrostaticTemperature_Results.HDF" 22829285.8552408 22829285.8552408 22829285.8552408 91317143.420963 2.08470517064118e+15 4 "Ves_0_Top_Texel_nr_30_CK_B_"
+"Ves"   0 "Base_Cretaceous_Hiatus_Unconformity" "" "HydrostaticTemperature_Results.HDF" 25714164.8415562 25714164.8415562 25714164.8415562 102856659.366225 2.64487309399491e+15 4 "Ves_0_Base_Cretaceous_Hiatus_Unconformity_"
+"Ves"   0 "Eroded_top_Roer_nr_45_TR_T" "" "HydrostaticTemperature_Results.HDF" 25714164.8415562 25714164.8415562 25714164.8415562 102856659.366225 2.64487309399491e+15 4 "Ves_0_Eroded_top_Roer_nr_45_TR_T_"
+"Ves"   0 "Eroded_top_Buntsandstein" "" "HydrostaticTemperature_Results.HDF" 27787653.3271685 27787653.3271685 27787653.3271685 111150613.308674 3.0886147097236e+15 4 "Ves_0_Eroded_top_Buntsandstein_"
+"Ves"   0 "Base_Bunter_on_hiatus_nr_50_ZE_T" "" "HydrostaticTemperature_Results.HDF" 28491356.9588245 28491356.9588245 28491356.9588245 113965427.835298 3.24702968542063e+15 4 "Ves_0_Base_Bunter_on_hiatus_nr_50_ZE_T_"
+"Ves"   0 "Top_Zechstein_under_hiatus_nr_50_ZE_T" "" "HydrostaticTemperature_Results.HDF" 28491356.9588245 28491356.9588245 28491356.9588245 113965427.835298 3.24702968542063e+15 4 "Ves_0_Top_Zechstein_under_hiatus_nr_50_ZE_T_"
+"Ves"   0 "Top_Z2_nr_59_ZEZ2A_T" "" "HydrostaticTemperature_Results.HDF" 37685707.8220449 37685707.8220449 37685707.8220449 150742831.288179 5.68085029619414e+15 4 "Ves_0_Top_Z2_nr_59_ZEZ2A_T_"
+"Ves"   0 "Nr_Top_Rotliegend" "" "HydrostaticTemperature_Results.HDF" 38897883.9066483 38897883.9066483 38897883.9066483 155591535.626593 6.05218148966036e+15 4 "Ves_0_Nr_Top_Rotliegend_"
+"Ves"   0 "Nr_Base_Rotliegend" "" "HydrostaticTemperature_Results.HDF" 47880480.6704556 47880480.6704556 47880480.6704556 191521922.681822 9.17016171693548e+15 4 "Ves_0_Nr_Base_Rotliegend_"
+"VrVec2" 0 "Water_Bottom" "Upper_North_Sea_Group_SL" "HydrostaticTemperature_Results.HDF" 0.2 0.2 0.2 0.8 0.16 4 "VrVec2_0_Water_Bottom_Upper_North_Sea_Group_SL"
+"VrVec2" 0 "Base_Breda_Clay" "Upper_North_Sea_Group_SL" "HydrostaticTemperature_Results.HDF" 0.267967888542225 0.267967888542225 0.267967888542225 1.0718715541689 0.287227157159114 4 "VrVec2_0_Base_Breda_Clay_Upper_North_Sea_Group_SL"
+"VrVec2" 0 "Base_Breda_Clay" "Breda_on_Rupel_Lt_Oligo_hiatus" "HydrostaticTemperature_Results.HDF" 0.267967888542225 0.267967888542225 0.267967888542225 1.0718715541689 0.287227157159114 4 "VrVec2_0_Base_Breda_Clay_Breda_on_Rupel_Lt_Oligo_hiatus"
+"VrVec2" 0 "Top_Rupel" "Breda_on_Rupel_Lt_Oligo_hiatus" "HydrostaticTemperature_Results.HDF" 0.267967888542225 0.267967888542225 0.267967888542225 1.0718715541689 0.287227157159114 4 "VrVec2_0_Top_Rupel_Breda_on_Rupel_Lt_Oligo_hiatus"
+"VrVec2" 0 "Top_Rupel" "Middle_North_Sea_Group_SL" "HydrostaticTemperature_Results.HDF" 0.26819990151381 0.26819990151381 0.26819990151381 1.07279960605524 0.287724748688069 4 "VrVec2_0_Top_Rupel_Middle_North_Sea_Group_SL"
+"VrVec2" 0 "Top_Ieper" "Middle_North_Sea_Group_SL" "HydrostaticTemperature_Results.HDF" 0.305399492653668 0.305399492653668 0.305399492653668 1.22159797061467 0.37307540045247 4 "VrVec2_0_Top_Ieper_Middle_North_Sea_Group_SL"
+"VrVec2" 0 "Top_Ieper" "Lower_North_Sea_Group_SL" "HydrostaticTemperature_Results.HDF" 0.305399492653668 0.305399492653668 0.305399492653668 1.22159797061467 0.37307540045247 4 "VrVec2_0_Top_Ieper_Lower_North_Sea_Group_SL"
+"VrVec2" 0 "Top_Chalk_nr_20_NS_B" "Lower_North_Sea_Group_SL" "HydrostaticTemperature_Results.HDF" 0.362882661515551 0.362882661515551 0.362882661515551 1.4515306460622 0.526735304114439 4 "VrVec2_0_Top_Chalk_nr_20_NS_B_Lower_North_Sea_Group_SL"
+"VrVec2" 0 "Top_Chalk_nr_20_NS_B" "Upper_Ommeland_Chalk_Group" "HydrostaticTemperature_Results.HDF" 0.362882661515551 0.362882661515551 0.362882661515551 1.4515306460622 0.526735304114439 4 "VrVec2_0_Top_Chalk_nr_20_NS_B_Upper_Ommeland_Chalk_Group"
+"VrVec2" 0 "Top_Lower_Ommeland_Chalk" "Upper_Ommeland_Chalk_Group" "HydrostaticTemperature_Results.HDF" 0.417620388622755 0.417620388622755 0.417620388622755 1.67048155449102 0.697627155973683 4 "VrVec2_0_Top_Lower_Ommeland_Chalk_Upper_Ommeland_Chalk_Group"
+"VrVec2" 0 "Top_Lower_Ommeland_Chalk" "Lower_Ommeland_Chalk_Group" "HydrostaticTemperature_Results.HDF" 0.417620388622755 0.417620388622755 0.417620388622755 1.67048155449102 0.697627155973683 4 "VrVec2_0_Top_Lower_Ommeland_Chalk_Lower_Ommeland_Chalk_Group"
+"VrVec2" 0 "Top_Texel_nr_30_CK_B" "Lower_Ommeland_Chalk_Group" "HydrostaticTemperature_Results.HDF" 0.504677955505624 0.504677955505624 0.504677955505625 2.0187118220225 1.01879935509335 4 "VrVec2_0_Top_Texel_nr_30_CK_B_Lower_Ommeland_Chalk_Group"
+"VrVec2" 0 "Top_Texel_nr_30_CK_B" "Texel_Lr_Cret_undiff" "HydrostaticTemperature_Results.HDF" 0.504677955505624 0.504677955505624 0.504677955505625 2.0187118220225 1.01879935509335 4 "VrVec2_0_Top_Texel_nr_30_CK_B_Texel_Lr_Cret_undiff"
+"VrVec2" 0 "Base_Cretaceous_Hiatus_Unconformity" "Texel_Lr_Cret_undiff" "HydrostaticTemperature_Results.HDF" 0.546562839142441 0.54656283914244 0.546562839142442 2.18625135656976 1.19492374852578 4 "VrVec2_0_Base_Cretaceous_Hiatus_Unconformity_Texel_Lr_Cret_undiff"
+"VrVec2" 0 "Base_Cretaceous_Hiatus_Unconformity" "Base_Cret_on_Trias_hiatus" "HydrostaticTemperature_Results.HDF" 0.546562839142441 0.54656283914244 0.546562839142442 2.18625135656976 1.19492374852578 4 "VrVec2_0_Base_Cretaceous_Hiatus_Unconformity_Base_Cret_on_Trias_hiatus"
+"VrVec2" 0 "Eroded_top_Roer_nr_45_TR_T" "Base_Cret_on_Trias_hiatus" "HydrostaticTemperature_Results.HDF" 0.546562839142441 0.54656283914244 0.546562839142442 2.18625135656976 1.19492374852578 4 "VrVec2_0_Eroded_top_Roer_nr_45_TR_T_Base_Cret_on_Trias_hiatus"
+"VrVec2" 0 "Eroded_top_Roer_nr_45_TR_T" "Roer" "HydrostaticTemperature_Results.HDF" 0.546562845783171 0.54656284578317 0.546562845783172 2.18625138313268 1.19492377756239 4 "VrVec2_0_Eroded_top_Roer_nr_45_TR_T_Roer"
+"VrVec2" 0 "Eroded_top_Buntsandstein" "Roer" "HydrostaticTemperature_Results.HDF" 0.58512106897676 0.585121068976757 0.585121068976763 2.34048427590704 1.36946666144202 4 "VrVec2_0_Eroded_top_Buntsandstein_Roer"
+"VrVec2" 0 "Eroded_top_Buntsandstein" "Bunter" "HydrostaticTemperature_Results.HDF" 0.58512106897676 0.585121068976757 0.585121068976763 2.34048427590704 1.36946666144202 4 "VrVec2_0_Eroded_top_Buntsandstein_Bunter"
+"VrVec2" 0 "Base_Bunter_on_hiatus_nr_50_ZE_T" "Bunter" "HydrostaticTemperature_Results.HDF" 0.596463920636332 0.596463920636328 0.596463920636336 2.38585568254533 1.42307683448346 4 "VrVec2_0_Base_Bunter_on_hiatus_nr_50_ZE_T_Bunter"
+"VrVec2" 0 "Base_Bunter_on_hiatus_nr_50_ZE_T" "Zechstein_Bunter_hiatus" "HydrostaticTemperature_Results.HDF" 0.596463920636332 0.596463920636328 0.596463920636336 2.38585568254533 1.42307683448346 4 "VrVec2_0_Base_Bunter_on_hiatus_nr_50_ZE_T_Zechstein_Bunter_hiatus"
+"VrVec2" 0 "Top_Zechstein_under_hiatus_nr_50_ZE_T" "Zechstein_Bunter_hiatus" "HydrostaticTemperature_Results.HDF" 0.596463920636332 0.596463920636328 0.596463920636336 2.38585568254533 1.42307683448346 4 "VrVec2_0_Top_Zechstein_under_hiatus_nr_50_ZE_T_Zechstein_Bunter_hiatus"
+"VrVec2" 0 "Top_Zechstein_under_hiatus_nr_50_ZE_T" "Upper_Zechstein" "HydrostaticTemperature_Results.HDF" 0.5964639207701 0.596463920770097 0.596463920770104 2.3858556830804 1.42307683512176 4 "VrVec2_0_Top_Zechstein_under_hiatus_nr_50_ZE_T_Upper_Zechstein"
+"VrVec2" 0 "Top_Z2_nr_59_ZEZ2A_T" "Upper_Zechstein" "HydrostaticTemperature_Results.HDF" 0.652185179738896 0.652185179738895 0.652185179738897 2.60874071895558 1.70138203468422 4 "VrVec2_0_Top_Z2_nr_59_ZEZ2A_T_Upper_Zechstein"
+"VrVec2" 0 "Top_Z2_nr_59_ZEZ2A_T" "Lowest_Zechstein" "HydrostaticTemperature_Results.HDF" 0.652185179738896 0.652185179738895 0.652185179738897 2.60874071895558 1.70138203468422 4 "VrVec2_0_Top_Z2_nr_59_ZEZ2A_T_Lowest_Zechstein"
+"VrVec2" 0 "Nr_Top_Rotliegend" "Lowest_Zechstein" "HydrostaticTemperature_Results.HDF" 0.668975116407177 0.668975116407177 0.668975116407177 2.67590046562871 1.79011082548798 4 "VrVec2_0_Nr_Top_Rotliegend_Lowest_Zechstein"
+"VrVec2" 0 "Nr_Top_Rotliegend" "Rotliegend" "HydrostaticTemperature_Results.HDF" 0.668975116407177 0.668975116407177 0.668975116407177 2.67590046562871 1.79011082548798 4 "VrVec2_0_Nr_Top_Rotliegend_Rotliegend"
+"VrVec2" 0 "Nr_Base_Rotliegend" "Rotliegend" "HydrostaticTemperature_Results.HDF" 0.775517178183015 0.775517178182967 0.775517178183081 3.10206871273206 2.40570757462779 4 "VrVec2_0_Nr_Base_Rotliegend_Rotliegend"
+"PermeabilityHVec2" 0 "Water_Bottom" "Upper_North_Sea_Group_SL" "HydrostaticTemperature_Results.HDF" 30.5994684586506 30.5994684586506 30.5994684586506 122.397873834602 3745.30987980781 4 "PermeabilityHVec2_0_Water_Bottom_Upper_North_Sea_Group_SL"
+"PermeabilityHVec2" 0 "Base_Breda_Clay" "Upper_North_Sea_Group_SL" "HydrostaticTemperature_Results.HDF" 13.1492809103551 13.1492809103551 13.1492809103551 52.5971236414206 691.61435383772 4 "PermeabilityHVec2_0_Base_Breda_Clay_Upper_North_Sea_Group_SL"
+"PermeabilityHVec2" 0 "Base_Breda_Clay" "Breda_on_Rupel_Lt_Oligo_hiatus" "HydrostaticTemperature_Results.HDF" 3.83113144057723 3.83113144057723 3.83113144057723 15.3245257623089 58.7102724599175 4 "PermeabilityHVec2_0_Base_Breda_Clay_Breda_on_Rupel_Lt_Oligo_hiatus"
+"PermeabilityHVec2" 0 "Top_Rupel" "Breda_on_Rupel_Lt_Oligo_hiatus" "HydrostaticTemperature_Results.HDF" 3.83113144057723 3.83113144057723 3.83113144057723 15.3245257623089 58.7102724599175 4 "PermeabilityHVec2_0_Top_Rupel_Breda_on_Rupel_Lt_Oligo_hiatus"
+"PermeabilityHVec2" 0 "Top_Rupel" "Middle_North_Sea_Group_SL" "HydrostaticTemperature_Results.HDF" 0.00886564478282654 0.00886564478282654 0.00886564478282654 0.0354625791313061 0.000314398629661037 4 "PermeabilityHVec2_0_Top_Rupel_Middle_North_Sea_Group_SL"
+"PermeabilityHVec2" 0 "Top_Ieper" "Middle_North_Sea_Group_SL" "HydrostaticTemperature_Results.HDF" 0.00374722055807883 0.00374722055807883 0.00374722055807883 0.0149888822323153 5.61666476435544e-05 4 "PermeabilityHVec2_0_Top_Ieper_Middle_North_Sea_Group_SL"
+"PermeabilityHVec2" 0 "Top_Ieper" "Lower_North_Sea_Group_SL" "HydrostaticTemperature_Results.HDF" 0.000268273294448299 0.000268273294448299 0.000268273294448299 0.0010730931777932 2.87882242056575e-07 4 "PermeabilityHVec2_0_Top_Ieper_Lower_North_Sea_Group_SL"
+"PermeabilityHVec2" 0 "Top_Chalk_nr_20_NS_B" "Lower_North_Sea_Group_SL" "HydrostaticTemperature_Results.HDF" 9.33547854343077e-05 9.33547854343077e-05 9.33547854343077e-05 0.000373419141737231 3.48604638539425e-08 4 "PermeabilityHVec2_0_Top_Chalk_nr_20_NS_B_Lower_North_Sea_Group_SL"
+"PermeabilityHVec2" 0 "Top_Chalk_nr_20_NS_B" "Upper_Ommeland_Chalk_Group" "HydrostaticTemperature_Results.HDF" 5.92209056524581e-05 5.92209056524581e-05 5.92209056524581e-05 0.000236883622609832 1.40284626651894e-08 4 "PermeabilityHVec2_0_Top_Chalk_nr_20_NS_B_Upper_Ommeland_Chalk_Group"
+"PermeabilityHVec2" 0 "Top_Lower_Ommeland_Chalk" "Upper_Ommeland_Chalk_Group" "HydrostaticTemperature_Results.HDF" 2.68934166752975e-05 2.68934166752975e-05 2.68934166752975e-05 0.00010757366670119 2.89302344188468e-09 4 "PermeabilityHVec2_0_Top_Lower_Ommeland_Chalk_Upper_Ommeland_Chalk_Group"
+"PermeabilityHVec2" 0 "Top_Lower_Ommeland_Chalk" "Lower_Ommeland_Chalk_Group" "HydrostaticTemperature_Results.HDF" 2.76437652358987e-05 2.76437652358987e-05 2.76437652358987e-05 0.000110575060943595 3.05671102566993e-09 4 "PermeabilityHVec2_0_Top_Lower_Ommeland_Chalk_Lower_Ommeland_Chalk_Group"
+"PermeabilityHVec2" 0 "Top_Texel_nr_30_CK_B" "Lower_Ommeland_Chalk_Group" "HydrostaticTemperature_Results.HDF" 8.28579978169242e-06 8.28579978169242e-06 8.28579978169242e-06 3.31431991267697e-05 2.74617912089176e-10 4 "PermeabilityHVec2_0_Top_Texel_nr_30_CK_B_Lower_Ommeland_Chalk_Group"
+"PermeabilityHVec2" 0 "Top_Texel_nr_30_CK_B" "Texel_Lr_Cret_undiff" "HydrostaticTemperature_Results.HDF" 7.68057520892737e-06 7.68057520892737e-06 7.68057520892737e-06 3.07223008357095e-05 2.35964942159959e-10 4 "PermeabilityHVec2_0_Top_Texel_nr_30_CK_B_Texel_Lr_Cret_undiff"
+"PermeabilityHVec2" 0 "Base_Cretaceous_Hiatus_Unconformity" "Texel_Lr_Cret_undiff" "HydrostaticTemperature_Results.HDF" 5.46546102754298e-06 5.46546102754298e-06 5.46546102754298e-06 2.18618441101719e-05 1.19485056974365e-10 4 "PermeabilityHVec2_0_Base_Cretaceous_Hiatus_Unconformity_Texel_Lr_Cret_undiff"
+"PermeabilityHVec2" 0 "Base_Cretaceous_Hiatus_Unconformity" "Base_Cret_on_Trias_hiatus" "HydrostaticTemperature_Results.HDF" 8.91772282566918e-06 8.91772282566918e-06 8.91772282566918e-06 3.56708913026767e-05 3.18103121581845e-10 4 "PermeabilityHVec2_0_Base_Cretaceous_Hiatus_Unconformity_Base_Cret_on_Trias_hiatus"
+"PermeabilityHVec2" 0 "Eroded_top_Roer_nr_45_TR_T" "Base_Cret_on_Trias_hiatus" "HydrostaticTemperature_Results.HDF" 8.91772282566918e-06 8.91772282566918e-06 8.91772282566918e-06 3.56708913026767e-05 3.18103121581845e-10 4 "PermeabilityHVec2_0_Eroded_top_Roer_nr_45_TR_T_Base_Cret_on_Trias_hiatus"
+"PermeabilityHVec2" 0 "Eroded_top_Roer_nr_45_TR_T" "Roer" "HydrostaticTemperature_Results.HDF" 0.0684237733920935 0.0684237733920935 0.0684237733920935 0.273695093568374 0.0187272510608502 4 "PermeabilityHVec2_0_Eroded_top_Roer_nr_45_TR_T_Roer"
+"PermeabilityHVec2" 0 "Eroded_top_Buntsandstein" "Roer" "HydrostaticTemperature_Results.HDF" 0.0546290287633186 0.0546290287633186 0.0546290287633186 0.218516115053274 0.0119373231344939 4 "PermeabilityHVec2_0_Eroded_top_Buntsandstein_Roer"
+"PermeabilityHVec2" 0 "Eroded_top_Buntsandstein" "Bunter" "HydrostaticTemperature_Results.HDF" 78.8357752322061 78.8357752322061 78.8357752322061 315.343100928824 24860.3178258517 4 "PermeabilityHVec2_0_Eroded_top_Buntsandstein_Bunter"
+"PermeabilityHVec2" 0 "Base_Bunter_on_hiatus_nr_50_ZE_T" "Bunter" "HydrostaticTemperature_Results.HDF" 71.9144728042606 71.9144728042606 71.9144728042606 287.657891217042 20686.7655948589 4 "PermeabilityHVec2_0_Base_Bunter_on_hiatus_nr_50_ZE_T_Bunter"
+"PermeabilityHVec2" 0 "Base_Bunter_on_hiatus_nr_50_ZE_T" "Zechstein_Bunter_hiatus" "HydrostaticTemperature_Results.HDF" 1.8078238694678 1.8078238694678 1.8078238694678 7.23129547787119 13.0729085720701 4 "PermeabilityHVec2_0_Base_Bunter_on_hiatus_nr_50_ZE_T_Zechstein_Bunter_hiatus"
+"PermeabilityHVec2" 0 "Top_Zechstein_under_hiatus_nr_50_ZE_T" "Zechstein_Bunter_hiatus" "HydrostaticTemperature_Results.HDF" 1.8078238694678 1.8078238694678 1.8078238694678 7.23129547787119 13.0729085720701 4 "PermeabilityHVec2_0_Top_Zechstein_under_hiatus_nr_50_ZE_T_Zechstein_Bunter_hiatus"
+"PermeabilityHVec2" 0 "Top_Zechstein_under_hiatus_nr_50_ZE_T" "Upper_Zechstein" "HydrostaticTemperature_Results.HDF" 9.99999999999999e-05 9.99999999999999e-05 9.99999999999999e-05 0.0004 3.99999999999999e-08 4 "PermeabilityHVec2_0_Top_Zechstein_under_hiatus_nr_50_ZE_T_Upper_Zechstein"
+"PermeabilityHVec2" 0 "Top_Z2_nr_59_ZEZ2A_T" "Upper_Zechstein" "HydrostaticTemperature_Results.HDF" 9.99999999999999e-05 9.99999999999999e-05 9.99999999999999e-05 0.0004 3.99999999999999e-08 4 "PermeabilityHVec2_0_Top_Z2_nr_59_ZEZ2A_T_Upper_Zechstein"
+"PermeabilityHVec2" 0 "Top_Z2_nr_59_ZEZ2A_T" "Lowest_Zechstein" "HydrostaticTemperature_Results.HDF" 4.09058586726719e-07 4.09058586726719e-07 4.09058586726719e-07 1.63623434690688e-06 6.69315709499443e-13 4 "PermeabilityHVec2_0_Top_Z2_nr_59_ZEZ2A_T_Lowest_Zechstein"
+"PermeabilityHVec2" 0 "Nr_Top_Rotliegend" "Lowest_Zechstein" "HydrostaticTemperature_Results.HDF" 3.93988390721742e-07 3.93988390721742e-07 3.93988390721742e-07 1.57595356288697e-06 6.20907408094033e-13 4 "PermeabilityHVec2_0_Nr_Top_Rotliegend_Lowest_Zechstein"
+"PermeabilityHVec2" 0 "Nr_Top_Rotliegend" "Rotliegend" "HydrostaticTemperature_Results.HDF" 2.67601462596339 2.67601462596339 2.67601462596339 10.7040585038535 28.6442171134798 4 "PermeabilityHVec2_0_Nr_Top_Rotliegend_Rotliegend"
+"PermeabilityHVec2" 0 "Nr_Base_Rotliegend" "Rotliegend" "HydrostaticTemperature_Results.HDF" 1.42008236908689 1.42008236908689 1.42008236908689 5.68032947634758 8.06653573996578 4 "PermeabilityHVec2_0_Nr_Base_Rotliegend_Rotliegend"
+"PermeabilityVec2" 0 "Water_Bottom" "Upper_North_Sea_Group_SL" "HydrostaticTemperature_Results.HDF" 30.5994684586506 30.5994684586506 30.5994684586506 122.397873834602 3745.30987980781 4 "PermeabilityVec2_0_Water_Bottom_Upper_North_Sea_Group_SL"
+"PermeabilityVec2" 0 "Base_Breda_Clay" "Upper_North_Sea_Group_SL" "HydrostaticTemperature_Results.HDF" 13.1492809103551 13.1492809103551 13.1492809103551 52.5971236414206 691.61435383772 4 "PermeabilityVec2_0_Base_Breda_Clay_Upper_North_Sea_Group_SL"
+"PermeabilityVec2" 0 "Base_Breda_Clay" "Breda_on_Rupel_Lt_Oligo_hiatus" "HydrostaticTemperature_Results.HDF" 3.83113144057723 3.83113144057723 3.83113144057723 15.3245257623089 58.7102724599175 4 "PermeabilityVec2_0_Base_Breda_Clay_Breda_on_Rupel_Lt_Oligo_hiatus"
+"PermeabilityVec2" 0 "Top_Rupel" "Breda_on_Rupel_Lt_Oligo_hiatus" "HydrostaticTemperature_Results.HDF" 3.83113144057723 3.83113144057723 3.83113144057723 15.3245257623089 58.7102724599175 4 "PermeabilityVec2_0_Top_Rupel_Breda_on_Rupel_Lt_Oligo_hiatus"
+"PermeabilityVec2" 0 "Top_Rupel" "Middle_North_Sea_Group_SL" "HydrostaticTemperature_Results.HDF" 0.00886564478282654 0.00886564478282654 0.00886564478282654 0.0354625791313061 0.000314398629661037 4 "PermeabilityVec2_0_Top_Rupel_Middle_North_Sea_Group_SL"
+"PermeabilityVec2" 0 "Top_Ieper" "Middle_North_Sea_Group_SL" "HydrostaticTemperature_Results.HDF" 0.00374722055807883 0.00374722055807883 0.00374722055807883 0.0149888822323153 5.61666476435544e-05 4 "PermeabilityVec2_0_Top_Ieper_Middle_North_Sea_Group_SL"
+"PermeabilityVec2" 0 "Top_Ieper" "Lower_North_Sea_Group_SL" "HydrostaticTemperature_Results.HDF" 0.000268273294448299 0.000268273294448299 0.000268273294448299 0.0010730931777932 2.87882242056575e-07 4 "PermeabilityVec2_0_Top_Ieper_Lower_North_Sea_Group_SL"
+"PermeabilityVec2" 0 "Top_Chalk_nr_20_NS_B" "Lower_North_Sea_Group_SL" "HydrostaticTemperature_Results.HDF" 9.33547854343077e-05 9.33547854343077e-05 9.33547854343077e-05 0.000373419141737231 3.48604638539425e-08 4 "PermeabilityVec2_0_Top_Chalk_nr_20_NS_B_Lower_North_Sea_Group_SL"
+"PermeabilityVec2" 0 "Top_Chalk_nr_20_NS_B" "Upper_Ommeland_Chalk_Group" "HydrostaticTemperature_Results.HDF" 5.92209056524581e-05 5.92209056524581e-05 5.92209056524581e-05 0.000236883622609832 1.40284626651894e-08 4 "PermeabilityVec2_0_Top_Chalk_nr_20_NS_B_Upper_Ommeland_Chalk_Group"
+"PermeabilityVec2" 0 "Top_Lower_Ommeland_Chalk" "Upper_Ommeland_Chalk_Group" "HydrostaticTemperature_Results.HDF" 2.68934166752975e-05 2.68934166752975e-05 2.68934166752975e-05 0.00010757366670119 2.89302344188468e-09 4 "PermeabilityVec2_0_Top_Lower_Ommeland_Chalk_Upper_Ommeland_Chalk_Group"
+"PermeabilityVec2" 0 "Top_Lower_Ommeland_Chalk" "Lower_Ommeland_Chalk_Group" "HydrostaticTemperature_Results.HDF" 2.76437652358987e-05 2.76437652358987e-05 2.76437652358987e-05 0.000110575060943595 3.05671102566993e-09 4 "PermeabilityVec2_0_Top_Lower_Ommeland_Chalk_Lower_Ommeland_Chalk_Group"
+"PermeabilityVec2" 0 "Top_Texel_nr_30_CK_B" "Lower_Ommeland_Chalk_Group" "HydrostaticTemperature_Results.HDF" 8.28579978169242e-06 8.28579978169242e-06 8.28579978169242e-06 3.31431991267697e-05 2.74617912089176e-10 4 "PermeabilityVec2_0_Top_Texel_nr_30_CK_B_Lower_Ommeland_Chalk_Group"
+"PermeabilityVec2" 0 "Top_Texel_nr_30_CK_B" "Texel_Lr_Cret_undiff" "HydrostaticTemperature_Results.HDF" 7.68057520892737e-06 7.68057520892737e-06 7.68057520892737e-06 3.07223008357095e-05 2.35964942159959e-10 4 "PermeabilityVec2_0_Top_Texel_nr_30_CK_B_Texel_Lr_Cret_undiff"
+"PermeabilityVec2" 0 "Base_Cretaceous_Hiatus_Unconformity" "Texel_Lr_Cret_undiff" "HydrostaticTemperature_Results.HDF" 5.46546102754298e-06 5.46546102754298e-06 5.46546102754298e-06 2.18618441101719e-05 1.19485056974365e-10 4 "PermeabilityVec2_0_Base_Cretaceous_Hiatus_Unconformity_Texel_Lr_Cret_undiff"
+"PermeabilityVec2" 0 "Base_Cretaceous_Hiatus_Unconformity" "Base_Cret_on_Trias_hiatus" "HydrostaticTemperature_Results.HDF" 8.91772282566918e-06 8.91772282566918e-06 8.91772282566918e-06 3.56708913026767e-05 3.18103121581845e-10 4 "PermeabilityVec2_0_Base_Cretaceous_Hiatus_Unconformity_Base_Cret_on_Trias_hiatus"
+"PermeabilityVec2" 0 "Eroded_top_Roer_nr_45_TR_T" "Base_Cret_on_Trias_hiatus" "HydrostaticTemperature_Results.HDF" 8.91772282566918e-06 8.91772282566918e-06 8.91772282566918e-06 3.56708913026767e-05 3.18103121581845e-10 4 "PermeabilityVec2_0_Eroded_top_Roer_nr_45_TR_T_Base_Cret_on_Trias_hiatus"
+"PermeabilityVec2" 0 "Eroded_top_Roer_nr_45_TR_T" "Roer" "HydrostaticTemperature_Results.HDF" 0.0684237733920935 0.0684237733920935 0.0684237733920935 0.273695093568374 0.0187272510608502 4 "PermeabilityVec2_0_Eroded_top_Roer_nr_45_TR_T_Roer"
+"PermeabilityVec2" 0 "Eroded_top_Buntsandstein" "Roer" "HydrostaticTemperature_Results.HDF" 0.0546290287633186 0.0546290287633186 0.0546290287633186 0.218516115053274 0.0119373231344939 4 "PermeabilityVec2_0_Eroded_top_Buntsandstein_Roer"
+"PermeabilityVec2" 0 "Eroded_top_Buntsandstein" "Bunter" "HydrostaticTemperature_Results.HDF" 78.8357752322061 78.8357752322061 78.8357752322061 315.343100928824 24860.3178258517 4 "PermeabilityVec2_0_Eroded_top_Buntsandstein_Bunter"
+"PermeabilityVec2" 0 "Base_Bunter_on_hiatus_nr_50_ZE_T" "Bunter" "HydrostaticTemperature_Results.HDF" 71.9144728042606 71.9144728042606 71.9144728042606 287.657891217042 20686.7655948589 4 "PermeabilityVec2_0_Base_Bunter_on_hiatus_nr_50_ZE_T_Bunter"
+"PermeabilityVec2" 0 "Base_Bunter_on_hiatus_nr_50_ZE_T" "Zechstein_Bunter_hiatus" "HydrostaticTemperature_Results.HDF" 1.8078238694678 1.8078238694678 1.8078238694678 7.23129547787119 13.0729085720701 4 "PermeabilityVec2_0_Base_Bunter_on_hiatus_nr_50_ZE_T_Zechstein_Bunter_hiatus"
+"PermeabilityVec2" 0 "Top_Zechstein_under_hiatus_nr_50_ZE_T" "Zechstein_Bunter_hiatus" "HydrostaticTemperature_Results.HDF" 1.8078238694678 1.8078238694678 1.8078238694678 7.23129547787119 13.0729085720701 4 "PermeabilityVec2_0_Top_Zechstein_under_hiatus_nr_50_ZE_T_Zechstein_Bunter_hiatus"
+"PermeabilityVec2" 0 "Top_Zechstein_under_hiatus_nr_50_ZE_T" "Upper_Zechstein" "HydrostaticTemperature_Results.HDF" 9.99999999999999e-05 9.99999999999999e-05 9.99999999999999e-05 0.0004 3.99999999999999e-08 4 "PermeabilityVec2_0_Top_Zechstein_under_hiatus_nr_50_ZE_T_Upper_Zechstein"
+"PermeabilityVec2" 0 "Top_Z2_nr_59_ZEZ2A_T" "Upper_Zechstein" "HydrostaticTemperature_Results.HDF" 9.99999999999999e-05 9.99999999999999e-05 9.99999999999999e-05 0.0004 3.99999999999999e-08 4 "PermeabilityVec2_0_Top_Z2_nr_59_ZEZ2A_T_Upper_Zechstein"
+"PermeabilityVec2" 0 "Top_Z2_nr_59_ZEZ2A_T" "Lowest_Zechstein" "HydrostaticTemperature_Results.HDF" 4.09058586726719e-07 4.09058586726719e-07 4.09058586726719e-07 1.63623434690688e-06 6.69315709499443e-13 4 "PermeabilityVec2_0_Top_Z2_nr_59_ZEZ2A_T_Lowest_Zechstein"
+"PermeabilityVec2" 0 "Nr_Top_Rotliegend" "Lowest_Zechstein" "HydrostaticTemperature_Results.HDF" 3.93988390721742e-07 3.93988390721742e-07 3.93988390721742e-07 1.57595356288697e-06 6.20907408094033e-13 4 "PermeabilityVec2_0_Nr_Top_Rotliegend_Lowest_Zechstein"
+"PermeabilityVec2" 0 "Nr_Top_Rotliegend" "Rotliegend" "HydrostaticTemperature_Results.HDF" 2.67601462596339 2.67601462596339 2.67601462596339 10.7040585038535 28.6442171134798 4 "PermeabilityVec2_0_Nr_Top_Rotliegend_Rotliegend"
+"PermeabilityVec2" 0 "Nr_Base_Rotliegend" "Rotliegend" "HydrostaticTemperature_Results.HDF" 1.42008236908689 1.42008236908689 1.42008236908689 5.68032947634758 8.06653573996578 4 "PermeabilityVec2_0_Nr_Base_Rotliegend_Rotliegend"
+"Thickness" 0 "" "Upper_North_Sea_Group_SL" "HydrostaticTemperature_Results.HDF" 562.183044433594 562.183044433594 562.183044433594 2248.73217773438 1264199.1017945 4 "Thickness_0__Upper_North_Sea_Group_SL"
+"Thickness" 0 "" "Breda_on_Rupel_Lt_Oligo_hiatus" "HydrostaticTemperature_Results.HDF" 0 0 0 0 0 4 "Thickness_0__Breda_on_Rupel_Lt_Oligo_hiatus"
+"Thickness" 0 "" "Middle_North_Sea_Group_SL" "HydrostaticTemperature_Results.HDF" 303.368957519531 303.368957519531 303.368957519531 1213.47583007812 368130.897545949 4 "Thickness_0__Middle_North_Sea_Group_SL"
+"Thickness" 0 "" "Lower_North_Sea_Group_SL" "HydrostaticTemperature_Results.HDF" 362.786254882815 362.786254882815 362.786254882815 1451.14501953126 526455.466927595 4 "Thickness_0__Lower_North_Sea_Group_SL"
+"Thickness" 0 "" "Upper_Ommeland_Chalk_Group" "HydrostaticTemperature_Results.HDF" 280.09411621094 280.09411621094 280.09411621094 1120.37646484376 313810.85574395 4 "Thickness_0__Upper_Ommeland_Chalk_Group"
+"Thickness" 0 "" "Lower_Ommeland_Chalk_Group" "HydrostaticTemperature_Results.HDF" 479.03112792968 479.03112792968 479.03112792968 1916.12451171872 917883.286102326 4 "Thickness_0__Lower_Ommeland_Chalk_Group"
+"Thickness" 0 "" "Texel_Lr_Cret_undiff" "HydrostaticTemperature_Results.HDF" 199.74645996094 199.74645996094 199.74645996094 798.98583984376 159594.59306771 4 "Thickness_0__Texel_Lr_Cret_undiff"
+"Thickness" 0 "" "Base_Cret_on_Trias_hiatus" "HydrostaticTemperature_Results.HDF" 0 0 0 0 0 4 "Thickness_0__Base_Cret_on_Trias_hiatus"
+"Thickness" 0 "" "Roer" "HydrostaticTemperature_Results.HDF" 146.96875 146.96875 146.96875 587.875 86399.25390625 4 "Thickness_0__Roer"
+"Thickness" 0 "" "Bunter" "HydrostaticTemperature_Results.HDF" 51.43872070312 51.43872070312 51.43872070312 205.75488281248 10583.7679502943 4 "Thickness_0__Bunter"
+"Thickness" 0 "" "Zechstein_Bunter_hiatus" "HydrostaticTemperature_Results.HDF" 0 0 0 0 0 4 "Thickness_0__Zechstein_Bunter_hiatus"
+"Thickness" 0 "" "Upper_Zechstein" "HydrostaticTemperature_Results.HDF" 923.243164062501 923.243164062501 923.243164062501 3692.97265625 3409511.75995255 4 "Thickness_0__Upper_Zechstein"
+"Thickness" 0 "" "Lowest_Zechstein" "HydrostaticTemperature_Results.HDF" 83.6708984375 83.6708984375 83.6708984375 334.68359375 28003.2769813538 4 "Thickness_0__Lowest_Zechstein"
+"Thickness" 0 "" "Rotliegend" "HydrostaticTemperature_Results.HDF" 628.07470703126 628.07470703126 628.07470703126 2512.29882812504 1577911.35044961 4 "Thickness_0__Rotliegend"
+"Thickness" 0 "" "Crust" "HydrostaticTemperature_Results.HDF" 30030.03003003 30030.03003003 30030.03003003 120120.12012012 3607210814.41802 4 "Thickness_0__Crust"
+"Thickness" 0 "" "Mantle" "HydrostaticTemperature_Results.HDF" 80000 80000 80000 320000 25600000000 4 "Thickness_0__Mantle"
+"TwoWayTime" 0 "Water_Bottom" "" "HydrostaticTemperature_Results.HDF" 0 0 0 0 0 4 "TwoWayTime_0_Water_Bottom_"
+"TwoWayTime" 0 "Base_Breda_Clay" "" "HydrostaticTemperature_Results.HDF" 597.192139164692 597.192139164692 597.192139164692 2388.76855665877 1426553.8043204 4 "TwoWayTime_0_Base_Breda_Clay_"
+"TwoWayTime" 0 "Top_Rupel" "" "HydrostaticTemperature_Results.HDF" 597.192139164692 597.192139164692 597.192139164692 2388.76855665877 1426553.8043204 4 "TwoWayTime_0_Top_Rupel_"
+"TwoWayTime" 0 "Top_Ieper" "" "HydrostaticTemperature_Results.HDF" 888.640480574856 888.640480574856 888.640480574856 3554.56192229942 3158727.61486524 4 "TwoWayTime_0_Top_Ieper_"
+"TwoWayTime" 0 "Top_Chalk_nr_20_NS_B" "" "HydrostaticTemperature_Results.HDF" 1208.40059881194 1208.40059881194 1208.40059881194 4833.60239524777 5840928.02883625 4 "TwoWayTime_0_Top_Chalk_nr_20_NS_B_"
+"TwoWayTime" 0 "Top_Lower_Ommeland_Chalk" "" "HydrostaticTemperature_Results.HDF" 1392.75320341903 1392.75320341903 1392.75320341903 5571.01281367612 7759045.94253587 4 "TwoWayTime_0_Top_Lower_Ommeland_Chalk_"
+"TwoWayTime" 0 "Top_Texel_nr_30_CK_B" "" "HydrostaticTemperature_Results.HDF" 1619.49580739744 1619.49580739744 1619.49580739744 6477.98322958976 10491066.6807115 4 "TwoWayTime_0_Top_Texel_nr_30_CK_B_"
+"TwoWayTime" 0 "Base_Cretaceous_Hiatus_Unconformity" "" "HydrostaticTemperature_Results.HDF" 1723.37186752432 1723.37186752432 1723.37186752432 6893.48747009728 11880042.375097 4 "TwoWayTime_0_Base_Cretaceous_Hiatus_Unconformity_"
+"TwoWayTime" 0 "Eroded_top_Roer_nr_45_TR_T" "" "HydrostaticTemperature_Results.HDF" 1723.37186752432 1723.37186752432 1723.37186752432 6893.48747009728 11880042.375097 4 "TwoWayTime_0_Eroded_top_Roer_nr_45_TR_T_"
+"TwoWayTime" 0 "Eroded_top_Buntsandstein" "" "HydrostaticTemperature_Results.HDF" 1805.36354162806 1805.36354162806 1805.36354162806 7221.45416651225 13037350.0697593 4 "TwoWayTime_0_Eroded_top_Buntsandstein_"
+"TwoWayTime" 0 "Base_Bunter_on_hiatus_nr_50_ZE_T" "" "HydrostaticTemperature_Results.HDF" 1832.93515117721 1832.93515117721 1832.93515117721 7331.74060470886 13438605.0736841 4 "TwoWayTime_0_Base_Bunter_on_hiatus_nr_50_ZE_T_"
+"TwoWayTime" 0 "Top_Zechstein_under_hiatus_nr_50_ZE_T" "" "HydrostaticTemperature_Results.HDF" 1832.93515117721 1832.93515117721 1832.93515117721 7331.74060470886 13438605.0736841 4 "TwoWayTime_0_Top_Zechstein_under_hiatus_nr_50_ZE_T_"
+"TwoWayTime" 0 "Top_Z2_nr_59_ZEZ2A_T" "" "HydrostaticTemperature_Results.HDF" 2245.40246032996 2245.40246032996 2245.40246032996 8981.60984131984 20167328.8354233 4 "TwoWayTime_0_Top_Z2_nr_59_ZEZ2A_T_"
+"TwoWayTime" 0 "Nr_Top_Rotliegend" "" "HydrostaticTemperature_Results.HDF" 2283.35099895412 2283.35099895412 2283.35099895412 9133.40399581647 20854767.1376991 4 "TwoWayTime_0_Nr_Top_Rotliegend_"
+"TwoWayTime" 0 "Nr_Base_Rotliegend" "" "HydrostaticTemperature_Results.HDF" 2583.82632492769 2583.82632492769 2583.82632492769 10335.3052997108 26704633.9095573 4 "TwoWayTime_0_Nr_Base_Rotliegend_"
+"SonicVec2" 0 "Water_Bottom" "Upper_North_Sea_Group_SL" "HydrostaticTemperature_Results.HDF" 633.267524733127 633.267524733127 633.267524733127 2533.07009893251 1604111.03152649 4 "SonicVec2_0_Water_Bottom_Upper_North_Sea_Group_SL"
+"SonicVec2" 0 "Base_Breda_Clay" "Upper_North_Sea_Group_SL" "HydrostaticTemperature_Results.HDF" 448.857452795127 448.857452795127 448.857452795127 1795.42981118051 805892.051718917 4 "SonicVec2_0_Base_Breda_Clay_Upper_North_Sea_Group_SL"
+"SonicVec2" 0 "Base_Breda_Clay" "Breda_on_Rupel_Lt_Oligo_hiatus" "HydrostaticTemperature_Results.HDF" 473.65709877152 473.65709877152 473.65709877152 1894.62839508608 897404.188866613 4 "SonicVec2_0_Base_Breda_Clay_Breda_on_Rupel_Lt_Oligo_hiatus"
+"SonicVec2" 0 "Top_Rupel" "Breda_on_Rupel_Lt_Oligo_hiatus" "HydrostaticTemperature_Results.HDF" 473.65709877152 473.65709877152 473.65709877152 1894.62839508608 897404.188866613 4 "SonicVec2_0_Top_Rupel_Breda_on_Rupel_Lt_Oligo_hiatus"
+"SonicVec2" 0 "Top_Rupel" "Middle_North_Sea_Group_SL" "HydrostaticTemperature_Results.HDF" 511.791710162718 511.791710162718 511.791710162718 2047.16684065087 1047723.01836512 4 "SonicVec2_0_Top_Rupel_Middle_North_Sea_Group_SL"
+"SonicVec2" 0 "Top_Ieper" "Middle_North_Sea_Group_SL" "HydrostaticTemperature_Results.HDF" 450.346605754103 450.346605754103 450.346605754103 1801.38642301641 811248.261256965 4 "SonicVec2_0_Top_Ieper_Middle_North_Sea_Group_SL"
+"SonicVec2" 0 "Top_Ieper" "Lower_North_Sea_Group_SL" "HydrostaticTemperature_Results.HDF" 472.751628264598 472.751628264598 472.751628264598 1891.00651305839 893976.408107314 4 "SonicVec2_0_Top_Ieper_Lower_North_Sea_Group_SL"
+"SonicVec2" 0 "Top_Chalk_nr_20_NS_B" "Lower_North_Sea_Group_SL" "HydrostaticTemperature_Results.HDF" 410.154649561174 410.154649561174 410.154649561174 1640.6185982447 672907.346226597 4 "SonicVec2_0_Top_Chalk_nr_20_NS_B_Lower_North_Sea_Group_SL"
+"SonicVec2" 0 "Top_Chalk_nr_20_NS_B" "Upper_Ommeland_Chalk_Group" "HydrostaticTemperature_Results.HDF" 347.776293347834 347.776293347834 347.776293347834 1391.10517339134 483793.400859034 4 "SonicVec2_0_Top_Chalk_nr_20_NS_B_Upper_Ommeland_Chalk_Group"
+"SonicVec2" 0 "Top_Lower_Ommeland_Chalk" "Upper_Ommeland_Chalk_Group" "HydrostaticTemperature_Results.HDF" 311.570543903248 311.570543903248 311.570543903248 1246.28217561299 388304.815312664 4 "SonicVec2_0_Top_Lower_Ommeland_Chalk_Upper_Ommeland_Chalk_Group"
+"SonicVec2" 0 "Top_Lower_Ommeland_Chalk" "Lower_Ommeland_Chalk_Group" "HydrostaticTemperature_Results.HDF" 253.429548484921 253.429548484921 253.429548484921 1013.71819393968 256906.144181083 4 "SonicVec2_0_Top_Lower_Ommeland_Chalk_Lower_Ommeland_Chalk_Group"
+"SonicVec2" 0 "Top_Texel_nr_30_CK_B" "Lower_Ommeland_Chalk_Group" "HydrostaticTemperature_Results.HDF" 222.38331179023 222.38331179023 222.38331179023 889.533247160919 197817.349451162 4 "SonicVec2_0_Top_Texel_nr_30_CK_B_Lower_Ommeland_Chalk_Group"
+"SonicVec2" 0 "Top_Texel_nr_30_CK_B" "Texel_Lr_Cret_undiff" "HydrostaticTemperature_Results.HDF" 266.430666872441 266.430666872441 266.430666872441 1065.72266748976 283941.201000375 4 "SonicVec2_0_Top_Texel_nr_30_CK_B_Texel_Lr_Cret_undiff"
+"SonicVec2" 0 "Base_Cretaceous_Hiatus_Unconformity" "Texel_Lr_Cret_undiff" "HydrostaticTemperature_Results.HDF" 253.608888007242 253.608888007242 253.608888007242 1014.43555202897 257269.872305079 4 "SonicVec2_0_Base_Cretaceous_Hiatus_Unconformity_Texel_Lr_Cret_undiff"
+"SonicVec2" 0 "Base_Cretaceous_Hiatus_Unconformity" "Base_Cret_on_Trias_hiatus" "HydrostaticTemperature_Results.HDF" 229.425087430119 229.425087430119 229.425087430119 917.700349720476 210543.482969271 4 "SonicVec2_0_Base_Cretaceous_Hiatus_Unconformity_Base_Cret_on_Trias_hiatus"
+"SonicVec2" 0 "Eroded_top_Roer_nr_45_TR_T" "Base_Cret_on_Trias_hiatus" "HydrostaticTemperature_Results.HDF" 229.425087430119 229.425087430119 229.425087430119 917.700349720476 210543.482969271 4 "SonicVec2_0_Eroded_top_Roer_nr_45_TR_T_Base_Cret_on_Trias_hiatus"
+"SonicVec2" 0 "Eroded_top_Roer_nr_45_TR_T" "Roer" "HydrostaticTemperature_Results.HDF" 282.824927632898 282.824927632898 282.824927632898 1131.29971053159 319959.758762216 4 "SonicVec2_0_Eroded_top_Roer_nr_45_TR_T_Roer"
+"SonicVec2" 0 "Eroded_top_Buntsandstein" "Roer" "HydrostaticTemperature_Results.HDF" 275.06016088928 275.06016088928 275.06016088928 1100.24064355712 302632.368433747 4 "SonicVec2_0_Eroded_top_Buntsandstein_Roer"
+"SonicVec2" 0 "Eroded_top_Buntsandstein" "Bunter" "HydrostaticTemperature_Results.HDF" 269.062538985085 269.062538985085 269.062538985085 1076.25015594034 289578.599540402 4 "SonicVec2_0_Eroded_top_Buntsandstein_Bunter"
+"SonicVec2" 0 "Base_Bunter_on_hiatus_nr_50_ZE_T" "Bunter" "HydrostaticTemperature_Results.HDF" 266.946311395964 266.946311395964 266.946311395964 1067.78524558386 285041.332671645 4 "SonicVec2_0_Base_Bunter_on_hiatus_nr_50_ZE_T_Bunter"
+"SonicVec2" 0 "Base_Bunter_on_hiatus_nr_50_ZE_T" "Zechstein_Bunter_hiatus" "HydrostaticTemperature_Results.HDF" 259.034526582692 259.034526582692 259.034526582692 1036.13810633077 268395.543847677 4 "SonicVec2_0_Base_Bunter_on_hiatus_nr_50_ZE_T_Zechstein_Bunter_hiatus"
+"SonicVec2" 0 "Top_Zechstein_under_hiatus_nr_50_ZE_T" "Zechstein_Bunter_hiatus" "HydrostaticTemperature_Results.HDF" 259.034526582692 259.034526582692 259.034526582692 1036.13810633077 268395.543847677 4 "SonicVec2_0_Top_Zechstein_under_hiatus_nr_50_ZE_T_Zechstein_Bunter_hiatus"
+"SonicVec2" 0 "Top_Zechstein_under_hiatus_nr_50_ZE_T" "Upper_Zechstein" "HydrostaticTemperature_Results.HDF" 223.388597225381 223.388597225381 223.388597225381 893.554388901524 199609.861481294 4 "SonicVec2_0_Top_Zechstein_under_hiatus_nr_50_ZE_T_Upper_Zechstein"
+"SonicVec2" 0 "Top_Z2_nr_59_ZEZ2A_T" "Upper_Zechstein" "HydrostaticTemperature_Results.HDF" 223.370662601421 223.370662601421 223.370662601421 893.482650405683 199577.811643991 4 "SonicVec2_0_Top_Z2_nr_59_ZEZ2A_T_Upper_Zechstein"
+"SonicVec2" 0 "Top_Z2_nr_59_ZEZ2A_T" "Lowest_Zechstein" "HydrostaticTemperature_Results.HDF" 227.766760964847 227.766760964847 227.766760964847 911.067043859386 207510.78960167 4 "SonicVec2_0_Top_Z2_nr_59_ZEZ2A_T_Lowest_Zechstein"
+"SonicVec2" 0 "Nr_Top_Rotliegend" "Lowest_Zechstein" "HydrostaticTemperature_Results.HDF" 225.778489926716 225.778489926716 225.778489926716 903.113959706865 203903.706054353 4 "SonicVec2_0_Nr_Top_Rotliegend_Lowest_Zechstein"
+"SonicVec2" 0 "Nr_Top_Rotliegend" "Rotliegend" "HydrostaticTemperature_Results.HDF" 245.443488295455 245.443488295455 245.443488295455 981.773953181821 240970.023786565 4 "SonicVec2_0_Nr_Top_Rotliegend_Rotliegend"
+"SonicVec2" 0 "Nr_Base_Rotliegend" "Rotliegend" "HydrostaticTemperature_Results.HDF" 233.737484983376 233.737484983376 233.737484983376 934.949939933505 218532.847545416 4 "SonicVec2_0_Nr_Base_Rotliegend_Rotliegend"
+"VelocityVec2" 0 "Water_Bottom" "Upper_North_Sea_Group_SL" "HydrostaticTemperature_Results.HDF" 1579.11145123291 1579.11145123291 1579.11145123291 6316.44580493163 9974371.9016596 4 "VelocityVec2_0_Water_Bottom_Upper_North_Sea_Group_SL"
+"VelocityVec2" 0 "Base_Breda_Clay" "Upper_North_Sea_Group_SL" "HydrostaticTemperature_Results.HDF" 2227.8787926385 2227.8787926385 2227.8787926385 8911.51517055401 19853775.6587536 4 "VelocityVec2_0_Base_Breda_Clay_Upper_North_Sea_Group_SL"
+"VelocityVec2" 0 "Base_Breda_Clay" "Breda_on_Rupel_Lt_Oligo_hiatus" "HydrostaticTemperature_Results.HDF" 2111.23194942841 2111.23194942841 2111.23194942841 8444.92779771364 17829201.3771491 4 "VelocityVec2_0_Base_Breda_Clay_Breda_on_Rupel_Lt_Oligo_hiatus"
+"VelocityVec2" 0 "Top_Rupel" "Breda_on_Rupel_Lt_Oligo_hiatus" "HydrostaticTemperature_Results.HDF" 2111.23194942841 2111.23194942841 2111.23194942841 8444.92779771364 17829201.3771491 4 "VelocityVec2_0_Top_Rupel_Breda_on_Rupel_Lt_Oligo_hiatus"
+"VelocityVec2" 0 "Top_Rupel" "Middle_North_Sea_Group_SL" "HydrostaticTemperature_Results.HDF" 1953.91988604517 1953.91988604517 1953.91988604517 7815.67954418068 15271211.6843311 4 "VelocityVec2_0_Top_Rupel_Middle_North_Sea_Group_SL"
+"VelocityVec2" 0 "Top_Ieper" "Middle_North_Sea_Group_SL" "HydrostaticTemperature_Results.HDF" 2220.5119062139 2220.5119062139 2220.5119062139 8882.04762485558 19722692.5025507 4 "VelocityVec2_0_Top_Ieper_Middle_North_Sea_Group_SL"
+"VelocityVec2" 0 "Top_Ieper" "Lower_North_Sea_Group_SL" "HydrostaticTemperature_Results.HDF" 2115.27563357286 2115.27563357286 2115.27563357286 8461.10253429145 17897564.0239483 4 "VelocityVec2_0_Top_Ieper_Lower_North_Sea_Group_SL"
+"VelocityVec2" 0 "Top_Chalk_nr_20_NS_B" "Lower_North_Sea_Group_SL" "HydrostaticTemperature_Results.HDF" 2438.1047516343 2438.1047516343 2438.1047516343 9752.41900653721 23777419.1197671 4 "VelocityVec2_0_Top_Chalk_nr_20_NS_B_Lower_North_Sea_Group_SL"
+"VelocityVec2" 0 "Top_Chalk_nr_20_NS_B" "Upper_Ommeland_Chalk_Group" "HydrostaticTemperature_Results.HDF" 2875.41163422498 2875.41163422498 2875.41163422498 11501.6465368999 33071968.2649454 4 "VelocityVec2_0_Top_Chalk_nr_20_NS_B_Upper_Ommeland_Chalk_Group"
+"VelocityVec2" 0 "Top_Lower_Ommeland_Chalk" "Upper_Ommeland_Chalk_Group" "HydrostaticTemperature_Results.HDF" 3209.54602277977 3209.54602277977 3209.54602277977 12838.1840911191 41204742.6893658 4 "VelocityVec2_0_Top_Lower_Ommeland_Chalk_Upper_Ommeland_Chalk_Group"
+"VelocityVec2" 0 "Top_Lower_Ommeland_Chalk" "Lower_Ommeland_Chalk_Group" "HydrostaticTemperature_Results.HDF" 3945.86979291999 3945.86979291999 3945.86979291999 15783.47917168 62279553.6907138 4 "VelocityVec2_0_Top_Lower_Ommeland_Chalk_Lower_Ommeland_Chalk_Group"
+"VelocityVec2" 0 "Top_Texel_nr_30_CK_B" "Lower_Ommeland_Chalk_Group" "HydrostaticTemperature_Results.HDF" 4496.74029921491 4496.74029921491 4496.74029921491 17986.9611968596 80882693.2743335 4 "VelocityVec2_0_Top_Texel_nr_30_CK_B_Lower_Ommeland_Chalk_Group"
+"VelocityVec2" 0 "Top_Texel_nr_30_CK_B" "Texel_Lr_Cret_undiff" "HydrostaticTemperature_Results.HDF" 3753.32168679655 3753.32168679655 3753.32168679655 15013.2867471862 56349694.7383091 4 "VelocityVec2_0_Top_Texel_nr_30_CK_B_Texel_Lr_Cret_undiff"
+"VelocityVec2" 0 "Base_Cretaceous_Hiatus_Unconformity" "Texel_Lr_Cret_undiff" "HydrostaticTemperature_Results.HDF" 3943.07947114001 3943.07947114 3943.07947114001 15772.31788456 62191502.862903 4 "VelocityVec2_0_Base_Cretaceous_Hiatus_Unconformity_Texel_Lr_Cret_undiff"
+"VelocityVec2" 0 "Base_Cretaceous_Hiatus_Unconformity" "Base_Cret_on_Trias_hiatus" "HydrostaticTemperature_Results.HDF" 4358.72123315455 4358.72123315455 4358.72123315455 17434.8849326182 75993803.1534094 4 "VelocityVec2_0_Base_Cretaceous_Hiatus_Unconformity_Base_Cret_on_Trias_hiatus"
+"VelocityVec2" 0 "Eroded_top_Roer_nr_45_TR_T" "Base_Cret_on_Trias_hiatus" "HydrostaticTemperature_Results.HDF" 4358.72123315455 4358.72123315455 4358.72123315455 17434.8849326182 75993803.1534094 4 "VelocityVec2_0_Eroded_top_Roer_nr_45_TR_T_Base_Cret_on_Trias_hiatus"
+"VelocityVec2" 0 "Eroded_top_Roer_nr_45_TR_T" "Roer" "HydrostaticTemperature_Results.HDF" 3535.75623043377 3535.75623043377 3535.75623043377 14143.0249217351 50006288.4842049 4 "VelocityVec2_0_Eroded_top_Roer_nr_45_TR_T_Roer"
+"VelocityVec2" 0 "Eroded_top_Buntsandstein" "Roer" "HydrostaticTemperature_Results.HDF" 3635.56829446678 3635.56829446678 3635.56829446678 14542.2731778671 52869427.2949284 4 "VelocityVec2_0_Eroded_top_Buntsandstein_Roer"
+"VelocityVec2" 0 "Eroded_top_Buntsandstein" "Bunter" "HydrostaticTemperature_Results.HDF" 3716.60805614947 3716.60805614947 3716.60805614947 14866.4322245979 55252701.7721407 4 "VelocityVec2_0_Eroded_top_Buntsandstein_Bunter"
+"VelocityVec2" 0 "Base_Bunter_on_hiatus_nr_50_ZE_T" "Bunter" "HydrostaticTemperature_Results.HDF" 3746.07161556426 3746.07161556426 3746.07161556426 14984.286462257 56132210.1957449 4 "VelocityVec2_0_Base_Bunter_on_hiatus_nr_50_ZE_T_Bunter"
+"VelocityVec2" 0 "Base_Bunter_on_hiatus_nr_50_ZE_T" "Zechstein_Bunter_hiatus" "HydrostaticTemperature_Results.HDF" 3860.48922972733 3860.48922972733 3860.48922972733 15441.9569189093 59613508.3713628 4 "VelocityVec2_0_Base_Bunter_on_hiatus_nr_50_ZE_T_Zechstein_Bunter_hiatus"
+"VelocityVec2" 0 "Top_Zechstein_under_hiatus_nr_50_ZE_T" "Zechstein_Bunter_hiatus" "HydrostaticTemperature_Results.HDF" 3860.48922972733 3860.48922972733 3860.48922972733 15441.9569189093 59613508.3713628 4 "VelocityVec2_0_Top_Zechstein_under_hiatus_nr_50_ZE_T_Zechstein_Bunter_hiatus"
+"VelocityVec2" 0 "Top_Zechstein_under_hiatus_nr_50_ZE_T" "Upper_Zechstein" "HydrostaticTemperature_Results.HDF" 4476.50422815038 4476.50422815038 4476.50422815038 17906.0169126015 80156360.4185929 4 "VelocityVec2_0_Top_Zechstein_under_hiatus_nr_50_ZE_T_Upper_Zechstein"
+"VelocityVec2" 0 "Top_Z2_nr_59_ZEZ2A_T" "Upper_Zechstein" "HydrostaticTemperature_Results.HDF" 4476.86365055193 4476.86365055193 4476.86365055193 17907.4546022077 80169232.5825325 4 "VelocityVec2_0_Top_Z2_nr_59_ZEZ2A_T_Upper_Zechstein"
+"VelocityVec2" 0 "Top_Z2_nr_59_ZEZ2A_T" "Lowest_Zechstein" "HydrostaticTemperature_Results.HDF" 4390.45625342295 4390.45625342295 4390.45625342295 17561.8250136918 77104424.4528826 4 "VelocityVec2_0_Top_Z2_nr_59_ZEZ2A_T_Lowest_Zechstein"
+"VelocityVec2" 0 "Nr_Top_Rotliegend" "Lowest_Zechstein" "HydrostaticTemperature_Results.HDF" 4429.11988792459 4429.11988792459 4429.11988792459 17716.4795516984 78468411.9264365 4 "VelocityVec2_0_Nr_Top_Rotliegend_Lowest_Zechstein"
+"VelocityVec2" 0 "Nr_Top_Rotliegend" "Rotliegend" "HydrostaticTemperature_Results.HDF" 4074.25760994824 4074.25760994824 4074.25760994824 16297.030439793 66398300.2888845 4 "VelocityVec2_0_Nr_Top_Rotliegend_Rotliegend"
+"VelocityVec2" 0 "Nr_Base_Rotliegend" "Rotliegend" "HydrostaticTemperature_Results.HDF" 4278.30392746427 4278.30392746427 4278.30392746427 17113.2157098571 73215537.9830249 4 "VelocityVec2_0_Nr_Base_Rotliegend_Rotliegend"
+[End]
+;
+;
+; 3DTimeIoTbl
+;
+[3DTimeIoTbl]
+;v100
+Time PropertyName FormationName MapFileName GroupName DataSetName NumberX NumberY NumberZ Average Minimum Maximum Sum Sum2 NP
+(Ma)   ()   ()   ()   ()   ()   ()   ()   ()   ()   ()   ()   ()   ()   ()
+   0 "Depth" "Upper_North_Sea_Group_SL" "Time_0.000000.h5" "Depth" "Upper_North_Sea_Group_SL" 2 2 4 281.091522216797 0 562.183044433594 4497.46435546875 1966531.93612477 16
+   0 "Depth" "Breda_on_Rupel_Lt_Oligo_hiatus" "Time_0.000000.h5" "Depth" "Breda_on_Rupel_Lt_Oligo_hiatus" 2 2 2 562.183044433594 562.183044433594 562.183044433594 4497.46435546875 2528398.20358899 8
+   0 "Depth" "Middle_North_Sea_Group_SL" "Time_0.000000.h5" "Depth" "Middle_North_Sea_Group_SL" 2 2 3 713.867523193359 562.183044433594 865.552001953125 8566.41027832031 6299347.53681563 12
+   0 "Depth" "Lower_North_Sea_Group_SL" "Time_0.000000.h5" "Depth" "Lower_North_Sea_Group_SL" 2 2 3 1046.94512939453 865.552001953125 1228.33825683594 12563.3415527344 13416356.981019 12
+   0 "Depth" "Upper_Ommeland_Chalk_Group" "Time_0.000000.h5" "Depth" "Upper_Ommeland_Chalk_Group" 2 2 3 1368.38531494141 1228.33825683594 1508.43237304688 16420.6237792969 22626645.8696396 12
+   0 "Depth" "Lower_Ommeland_Chalk_Group" "Time_0.000000.h5" "Depth" "Lower_Ommeland_Chalk_Group" 2 2 4 1747.94793701172 1508.43237304688 1987.46350097656 27967.1669921875 49395087.0070022 16
+   0 "Depth" "Texel_Lr_Cret_undiff" "Time_0.000000.h5" "Depth" "Texel_Lr_Cret_undiff" 2 2 2 2087.33673095703 1987.46350097656 2187.2099609375 16698.6938476562 34935594.3237529 8
+   0 "Depth" "Base_Cret_on_Trias_hiatus" "Time_0.000000.h5" "Depth" "Base_Cret_on_Trias_hiatus" 2 2 2 2187.2099609375 2187.2099609375 2187.2099609375 17497.6796875 38271099.3057938 8
+   0 "Depth" "Roer" "Time_0.000000.h5" "Depth" "Roer" 2 2 2 2260.6943359375 2187.2099609375 2334.1787109375 18085.5546875 40929110.6712723 8
+   0 "Depth" "Bunter" "Time_0.000000.h5" "Depth" "Bunter" 2 2 2 2359.89807128906 2334.1787109375 2385.61743164062 18879.1845703125 44558243.1389657 8
+   0 "Depth" "Zechstein_Bunter_hiatus" "Time_0.000000.h5" "Depth" "Zechstein_Bunter_hiatus" 2 2 2 2385.61743164062 2385.61743164062 2385.61743164062 19084.939453125 45529364.2411807 8
+   0 "Depth" "Upper_Zechstein" "Time_0.000000.h5" "Depth" "Upper_Zechstein" 2 2 6 2847.23901367187 2385.61743164062 3308.86059570312 68333.7363281249 196949138.255371 24
+   0 "Depth" "Lowest_Zechstein" "Time_0.000000.h5" "Depth" "Lowest_Zechstein" 2 2 2 3350.69604492187 3308.86059570312 3392.53149414062 26805.568359375 89831313.5221312 8
+   0 "Depth" "Rotliegend" "Time_0.000000.h5" "Depth" "Rotliegend" 2 2 5 3706.56884765625 3392.53149414062 4020.60620117188 74131.376953125 275759247.042347 20
+   0 "Depth" "Crust" "Time_0.000000.h5" "Depth" "Crust" 2 2 9 19035.6212161869 4020.60620117188 34050.6362312019 685282.363782728 16426535641.6181 36
+   0 "Depth" "Mantle" "Time_0.000000.h5" "Depth" "Mantle" 2 2 101 74050.6362312024 34050.6362312019 114050.636231202 29916457.0374058 2435108677403.3 404
+   0 "MaxVes" "Upper_North_Sea_Group_SL" "Time_0.000000.h5" "MaxVes" "Upper_North_Sea_Group_SL" 2 2 4 2627766.09236833 0 5350298.71389322 42044257.4778932 174136270474400 16
+   0 "MaxVes" "Breda_on_Rupel_Lt_Oligo_hiatus" "Time_0.000000.h5" "MaxVes" "Breda_on_Rupel_Lt_Oligo_hiatus" 2 2 2 5350298.71389322 5350298.71389322 5350298.71389322 42802389.7111458 229005570623100 8
+   0 "MaxVes" "Middle_North_Sea_Group_SL" "Time_0.000000.h5" "MaxVes" "Middle_North_Sea_Group_SL" 2 2 3 6911699.94812765 5350298.71389322 8501323.09083578 82940399.3775318 593121842180253 12
+   0 "MaxVes" "Lower_North_Sea_Group_SL" "Time_0.000000.h5" "MaxVes" "Lower_North_Sea_Group_SL" 2 2 3 10588754.6833995 8501323.09083578 12715576.0815826 127065056.200793 1.38098987482333e+15 12
+   0 "MaxVes" "Upper_Ommeland_Chalk_Group" "Time_0.000000.h5" "MaxVes" "Upper_Ommeland_Chalk_Group" 2 2 3 14499209.4986783 12715576.0815826 16301819.4648226 173990513.98414 2.54844935690292e+15 12
+   0 "MaxVes" "Lower_Ommeland_Chalk_Group" "Time_0.000000.h5" "MaxVes" "Lower_Ommeland_Chalk_Group" 2 2 4 19535257.3457671 16301819.4648226 22829285.8552408 312564117.532274 6.20073889295301e+15 16
+   0 "MaxVes" "Texel_Lr_Cret_undiff" "Time_0.000000.h5" "MaxVes" "Texel_Lr_Cret_undiff" 2 2 2 24271725.3483985 22829285.8552408 25714164.8415562 194173802.787188 4.72957826463609e+15 8
+   0 "MaxVes" "Base_Cret_on_Trias_hiatus" "Time_0.000000.h5" "MaxVes" "Base_Cret_on_Trias_hiatus" 2 2 2 25714164.8415562 25714164.8415562 25714164.8415562 205713318.73245 5.28974618798981e+15 8
+   0 "MaxVes" "Roer" "Time_0.000000.h5" "MaxVes" "Roer" 2 2 2 26750909.0843624 25714164.8415562 27787653.3271685 214007272.674899 5.7334878037185e+15 8
+   0 "MaxVes" "Bunter" "Time_0.000000.h5" "MaxVes" "Bunter" 2 2 2 28139505.1429965 27787653.3271685 28491356.9588245 225116041.143972 6.33564439514423e+15 8
+   0 "MaxVes" "Zechstein_Bunter_hiatus" "Time_0.000000.h5" "MaxVes" "Zechstein_Bunter_hiatus" 2 2 2 28491356.9588245 28491356.9588245 28491356.9588245 227930855.670596 6.49405937084126e+15 8
+   0 "MaxVes" "Upper_Zechstein" "Time_0.000000.h5" "MaxVes" "Upper_Zechstein" 2 2 6 33088532.3904347 28491356.9588245 37685707.8220449 794124777.370433 2.65131244638971e+16 24
+   0 "MaxVes" "Lowest_Zechstein" "Time_0.000000.h5" "MaxVes" "Lowest_Zechstein" 2 2 2 38291795.8643466 37685707.8220449 38897883.9066483 306334366.914773 1.17330317858545e+16 8
+   0 "MaxVes" "Rotliegend" "Time_0.000000.h5" "MaxVes" "Rotliegend" 2 2 5 43372431.0115201 38897883.9066483 47880480.6704556 867448620.230403 3.78251025763687e+16 20
+   0 "Pressure" "Upper_North_Sea_Group_SL" "Time_0.000000.h5" "Pressure" "Upper_North_Sea_Group_SL" 2 2 4 2.88795788875699 0.1 5.67591577751398 46.2073262201118 202.535560626694 16
+   0 "Pressure" "Breda_on_Rupel_Lt_Oligo_hiatus" "Time_0.000000.h5" "Pressure" "Breda_on_Rupel_Lt_Oligo_hiatus" 2 2 2 5.67591577751398 5.67591577751398 5.67591577751398 45.4073262201118 257.728159307457 8
+   0 "Pressure" "Middle_North_Sea_Group_SL" "Time_0.000000.h5" "Pressure" "Middle_North_Sea_Group_SL" 2 2 3 7.18037217600371 5.67591577751398 8.68482857449345 86.1644661120446 636.800047470794 12
+   0 "Pressure" "Lower_North_Sea_Group_SL" "Time_0.000000.h5" "Pressure" "Lower_North_Sea_Group_SL" 2 2 3 10.4839450922322 8.68482857449345 12.283061609971 125.807341106787 1344.85181831848 12
+   0 "Pressure" "Upper_Ommeland_Chalk_Group" "Time_0.000000.h5" "Pressure" "Upper_Ommeland_Chalk_Group" 2 2 3 13.6720942544391 12.283061609971 15.0611268989071 164.065131053269 2258.54922912637 12
+   0 "Pressure" "Lower_Ommeland_Chalk_Group" "Time_0.000000.h5" "Pressure" "Lower_Ommeland_Chalk_Group" 2 2 4 17.4367208007425 15.0611268989071 19.812314702578 278.987532811881 4914.79168440821 16
+   0 "Pressure" "Texel_Lr_Cret_undiff" "Time_0.000000.h5" "Pressure" "Texel_Lr_Cret_undiff" 2 2 2 20.8028901464896 19.812314702578 21.7934655904012 166.423121171916 3469.93182525594 8
+   0 "Pressure" "Base_Cret_on_Trias_hiatus" "Time_0.000000.h5" "Pressure" "Base_Cret_on_Trias_hiatus" 2 2 2 21.7934655904012 21.7934655904012 21.7934655904012 174.347724723209 3799.64113951999 8
+   0 "Pressure" "Roer" "Time_0.000000.h5" "Pressure" "Roer" 2 2 2 22.52230771757 21.7934655904012 23.2511498447389 180.17846174056 4062.28444617 8
+   0 "Pressure" "Bunter" "Time_0.000000.h5" "Pressure" "Bunter" 2 2 2 23.5062428942212 23.2511498447389 23.7613359437036 188.04994315377 4420.86821972817 8
+   0 "Pressure" "Zechstein_Bunter_hiatus" "Time_0.000000.h5" "Pressure" "Zechstein_Bunter_hiatus" 2 2 2 23.7613359437036 23.7613359437036 23.7613359437036 190.090687549629 4516.80868663632 8
+   0 "Pressure" "Upper_Zechstein" "Time_0.000000.h5" "Pressure" "Upper_Zechstein" 2 2 6 28.9547209326531 23.7613359437036 34.1481059216027 694.913302383675 20423.0987165143 24
+   0 "Pressure" "Lowest_Zechstein" "Time_0.000000.h5" "Pressure" "Lowest_Zechstein" 2 2 2 34.6187676116879 34.1481059216027 35.089429301773 276.950140893503 9589.44474702851 8
+   0 "Pressure" "Rotliegend" "Time_0.000000.h5" "Pressure" "Rotliegend" 2 2 5 38.4129791712752 35.089429301773 41.7365290407774 768.259583425505 29621.5992136072 20
+   0 "Pressure" "Crust" "Time_0.000000.h5" "Pressure" "Crust" 2 2 9 0 0 0 0 0 36
+   0 "Pressure" "Mantle" "Time_0.000000.h5" "Pressure" "Mantle" 2 2 101 0 0 0 0 0 404
+   0 "Temperature" "Upper_North_Sea_Group_SL" "Time_0.000000.h5" "Temperature" "Upper_North_Sea_Group_SL" 2 2 4 19.7882349725456 10 29.2680756536135 316.61175956073 7090.34907976474 16
+   0 "Temperature" "Breda_on_Rupel_Lt_Oligo_hiatus" "Time_0.000000.h5" "Temperature" "Breda_on_Rupel_Lt_Oligo_hiatus" 2 2 2 29.2680756536135 29.2680756536135 29.2680756536135 234.144605228908 6852.96201972514 8
+   0 "Temperature" "Middle_North_Sea_Group_SL" "Time_0.000000.h5" "Temperature" "Middle_North_Sea_Group_SL" 2 2 3 35.3296604188063 29.2680756536135 41.3009809368915 423.955925025675 15267.8493686165 12
+   0 "Temperature" "Lower_North_Sea_Group_SL" "Time_0.000000.h5" "Temperature" "Lower_North_Sea_Group_SL" 2 2 3 48.4304003828049 41.3009809368915 55.4472019905656 581.164804593659 28546.3514117291 12
+   0 "Temperature" "Upper_Ommeland_Chalk_Group" "Time_0.000000.h5" "Temperature" "Upper_Ommeland_Chalk_Group" 2 2 3 60.1997165842295 55.4472019905656 64.9126461346024 722.396599010754 43667.2691894004 12
+   0 "Temperature" "Lower_Ommeland_Chalk_Group" "Time_0.000000.h5" "Temperature" "Lower_Ommeland_Chalk_Group" 2 2 4 71.7504646451136 64.9126461346024 78.4865775206938 1148.00743432182 82779.4387890524 16
+   0 "Temperature" "Texel_Lr_Cret_undiff" "Time_0.000000.h5" "Temperature" "Texel_Lr_Cret_undiff" 2 2 2 81.5399031136719 78.4865775206938 84.5932287066501 652.319224909375 53264.6287757099 8
+   0 "Temperature" "Base_Cret_on_Trias_hiatus" "Time_0.000000.h5" "Temperature" "Base_Cret_on_Trias_hiatus" 2 2 2 84.5932287066501 84.59322870665 84.5932287066501 676.7458296532 57248.1147441248 8
+   0 "Temperature" "Roer" "Time_0.000000.h5" "Temperature" "Roer" 2 2 2 86.5562790465356 84.59322870665 88.5193293864211 692.450232372284 59966.7440721492 8
+   0 "Temperature" "Bunter" "Time_0.000000.h5" "Temperature" "Bunter" 2 2 2 89.1160249529387 88.519329386421 89.7127205194563 712.928199623509 63536.1755920951 8
+   0 "Temperature" "Zechstein_Bunter_hiatus" "Time_0.000000.h5" "Temperature" "Zechstein_Bunter_hiatus" 2 2 2 89.7127205194563 89.7127205194563 89.7127205194563 717.70176415565 64386.9777840166 8
+   0 "Temperature" "Upper_Zechstein" "Time_0.000000.h5" "Temperature" "Upper_Zechstein" 2 2 6 94.2775806472775 89.7127205194563 98.8700173326586 2262.66193553466 213553.087122917 24
+   0 "Temperature" "Lowest_Zechstein" "Time_0.000000.h5" "Temperature" "Lowest_Zechstein" 2 2 2 100.047700790907 98.8700173326586 101.225384249156 800.381606327256 80087.4349749975 8
+   0 "Temperature" "Rotliegend" "Time_0.000000.h5" "Temperature" "Rotliegend" 2 2 5 108.459899562623 101.225384249155 115.641182436946 2169.19799125246 235790.464349248 20
+   0 "Temperature" "Crust" "Time_0.000000.h5" "Temperature" "Crust" 2 2 9 320.534835174486 115.641182436946 513.498611100355 11539.2540662815 4279383.31467889 36
+   0 "Temperature" "Mantle" "Time_0.000000.h5" "Temperature" "Mantle" 2 2 101 906.718679232985 513.498611100355 1333 366314.346410126 355333534.029256 404
+   0 "Ves" "Upper_North_Sea_Group_SL" "Time_0.000000.h5" "Ves" "Upper_North_Sea_Group_SL" 2 2 4 2627766.09236833 0 5350298.71389322 42044257.4778932 174136270474400 16
+   0 "Ves" "Breda_on_Rupel_Lt_Oligo_hiatus" "Time_0.000000.h5" "Ves" "Breda_on_Rupel_Lt_Oligo_hiatus" 2 2 2 5350298.71389322 5350298.71389322 5350298.71389322 42802389.7111458 229005570623100 8
+   0 "Ves" "Middle_North_Sea_Group_SL" "Time_0.000000.h5" "Ves" "Middle_North_Sea_Group_SL" 2 2 3 6911699.94812765 5350298.71389322 8501323.09083578 82940399.3775318 593121842180253 12
+   0 "Ves" "Lower_North_Sea_Group_SL" "Time_0.000000.h5" "Ves" "Lower_North_Sea_Group_SL" 2 2 3 10588754.6833995 8501323.09083578 12715576.0815826 127065056.200793 1.38098987482333e+15 12
+   0 "Ves" "Upper_Ommeland_Chalk_Group" "Time_0.000000.h5" "Ves" "Upper_Ommeland_Chalk_Group" 2 2 3 14499209.4986783 12715576.0815826 16301819.4648226 173990513.98414 2.54844935690292e+15 12
+   0 "Ves" "Lower_Ommeland_Chalk_Group" "Time_0.000000.h5" "Ves" "Lower_Ommeland_Chalk_Group" 2 2 4 19535257.3457671 16301819.4648226 22829285.8552408 312564117.532274 6.20073889295301e+15 16
+   0 "Ves" "Texel_Lr_Cret_undiff" "Time_0.000000.h5" "Ves" "Texel_Lr_Cret_undiff" 2 2 2 24271725.3483985 22829285.8552408 25714164.8415562 194173802.787188 4.72957826463609e+15 8
+   0 "Ves" "Base_Cret_on_Trias_hiatus" "Time_0.000000.h5" "Ves" "Base_Cret_on_Trias_hiatus" 2 2 2 25714164.8415562 25714164.8415562 25714164.8415562 205713318.73245 5.28974618798981e+15 8
+   0 "Ves" "Roer" "Time_0.000000.h5" "Ves" "Roer" 2 2 2 26750909.0843624 25714164.8415562 27787653.3271685 214007272.674899 5.7334878037185e+15 8
+   0 "Ves" "Bunter" "Time_0.000000.h5" "Ves" "Bunter" 2 2 2 28139505.1429965 27787653.3271685 28491356.9588245 225116041.143972 6.33564439514423e+15 8
+   0 "Ves" "Zechstein_Bunter_hiatus" "Time_0.000000.h5" "Ves" "Zechstein_Bunter_hiatus" 2 2 2 28491356.9588245 28491356.9588245 28491356.9588245 227930855.670596 6.49405937084126e+15 8
+   0 "Ves" "Upper_Zechstein" "Time_0.000000.h5" "Ves" "Upper_Zechstein" 2 2 6 33088532.3904347 28491356.9588245 37685707.8220449 794124777.370433 2.65131244638971e+16 24
+   0 "Ves" "Lowest_Zechstein" "Time_0.000000.h5" "Ves" "Lowest_Zechstein" 2 2 2 38291795.8643466 37685707.8220449 38897883.9066483 306334366.914773 1.17330317858545e+16 8
+   0 "Ves" "Rotliegend" "Time_0.000000.h5" "Ves" "Rotliegend" 2 2 5 43372431.0115201 38897883.9066483 47880480.6704556 867448620.230403 3.78251025763687e+16 20
+   0 "Vr" "Upper_North_Sea_Group_SL" "Time_0.000000.h5" "Vr" "Upper_North_Sea_Group_SL" 2 2 4 0.240429453465917 0.2 0.267967888542225 3.84687125545467 0.93526486594475 16
+   0 "Vr" "Breda_on_Rupel_Lt_Oligo_hiatus" "Time_0.000000.h5" "Vr" "Breda_on_Rupel_Lt_Oligo_hiatus" 2 2 2 0.267967888542225 0.267967888542225 0.267967888542225 2.1437431083378 0.574454314318228 8
+   0 "Vr" "Middle_North_Sea_Group_SL" "Time_0.000000.h5" "Vr" "Middle_North_Sea_Group_SL" 2 2 3 0.288190278755798 0.26819990151381 0.305399492653668 3.45828334506958 0.999457669611362 12
+   0 "Vr" "Lower_North_Sea_Group_SL" "Time_0.000000.h5" "Vr" "Lower_North_Sea_Group_SL" 2 2 3 0.335078877342897 0.305399492653668 0.362882661515551 4.02094652811477 1.35396398516511 12
+   0 "Vr" "Upper_Ommeland_Chalk_Group" "Time_0.000000.h5" "Vr" "Upper_Ommeland_Chalk_Group" 2 2 3 0.391077697972274 0.362882661515551 0.417620388622755 4.69293237566729 1.84131000923322 12
+   0 "Vr" "Lower_Ommeland_Chalk_Group" "Time_0.000000.h5" "Vr" "Lower_Ommeland_Chalk_Group" 2 2 4 0.459233010980258 0.417620388622755 0.504677955505625 7.34772817568413 3.39181133370165 16
+   0 "Vr" "Texel_Lr_Cret_undiff" "Time_0.000000.h5" "Vr" "Texel_Lr_Cret_undiff" 2 2 2 0.525620397324033 0.504677955505624 0.546562839142442 4.20496317859226 2.21372310361913 8
+   0 "Vr" "Base_Cret_on_Trias_hiatus" "Time_0.000000.h5" "Vr" "Base_Cret_on_Trias_hiatus" 2 2 2 0.546562839142441 0.54656283914244 0.546562839142442 4.37250271313953 2.38984749705156 8
+   0 "Vr" "Roer" "Time_0.000000.h5" "Vr" "Roer" 2 2 2 0.565841957379965 0.54656284578317 0.585121068976763 4.52673565903972 2.56439043900442 8
+   0 "Vr" "Bunter" "Time_0.000000.h5" "Vr" "Bunter" 2 2 2 0.590792494806546 0.585121068976757 0.596463920636336 4.72633995845236 2.79254349592548 8
+   0 "Vr" "Zechstein_Bunter_hiatus" "Time_0.000000.h5" "Vr" "Zechstein_Bunter_hiatus" 2 2 2 0.596463920636332 0.596463920636328 0.596463920636336 4.77171136509065 2.84615366896691 8
+   0 "Vr" "Upper_Zechstein" "Time_0.000000.h5" "Vr" "Upper_Zechstein" 2 2 6 0.625821942477077 0.596463920770097 0.652185179738897 15.0197266194498 9.40799721479945 24
+   0 "Vr" "Lowest_Zechstein" "Time_0.000000.h5" "Vr" "Lowest_Zechstein" 2 2 2 0.660580148073036 0.652185179738895 0.668975116407177 5.28464118458429 3.49149286017221 8
+   0 "Vr" "Rotliegend" "Time_0.000000.h5" "Vr" "Rotliegend" 2 2 5 0.722753593429803 0.668975116407177 0.775517178183081 14.4550718685961 10.4749202329968 20
+   0 "BrineDensity" "Upper_North_Sea_Group_SL" "Time_0.000000.h5" "BrineDensity" "Upper_North_Sea_Group_SL" 2 2 4 1011.04259993259 1011.04259993259 1011.04259993259 16176.6815989214 16355314.2220552 16
+   0 "BrineDensity" "Breda_on_Rupel_Lt_Oligo_hiatus" "Time_0.000000.h5" "BrineDensity" "Breda_on_Rupel_Lt_Oligo_hiatus" 2 2 2 1011.04259993259 1011.04259993259 1011.04259993259 8088.34079946071 8177657.11102759 8
+   0 "BrineDensity" "Middle_North_Sea_Group_SL" "Time_0.000000.h5" "BrineDensity" "Middle_North_Sea_Group_SL" 2 2 3 1011.04259993259 1011.04259993259 1011.04259993259 12132.5111991911 12266485.6665414 12
+   0 "BrineDensity" "Lower_North_Sea_Group_SL" "Time_0.000000.h5" "BrineDensity" "Lower_North_Sea_Group_SL" 2 2 3 1011.04259993259 1011.04259993259 1011.04259993259 12132.5111991911 12266485.6665414 12
+   0 "BrineDensity" "Upper_Ommeland_Chalk_Group" "Time_0.000000.h5" "BrineDensity" "Upper_Ommeland_Chalk_Group" 2 2 3 1011.04259993259 1011.04259993259 1011.04259993259 12132.5111991911 12266485.6665414 12
+   0 "BrineDensity" "Lower_Ommeland_Chalk_Group" "Time_0.000000.h5" "BrineDensity" "Lower_Ommeland_Chalk_Group" 2 2 4 1011.04259993259 1011.04259993259 1011.04259993259 16176.6815989214 16355314.2220552 16
+   0 "BrineDensity" "Texel_Lr_Cret_undiff" "Time_0.000000.h5" "BrineDensity" "Texel_Lr_Cret_undiff" 2 2 2 1011.04259993259 1011.04259993259 1011.04259993259 8088.34079946071 8177657.11102759 8
+   0 "BrineDensity" "Base_Cret_on_Trias_hiatus" "Time_0.000000.h5" "BrineDensity" "Base_Cret_on_Trias_hiatus" 2 2 2 1011.04259993259 1011.04259993259 1011.04259993259 8088.34079946071 8177657.11102759 8
+   0 "BrineDensity" "Roer" "Time_0.000000.h5" "BrineDensity" "Roer" 2 2 2 1011.04259993259 1011.04259993259 1011.04259993259 8088.34079946071 8177657.11102759 8
+   0 "BrineDensity" "Bunter" "Time_0.000000.h5" "BrineDensity" "Bunter" 2 2 2 1011.04259993259 1011.04259993259 1011.04259993259 8088.34079946071 8177657.11102759 8
+   0 "BrineDensity" "Zechstein_Bunter_hiatus" "Time_0.000000.h5" "BrineDensity" "Zechstein_Bunter_hiatus" 2 2 2 1011.04259993259 1011.04259993259 1011.04259993259 8088.34079946071 8177657.11102759 8
+   0 "BrineDensity" "Upper_Zechstein" "Time_0.000000.h5" "BrineDensity" "Upper_Zechstein" 2 2 6 1146.82038993259 1146.82038993259 1146.82038993259 27523.6893583821 31564728.1623632 24
+   0 "BrineDensity" "Lowest_Zechstein" "Time_0.000000.h5" "BrineDensity" "Lowest_Zechstein" 2 2 2 1146.82038993259 1146.82038993259 1146.82038993259 9174.56311946071 10521576.0541211 8
+   0 "BrineDensity" "Rotliegend" "Time_0.000000.h5" "BrineDensity" "Rotliegend" 2 2 5 1078.82718993259 1078.82718993259 1078.82718993259 21576.5437986518 23277362.1147569 20
+   0 "BrineViscosity" "Upper_North_Sea_Group_SL" "Time_0.000000.h5" "BrineViscosity" "Upper_North_Sea_Group_SL" 2 2 4 0.00109610834739538 0.000904776891481617 0.00132319401710531 0.0175377335583261 1.96146333067819e-05 16
+   0 "BrineViscosity" "Breda_on_Rupel_Lt_Oligo_hiatus" "Time_0.000000.h5" "BrineViscosity" "Breda_on_Rupel_Lt_Oligo_hiatus" 2 2 2 0.000904776891481617 0.000904776891481617 0.000904776891481617 0.00723821513185294 6.5489697868731e-06 8
+   0 "BrineViscosity" "Middle_North_Sea_Group_SL" "Time_0.000000.h5" "BrineViscosity" "Middle_North_Sea_Group_SL" 2 2 3 0.000819629684749954 0.000739850594149166 0.000904776891481617 0.00983555621699945 8.11608810860807e-06 12
+   0 "BrineViscosity" "Lower_North_Sea_Group_SL" "Time_0.000000.h5" "BrineViscosity" "Lower_North_Sea_Group_SL" 2 2 3 0.000666175525615487 0.000597370883631082 0.000739850594149167 0.00799410630738585 5.36622123329611e-06 12
+   0 "BrineViscosity" "Upper_Ommeland_Chalk_Group" "Time_0.000000.h5" "BrineViscosity" "Upper_Ommeland_Chalk_Group" 2 2 3 0.000559744963135189 0.000523631104186216 0.000597370883631082 0.00671693955762227 3.77066191318846e-06 12
+   0 "BrineViscosity" "Lower_Ommeland_Chalk_Group" "Time_0.000000.h5" "BrineViscosity" "Lower_Ommeland_Chalk_Group" 2 2 4 0.00048007694621381 0.000439630665527827 0.000523631104186216 0.00768123113942095 3.70328011860557e-06 16
+   0 "BrineViscosity" "Texel_Lr_Cret_undiff" "Time_0.000000.h5" "BrineViscosity" "Texel_Lr_Cret_undiff" 2 2 2 0.000424032699476745 0.000408434733425662 0.000439630665527827 0.00339226159581396 1.44037621416373e-06 8
+   0 "BrineViscosity" "Base_Cret_on_Trias_hiatus" "Time_0.000000.h5" "BrineViscosity" "Base_Cret_on_Trias_hiatus" 2 2 2 0.000408434733425662 0.000408434733425662 0.000408434733425662 0.0032674778674053 1.33455145174793e-06 8
+   0 "BrineViscosity" "Roer" "Time_0.000000.h5" "BrineViscosity" "Roer" 2 2 2 0.000399305674411003 0.000390176615396345 0.000408434733425662 0.00319444539528803 1.27622689068256e-06 8
+   0 "BrineViscosity" "Bunter" "Time_0.000000.h5" "BrineViscosity" "Bunter" 2 2 2 0.000387530021433844 0.000384883427471343 0.000390176615396345 0.00310024017147075 1.20149217577694e-06 8
+   0 "BrineViscosity" "Zechstein_Bunter_hiatus" "Time_0.000000.h5" "BrineViscosity" "Zechstein_Bunter_hiatus" 2 2 2 0.000384883427471343 0.000384883427471343 0.000384883427471343 0.00307906741977075 1.18508202193671e-06 8
+   0 "BrineViscosity" "Upper_Zechstein" "Time_0.000000.h5" "BrineViscosity" "Upper_Zechstein" 2 2 6 0.000540561490763818 0.000513026344102114 0.000569219347476753 0.0129734757783316 7.02180362161743e-06 24
+   0 "BrineViscosity" "Lowest_Zechstein" "Time_0.000000.h5" "BrineViscosity" "Lowest_Zechstein" 2 2 2 0.000506544787065028 0.000500063230027943 0.000513026344102114 0.00405235829652023 2.05303705507504e-06 8
+   0 "BrineViscosity" "Rotliegend" "Time_0.000000.h5" "BrineViscosity" "Rotliegend" 2 2 5 0.000414687103069271 0.000387837109139581 0.000443344709962535 0.00829374206138542 3.44701289364528e-06 20
+   0 "HorizontalPermeability" "Upper_North_Sea_Group_SL" "Time_0.000000.h5" "HorizontalPermeability" "Upper_North_Sea_Group_SL" 2 2 4 20.8765826081418 13.1492809103551 30.5994684586506 334.025321730269 7660.32112876268 16
+   0 "HorizontalPermeability" "Breda_on_Rupel_Lt_Oligo_hiatus" "Time_0.000000.h5" "HorizontalPermeability" "Breda_on_Rupel_Lt_Oligo_hiatus" 2 2 2 3.83113144057723 3.83113144057723 3.83113144057723 30.6490515246178 117.420544919835 8
+   0 "HorizontalPermeability" "Middle_North_Sea_Group_SL" "Time_0.000000.h5" "HorizontalPermeability" "Middle_North_Sea_Group_SL" 2 2 3 0.00610182598294263 0.00374722055807883 0.00886564478282654 0.0732219117953116 0.000500188630520106 12
+   0 "HorizontalPermeability" "Lower_North_Sea_Group_SL" "Time_0.000000.h5" "HorizontalPermeability" "Lower_North_Sea_Group_SL" 2 2 3 0.000172003959596887 9.33547854343077e-05 0.000268273294448299 0.00206404751516264 4.18080135371647e-07 12
+   0 "HorizontalPermeability" "Upper_Ommeland_Chalk_Group" "Time_0.000000.h5" "HorizontalPermeability" "Upper_Ommeland_Chalk_Group" 2 2 3 4.17822250362392e-05 2.68934166752975e-05 5.92209056524581e-05 0.000501386700434871 2.30781961259935e-08 12
+   0 "HorizontalPermeability" "Lower_Ommeland_Chalk_Group" "Time_0.000000.h5" "HorizontalPermeability" "Lower_Ommeland_Chalk_Group" 2 2 4 1.63613081305325e-05 8.28579978169242e-06 2.76437652358987e-05 0.000261780930088519 5.14187314912103e-09 16
+   0 "HorizontalPermeability" "Texel_Lr_Cret_undiff" "Time_0.000000.h5" "HorizontalPermeability" "Texel_Lr_Cret_undiff" 2 2 2 6.57301811823518e-06 5.46546102754298e-06 7.68057520892737e-06 5.25841449458814e-05 3.55449999134324e-10 8
+   0 "HorizontalPermeability" "Base_Cret_on_Trias_hiatus" "Time_0.000000.h5" "HorizontalPermeability" "Base_Cret_on_Trias_hiatus" 2 2 2 8.91772282566918e-06 8.91772282566918e-06 8.91772282566918e-06 7.13417826053535e-05 6.36206243163689e-10 8
+   0 "HorizontalPermeability" "Roer" "Time_0.000000.h5" "HorizontalPermeability" "Roer" 2 2 2 0.061526401077706 0.0546290287633186 0.0684237733920935 0.492211208621648 0.0306645741953442 8
+   0 "HorizontalPermeability" "Bunter" "Time_0.000000.h5" "HorizontalPermeability" "Bunter" 2 2 2 75.3751240182334 71.9144728042606 78.8357752322061 603.000992145867 45547.0834207106 8
+   0 "HorizontalPermeability" "Zechstein_Bunter_hiatus" "Time_0.000000.h5" "HorizontalPermeability" "Zechstein_Bunter_hiatus" 2 2 2 1.8078238694678 1.8078238694678 1.8078238694678 14.4625909557424 26.1458171441401 8
+   0 "HorizontalPermeability" "Upper_Zechstein" "Time_0.000000.h5" "HorizontalPermeability" "Upper_Zechstein" 2 2 6 9.99999999999999e-05 9.99999999999999e-05 9.99999999999999e-05 0.0024 2.4e-07 24
+   0 "HorizontalPermeability" "Lowest_Zechstein" "Time_0.000000.h5" "HorizontalPermeability" "Lowest_Zechstein" 2 2 2 4.01523488724231e-07 3.93988390721742e-07 4.09058586726719e-07 3.21218790979385e-06 1.29022311759348e-12 8
+   0 "HorizontalPermeability" "Rotliegend" "Time_0.000000.h5" "HorizontalPermeability" "Rotliegend" 2 2 5 1.97620003171691 1.42008236908689 2.67601462596339 39.5240006343383 82.0737805089988 20
+   0 "Permeability" "Upper_North_Sea_Group_SL" "Time_0.000000.h5" "Permeability" "Upper_North_Sea_Group_SL" 2 2 4 20.8765826081418 13.1492809103551 30.5994684586506 334.025321730269 7660.32112876268 16
+   0 "Permeability" "Breda_on_Rupel_Lt_Oligo_hiatus" "Time_0.000000.h5" "Permeability" "Breda_on_Rupel_Lt_Oligo_hiatus" 2 2 2 3.83113144057723 3.83113144057723 3.83113144057723 30.6490515246178 117.420544919835 8
+   0 "Permeability" "Middle_North_Sea_Group_SL" "Time_0.000000.h5" "Permeability" "Middle_North_Sea_Group_SL" 2 2 3 0.00610182598294263 0.00374722055807883 0.00886564478282654 0.0732219117953116 0.000500188630520106 12
+   0 "Permeability" "Lower_North_Sea_Group_SL" "Time_0.000000.h5" "Permeability" "Lower_North_Sea_Group_SL" 2 2 3 0.000172003959596887 9.33547854343077e-05 0.000268273294448299 0.00206404751516264 4.18080135371647e-07 12
+   0 "Permeability" "Upper_Ommeland_Chalk_Group" "Time_0.000000.h5" "Permeability" "Upper_Ommeland_Chalk_Group" 2 2 3 4.17822250362392e-05 2.68934166752975e-05 5.92209056524581e-05 0.000501386700434871 2.30781961259935e-08 12
+   0 "Permeability" "Lower_Ommeland_Chalk_Group" "Time_0.000000.h5" "Permeability" "Lower_Ommeland_Chalk_Group" 2 2 4 1.63613081305325e-05 8.28579978169242e-06 2.76437652358987e-05 0.000261780930088519 5.14187314912103e-09 16
+   0 "Permeability" "Texel_Lr_Cret_undiff" "Time_0.000000.h5" "Permeability" "Texel_Lr_Cret_undiff" 2 2 2 6.57301811823518e-06 5.46546102754298e-06 7.68057520892737e-06 5.25841449458814e-05 3.55449999134324e-10 8
+   0 "Permeability" "Base_Cret_on_Trias_hiatus" "Time_0.000000.h5" "Permeability" "Base_Cret_on_Trias_hiatus" 2 2 2 8.91772282566918e-06 8.91772282566918e-06 8.91772282566918e-06 7.13417826053535e-05 6.36206243163689e-10 8
+   0 "Permeability" "Roer" "Time_0.000000.h5" "Permeability" "Roer" 2 2 2 0.061526401077706 0.0546290287633186 0.0684237733920935 0.492211208621648 0.0306645741953442 8
+   0 "Permeability" "Bunter" "Time_0.000000.h5" "Permeability" "Bunter" 2 2 2 75.3751240182334 71.9144728042606 78.8357752322061 603.000992145867 45547.0834207106 8
+   0 "Permeability" "Zechstein_Bunter_hiatus" "Time_0.000000.h5" "Permeability" "Zechstein_Bunter_hiatus" 2 2 2 1.8078238694678 1.8078238694678 1.8078238694678 14.4625909557424 26.1458171441401 8
+   0 "Permeability" "Upper_Zechstein" "Time_0.000000.h5" "Permeability" "Upper_Zechstein" 2 2 6 9.99999999999999e-05 9.99999999999999e-05 9.99999999999999e-05 0.0024 2.4e-07 24
+   0 "Permeability" "Lowest_Zechstein" "Time_0.000000.h5" "Permeability" "Lowest_Zechstein" 2 2 2 4.01523488724231e-07 3.93988390721742e-07 4.09058586726719e-07 3.21218790979385e-06 1.29022311759348e-12 8
+   0 "Permeability" "Rotliegend" "Time_0.000000.h5" "Permeability" "Rotliegend" 2 2 5 1.97620003171691 1.42008236908689 2.67601462596339 39.5240006343383 82.0737805089988 20
+   0 "SonicSlowness" "Upper_North_Sea_Group_SL" "Time_0.000000.h5" "SonicSlowness" "Upper_North_Sea_Group_SL" 2 2 4 533.618177295907 448.857452795127 633.267524733127 8537.8908367345 4632030.48313583 16
+   0 "SonicSlowness" "Breda_on_Rupel_Lt_Oligo_hiatus" "Time_0.000000.h5" "SonicSlowness" "Breda_on_Rupel_Lt_Oligo_hiatus" 2 2 2 473.65709877152 473.65709877152 473.65709877152 3789.25679017216 1794808.37773323 8
+   0 "SonicSlowness" "Middle_North_Sea_Group_SL" "Time_0.000000.h5" "SonicSlowness" "Middle_North_Sea_Group_SL" 2 2 3 480.591679442181 450.346605754103 511.791710162718 5767.10015330617 2779176.82155784 12
+   0 "SonicSlowness" "Lower_North_Sea_Group_SL" "Time_0.000000.h5" "SonicSlowness" "Lower_North_Sea_Group_SL" 2 2 3 440.951334061775 410.154649561174 472.751628264598 5291.4160087413 2341099.75501051 12
+   0 "SonicSlowness" "Upper_Ommeland_Chalk_Group" "Time_0.000000.h5" "SonicSlowness" "Upper_Ommeland_Chalk_Group" 2 2 3 329.284781342174 311.570543903248 347.776293347834 3951.41737610608 1303766.94420296 12
+   0 "SonicSlowness" "Lower_Ommeland_Chalk_Group" "Time_0.000000.h5" "SonicSlowness" "Lower_Ommeland_Chalk_Group" 2 2 4 236.977549611765 222.38331179023 253.429548484921 3791.64079378823 900684.661412045 16
+   0 "SonicSlowness" "Texel_Lr_Cret_undiff" "Time_0.000000.h5" "SonicSlowness" "Texel_Lr_Cret_undiff" 2 2 2 260.019777439842 253.608888007242 266.430666872441 2080.15821951873 541211.073305454 8
+   0 "SonicSlowness" "Base_Cret_on_Trias_hiatus" "Time_0.000000.h5" "SonicSlowness" "Base_Cret_on_Trias_hiatus" 2 2 2 229.425087430119 229.425087430119 229.425087430119 1835.40069944095 421086.965938542 8
+   0 "SonicSlowness" "Roer" "Time_0.000000.h5" "SonicSlowness" "Roer" 2 2 2 278.942544261089 275.06016088928 282.824927632898 2231.54035408871 622592.127195963 8
+   0 "SonicSlowness" "Bunter" "Time_0.000000.h5" "SonicSlowness" "Bunter" 2 2 2 268.004425190525 266.946311395964 269.062538985085 2144.0354015242 574619.932212047 8
+   0 "SonicSlowness" "Zechstein_Bunter_hiatus" "Time_0.000000.h5" "SonicSlowness" "Zechstein_Bunter_hiatus" 2 2 2 259.034526582692 259.034526582692 259.034526582692 2072.27621266154 536791.087695355 8
+   0 "SonicSlowness" "Upper_Zechstein" "Time_0.000000.h5" "SonicSlowness" "Upper_Zechstein" 2 2 6 223.379574193171 223.370662601421 223.388597225381 5361.1097806361 1197562.42090315 24
+   0 "SonicSlowness" "Lowest_Zechstein" "Time_0.000000.h5" "SonicSlowness" "Lowest_Zechstein" 2 2 2 226.772625445781 225.778489926716 227.766760964847 1814.18100356625 411414.495656023 8
+   0 "SonicSlowness" "Rotliegend" "Time_0.000000.h5" "SonicSlowness" "Rotliegend" 2 2 5 239.28089070884 233.737484983376 245.443488295455 4785.6178141768 1145450.02571366 20
+   0 "TwoWayTime" "Upper_North_Sea_Group_SL" "Time_0.000000.h5" "TwoWayTime" "Upper_North_Sea_Group_SL" 2 2 4 310.037715096356 0 597.192139164692 4960.60344154169 2331124.48750364 16
+   0 "TwoWayTime" "Breda_on_Rupel_Lt_Oligo_hiatus" "Time_0.000000.h5" "TwoWayTime" "Breda_on_Rupel_Lt_Oligo_hiatus" 2 2 2 597.192139164692 597.192139164692 597.192139164692 4777.53711331753 2853107.60864081 8
+   0 "TwoWayTime" "Middle_North_Sea_Group_SL" "Time_0.000000.h5" "TwoWayTime" "Middle_North_Sea_Group_SL" 2 2 3 744.469687975534 597.192139164692 888.640480574856 8933.63625570641 6820763.57879908 12
+   0 "TwoWayTime" "Lower_North_Sea_Group_SL" "Time_0.000000.h5" "TwoWayTime" "Lower_North_Sea_Group_SL" 2 2 3 1050.41298331597 888.640480574856 1208.40059881194 12604.9557997916 13444988.2448837 12
+   0 "TwoWayTime" "Upper_Ommeland_Chalk_Group" "Time_0.000000.h5" "TwoWayTime" "Upper_Ommeland_Chalk_Group" 2 2 3 1301.42198589819 1208.40059881194 1392.75320341903 15617.0638307783 20392379.13024 12
+   0 "TwoWayTime" "Lower_Ommeland_Chalk_Group" "Time_0.000000.h5" "TwoWayTime" "Lower_Ommeland_Chalk_Group" 2 2 4 1507.77228913952 1392.75320341903 1619.49580739744 24124.3566262324 36488269.4999113 16
+   0 "TwoWayTime" "Texel_Lr_Cret_undiff" "Time_0.000000.h5" "TwoWayTime" "Texel_Lr_Cret_undiff" 2 2 2 1671.43383746088 1619.49580739744 1723.37186752432 13371.470699687 22371109.0558086 8
+   0 "TwoWayTime" "Base_Cret_on_Trias_hiatus" "Time_0.000000.h5" "TwoWayTime" "Base_Cret_on_Trias_hiatus" 2 2 2 1723.37186752432 1723.37186752432 1723.37186752432 13786.9749401945 23760084.7501941 8
+   0 "TwoWayTime" "Roer" "Time_0.000000.h5" "TwoWayTime" "Roer" 2 2 2 1764.36770457619 1723.37186752432 1805.36354162806 14114.9416366095 24917392.4448563 8
+   0 "TwoWayTime" "Bunter" "Time_0.000000.h5" "TwoWayTime" "Bunter" 2 2 2 1819.14934640264 1805.36354162806 1832.93515117721 14553.1947712211 26475955.1434434 8
+   0 "TwoWayTime" "Zechstein_Bunter_hiatus" "Time_0.000000.h5" "TwoWayTime" "Zechstein_Bunter_hiatus" 2 2 2 1832.93515117721 1832.93515117721 1832.93515117721 14663.4812094177 26877210.1473683 8
+   0 "TwoWayTime" "Upper_Zechstein" "Time_0.000000.h5" "TwoWayTime" "Upper_Zechstein" 2 2 6 2039.17101595058 1832.93515117721 2245.40246032996 48940.104382814 100273604.333628 24
+   0 "TwoWayTime" "Lowest_Zechstein" "Time_0.000000.h5" "TwoWayTime" "Lowest_Zechstein" 2 2 2 2264.37672964204 2245.40246032996 2283.35099895412 18115.0138371363 41022095.9731224 8
+   0 "TwoWayTime" "Rotliegend" "Time_0.000000.h5" "TwoWayTime" "Rotliegend" 2 2 5 2434.505580131 2283.35099895412 2583.82632492769 48690.1116026199 118762015.342855 20
+   0 "Velocity" "Upper_North_Sea_Group_SL" "Time_0.000000.h5" "Velocity" "Upper_North_Sea_Group_SL" 2 2 4 1905.08388273498 1579.11145123291 2227.8787926385 30481.3421237597 59005315.4005724 16
+   0 "Velocity" "Breda_on_Rupel_Lt_Oligo_hiatus" "Time_0.000000.h5" "Velocity" "Breda_on_Rupel_Lt_Oligo_hiatus" 2 2 2 2111.23194942841 2111.23194942841 2111.23194942841 16889.8555954273 35658402.7542982 8
+   0 "Velocity" "Middle_North_Sea_Group_SL" "Time_0.000000.h5" "Velocity" "Middle_North_Sea_Group_SL" 2 2 3 2086.44768181969 1953.91988604517 2220.5119062139 25037.3721818363 52381323.9217619 12
+   0 "Velocity" "Lower_North_Sea_Group_SL" "Time_0.000000.h5" "Velocity" "Lower_North_Sea_Group_SL" 2 2 3 2275.45923627423 2115.27563357286 2438.1047516343 27305.5108352907 62341050.4763686 12
+   0 "Velocity" "Upper_Ommeland_Chalk_Group" "Time_0.000000.h5" "Velocity" "Upper_Ommeland_Chalk_Group" 2 2 3 3043.00937511175 2875.41163422498 3209.54602277977 36516.112501341 111342171.018959 12
+   0 "Velocity" "Lower_Ommeland_Chalk_Group" "Time_0.000000.h5" "Velocity" "Lower_Ommeland_Chalk_Group" 2 2 4 4229.85517571024 3945.86979291999 4496.74029921491 67677.6828113638 286942386.579484 16
+   0 "Velocity" "Texel_Lr_Cret_undiff" "Time_0.000000.h5" "Velocity" "Texel_Lr_Cret_undiff" 2 2 2 3848.20057896828 3753.32168679655 3943.07947114001 30785.6046317462 118541197.601212 8
+   0 "Velocity" "Base_Cret_on_Trias_hiatus" "Time_0.000000.h5" "Velocity" "Base_Cret_on_Trias_hiatus" 2 2 2 4358.72123315455 4358.72123315455 4358.72123315455 34869.7698652364 151987606.306819 8
+   0 "Velocity" "Roer" "Time_0.000000.h5" "Velocity" "Roer" 2 2 2 3585.66226245028 3535.75623043377 3635.56829446678 28685.2980996022 102875715.779133 8
+   0 "Velocity" "Bunter" "Time_0.000000.h5" "Velocity" "Bunter" 2 2 2 3731.33983585687 3716.60805614947 3746.07161556426 29850.7186868549 111384911.967886 8
+   0 "Velocity" "Zechstein_Bunter_hiatus" "Time_0.000000.h5" "Velocity" "Zechstein_Bunter_hiatus" 2 2 2 3860.48922972733 3860.48922972733 3860.48922972733 30883.9138378186 119227016.742726 8
+   0 "Velocity" "Upper_Zechstein" "Time_0.000000.h5" "Velocity" "Upper_Zechstein" 2 2 6 4476.68505218062 4476.50422815038 4476.86365055193 107440.441252335 480977017.716212 24
+   0 "Velocity" "Lowest_Zechstein" "Time_0.000000.h5" "Velocity" "Lowest_Zechstein" 2 2 2 4409.78807067377 4390.45625342295 4429.11988792459 35278.3045653901 155572836.379319 8
+   0 "Velocity" "Rotliegend" "Time_0.000000.h5" "Velocity" "Rotliegend" 2 2 5 4180.43826004625 4074.25760994824 4278.30392746427 83608.7652009251 349625513.390535 20
+[End]
+;
+;
+; SnapshotIoTbl
+;
+[SnapshotIoTbl]
+;v100
+Time IsMinorSnapshot UseInResQ TypeOfSnapshot SnapshotFileName
+(Ma)   ()   ()   ()   ()
+   0    0    0 "System Generated" "Time_0.000000.h5"
+  22    0    0 "System Generated" ""
+  29    0    0 "System Generated" ""
+  48    0    0 "System Generated" ""
+  62    0    0 "System Generated" ""
+78.7    0    0 "System Generated" ""
+  94    0    0 "System Generated" ""
+ 100    0    0 "System Generated" ""
+ 136    0    0 "System Generated" ""
+ 244    0    0 "System Generated" ""
+ 247    0    0 "System Generated" ""
+ 254    0    0 "System Generated" ""
+ 260    0    0 "System Generated" ""
+ 262    0    0 "System Generated" ""
+ 264    0    0 "System Generated" ""
+ 299    0    0 "System Generated" ""
+[End]
+;
+;
+; 1DTimeIoTbl
+;
+[1DTimeIoTbl]
+;v100
+Time PropertyName FormationName NodeIndex SurfaceName Value
+(Ma)   ()   ()   ()   ()   ()
+[End]
+;
+;
+; SimulationDetailsIoTbl
+;
+[SimulationDetailsIoTbl]
+;v100
+SimulationSequenceNumber SimulatorName SimulatorMode NumberOfCores SimulatorCommandLineParameters
+  ()   ()   ()   ()   ()
+   1 "fastcauldron" "HydrostaticTemperature" 1 "-temperature -allproperties -onlyat 0 -project Project.project3d"
+[End]
+;

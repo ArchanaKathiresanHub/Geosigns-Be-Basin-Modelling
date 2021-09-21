@@ -40,6 +40,7 @@ printHelp()
 buildAndAnalyze()
 {
   cd $BUILD_LOCATION
+  make rebuild_cache
   $BRANCH_LOCATION/makeAll.sh
   make test
   profmerge

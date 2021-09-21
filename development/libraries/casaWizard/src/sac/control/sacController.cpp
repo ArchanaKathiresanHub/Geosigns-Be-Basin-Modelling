@@ -27,6 +27,7 @@
 #include "model/scenarioBackup.h"
 #include "model/script/depthConversionScript.h"
 #include "model/script/sacScript.h"
+#include "model/functions/sortedByXWellIndices.h"
 #include "view/sacTab.h"
 #include "view/sacTabIDs.h"
 #include "view/workspaceDialog.h"
@@ -40,6 +41,7 @@
 #include <QPushButton>
 #include <QSpinBox>
 #include <QString>
+#include <QStringList>
 #include <QTableWidgetItem>
 #include <QVector>
 #include <QThread>
@@ -188,6 +190,24 @@ void SACcontroller::slotPushButtonSACrunCasaClicked()
   scenarioBackup::backup(casaScenario_);
 }
 
+void SACcontroller::renameCaseFolders(const QString& pathName)
+{
+  const CalibrationTargetManager& ctManager = casaScenario_.calibrationTargetManager();
+  const QVector<const Well*>& wells = ctManager.wells();
+  const QVector<int> sortedIndices = casaWizard::functions::sortedByXYWellIndices(wells);
+
+  int caseIndex = 0;
+  for (const int wellIndex : sortedIndices)
+  {
+    if (wells[wellIndex]->isActive())
+    {
+      QString oldFolderName = pathName + "Case_" + QString::number(++caseIndex);
+      QString newFolderName = pathName + wells[wellIndex]->name();
+      QDir(oldFolderName).rename(oldFolderName, newFolderName);
+    }
+  }
+}
+
 void SACcontroller::slotRunOriginal1D()
 {
   wellTrajectoryWriter::writeTrajectories(casaScenario_);
@@ -232,6 +252,7 @@ void SACcontroller::slotRunOriginal1D()
     return;
   }
 
+  renameCaseFolders(casaScenario_.original1dDirectory() + "/" + casaScenario_.runLocation() + "/Iteration_1/");
   dataExtractionController_->readOriginalResults();
 
   if (QFile::copy(casaScenario_.original1dDirectory() + "/" + casaScenario_.stateFileNameSAC() ,

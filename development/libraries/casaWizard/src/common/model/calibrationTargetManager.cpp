@@ -98,6 +98,18 @@ int CalibrationTargetManager::addWell(const QString& wellName, double x, double 
 
 int CalibrationTargetManager::addWell(Well well)
 {
+  int index = 0;
+  for (const Well& presentWell : wells_)
+  {
+    if (well.name() == presentWell.name())
+    {
+      well.setId(index);
+      wells_.replace(index, well);
+      return index;
+    }
+    index++;
+  }
+
   double xShift = getShiftToAvoidOverlap(well.name(), well.x(), well.y());
   well.shift(xShift);
 
@@ -131,6 +143,17 @@ double CalibrationTargetManager::getShiftToAvoidOverlap(const QString& wellName,
 void CalibrationTargetManager::setHasDataInLayer(const int wellIndex, QVector<bool> hasDataInLayer)
 {
   wells_[wellIndex].setHasDataInLayer(hasDataInLayer);
+}
+
+void CalibrationTargetManager::removeCalibrationTargetsFromActiveWellsWithPropertyUserName(const QString& propertyUserName)
+{
+  for (Well& well: wells_)
+  {
+    if (well.isActive())
+    {
+      well.removeCalibrationTargetsWithPropertyUserName(propertyUserName);
+    }
+  }
 }
 
 const QVector<const Well*> CalibrationTargetManager::wells() const
@@ -441,6 +464,31 @@ void CalibrationTargetManager::addToMapping(const QString& userName, const QStri
 QString CalibrationTargetManager::getCauldronPropertyName(const QString& userPropertyName) const
 {
   return userNameToCauldronNameMapping_.value(userPropertyName, "Unknown");
+}
+
+QString CalibrationTargetManager::getSonicSlownessUserNameForConversion(const QStringList& propertyUserNames)
+{
+  QStringList sonicSlownessProperties;
+  for (const QString& propertyUserName : propertyUserNames)
+  {
+    if (getCauldronPropertyName(propertyUserName) == "SonicSlowness")
+    {
+      sonicSlownessProperties.push_back(propertyUserName);
+    }
+  }
+
+  if (sonicSlownessProperties.empty())
+  {
+    return "";
+  }
+  else if (sonicSlownessProperties.contains("DT"))
+  {
+    return "DT";
+  }
+  else
+  {
+    return sonicSlownessProperties[0];
+  }
 }
 
 void CalibrationTargetManager::removeDataOutsideModelDepths(const std::vector<double>& basementDepthsAtActiveWellLocations, const std::vector<double>& mudlineDepthsAtActiveWellLocations)

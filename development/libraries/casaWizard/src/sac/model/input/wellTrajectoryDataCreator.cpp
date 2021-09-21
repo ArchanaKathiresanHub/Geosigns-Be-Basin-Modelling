@@ -24,9 +24,18 @@ WellTrajectoryDataCreator::WellTrajectoryDataCreator(SACScenario& scenario, cons
 void WellTrajectoryDataCreator::readCase(const int wellIndex, const int caseIndex)
 {
   const Well& well = calibrationTargetManager().well(wellIndex);
-  const QString dataFolder = iterationPath() + "/Case_" + QString::number(caseIndex);
 
   const TrajectoryType type = (projectName_ == "bestMatchedCase") ? TrajectoryType::Optimized1D : TrajectoryType::Original1D;
+
+  QString dataFolder;
+  if (type == TrajectoryType::Original1D)
+  {
+    dataFolder = iterationPath() + "/" + well.name();
+  }
+  else
+  {
+    dataFolder = iterationPath() + "/Case_" + QString::number(caseIndex);
+  }
 
   const QVector<WellTrajectory> trajectories = wellTrajectoryManager_.trajectoriesType(type);
   for (const WellTrajectory& trajectory : trajectories )

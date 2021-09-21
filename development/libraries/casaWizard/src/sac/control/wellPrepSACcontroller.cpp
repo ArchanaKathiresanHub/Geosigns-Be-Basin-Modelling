@@ -8,8 +8,8 @@
 
 #include "wellPrepSACcontroller.h"
 
-#include "../common/control/scriptRunController.h"
-
+#include "control/scriptRunController.h"
+#include "model/logger.h"
 #include "model/sacScenario.h"
 #include "model/scenarioBackup.h"
 #include "view/calibrationTargetTable.h"
@@ -41,6 +41,7 @@ bool WellPrepSACcontroller::checkTabID(int tabID) const
 
 void WellPrepSACcontroller::slotToSAC()
 {
+  Logger::log() << "Importing selected wells to the SAC workflow..." << Logger::endl();
   if (scenario_.project3dPath().isEmpty())
   {
     return;
@@ -57,6 +58,7 @@ void WellPrepSACcontroller::slotToSAC()
 
   scenarioBackup::backup(scenario_);
   refreshGUI();
+  Logger::log() << "Done!" << Logger::endl();
 }
 
 } // namespace sac

@@ -9,7 +9,7 @@
 TEST( WellTrajectoryDataCreatorTest, testReadTrack1DFile )
 {
   casaWizard::sac::SACScenario scenario{new casaWizard::StubProjectReader()};
-  scenario.setProject3dFilePath("Project.project3d");
+  scenario.setProject3dFilePath("bestMatchedCase.project3d");
 
   casaWizard::CalibrationTargetManager& ctManager = scenario.calibrationTargetManager();
   const int wellIndex = ctManager.addWell("Well1", 0, 0);
@@ -17,11 +17,11 @@ TEST( WellTrajectoryDataCreatorTest, testReadTrack1DFile )
   wellTrajectoryManager.addWellTrajectory(wellIndex, "Temperature");
 
   const QString iterationPath{"TrajectoryData"};
-  casaWizard::sac::WellTrajectoryDataCreator dataCreator{scenario, "Project", iterationPath};
+  casaWizard::sac::WellTrajectoryDataCreator dataCreator{scenario, "bestMatchedCase", iterationPath};
 
   dataCreator.read();
 
-  const QVector<casaWizard::sac::WellTrajectory> trajectories = wellTrajectoryManager.trajectoriesType(casaWizard::sac::TrajectoryType::Original1D);
+  const QVector<casaWizard::sac::WellTrajectory> trajectories = wellTrajectoryManager.trajectoriesType(casaWizard::sac::TrajectoryType::Optimized1D);
 
   QVector<double> depthActual = trajectories[0].depth();
   QVector<double> valueActual = trajectories[0].value();

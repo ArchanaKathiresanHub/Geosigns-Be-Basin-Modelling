@@ -36,6 +36,7 @@ public:
   void setWellIsExcluded(bool excluded, int wellIndex);
   int addWell(const QString& wellName, double x, double y);
   void setHasDataInLayer(const int wellIndex, QVector<bool> hasDataInLayer);
+  void removeCalibrationTargetsFromActiveWellsWithPropertyUserName(const QString& propertyUserName);
 
   int amountOfActiveCalibrationTargets() const;
   QVector<QVector<const CalibrationTarget*>> extractWellTargets(QStringList& propertyUserNames, const QVector<int> wellIndices) const;
@@ -52,6 +53,7 @@ public:
 
   void addToMapping(const QString& userName, const QString& cauldronName);
   QString getCauldronPropertyName(const QString& userPropertyName) const;
+  QString getSonicSlownessUserNameForConversion(const QStringList& propertyUserNames);
 
   void removeDataOutsideModelDepths(const std::vector<double>& basementDepthsAtActiveWellLocations, const std::vector<double>& mudlineDepthsAtActiveWellLocations);
   void removeWellsOutsideBasinOutline(const std::string& projectFileName, const std::string& depthGridName);

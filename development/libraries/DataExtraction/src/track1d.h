@@ -61,7 +61,7 @@ public:
   bool isCorrect() const;
   std::vector<unsigned int> retrieveKs( const FormationSurface& formationSurfacePair ) const;
 
-  void acquireCoordinatePairs( DoublePairVector& realWorldCoordinatePairs, DoublePairVector& logicalCoordinatePairs );
+  void acquireCoordinatePairs(const DoublePairVector& realWorldCoordinatePairs, const DoublePairVector& logicalCoordinatePairs );
   void acquireSnapshots( const DoubleVector& ages );
   void acquireProperties( const StringVector& propertyNamesUser, const bool all2Dproperties, const bool all3Dproperties );
   void acquireFormationSurfacePairs( const StringVector& topSurfaceFormationNames,
@@ -83,6 +83,8 @@ public:
   void doListStratigraphy();
 
   void writeOutputStream( std::ostream& outputStream, const bool history );
+
+  std::vector<double> getData(const std::string& propertyName);
 
 protected:
   ProjectHandle& getProjectHandle() const;

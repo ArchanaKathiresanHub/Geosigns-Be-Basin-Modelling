@@ -344,6 +344,23 @@ TEST(CalibrationTargetManagerTest, testRenamePropertyUserName)
   }
 }
 
+TEST(CalibrationTargetManagerTest, testGetSonicSlownessName)
+{
+  casaWizard::CalibrationTargetManager manager;
+  manager.addToMapping("Sonic", "SonicSlowness");
+  manager.addToMapping("DT", "SonicSlowness");
+  manager.addToMapping("DTFromVP", "SonicSlowness");
+  manager.addToMapping("TWTT", "TwoWayTime");
+  manager.addToMapping("VP", "Velocity");
+
+  EXPECT_EQ(manager.getSonicSlownessUserNameForConversion({"Sonic", "TWTT"}), "Sonic");
+  EXPECT_EQ(manager.getSonicSlownessUserNameForConversion({"Sonic", "DT"}), "DT");
+  EXPECT_EQ(manager.getSonicSlownessUserNameForConversion({"DTFromVP", "Sonic"}), "DTFromVP");
+
+  EXPECT_EQ(manager.getSonicSlownessUserNameForConversion({"VP", "TWTT"}), "");
+  EXPECT_EQ(manager.getSonicSlownessUserNameForConversion({""}), "");
+}
+
 TEST(CalibrationTargetManagerTest, testRemoveDataOutofModelDepths)
 {
   std::vector<double> basementDepthsActiveAtWellLocations = {6000, 5000};
@@ -370,6 +387,37 @@ TEST(CalibrationTargetManagerTest, testRemoveDataOutofModelDepths)
   manager.addCalibrationTarget("Calibrationtarget4", "TWTT", 2, 8000, 4.0); // Invalid
 
   manager.removeDataOutsideModelDepths(basementDepthsActiveAtWellLocations, mudlineDepthsAtActiveWellLocations);
+  EXPECT_EQ(manager.wells()[0]->calibrationTargets().size(), 2);
+  EXPECT_EQ(manager.wells()[1]->calibrationTargets().size(), 4); // Well was inactive, so nothing happened
+  EXPECT_EQ(manager.wells()[2]->calibrationTargets().size(), 0);
+}
+
+TEST(CalibrationTargetManagerTest, testRemoveCalibrationTargetsWithPropertyUserName)
+{
+  std::vector<double> basementDepthsActiveAtWellLocations = {6000, 5000};
+  std::vector<double> mudlineDepthsAtActiveWellLocations = {0, 150};
+
+  casaWizard::CalibrationTargetManager manager;
+  manager.addWell("Well1", 100, 200);
+  manager.addCalibrationTarget("Calibrationtarget1", "DT", 0, -10, 4.0); // Invalid
+  manager.addCalibrationTarget("Calibrationtarget2", "TWTT", 0, 100, 4.0);
+  manager.addCalibrationTarget("Calibrationtarget3", "TWTT", 0, 5500, 4.0);
+  manager.addCalibrationTarget("Calibrationtarget4", "DT", 0, 8000, 4.0); // Invalid
+
+  manager.addWell("Well2", 200, 100);
+  manager.addCalibrationTarget("Calibrationtarget1", "DT", 1, -10, 4.0);
+  manager.addCalibrationTarget("Calibrationtarget2", "DT", 1, 100, 4.0);
+  manager.addCalibrationTarget("Calibrationtarget3", "DT", 1, 5500, 4.0);
+  manager.addCalibrationTarget("Calibrationtarget4", "DT", 1, 8000, 4.0);
+  manager.setWellIsActive(false, 1);
+
+  manager.addWell("Well3", 300, 100);
+  manager.addCalibrationTarget("Calibrationtarget1", "DT", 2, -10, 4.0); // Invalid
+  manager.addCalibrationTarget("Calibrationtarget2", "DT", 2, 100, 4.0); // Invalid
+  manager.addCalibrationTarget("Calibrationtarget3", "DT", 2, 5500, 4.0); // Invalid
+  manager.addCalibrationTarget("Calibrationtarget4", "DT", 2, 8000, 4.0); // Invalid
+
+  manager.removeCalibrationTargetsFromActiveWellsWithPropertyUserName("DT");
   EXPECT_EQ(manager.wells()[0]->calibrationTargets().size(), 2);
   EXPECT_EQ(manager.wells()[1]->calibrationTargets().size(), 4); // Well was inactive, so nothing happened
   EXPECT_EQ(manager.wells()[2]->calibrationTargets().size(), 0);

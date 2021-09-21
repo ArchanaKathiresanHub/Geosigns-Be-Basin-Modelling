@@ -9,6 +9,7 @@
 #pragma once
 
 #include "model/input/projectReader.h"
+#include <QVector>
 
 namespace casaWizard
 {
@@ -108,12 +109,6 @@ public:
   {
     return {};
   }
-
-  QString getUnit(const QString &cauldronName) const override
-  {
-    return "";
-  }
-
 };
 
 } // namespace casaWizard

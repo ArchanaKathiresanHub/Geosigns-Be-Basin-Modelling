@@ -21,7 +21,6 @@ SACScenario::SACScenario(ProjectReader* projectReader) :
   CasaScenario{projectReader},
   stateFileNameSAC_{"casaStateSAC.txt"},
   calibrationDirectory_{"calibration_step1"},
-  original1dDirectory_{"original1d"},
   lithofractionManager_{},
   wellTrajectoryManager_{},
   interpolationMethod_{0},
@@ -100,11 +99,6 @@ void SACScenario::setSmartGridding(bool smartGridding)
 QString SACScenario::calibrationDirectory() const
 {
   return workingDirectory() + "/" + calibrationDirectory_;
-}
-
-QString SACScenario::original1dDirectory() const
-{
-  return workingDirectory() + "/" + original1dDirectory_;
 }
 
 int SACScenario::t2zReferenceSurface() const

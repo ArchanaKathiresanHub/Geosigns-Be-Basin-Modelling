@@ -1,6 +1,6 @@
 add_casawizard_sac_gtest( NAME WellTrajectoryDataCreator 
                           SOURCES testWellTrajectoryDataCreator.cpp )
-configure_file( TrajectoryData/Case_1/wellTrajectory-Project-Temperature.csv TrajectoryData/Case_1/wellTrajectory-Project-Temperature.csv COPYONLY )
+configure_file( TrajectoryData/Case_1/wellTrajectory-bestMatchedCase-Temperature.csv TrajectoryData/Case_1/wellTrajectory-bestMatchedCase-Temperature.csv COPYONLY )
 
 add_casawizard_sac_gtest( NAME OptimizedLithofractionDataCreator 
                           SOURCES testOptimizedLithofractionDataCreator.cpp )

@@ -18,7 +18,6 @@ public:
 
   QString stateFileNameSAC() const;
   QString calibrationDirectory() const;
-  QString original1dDirectory() const;
 
   int interpolationMethod() const;
   void setInterpolationMethod(int interpolationMethod);
@@ -73,7 +72,6 @@ public:
 private:
   QString stateFileNameSAC_;
   QString calibrationDirectory_;
-  QString original1dDirectory_;
   LithofractionManager lithofractionManager_;
   WellTrajectoryManager wellTrajectoryManager_;
 
