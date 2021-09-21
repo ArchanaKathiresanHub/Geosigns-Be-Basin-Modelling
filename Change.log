@@ -38,6 +38,14 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 +
 2021-09-21  Richard Faasse  <Richard.Faasse@shell.com>
 
+	chg: Created the DT To TwoWayTime conversion functionality in the SAC wizard
+	* Related work items: #417594
+	================== COMMIT-END ========================
+	Commit-ID:<93782119579eafe158c48bfb7374a3006c1183a7>	  (refs/heads/master)
+
+++
+2021-09-21  Richard Faasse  <Richard.Faasse@shell.com>
+
 	chg: Added filter functionality in the well preparation tool-kit.
 	* This includes the functionality to remove wells outside of the basin area in the xy plane and below the basement/above the mudline
 	* Related work items: #417593
