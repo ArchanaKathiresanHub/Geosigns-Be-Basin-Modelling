@@ -36,6 +36,14 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2021-09-22  Richard Faasse  <Richard.Faasse@shell.com>
+
+	fix: Fixed missing folder for UT !minor.
+	* Related work items: #417594
+	================== COMMIT-END ========================
+	Commit-ID:<a0ea448fd86fa5748a4a138f600b066e503c3291>	  (refs/heads/master)
+
+++
 2021-09-21  Richard Faasse  <Richard.Faasse@shell.com>
 
 	chg: Created the DT To TwoWayTime conversion functionality in the SAC wizard
