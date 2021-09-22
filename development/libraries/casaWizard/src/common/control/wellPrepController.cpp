@@ -229,7 +229,7 @@ void WellPrepController::slotRemoveDataBelowBasementAndAboveMudline()
 {
   Logger::log() << "Starting removal of data below the basement or above the mudline of the domain model..." << Logger::endl();
 
-  CalibrationTargetManager& calibrationManager = casaScenario_.calibrationTargetManager();
+  CalibrationTargetManager& calibrationManager = calibrationTargetController_->calibrationTargetManager();
   CMBMapReader mapReader;
   mapReader.load(casaScenario_.project3dPath().toStdString());
   const QStringList surfaceNames = casaScenario_.projectReader().surfaceNames();
