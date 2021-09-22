@@ -12,6 +12,7 @@ add_casawizard_common_gtest( NAME WellValidator            SOURCES testWellValid
 add_casawizard_common_gtest( NAME DTToTwoWayTimeConverter  SOURCES testDTToTwoWayTimeConverter.cpp)
 add_casawizard_common_gtest( NAME OneDModelDataExtractor   SOURCES testOneDModelDataExtractor.cpp)
 add_casawizard_common_gtest( NAME Well                     SOURCES testWell.cpp )
+file( COPY ${CMAKE_CURRENT_SOURCE_DIR}/original1d DESTINATION ${CMAKE_CURRENT_BINARY_DIR} )
 
 configure_file( TestWellValidator.project3d TestWellValidator.project3d COPYONLY )
 configure_file( Inputs.HDF Inputs.HDF COPYONLY )
