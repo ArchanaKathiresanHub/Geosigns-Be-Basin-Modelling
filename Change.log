@@ -38,6 +38,14 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 +
 2021-09-22  Richard Faasse  <Richard.Faasse@shell.com>
 
+	fix: Fixed mixing up of calibrationtargetmanagers !minor.
+	* Related work items: #417593
+	================== COMMIT-END ========================
+	Commit-ID:<feb5df0b132a5cb66f24d3c575656244231ad272>	  (refs/heads/master)
+
+++
+2021-09-22  Richard Faasse  <Richard.Faasse@shell.com>
+
 	fix: Fixed missing folder for UT !minor.
 	* Related work items: #417594
 	================== COMMIT-END ========================
