@@ -18,6 +18,8 @@ public:
   void selectAllWells();
   void clearWellSelection();
 
+  QVector<int> getWellSelection() const;
+
 signals:
   void checkBoxChanged(int, int);
 

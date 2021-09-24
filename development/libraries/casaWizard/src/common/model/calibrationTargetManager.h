@@ -35,8 +35,7 @@ public:
   void setWellIsActive(bool active, int wellIndex);
   void setWellIsExcluded(bool excluded, int wellIndex);
   int addWell(const QString& wellName, double x, double y);
-  void setHasDataInLayer(const int wellIndex, QVector<bool> hasDataInLayer);
-  void removeCalibrationTargetsFromActiveWellsWithPropertyUserName(const QString& propertyUserName);
+  void setHasDataInLayer(const int wellIndex, QVector<bool> hasDataInLayer);  
 
   int amountOfActiveCalibrationTargets() const;
   QVector<QVector<const CalibrationTarget*>> extractWellTargets(QStringList& propertyUserNames, const QVector<int> wellIndices) const;
@@ -66,15 +65,23 @@ public:
   void disableInvalidWells(const std::string& projectFileName, const std::string& depthGridName);
 
   QStringList getPropertyUserNamesForWell(const int wellIndex) const;
+
+  void deleteWells(const QVector<int>& wellIDs);
+
+  void setWellMetaData(const int wellIndex, const QString& metaData);
+
+  void convertDTtoTWT(const std::string& iterationFolder, const std::string& project3dFilename);
+
 private:
   CalibrationTargetManager(const CalibrationTargetManager&) = delete;
   CalibrationTargetManager& operator=(CalibrationTargetManager) = delete;
   int addWell(Well well);
+  void removeCalibrationTargetsFromActiveWellsWithPropertyUserName(const QString& propertyUserName);
+  double getShiftToAvoidOverlap(const QString& wellName, const double x, const double y);
 
   ObjectiveFunctionManager objectiveFunctionManager_;
   QMap<QString, QString> userNameToCauldronNameMapping_;
   QVector<Well> wells_;
-  double getShiftToAvoidOverlap(const QString& wellName, const double x, const double y);
 };
 
 } // namespace casaWizard

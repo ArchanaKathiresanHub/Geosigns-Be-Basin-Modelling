@@ -130,4 +130,18 @@ void CalibrationTargetTable::clearWellSelection()
   }
 }
 
+QVector<int> CalibrationTargetTable::getWellSelection() const
+{
+  QVector<int> selectedWells;
+  for (int row = 0; row < rowCount(); row++)
+  {
+    CustomCheckbox* itemCheckBox = static_cast<CustomCheckbox*>(cellWidget(row, 0)->children()[1]);
+    if (itemCheckBox->isEnabled() && itemCheckBox->isChecked())
+    {
+      selectedWells.push_back(row);
+    }
+  }
+  return selectedWells;
+}
+
 }  // namespace casaWizard

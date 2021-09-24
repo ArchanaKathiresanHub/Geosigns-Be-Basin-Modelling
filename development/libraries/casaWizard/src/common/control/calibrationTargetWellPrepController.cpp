@@ -46,4 +46,12 @@ QMap<QString, QSet<int>> CalibrationTargetWellPrepController::getPropertyNamesPe
   return propertyNamesPerWell;
 }
 
+void CalibrationTargetWellPrepController::slotDeleteSelectedWells()
+{
+  const QVector<int> wellSelection = calibrationTable()->getWellSelection();
+  calibrationTargetManager().deleteWells(wellSelection);
+
+  slotRefresh();
+}
+
 }  // namespace casaWizard

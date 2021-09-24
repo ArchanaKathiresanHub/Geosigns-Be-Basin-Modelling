@@ -23,13 +23,14 @@ Well::Well(const int id, const QString& name, const double x, const double y, co
   isExcluded_{isExcluded},
   isInvalid_{false},
   calibrationTargets_{calibrationTargets},
-  hasDataInLayer_{}
+  hasDataInLayer_{},
+  metaData_{}
 {
 }
 
 int Well::version() const
 {
-  return 3;
+  return 4;
 }
 
 void Well::writeToFile(ScenarioWriter& writer) const
@@ -45,6 +46,7 @@ void Well::writeToFile(ScenarioWriter& writer) const
   writer.writeValue(wellName + "isInvalid", isInvalid_);
   writer.writeValue(wellName + "targets", calibrationTargets_);
   writer.writeValue(wellName + "hasDataInLayer", hasDataInLayer_);
+  writer.writeValue(wellName + "metaData", metaData_);
 }
 
 void Well::readFromFile(const ScenarioReader& reader)
@@ -56,9 +58,13 @@ void Well::readFromFile(const ScenarioReader& reader)
   y_ = reader.readDouble(wellName + "y");
   isActive_ = reader.readBool(wellName + "isActive");
   isExcluded_ = reader.readBool(wellName+ "isExcluded");
-  calibrationTargets_ = reader.readVector<CalibrationTarget>(wellName + "targets");
+  calibrationTargets_ = reader.readVector<CalibrationTarget>(wellName + "targets");  
 
   const int version = reader.readInt(wellName + "version");
+  if (version > 3)
+  {
+    metaData_ = reader.readString(wellName + "metaData");
+  }
   if (version > 2)
   {
     hasDataInLayer_ = reader.readVector<bool>(wellName + "hasDataInLayer");
@@ -243,6 +249,21 @@ bool Well::removeDataAboveDepth(const double depth)
   }
 
   return hasRemovedData;
+}
+
+QString Well::metaData() const
+{
+  return metaData_;
+}
+
+void Well::setMetaData(const QString& metaData)
+{
+  metaData_ = metaData;
+}
+
+void Well::appendMetaData(const QString& metaData)
+{
+  metaData_ += (metaData_.isEmpty() ? "" : " | ") + metaData;
 }
 
 } // namespace casaWizard

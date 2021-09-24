@@ -42,6 +42,7 @@ WellPrepTab::WellPrepTab(QWidget* parent) :
   buttonCropBasement_{new QPushButton("Remove data below basement and above mudline", this)},
   buttonExport_{new QPushButton("Export selected wells", this)},
   buttonToSAC_{new QPushButton("Save selection for SAC", this)},
+  buttonDeleteSelection_{new QPushButton("Delete selection",this)},
   buttonSelectAll_{new QPushButton("Select all",this)},
   buttonDeselectAll_{new QPushButton("Deselect all",this)},
   importWellPopup_{new ImportWellPopup()}
@@ -123,6 +124,7 @@ WellPrepTab::WellPrepTab(QWidget* parent) :
   calibrationOptionsLayout->addWidget(new CustomTitle("Data locations", this), 0, Qt::AlignLeft);
   calibrationOptionsLayout->addWidget(new QWidget(this), 1);
 
+  calibrationOptionsLayout->addWidget(buttonDeleteSelection_, 0, Qt::AlignRight);
   calibrationOptionsLayout->addWidget(buttonSelectAll_, 0, Qt::AlignRight);
   calibrationOptionsLayout->addWidget(buttonDeselectAll_, 0, Qt::AlignRight);
 
@@ -206,6 +208,11 @@ const QPushButton* WellPrepTab::buttonExport() const
 QPushButton* WellPrepTab::buttonToSAC() const
 {
   return buttonToSAC_;
+}
+
+const QPushButton* WellPrepTab::buttonDeleteSelection() const
+{
+  return buttonDeleteSelection_;
 }
 
 const QPushButton* WellPrepTab::buttonSelectAll() const

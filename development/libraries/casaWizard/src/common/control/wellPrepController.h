@@ -42,24 +42,28 @@ public slots:
   void slotUpdateTabGUI(int tabID);
 
 private slots:
+  void slotPushSaveDataClicked();
   void slotCloseWaitingDialog();
-  void slotConvertDTToTWT();
+  void slotConvertDTtoTWT();
   void slotPushSelectCalibrationClicked();
   void slotRemoveDataBelowBasementAndAboveMudline();
   void slotRemoveWellsOutOfBasinOutline();
   void slotWellSelectionChanged();
 
 private:
+
+  void importOnSeparateThread(CalibrationTargetManager& calibrationTargetManager, const QString& fileName);
+  void exportOnSeparateThread(const CalibrationTargetManager& calibrationTargetManager, const QString& fileName);
   bool allActiveWellsHave1DResults() const;
   void checkEnabledStateButtons() const;
-  void importOnSeparateThread(CalibrationTargetManager& temporaryImportCalibrationTargetManager, const QString& fileName);
 
   WellPrepTab* wellPrepTab_;
   CasaScenario& casaScenario_;
   ScriptRunController& scriptRunController_;
   CalibrationTargetWellPrepController* calibrationTargetController_;
   ImportWellPopupController* importWellPopupController_;
-  QMessageBox importingPopup_;
+  QMessageBox waitingDialog_;
+  bool waitingDialogNeeded_;
 };
 
 } // namespace casaWizard

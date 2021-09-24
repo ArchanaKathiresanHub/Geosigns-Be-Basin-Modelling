@@ -6,7 +6,7 @@
 TEST(TargetXlsxFileMapCreatorTest, testXlsxFileMapsAreUnique)
 {
   const casaWizard::ExtractWellDataXlsx myObject;
-  const QMap<QString, QString> targetMap{myObject.getCalibrationTargetVariableMaps()};
+  const QMap<QString, QString> targetMap{myObject.calibrationTargetVariableMaps()};
 
   QVector<bool> boolRepeatedKeys = checkQMapKeysAreUnique(targetMap);
 

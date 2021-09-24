@@ -1,5 +1,17 @@
+//
+// Copyright (C) 2021 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #include "extractWellDataXlsx.h"
+
+#include "model/wellData.h"
+
 #include "xlsxworksheet.h"
+
 #include <string>
 
 namespace casaWizard
@@ -28,6 +40,10 @@ ExtractWellDataXlsx::ExtractWellDataXlsx(const QString& calibrationXlsxFileName)
 {
   setCalibrationTargetVariableMaps();
   setWellNames();
+}
+
+ExtractWellDataXlsx::~ExtractWellDataXlsx()
+{
 }
 
 void ExtractWellDataXlsx::extractWellData(const QString& wellName)
@@ -81,11 +97,12 @@ void ExtractWellDataXlsx::extractWellData(const QString& wellName)
 
   wellData_->xCoord_ = sheet->read("B2").toDouble();
   wellData_->yCoord_ = sheet->read("C2").toDouble();
+  wellData_->metaData_ = sheet->read("A3").toString();
 
-  std::size_t column = 1;
+  int column = 1;
   for (std::size_t i_CalTar = 0; i_CalTar < wellData_->nCalibrationTargetVars_; ++i_CalTar)
   {
-    std::size_t row = 9;
+    int row = 9;
 
     while (checkValidCell(sheet, row, column))
     {
@@ -165,12 +182,17 @@ double ExtractWellDataXlsx::yCoord() const
   return wellData_->yCoord_;
 }
 
+const QString& ExtractWellDataXlsx::metaData() const
+{
+  return wellData_->metaData_;
+}
+
 QVector<double> ExtractWellDataXlsx::depth() const
 {
   return wellData_->depth_;
 }
 
-std::size_t ExtractWellDataXlsx::nCalibrationTargetVars() const
+unsigned int ExtractWellDataXlsx::nCalibrationTargetVars() const
 {
   return wellData_->nCalibrationTargetVars_;
 }
@@ -185,7 +207,7 @@ QVector<QString> ExtractWellDataXlsx::calibrationTargetVarsCauldronName() const
   return wellData_->calibrationTargetVarsCauldronName_;
 }
 
-QVector<std::size_t> ExtractWellDataXlsx::nDataPerTargetVar() const
+QVector<unsigned int> ExtractWellDataXlsx::nDataPerTargetVar() const
 {
   return wellData_->nDataPerTargetVar_;
 }
@@ -200,7 +222,7 @@ QVector<double> ExtractWellDataXlsx::calibrationTargetStdDeviation() const
   return wellData_->calibrationTargetStdDeviation_;
 }
 
-QMap<QString, QString> ExtractWellDataXlsx::getCalibrationTargetVariableMaps() const
+QMap<QString, QString> ExtractWellDataXlsx::calibrationTargetVariableMaps() const
 {
   return calibrationTargetVariableMaps_;
 }

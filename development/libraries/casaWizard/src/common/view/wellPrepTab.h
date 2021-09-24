@@ -46,6 +46,7 @@ public:
   const QPushButton* buttonExport() const;
   QPushButton* buttonToSAC() const;
 
+  const QPushButton* buttonDeleteSelection() const;
   const QPushButton* buttonSelectAll() const;
   const QPushButton* buttonDeselectAll() const;
 
@@ -71,6 +72,7 @@ private:
   QPushButton* buttonExport_;
   QPushButton* buttonToSAC_;
 
+  QPushButton* buttonDeleteSelection_;
   QPushButton* buttonSelectAll_;
   QPushButton* buttonDeselectAll_;
 

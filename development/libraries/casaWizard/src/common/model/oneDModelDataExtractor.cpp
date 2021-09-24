@@ -14,13 +14,13 @@
 #include "track1d.h"
 #include "well.h"
 
-#include <QVector>
-
 namespace casaWizard
 {
 
-OneDModelDataExtractor::OneDModelDataExtractor(const CasaScenario& scenario) :
-  scenario_{scenario}
+OneDModelDataExtractor::OneDModelDataExtractor(const CalibrationTargetManager& ctManager, const std::string& iterationFolder, const std::string& project3dFilename) :
+  ctManager_{ctManager},
+  iterationFolder_{iterationFolder},
+  project3dFilename_{project3dFilename}
 {
 }
 
@@ -28,17 +28,11 @@ ModelDataPropertyMap OneDModelDataExtractor::extract(const std::string& property
 {
   ModelDataPropertyMap propertyModelDataAtWellLocation;
 
-  const CalibrationTargetManager& ctManager = scenario_.calibrationTargetManagerWellPrep();
-
-  for (const Well* well : ctManager.wells())
+  for (const Well* well : ctManager_.wells())
   {
     if (well->isActive())
     {
-      DataExtraction::Track1d track1d(scenario_.original1dDirectory().toStdString() + "/"
-                                      + scenario_.runLocation().toStdString()
-                                      + "/Iteration_1/"
-                                      + well->name().toStdString() + "/"
-                                      + scenario_.project3dFilename().toStdString());
+      DataExtraction::Track1d track1d(iterationFolder_ + well->name().toStdString() + "/" + project3dFilename_);
       if (!track1d.isCorrect())
       {
         continue;
@@ -55,7 +49,7 @@ ModelDataPropertyMap OneDModelDataExtractor::extract(const std::string& property
         DepthVector depthData = track1d.getData("Depth");
         PropertyVector propertyData = track1d.getData(property);
 
-        propertyModelDataAtWellLocation.insert({well->name(), {depthData, propertyData}});
+        propertyModelDataAtWellLocation.insert({well->name().toStdString(), {depthData, propertyData}});
       }
     }
   }

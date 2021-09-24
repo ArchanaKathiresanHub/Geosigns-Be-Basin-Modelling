@@ -1,7 +1,9 @@
 #include "calibrationTargetManager.h"
 
 #include "logger.h"
+#include "model/dtToTwoWayTimeConverter.h"
 #include "model/input/cmbMapReader.h"
+#include "model/oneDModelDataExtractor.h"
 #include "scenarioReader.h"
 #include "scenarioWriter.h"
 #include "targetParameterMapCreator.h"
@@ -143,6 +145,11 @@ double CalibrationTargetManager::getShiftToAvoidOverlap(const QString& wellName,
 void CalibrationTargetManager::setHasDataInLayer(const int wellIndex, QVector<bool> hasDataInLayer)
 {
   wells_[wellIndex].setHasDataInLayer(hasDataInLayer);
+}
+
+void CalibrationTargetManager::setWellMetaData(const int wellIndex, const QString& metaData)
+{
+  wells_[wellIndex].setMetaData(metaData);
 }
 
 void CalibrationTargetManager::removeCalibrationTargetsFromActiveWellsWithPropertyUserName(const QString& propertyUserName)
@@ -385,6 +392,25 @@ QStringList CalibrationTargetManager::getPropertyUserNamesForWell(const int well
   return propertyUserNames;
 }
 
+void CalibrationTargetManager::deleteWells(const QVector<int>& wellIDs)
+{
+  if (wellIDs.empty()) return;
+  int iSelect = 0;
+  int i = 0;
+  while (i < wells_.size())
+  {
+    if (iSelect < wellIDs.size() && wellIDs[iSelect] == i + iSelect)
+    {
+      wells_.remove(i);
+      ++iSelect;
+    }
+    else
+    {
+      wells_[i].setId(i);
+      ++i;
+    }
+  }
+}
 
 QVector<QVector<const CalibrationTarget*> > CalibrationTargetManager::extractWellTargets(QStringList& propertyUserNames, const QVector<int> wellIndices) const
 {
@@ -501,10 +527,12 @@ void CalibrationTargetManager::removeDataOutsideModelDepths(const std::vector<do
       if (well.removeDataBelowDepth(basementDepthsAtActiveWellLocations[counter]))
       {
         Logger::log() << "Data below the basement has been removed for well: " << well.name() << Logger::endl();
+        well.appendMetaData("Removed data below basement.");
       }
       if (well.removeDataAboveDepth(mudlineDepthsAtActiveWellLocations[counter]))
       {
         Logger::log() << "Data above the mudline has been removed for well: " << well.name() << Logger::endl();
+        well.appendMetaData("Removed data above mudline.");
       }
       counter++;
     }
@@ -517,16 +545,81 @@ void CalibrationTargetManager::removeWellsOutsideBasinOutline(const std::string&
   mapReader.load(projectFileName);
   WellValidator validator(mapReader);
   QStringList usedWellNames;
-  for (int i = wells_.size() - 1; i >= 0; i--)
-  {
-    const WellState wellState = validator.wellState(wells_[i], depthGridName, usedWellNames);
 
-    if (wellState == WellState::invalidLocation)
+  QVector<int> idsToBeRemoved;
+  int wellId = 0;
+  for (const Well& well : wells_)
+  {
+    if (well.isActive())
     {
-      Logger::log() << "Well " << wells_[i].name() << " is outside of the basin model outline and is therefore removed." << Logger::endl();
-      wells_.remove(i);
+      const WellState wellState = validator.wellState(well, depthGridName, usedWellNames);
+
+      if (wellState == WellState::invalidLocation)
+      {
+        Logger::log() << "Well " << well.name() << " is outside of the basin model outline and is therefore removed." << Logger::endl();
+        idsToBeRemoved.push_back(wellId);
+      }
+    }
+    ++wellId;
+  }
+
+  deleteWells(idsToBeRemoved);
+}
+
+void CalibrationTargetManager::convertDTtoTWT(const std::string& iterationFolder, const std::string& project3dFilename)
+{
+  const OneDModelDataExtractor extractor(*this, iterationFolder, project3dFilename);
+
+  const ModelDataPropertyMap data = extractor.extract("TwoWayTime");
+
+  const DTToTwoWayTimeConverter converter;
+
+  const QString convertedTWTName = "TWT_FROM_DT";
+  removeCalibrationTargetsFromActiveWellsWithPropertyUserName(convertedTWTName);
+
+  for (Well& well : wells_)
+  {
+    if (well.isActive())
+    {
+      QStringList properties;
+      const QVector<QVector<const CalibrationTarget*>> targetsInWell = extractWellTargets(properties, well.id());
+
+      const QString sonicSlownessUserName = getSonicSlownessUserNameForConversion(properties);
+
+      if (sonicSlownessUserName == "")
+      {
+        Logger::log() << "Well " << well.name() << " does not have any SonicSlowness data to convert to TwoWayTime." << Logger::endl();
+        continue;
+      }
+
+      const QVector<const CalibrationTarget*> dtTargets = targetsInWell[properties.indexOf(sonicSlownessUserName)];
+      const DepthPropertyPair modelDataForWell = data.at(well.name().toStdString());
+
+      PropertyVector sonicSlowness;
+      DepthVector depth;
+      for (const CalibrationTarget* target : dtTargets)
+      {
+        sonicSlowness.push_back(target->value());
+        depth.push_back(target->z());
+      }
+
+      const std::vector<double> twt = converter.convertToTWT(sonicSlowness, depth, modelDataForWell.second, modelDataForWell.first);
+
+      for (int i = 0; i < twt.size(); i++)
+      {
+        const QString targetName(QString("TwoWayTime") + "(" +
+                                 QString::number(well.x(),'f',1) + "," +
+                                 QString::number(well.y(),'f',1) + "," +
+                                 QString::number(depth[i],'f',1) + ")");
+        addCalibrationTarget(targetName, convertedTWTName, well.id(), depth[i], twt[i]);
+      }
+
+      well.appendMetaData("Created " + convertedTWTName + " targets converted from " + sonicSlownessUserName + ".");
     }
   }
+
+  addToMapping(convertedTWTName, "TwoWayTime");
+  updateObjectiveFunctionFromTargets();
 }
 
 } // namespace casaWizard

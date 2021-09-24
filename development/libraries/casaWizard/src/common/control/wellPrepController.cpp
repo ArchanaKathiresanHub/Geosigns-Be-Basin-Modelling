@@ -13,11 +13,10 @@
 
 #include "control/importWellPopupController.h"
 #include "control/loadTargetsThread.h"
+#include "control/saveTargetsThread.h"
 #include "model/casaScenario.h"
-#include "model/dtToTwoWayTimeConverter.h"
 #include "model/input/cmbMapReader.h"
 #include "model/logger.h"
-#include "model/oneDModelDataExtractor.h"
 #include "model/wellValidator.h"
 
 #include "view/wellPrepTab.h"
@@ -35,27 +34,28 @@ WellPrepController::WellPrepController(WellPrepTab* wellPrepTab,
                                        CasaScenario& casaScenario,
                                        ScriptRunController& scriptRunController,
                                        QObject* parent):
-  QObject(parent),  
+  QObject(parent),
   wellPrepTab_{wellPrepTab},
   casaScenario_{casaScenario},
   scriptRunController_{scriptRunController},
   calibrationTargetController_{new CalibrationTargetWellPrepController(wellPrepTab->calibrationTargetTable(), casaScenario, this)},
   importWellPopupController_{new ImportWellPopupController(wellPrepTab->importWellPopup(), this)},
-  importingPopup_{}
+  waitingDialog_{},
+  waitingDialogNeeded_{true}
 {
-  importingPopup_.setIcon(QMessageBox::Icon::Information);
-  importingPopup_.setWindowTitle("Importing");
-  importingPopup_.setText("Please wait while the wells are imported and validated.");
-  importingPopup_.setStandardButtons(nullptr);
+  waitingDialog_.setIcon(QMessageBox::Icon::Information);
+  waitingDialog_.setStandardButtons(nullptr);
 
   connect(wellPrepTab->buttonSelectAll(), SIGNAL(clicked()), calibrationTargetController_, SLOT(slotSelectAllWells()));
   connect(wellPrepTab->buttonDeselectAll(), SIGNAL(clicked()), calibrationTargetController_, SLOT(slotClearWellSelection()));
-  connect(wellPrepTab->buttonDTtoTWT(), SIGNAL(clicked()), this, SLOT(slotConvertDTToTWT()));
+  connect(wellPrepTab->buttonDeleteSelection(), SIGNAL(clicked()), calibrationTargetController_, SLOT(slotDeleteSelectedWells()));
+  connect(wellPrepTab->buttonExport(), SIGNAL(clicked()), this, SLOT(slotPushSaveDataClicked()));
+  connect(wellPrepTab->buttonDTtoTWT(), SIGNAL(clicked()), this, SLOT(slotConvertDTtoTWT()));
   connect(wellPrepTab->openDataFileButton(), SIGNAL(clicked()), this, SLOT(slotPushSelectCalibrationClicked()));
-  connect(calibrationTargetController_, SIGNAL(wellSelectionChanged()), this, SLOT(slotWellSelectionChanged()));
   connect(wellPrepTab->buttonCropBasement(), SIGNAL(clicked()), this, SLOT(slotRemoveDataBelowBasementAndAboveMudline()));
   connect(wellPrepTab->buttonCropOutline(), SIGNAL(clicked()), this, SLOT(slotRemoveWellsOutOfBasinOutline()));
 
+  connect(calibrationTargetController_, SIGNAL(wellSelectionChanged()), this, SLOT(slotWellSelectionChanged()));
 }
 
 void WellPrepController::slotUpdateTabGUI(int tabID)
@@ -68,69 +68,17 @@ void WellPrepController::slotUpdateTabGUI(int tabID)
   checkEnabledStateButtons();
 }
 
-void WellPrepController::slotConvertDTToTWT()
+void WellPrepController::slotConvertDTtoTWT()
 {
   Logger::log() << "Converting SonicSlowness to TwoWayTime..." << Logger::endl();
   CalibrationTargetManager& calibrationManager = calibrationTargetController_->calibrationTargetManager();
-  const DTToTwoWayTimeConverter converter;
 
-  const OneDModelDataExtractor extractor(casaScenario_);
-  const ModelDataPropertyMap data = extractor.extract("TwoWayTime");
+  const std::string iterationFolder = casaScenario_.original1dDirectory().toStdString() + "/"
+                                     + casaScenario_.runLocation().toStdString()
+                                     + "/Iteration_1/";
+  const std::string project3dFilename = casaScenario_.project3dFilename().toStdString();
 
-  const QString convertedTWTName = "TWT_FROM_DT";
-  calibrationManager.removeCalibrationTargetsFromActiveWellsWithPropertyUserName(convertedTWTName);
-
-  for (const Well* well : calibrationManager.wells())
-  {
-    if (well->isActive())
-    {
-      QStringList properties;
-      const QVector<QVector<const CalibrationTarget*>> targetsInWell = calibrationManager.extractWellTargets(properties, well->id());
-
-      const QString SonicSlownessUserName = calibrationManager.getSonicSlownessUserNameForConversion(properties);
-
-      if (SonicSlownessUserName == "")
-      {
-        Logger::log() << "Well " << well->name() << " does not have any SonicSlowness data to convert to TwoWayTime." << Logger::endl();
-        continue;
-      }
-
-      const QVector<const CalibrationTarget*> dtTargets = targetsInWell[properties.indexOf(SonicSlownessUserName)];
-      const std::pair<DepthVector, PropertyVector> modelDataForWell = data.at(well->name());
-
-      std::vector<double> DT;
-      std::vector<double> depth;
-      for (const CalibrationTarget* target : dtTargets)
-      {
-        DT.push_back(target->value());
-        depth.push_back(target->z());
-      }
-
-      double TwoWayTimeJustAboveWellData = 0.0;
-      for (int i = 1; i < modelDataForWell.first.size(); i++)
-      {
-        if (modelDataForWell.first[i] > depth[0])
-        {
-          TwoWayTimeJustAboveWellData = modelDataForWell.second[i-1];
-        }
-      }
-
-      const std::vector<double> TWT = converter.convertToTWT(DT, depth, modelDataForWell.second, modelDataForWell.first);
-
-      for (int i = 0; i < TWT.size(); i++)
-      {
-        const QString targetName(QString("TwoWayTime") + "(" +
-                                 QString::number(well->x(),'f',1) + "," +
-                                 QString::number(well->y(),'f',1) + "," +
-                                 QString::number(depth[i],'f',1) + ")");
-        calibrationManager.addCalibrationTarget(targetName, convertedTWTName,
-                                                well->id(), depth[i], TWT[i]);
-      }
-    }
-  }
-
-  calibrationManager.addToMapping("TWT_FROM_DT", "TwoWayTime");
-  calibrationManager.updateObjectiveFunctionFromTargets();
+  calibrationManager.convertDTtoTWT(iterationFolder, project3dFilename);
 
   refreshGUI();
   Logger::log() << "Done!" << Logger::endl();
@@ -188,7 +136,10 @@ void WellPrepController::slotPushSelectCalibrationClicked()
   temporaryImportCalibrationTargetManager.clear();
 
   importOnSeparateThread(temporaryImportCalibrationTargetManager, fileName);
-  importingPopup_.exec();
+  waitingDialog_.setWindowTitle("Importing");
+  waitingDialog_.setText("Please wait while the wells are imported and validated.");
+  if (waitingDialogNeeded_) waitingDialog_.exec();
+  if (waitingDialogNeeded_) waitingDialog_.done(0);
 
   CalibrationTargetManager& ctManager = casaScenario_.calibrationTargetManagerWellPrep();
   temporaryImportCalibrationTargetManager.copyMappingFrom(ctManager);
@@ -212,17 +163,57 @@ void WellPrepController::slotPushSelectCalibrationClicked()
   refreshGUI();
 }
 
-void WellPrepController::importOnSeparateThread(CalibrationTargetManager& temporaryImportCalibrationTargetManager, const QString& fileName)
+void WellPrepController::importOnSeparateThread(CalibrationTargetManager& calibrationTargetManager, const QString& fileName)
 {
-  LoadTargetsThread* loadTargetsThread = new LoadTargetsThread(casaScenario_, temporaryImportCalibrationTargetManager, fileName, this);
-  loadTargetsThread->start();
+  waitingDialogNeeded_ = true;
+  LoadTargetsThread* loadTargetsThread = new LoadTargetsThread(casaScenario_, calibrationTargetManager, fileName, this);
   connect (loadTargetsThread, &LoadTargetsThread::finished, this, &WellPrepController::slotCloseWaitingDialog);
   connect (loadTargetsThread, &LoadTargetsThread::finished, loadTargetsThread, &QObject::deleteLater);
+  loadTargetsThread->start();
+}
+
+void WellPrepController::slotPushSaveDataClicked()
+{
+  if (casaScenario_.calibrationTargetManagerWellPrep().activeWells().empty())
+  {
+    Logger::log() << "No wells selected for saving." << Logger::endl();
+    return;
+  }
+
+  QString fileName = QFileDialog::getSaveFileName(wellPrepTab_,
+                                                  "Save as",
+                                                  "",
+                                                  "Spreadsheet (*.xlsx)");
+  if (fileName == "")
+  {
+    return;
+  }
+
+  if (!fileName.endsWith(".xlsx"))
+  {
+    fileName += ".xlsx";
+  }
+
+  waitingDialog_.setWindowTitle("Exporting");
+  waitingDialog_.setText("Please wait while the wells are exported to the xlsx file.");
+  exportOnSeparateThread(casaScenario_.calibrationTargetManagerWellPrep(), fileName);
+  if (waitingDialogNeeded_) waitingDialog_.exec();
+  if (waitingDialogNeeded_) waitingDialog_.done(0);
+}
+
+void WellPrepController::exportOnSeparateThread(const CalibrationTargetManager& calibrationTargetManager, const QString& fileName)
+{
+  waitingDialogNeeded_ = true;
+  SaveTargetsThread* saveTargetsThread = new SaveTargetsThread(calibrationTargetManager, fileName, this);
+  connect (saveTargetsThread, &SaveTargetsThread::finished, this, &WellPrepController::slotCloseWaitingDialog);
+  connect (saveTargetsThread, &SaveTargetsThread::finished, saveTargetsThread, &QObject::deleteLater);
+  saveTargetsThread->start();
 }
 
 void WellPrepController::slotCloseWaitingDialog()
 {
-  importingPopup_.done(0);
+  waitingDialogNeeded_ = false;
+  waitingDialog_.done(0);
 }
 
 void WellPrepController::slotRemoveDataBelowBasementAndAboveMudline()

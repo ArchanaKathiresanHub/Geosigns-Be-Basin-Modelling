@@ -36,7 +36,9 @@ void CalibrationTargetCreator::createFromExcel(const QString& excelFileName)
       calibrationTargetManager_.addToMapping(variableUserNames[i], variableCauldronNames[i]);
     }
 
-    const QVector<std::size_t> nTargetsPerVariable = wellData.nDataPerTargetVar();
+    calibrationTargetManager_.setWellMetaData(wellIndex, wellData.metaData());
+
+    const QVector<unsigned int> nTargetsPerVariable = wellData.nDataPerTargetVar();
 
     unsigned int nTotalTargets = 0;
     for (int iVariable = 0; iVariable < variableUserNames.size(); ++iVariable)

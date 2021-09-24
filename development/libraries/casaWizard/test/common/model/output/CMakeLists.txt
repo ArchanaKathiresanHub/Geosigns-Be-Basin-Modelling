@@ -9,7 +9,8 @@ add_casawizard_common_gtest( NAME ProjectTXTManipulator
 
 add_casawizard_common_gtest( NAME ZycorWriter
                              SOURCES testZycorWriter.cpp )
-
+add_casawizard_common_gtest( NAME CalibrationTargetSaver
+                             SOURCES testCalibrationTargetSaver.cpp )
 configure_file( infoExpected.txt infoExpected.txt COPYONLY)
 configure_file( ProjectExpected.txt ProjectExpected.txt COPYONLY)
 configure_file( Project.txt Project.txt COPYONLY)
@@ -19,6 +20,7 @@ configure_file( SAC/Inputs.HDF SAC/Inputs.HDF COPYONLY )
 configure_file( SAC/Ameland_Demo_data_data2Wells.xlsx SAC/Ameland_Demo_data_data2Wells.xlsx COPYONLY )
 configure_file( SAC/sacScript.casa SAC/sacScript.casa COPYONLY )
 configure_file( SAC/Input.HDF SAC/Input.HDF COPYONLY )
+configure_file( testWellData.xlsx testWellData.xlsx COPYONLY )
 
 configure_file( CMBProjectWriterTest.project3d CMBProjectWriterTest.project3d COPYONLY )
 configure_file( Inputs.HDF Inputs.HDF COPYONLY )

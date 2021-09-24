@@ -64,6 +64,10 @@ public:
   bool removeDataBelowDepth(const double depth);
   bool removeDataAboveDepth(const double depth);
 
+  QString metaData() const;
+  void setMetaData(const QString& metaData);
+  void appendMetaData(const QString& metaData);
+
 private:
   int id_;
   QString name_;
@@ -74,6 +78,7 @@ private:
   bool isInvalid_;
   QVector<CalibrationTarget> calibrationTargets_;
   QVector<bool> hasDataInLayer_;
+  QString metaData_;
 };
 
 

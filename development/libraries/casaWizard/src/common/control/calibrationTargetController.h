@@ -30,19 +30,21 @@ public:
 
   CasaScenario& casaScenario() const;
 
+  CalibrationTargetTable* calibrationTable() const;
+
 public slots:
   void slotSelectAllWells();
   void slotClearWellSelection();
+  void slotRefresh();
 
 private slots:
   void slotCalibrationTargetCheckBoxStateChanged(int state, int wellIndex);
-  void slotRefresh();
 
 signals:
   void wellSelectionChanged();
 
 private:
-  CalibrationTargetTable* calibrationTable_;  
+  CalibrationTargetTable* calibrationTargetTable_;
   CasaScenario& casaScenario_;
 };
 

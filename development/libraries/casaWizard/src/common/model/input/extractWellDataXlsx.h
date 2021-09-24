@@ -1,8 +1,20 @@
+//
+// Copyright (C) 2021 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
+
 // Reader for an Excel data file with calibration targets order by well and variable type
 #pragma once
 
-#include "wellData.h"
 #include "xlsxdocument.h"
+
+#include <QString>
+#include <QVector>
+
 #include <memory>
 
 namespace casaWizard
@@ -14,21 +26,24 @@ class ExtractWellDataXlsx
 {
 public:
   ExtractWellDataXlsx(const QString& xlsxFileName = "");
+  ~ExtractWellDataXlsx();
+
   void extractWellData(const QString& wellName);
 
   void setWellNames();
   const QVector<QString>& wellNames() const;
   double xCoord() const;
   double yCoord() const;
+  const QString& metaData() const;
   QVector<double> depth() const;
-  std::size_t nCalibrationTargetVars() const;
+  unsigned int nCalibrationTargetVars() const;
   QVector<QString> calibrationTargetVarsUserName() const;
   QVector<QString> calibrationTargetVarsCauldronName() const;
-  QVector<std::size_t> nDataPerTargetVar() const;
+  QVector<unsigned int> nDataPerTargetVar() const;
   QVector<double> calibrationTargetValues() const;
   QVector<double> calibrationTargetStdDeviation() const;
 
-  QMap<QString, QString> getCalibrationTargetVariableMaps() const;
+  QMap<QString, QString> calibrationTargetVariableMaps() const;
 
 private:
   void setCalibrationTargetVariableMaps();

@@ -25,7 +25,13 @@ TEST(OneDModelDataExtractorTest, testExtraction)
   calibrationTargetManager.addWell("11_AMN1_AV", 192000, 615000);
   calibrationTargetManager.setWellIsActive(false, 1);
 
-  OneDModelDataExtractor extractor(scenario);
+
+  const std::string iterationFolder = scenario.original1dDirectory().toStdString() + "/"
+                                     + scenario.runLocation().toStdString()
+                                     + "/Iteration_1/";
+  const std::string project3dFilename = scenario.project3dFilename().toStdString();
+
+  OneDModelDataExtractor extractor(calibrationTargetManager, iterationFolder, project3dFilename);
 
   const auto data = extractor.extract("SonicSlowness");
 

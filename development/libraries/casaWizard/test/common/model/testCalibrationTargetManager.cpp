@@ -392,33 +392,71 @@ TEST(CalibrationTargetManagerTest, testRemoveDataOutofModelDepths)
   EXPECT_EQ(manager.wells()[2]->calibrationTargets().size(), 0);
 }
 
-TEST(CalibrationTargetManagerTest, testRemoveCalibrationTargetsWithPropertyUserName)
+TEST(CalibrationTargetManagerTest, testRemoveWellsOutsideBasinModel)
 {
   std::vector<double> basementDepthsActiveAtWellLocations = {6000, 5000};
   std::vector<double> mudlineDepthsAtActiveWellLocations = {0, 150};
 
   casaWizard::CalibrationTargetManager manager;
-  manager.addWell("Well1", 100, 200);
-  manager.addCalibrationTarget("Calibrationtarget1", "DT", 0, -10, 4.0); // Invalid
-  manager.addCalibrationTarget("Calibrationtarget2", "TWTT", 0, 100, 4.0);
-  manager.addCalibrationTarget("Calibrationtarget3", "TWTT", 0, 5500, 4.0);
-  manager.addCalibrationTarget("Calibrationtarget4", "DT", 0, 8000, 4.0); // Invalid
+  manager.addWell("Well1", 179250, 603750);
 
-  manager.addWell("Well2", 200, 100);
-  manager.addCalibrationTarget("Calibrationtarget1", "DT", 1, -10, 4.0);
-  manager.addCalibrationTarget("Calibrationtarget2", "DT", 1, 100, 4.0);
-  manager.addCalibrationTarget("Calibrationtarget3", "DT", 1, 5500, 4.0);
-  manager.addCalibrationTarget("Calibrationtarget4", "DT", 1, 8000, 4.0);
+  manager.addWell("Well2", 179000, 603500); // Invalid
+
+  manager.addWell("Well3", 179000, 603500); // Invalid, but inactive
+  manager.setWellIsActive(false, 2);
+
+  manager.removeWellsOutsideBasinOutline("./TestWellValidator.project3d", "MAP-27105");
+
+  EXPECT_EQ(manager.wells().size(), 2);
+  EXPECT_EQ(manager.well(0).name().toStdString(), "Well1");
+  EXPECT_EQ(manager.well(1).name().toStdString(), "Well3");
+}
+
+TEST(CalibrationTargetManagerTest, testConvertDTtoTWT)
+{
+  casaWizard::CalibrationTargetManager manager;
+  manager.addWell("10_AML2_AV", 184550, 608300);
+  manager.addCalibrationTarget("Test", "DT", 0, 100, 100);
+  manager.addWell("11_AMN1_AV", 192000, 615000);
+  manager.addCalibrationTarget("Test", "DT", 1, 100, 100);
   manager.setWellIsActive(false, 1);
+  manager.addToMapping("DT", "SonicSlowness");
 
-  manager.addWell("Well3", 300, 100);
-  manager.addCalibrationTarget("Calibrationtarget1", "DT", 2, -10, 4.0); // Invalid
-  manager.addCalibrationTarget("Calibrationtarget2", "DT", 2, 100, 4.0); // Invalid
-  manager.addCalibrationTarget("Calibrationtarget3", "DT", 2, 5500, 4.0); // Invalid
-  manager.addCalibrationTarget("Calibrationtarget4", "DT", 2, 8000, 4.0); // Invalid
+  manager.convertDTtoTWT("./original1d/CaseSet/Iteration_1/", "Project.project3d");
 
-  manager.removeCalibrationTargetsFromActiveWellsWithPropertyUserName("DT");
-  EXPECT_EQ(manager.wells()[0]->calibrationTargets().size(), 2);
-  EXPECT_EQ(manager.wells()[1]->calibrationTargets().size(), 4); // Well was inactive, so nothing happened
-  EXPECT_EQ(manager.wells()[2]->calibrationTargets().size(), 0);
+  EXPECT_EQ(manager.well(0).calibrationTargets().size(), 2);
+  EXPECT_EQ(manager.well(1).calibrationTargets().size(), 1);
+}
+
+TEST(CalibrationTargetManagerTest, testConvertDTtoTWTWithoutDTData)
+{
+  std::vector<double> basementDepthsActiveAtWellLocations = {6000, 5000};
+  std::vector<double> mudlineDepthsAtActiveWellLocations = {0, 150};
+
+  casaWizard::CalibrationTargetManager manager;
+  manager.addWell("10_AML2_AV", 184550, 608300);
+  manager.addCalibrationTarget("Test", "TWT", 0, 100, 100);
+  manager.addToMapping("TWT", "TwoWayTime");
+
+  manager.convertDTtoTWT("./original1d/CaseSet/Iteration_1/", "Project.project3d");
+
+  EXPECT_EQ(manager.well(0).calibrationTargets().size(), 1);
+}
+
+TEST(CalibrationTargetManagerTest, testConvertDTtoTWT_MultipleTimes)
+{
+  casaWizard::CalibrationTargetManager manager;
+  manager.addWell("10_AML2_AV", 184550, 608300);
+  manager.addCalibrationTarget("Test", "DT", 0, 100, 100);
+  manager.addWell("11_AMN1_AV", 192000, 615000);
+  manager.addCalibrationTarget("Test", "DT", 1, 100, 100);
+  manager.setWellIsActive(false, 1);
+  manager.addToMapping("DT", "SonicSlowness");
+
+  manager.convertDTtoTWT("./original1d/CaseSet/Iteration_1/", "Project.project3d");
+  manager.convertDTtoTWT("./original1d/CaseSet/Iteration_1/", "Project.project3d");
+  manager.convertDTtoTWT("./original1d/CaseSet/Iteration_1/", "Project.project3d");
+
+  EXPECT_EQ(manager.well(0).calibrationTargets().size(), 2);
+  EXPECT_EQ(manager.well(1).calibrationTargets().size(), 1);
 }

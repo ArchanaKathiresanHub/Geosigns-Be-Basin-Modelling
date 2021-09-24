@@ -14,10 +14,10 @@ CalibrationTargetController::CalibrationTargetController(CalibrationTargetTable*
                                                          CasaScenario& casaScenario,
                                                          QObject* parent) :
   QObject{parent},
-  calibrationTable_{calibTable},
+  calibrationTargetTable_{calibTable},
   casaScenario_{casaScenario}
 {
-  connect(calibrationTable_, SIGNAL(checkBoxChanged(int, int)),
+  connect(calibrationTargetTable_, SIGNAL(checkBoxChanged(int, int)),
           this, SLOT(slotCalibrationTargetCheckBoxStateChanged(int, int)));
 
   connect(parent, SIGNAL(signalRefreshChildWidgets()), this, SLOT(slotRefresh()));
@@ -45,17 +45,22 @@ void CalibrationTargetController::validateWells()
 
 void CalibrationTargetController::slotSelectAllWells()
 {
-  calibrationTable_->selectAllWells();
+  calibrationTargetTable_->selectAllWells();
 }
 
 void CalibrationTargetController::slotClearWellSelection()
 {
-  calibrationTable_->clearWellSelection();
+  calibrationTargetTable_->clearWellSelection();
 }
 
 void CalibrationTargetController::slotRefresh()
 {  
-  calibrationTable_->updateTable(calibrationTargetManager().wells(), getPropertyNamesPerWell());
+  calibrationTargetTable_->updateTable(calibrationTargetManager().wells(), getPropertyNamesPerWell());
+}
+
+CalibrationTargetTable* CalibrationTargetController::calibrationTable() const
+{
+  return calibrationTargetTable_;
 }
 
 CasaScenario& CalibrationTargetController::casaScenario() const

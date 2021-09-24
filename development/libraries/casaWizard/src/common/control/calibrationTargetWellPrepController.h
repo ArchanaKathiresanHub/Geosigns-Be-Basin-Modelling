@@ -32,6 +32,9 @@ public:
 
   QMap<QString, QSet<int>> getPropertyNamesPerWell() const override;
 
+public slots:
+  void slotDeleteSelectedWells();
+
 };
 
 }  // namespace casaWizard
