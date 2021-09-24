@@ -36,6 +36,17 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2021-09-24  Erik.vandenBoogaard  <Erik.vandenBoogaard@shell.com>
+
+	chg: Excel export of well preparation data.
+	* Excel export of well preparation data
+
+	* Related work items: #417586
+
+	================== COMMIT-END ========================
+	Commit-ID:<f5152f8b0aec350f6617854a7f99d56ee919542d>	  (refs/heads/master, refs/heads/Developers/Erik.vdBoogaard/ChangeLog)
+
+++
 2021-09-22  Richard Faasse  <Richard.Faasse@shell.com>
 
 	fix: Fixed mixing up of calibrationtargetmanagers !minor.
