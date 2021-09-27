@@ -361,6 +361,23 @@ TEST(CalibrationTargetManagerTest, testGetSonicSlownessName)
   EXPECT_EQ(manager.getSonicSlownessUserNameForConversion({""}), "");
 }
 
+TEST(CalibrationTargetManagerTest, testGetVelocityName)
+{
+  casaWizard::CalibrationTargetManager manager;
+  manager.addToMapping("Velocity", "Velocity");
+  manager.addToMapping("VP", "Velocity");
+  manager.addToMapping("VP_FROM_DT", "Velocity");
+  manager.addToMapping("TWTT", "TwoWayTime");
+  manager.addToMapping("DT", "SonicSlowness");
+
+  EXPECT_EQ(manager.getVelocityUserNameForConversion({"Velocity", "TWTT"}), "Velocity");
+  EXPECT_EQ(manager.getVelocityUserNameForConversion({"Velocity", "VP"}), "VP");
+  EXPECT_EQ(manager.getVelocityUserNameForConversion({"VP_FROM_DT", "Velocity"}), "VP_FROM_DT");
+
+  EXPECT_EQ(manager.getVelocityUserNameForConversion({"TWTT", "DT"}), "");
+  EXPECT_EQ(manager.getVelocityUserNameForConversion({""}), "");
+}
+
 TEST(CalibrationTargetManagerTest, testRemoveDataOutofModelDepths)
 {
   std::vector<double> basementDepthsActiveAtWellLocations = {6000, 5000};
@@ -459,4 +476,33 @@ TEST(CalibrationTargetManagerTest, testConvertDTtoTWT_MultipleTimes)
 
   EXPECT_EQ(manager.well(0).calibrationTargets().size(), 2);
   EXPECT_EQ(manager.well(1).calibrationTargets().size(), 1);
+}
+
+TEST(CalibrationTargetManagerTest, testConvertVPtoDT)
+{
+  casaWizard::CalibrationTargetManager manager;
+  manager.addWell("10_AML2_AV", 184550, 608300);
+  manager.addCalibrationTarget("Test", "VP", 0, 100, 100);
+  manager.addWell("11_AMN1_AV", 192000, 615000);
+  manager.addCalibrationTarget("Test", "VP", 1, 100, 100);
+  manager.setWellIsActive(false, 1);
+  manager.addToMapping("VP", "Velocity");
+
+  manager.convertVPtoDT();
+
+  EXPECT_EQ(manager.well(0).calibrationTargets().size(), 2);
+  EXPECT_EQ(manager.well(0).metaData(), "Created DT_FROM_VP targets converted from VP.");
+  EXPECT_EQ(manager.well(1).calibrationTargets().size(), 1);
+}
+
+TEST(CalibrationTargetManagerTest, testConvertVPToDTWithoutVPData)
+{
+  casaWizard::CalibrationTargetManager manager;
+  manager.addWell("10_AML2_AV", 184550, 608300);
+  manager.addCalibrationTarget("Test", "TWT", 0, 100, 100);
+  manager.addToMapping("TWT", "TwoWayTime");
+
+  manager.convertVPtoDT();
+
+  EXPECT_EQ(manager.well(0).calibrationTargets().size(), 1);
 }

@@ -10,6 +10,8 @@ add_casawizard_common_gtest( NAME LithofractionMap         SOURCES testLithofrac
 add_casawizard_common_gtest( NAME ScenarioBackup           SOURCES testScenarioBackup.cpp )
 add_casawizard_common_gtest( NAME WellValidator            SOURCES testWellValidator.cpp )
 add_casawizard_common_gtest( NAME DTToTwoWayTimeConverter  SOURCES testDTToTwoWayTimeConverter.cpp)
+add_casawizard_common_gtest( NAME VPToDTConverter          SOURCES testVPToDTconverter.cpp)
+
 add_casawizard_common_gtest( NAME OneDModelDataExtractor   SOURCES testOneDModelDataExtractor.cpp)
 add_casawizard_common_gtest( NAME Well                     SOURCES testWell.cpp )
 file( COPY ${CMAKE_CURRENT_SOURCE_DIR}/original1d DESTINATION ${CMAKE_CURRENT_BINARY_DIR} )

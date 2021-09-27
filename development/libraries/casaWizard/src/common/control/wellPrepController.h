@@ -45,13 +45,14 @@ private slots:
   void slotPushSaveDataClicked();
   void slotCloseWaitingDialog();
   void slotConvertDTtoTWT();
+  void slotConvertVPToDT();
+
   void slotPushSelectCalibrationClicked();
   void slotRemoveDataBelowBasementAndAboveMudline();
   void slotRemoveWellsOutOfBasinOutline();
   void slotWellSelectionChanged();
 
 private:
-
   void importOnSeparateThread(CalibrationTargetManager& calibrationTargetManager, const QString& fileName);
   void exportOnSeparateThread(const CalibrationTargetManager& calibrationTargetManager, const QString& fileName);
   bool allActiveWellsHave1DResults() const;

@@ -4,6 +4,7 @@
 #include "model/dtToTwoWayTimeConverter.h"
 #include "model/input/cmbMapReader.h"
 #include "model/oneDModelDataExtractor.h"
+#include "model/vpToDTConverter.h"
 #include "scenarioReader.h"
 #include "scenarioWriter.h"
 #include "targetParameterMapCreator.h"
@@ -392,6 +393,57 @@ QStringList CalibrationTargetManager::getPropertyUserNamesForWell(const int well
   return propertyUserNames;
 }
 
+void CalibrationTargetManager::convertVPtoDT()
+{
+  const VPToDTConverter converter;
+
+  const QString convertedDTName = "DT_FROM_VP";
+  removeCalibrationTargetsFromActiveWellsWithPropertyUserName(convertedDTName);
+
+  for (Well& well : wells_)
+  {
+    if (well.isActive())
+    {
+      QStringList properties;
+      const QVector<QVector<const CalibrationTarget*>> targetsInWell = extractWellTargets(properties, well.id());
+
+      const QString VelocityUserName = getVelocityUserNameForConversion(properties);
+
+      if (VelocityUserName == "")
+      {
+        Logger::log() << "Well " << well.name() << " does not have any Velocity data to convert to SonicSlowness." << Logger::endl();
+        continue;
+      }
+
+      const QVector<const CalibrationTarget*> vpTargets = targetsInWell[properties.indexOf(VelocityUserName)];
+
+      std::vector<double> VP;
+      std::vector<double> depth;
+      for (const CalibrationTarget* target : vpTargets)
+      {
+        VP.push_back(target->value());
+        depth.push_back(target->z());
+      }
+
+      const std::vector<double> DT = converter.convertToDT(VP);
+
+      for (int i = 0; i < DT.size(); i++)
+      {
+        const QString targetName(QString("SonicSlowness") + "(" +
+                                 QString::number(well.x(),'f',1) + "," +
+                                 QString::number(well.y(),'f',1) + "," +
+                                 QString::number(depth[i],'f',1) + ")");
+        addCalibrationTarget(targetName, convertedDTName, well.id(), depth[i], DT[i]);
+      }
+
+      well.appendMetaData("Created " + convertedDTName + " targets converted from " + VelocityUserName + ".");
+    }
+  }
+
+  addToMapping("DT_FROM_VP", "SonicSlowness");
+  updateObjectiveFunctionFromTargets();
+}
+
 void CalibrationTargetManager::deleteWells(const QVector<int>& wellIDs)
 {
   if (wellIDs.empty()) return;
@@ -514,6 +566,31 @@ QString CalibrationTargetManager::getSonicSlownessUserNameForConversion(const QS
   else
   {
     return sonicSlownessProperties[0];
+  }
+}
+
+QString CalibrationTargetManager::getVelocityUserNameForConversion(const QStringList& propertyUserNames)
+{
+  QStringList velocityProperties;
+  for (const QString& propertyUserName : propertyUserNames)
+  {
+    if (getCauldronPropertyName(propertyUserName) == "Velocity")
+    {
+      velocityProperties.push_back(propertyUserName);
+    }
+  }
+
+  if (velocityProperties.empty())
+  {
+    return "";
+  }
+  else if (velocityProperties.contains("VP"))
+  {
+    return "VP";
+  }
+  else
+  {
+    return velocityProperties[0];
   }
 }
 

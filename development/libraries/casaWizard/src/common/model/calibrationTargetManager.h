@@ -53,6 +53,7 @@ public:
   void addToMapping(const QString& userName, const QString& cauldronName);
   QString getCauldronPropertyName(const QString& userPropertyName) const;
   QString getSonicSlownessUserNameForConversion(const QStringList& propertyUserNames);
+  QString getVelocityUserNameForConversion(const QStringList& propertyUserNames);
 
   void removeDataOutsideModelDepths(const std::vector<double>& basementDepthsAtActiveWellLocations, const std::vector<double>& mudlineDepthsAtActiveWellLocations);
   void removeWellsOutsideBasinOutline(const std::string& projectFileName, const std::string& depthGridName);
@@ -66,11 +67,13 @@ public:
 
   QStringList getPropertyUserNamesForWell(const int wellIndex) const;
 
+  void convertDTtoTWT(const std::string& iterationFolder, const std::string& project3dFilename);
+  void convertVPtoDT();
+
   void deleteWells(const QVector<int>& wellIDs);
 
   void setWellMetaData(const int wellIndex, const QString& metaData);
 
-  void convertDTtoTWT(const std::string& iterationFolder, const std::string& project3dFilename);
 
 private:
   CalibrationTargetManager(const CalibrationTargetManager&) = delete;

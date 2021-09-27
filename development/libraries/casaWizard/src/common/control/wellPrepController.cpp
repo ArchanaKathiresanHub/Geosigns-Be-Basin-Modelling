@@ -51,6 +51,7 @@ WellPrepController::WellPrepController(WellPrepTab* wellPrepTab,
   connect(wellPrepTab->buttonDeleteSelection(), SIGNAL(clicked()), calibrationTargetController_, SLOT(slotDeleteSelectedWells()));
   connect(wellPrepTab->buttonExport(), SIGNAL(clicked()), this, SLOT(slotPushSaveDataClicked()));
   connect(wellPrepTab->buttonDTtoTWT(), SIGNAL(clicked()), this, SLOT(slotConvertDTtoTWT()));
+  connect(wellPrepTab->buttonVPtoDT(), SIGNAL(clicked()), this, SLOT(slotConvertVPToDT()));
   connect(wellPrepTab->openDataFileButton(), SIGNAL(clicked()), this, SLOT(slotPushSelectCalibrationClicked()));
   connect(wellPrepTab->buttonCropBasement(), SIGNAL(clicked()), this, SLOT(slotRemoveDataBelowBasementAndAboveMudline()));
   connect(wellPrepTab->buttonCropOutline(), SIGNAL(clicked()), this, SLOT(slotRemoveWellsOutOfBasinOutline()));
@@ -70,6 +71,12 @@ void WellPrepController::slotUpdateTabGUI(int tabID)
 
 void WellPrepController::slotConvertDTtoTWT()
 {
+  if (casaScenario_.calibrationTargetManagerWellPrep().activeWells().empty())
+  {
+    Logger::log() << "No wells selected for the conversion." << Logger::endl();
+    return;
+  }
+
   Logger::log() << "Converting SonicSlowness to TwoWayTime..." << Logger::endl();
   CalibrationTargetManager& calibrationManager = calibrationTargetController_->calibrationTargetManager();
 
@@ -79,6 +86,23 @@ void WellPrepController::slotConvertDTtoTWT()
   const std::string project3dFilename = casaScenario_.project3dFilename().toStdString();
 
   calibrationManager.convertDTtoTWT(iterationFolder, project3dFilename);
+
+  refreshGUI();
+  Logger::log() << "Done!" << Logger::endl();
+}
+
+void WellPrepController::slotConvertVPToDT()
+{
+  if (casaScenario_.calibrationTargetManagerWellPrep().activeWells().empty())
+  {
+    Logger::log() << "No wells selected for the conversion." << Logger::endl();
+    return;
+  }
+
+  Logger::log() << "Converting Velocity to SonicSlowness..." << Logger::endl();
+  CalibrationTargetManager& calibrationManager = calibrationTargetController_->calibrationTargetManager();
+
+  calibrationManager.convertVPtoDT();
 
   refreshGUI();
   Logger::log() << "Done!" << Logger::endl();
