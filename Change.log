@@ -36,6 +36,15 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2021-09-27  Richard Faasse  <Richard.Faasse@shell.com>
+
+	chg: Added the VP to DT Conversion to SAC wizard.
+	* Added the VP to DT Conversion
+	* Related work items: #417590
+	================== COMMIT-END ========================
+	Commit-ID:<bdb55834cb5b1dd4d700294b17c93cb48f8fd985>	  (refs/heads/master, refs/heads/Developers/Richard.Faasse/UpdateChangeLog, refs/heads/Developers/Richard.Faasse/417590_VPToDTConversion)
+
+++
 2021-09-24  Erik.vandenBoogaard  <Erik.vandenBoogaard@shell.com>
 
 	chg: Excel export of well preparation data.
