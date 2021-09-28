@@ -33,7 +33,6 @@ private slots:
   void slotAcceptedClicked();
 
 private:
-  bool mappingContainsUnknowns(const QMap<QString, QString>& mapping) const;
   QVector<QString> overwrittenMappingKeys(const QMap<QString, QString>& newMapping) const;
   QString getRenamedUserPropertyName(const int rowNumber);
   void renameUserPropertyNames();

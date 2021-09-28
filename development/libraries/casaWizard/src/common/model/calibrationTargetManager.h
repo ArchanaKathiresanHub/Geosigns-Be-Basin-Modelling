@@ -35,7 +35,9 @@ public:
   void setWellIsActive(bool active, int wellIndex);
   void setWellIsExcluded(bool excluded, int wellIndex);
   int addWell(const QString& wellName, double x, double y);
-  void setHasDataInLayer(const int wellIndex, QVector<bool> hasDataInLayer);  
+  void setHasDataInLayer(const int wellIndex, QVector<bool> hasDataInLayer);
+  void removeCalibrationTargetsFromActiveWellsWithPropertyUserName(const QString& propertyUserName);
+  void removeCalibrationTargetsWithUnknownCauldronProperty();
 
   int amountOfActiveCalibrationTargets() const;
   QVector<QVector<const CalibrationTarget*>> extractWellTargets(QStringList& propertyUserNames, const QVector<int> wellIndices) const;
@@ -79,7 +81,6 @@ private:
   CalibrationTargetManager(const CalibrationTargetManager&) = delete;
   CalibrationTargetManager& operator=(CalibrationTargetManager) = delete;
   int addWell(Well well);
-  void removeCalibrationTargetsFromActiveWellsWithPropertyUserName(const QString& propertyUserName);
   double getShiftToAvoidOverlap(const QString& wellName, const double x, const double y);
 
   ObjectiveFunctionManager objectiveFunctionManager_;

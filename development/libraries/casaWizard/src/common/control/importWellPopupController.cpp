@@ -54,16 +54,6 @@ void ImportWellPopupController::slotAcceptedClicked()
 {
   const QMap<QString,QString> newMapping = importWellPopup_->propertyMappingTable()->getCurrentMapping();
 
-  if (mappingContainsUnknowns(newMapping))
-  {
-    QMessageBox unknownProperties(QMessageBox::Icon::Information,
-                          "Undefined properties",
-                          "At least one property does not have a valid Cauldron Property Name and is set to 'Unknown'. "
-                          "Please provide a valid Cauldron Property Name for all properties",
-                          QMessageBox::Ok);
-    unknownProperties.exec();
-    return;
-  }
   if (!overwrittenMappingKeys(newMapping).empty())
   {
     QString message = "The properties with the following user names are already defined, either by previously imported calibration targets"
@@ -98,18 +88,6 @@ void ImportWellPopupController::slotAcceptedClicked()
   importWellPopup_->accept();
 }
 
-bool ImportWellPopupController::mappingContainsUnknowns(const QMap<QString, QString>& mapping) const
-{
-  for (const QString& key : mapping.keys())
-  {
-    if (mapping[key] == "Unknown")
-    {
-      return true;
-    }
-  }
-  return false;
-}
-
 QVector<QString> ImportWellPopupController::overwrittenMappingKeys(const QMap<QString, QString>& newMapping) const
 {
   const QMap<QString, QString> originalMapping = importCalibrationTargetManager_.userNameToCauldronNameMapping();
@@ -117,7 +95,7 @@ QVector<QString> ImportWellPopupController::overwrittenMappingKeys(const QMap<QS
   QVector<QString> overwrittenKeys;
   for (const QString& key : newMapping.keys())
   {
-    if (originalMapping.value(key, "Unknown") != "Unknown" && originalMapping[key] != newMapping[key])
+    if (newMapping.value(key, "Unknown") != "Unknown" && originalMapping[key] != newMapping[key])
     {
       overwrittenKeys.push_back(key);
     }

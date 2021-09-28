@@ -296,15 +296,18 @@ TEST(CalibrationTargetManagerTest, testAppendWellsFrom)
   manager1.addWell("Well1", 100, 200);
   manager1.addWell("Well2", 200, 100);
   manager1.addToMapping("key1", "value1");
+  manager1.addToMapping("key2", "Unknown");
 
   casaWizard::CalibrationTargetManager manager2;
   manager2.addWell("Well1-manager2", 300, 200);
   manager2.addWell("Well2-manager2", 400, 100);
+  manager1.addToMapping("key2", "alreadyKnown");
 
   manager2.appendFrom(manager1);
 
   EXPECT_EQ(manager2.wells().size(), 4);
   EXPECT_EQ(manager2.getCauldronPropertyName("key1"), "value1");
+  EXPECT_EQ(manager2.getCauldronPropertyName("key2"), "alreadyKnown"); // should not be overwritten with the "Unknown"
 
   int counter = 0;
   for (const casaWizard::Well* well : manager2.wells())

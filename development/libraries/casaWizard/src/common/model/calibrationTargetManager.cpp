@@ -52,7 +52,14 @@ void CalibrationTargetManager::addCalibrationTarget(const QString& name, const Q
 
 void CalibrationTargetManager::appendFrom(const CalibrationTargetManager& calibrationTargetManager)
 {
-  userNameToCauldronNameMapping_ = calibrationTargetManager.userNameToCauldronNameMapping_;
+  for (const QString& key : calibrationTargetManager.userNameToCauldronNameMapping_.keys())
+  {
+    if (calibrationTargetManager.userNameToCauldronNameMapping_[key] != "Unknown")
+    {
+      addToMapping(key, calibrationTargetManager.userNameToCauldronNameMapping_[key]);
+    }
+  }
+
   for (const Well& well : calibrationTargetManager.wells_)
   {
     if (well.isActive())
@@ -160,6 +167,26 @@ void CalibrationTargetManager::removeCalibrationTargetsFromActiveWellsWithProper
     if (well.isActive())
     {
       well.removeCalibrationTargetsWithPropertyUserName(propertyUserName);
+    }
+  }
+}
+
+void CalibrationTargetManager::removeCalibrationTargetsWithUnknownCauldronProperty()
+{
+  QStringList unknownPropertyUserNames;
+  for (const QString& propertyUserName : userNameToCauldronNameMapping_.keys())
+  {
+    if (getCauldronPropertyName(propertyUserName) == "Unknown")
+    {
+      unknownPropertyUserNames.push_back(propertyUserName);
+    }
+  }
+
+  for (const QString& unknownPropertyUserName : unknownPropertyUserNames)
+  {
+    for (Well& well: wells_)
+    {
+      well.removeCalibrationTargetsWithPropertyUserName(unknownPropertyUserName);
     }
   }
 }
