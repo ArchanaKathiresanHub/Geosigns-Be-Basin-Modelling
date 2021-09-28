@@ -36,6 +36,14 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2021-09-28  Richard Faasse  <Richard.Faasse@shell.com>
+
+	chg: Fix behaviour when importing "Unknown" properties as per user request
+	* Related work items: #417585
+	================== COMMIT-END ========================
+	Commit-ID:<1619eaefeb3ad415ae8c75b95a3cb416281cc922>	  (refs/heads/master)
+
+++
 2021-09-27  Richard Faasse  <Richard.Faasse@shell.com>
 
 	chg: Added the VP to DT Conversion to SAC wizard.
