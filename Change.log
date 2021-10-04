@@ -36,6 +36,13 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2021-10-04  Richard Faasse  <Richard.Faasse@shell.com>
+
+	fix: Added minor fix to get velocity warning pop-up !minor.
+	================== COMMIT-END ========================
+	Commit-ID:<6458d9667969fd17fbc517820630e305f456e602>	  (refs/heads/master, refs/heads/Developers/Richard.Faasse/UpdateChangeLog)
+
+++
 2021-09-28  Richard Faasse  <Richard.Faasse@shell.com>
 
 	chg: Fix behaviour when importing "Unknown" properties as per user request
