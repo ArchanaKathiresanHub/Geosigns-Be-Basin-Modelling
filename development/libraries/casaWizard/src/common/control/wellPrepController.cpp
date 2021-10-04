@@ -175,6 +175,7 @@ void WellPrepController::slotPushSelectCalibrationClicked()
 
   temporaryImportCalibrationTargetManager.removeCalibrationTargetsWithUnknownCauldronProperty();
   ctManager.appendFrom(temporaryImportCalibrationTargetManager);
+  ctManager.updateObjectiveFunctionFromTargets();
 
   if (ctManager.objectiveFunctionManager().indexOfCauldronName("Velocity") != -1)
   {
