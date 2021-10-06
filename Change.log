@@ -36,6 +36,17 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2021-10-06  Erik.vandenBoogaard  <Erik.vandenBoogaard@shell.com>
+
+	chg: Smoothing and Subsampling well prep data.
+	* Smoothing and Subsampling well prep data
+
+	* Related work items: #417588 #417589
+
+	================== COMMIT-END ========================
+	Commit-ID:<cb4f96b386aca6fd727cb5f11ab61a03efa77b11>	  (refs/heads/master, refs/heads/Developers/Erik.vdBoogaard/ChangeLog)
+
+++
 2021-10-04  Richard Faasse  <Richard.Faasse@shell.com>
 
 	fix: Added minor fix to get velocity warning pop-up !minor.
