@@ -76,6 +76,8 @@ public:
 
   void setWellMetaData(const int wellIndex, const QString& metaData);
 
+  void smoothenData(const QStringList& selectedProperties, const double radius);
+  void subsampleData(const QStringList& selectedProperties, const double length);
 
 private:
   CalibrationTargetManager(const CalibrationTargetManager&) = delete;

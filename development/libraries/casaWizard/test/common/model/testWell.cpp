@@ -48,7 +48,6 @@ TEST(WellTest, testRemovingDataAboveDepth)
   EXPECT_EQ(well.calibrationTargets()[0]->name(), "ValidTarget");
 }
 
-
 TEST(WellTest, testRemovingCalibrationTargetsWithPropertyUserName)
 {
   // Given
@@ -65,4 +64,21 @@ TEST(WellTest, testRemovingCalibrationTargetsWithPropertyUserName)
   // Then
   EXPECT_EQ(well.calibrationTargets().size(), 1);
   EXPECT_EQ(well.calibrationTargets()[0]->name(), "ValidTarget");
+}
+
+TEST(WellTest, testCalibrationTargetsWithPropertyUserName)
+{
+  // Given
+  Well well(0, "Well1", 0.0, 0.0);
+  well.addCalibrationTarget("target1", "DT", 600, 300);
+  well.addCalibrationTarget("target2", "DT", 700, 300);
+  well.addCalibrationTarget("target3", "DT", 500, 300);
+  well.addCalibrationTarget("otherTarget", "TWTT", 800, 300);
+  EXPECT_EQ(well.calibrationTargets().size(), 4);
+
+  // When
+  const QVector<const CalibrationTarget*> targets = well.calibrationTargetsWithPropertyUserName("DT");
+
+  // Then
+  EXPECT_EQ(targets.size(), 3);
 }

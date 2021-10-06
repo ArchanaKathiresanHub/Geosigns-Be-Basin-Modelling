@@ -19,6 +19,7 @@ class CalibrationTargetWellPrepController;
 class CasaScenario;
 class ImportWellPopupController;
 class ScriptRunController;
+class UserPropertyChoicePopup;
 class WellPrepTab;
 
 class WellPrepController : public QObject
@@ -51,6 +52,10 @@ private slots:
   void slotRemoveDataBelowBasementAndAboveMudline();
   void slotRemoveWellsOutOfBasinOutline();
   void slotWellSelectionChanged();
+  void slotSelectPropertiesForSmoothing();
+  void slotApplySmoothing();
+  void slotSelectPropertiesForSubsampling();
+  void slotApplySubsampling();
 
 private:
   void importOnSeparateThread(CalibrationTargetManager& calibrationTargetManager, const QString& fileName);
@@ -63,6 +68,7 @@ private:
   ScriptRunController& scriptRunController_;
   CalibrationTargetWellPrepController* calibrationTargetController_;
   ImportWellPopupController* importWellPopupController_;
+  UserPropertyChoicePopup* userPropertyChoicePopup_;
   QMessageBox waitingDialog_;
   bool waitingDialogNeeded_;
 };

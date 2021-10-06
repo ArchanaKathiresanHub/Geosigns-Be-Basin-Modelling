@@ -49,7 +49,6 @@ int ImportWellPopupController::executeImportWellPopup()
   return importWellPopup_->exec();
 }
 
-
 void ImportWellPopupController::slotAcceptedClicked()
 {
   const QMap<QString,QString> newMapping = importWellPopup_->propertyMappingTable()->getCurrentMapping();

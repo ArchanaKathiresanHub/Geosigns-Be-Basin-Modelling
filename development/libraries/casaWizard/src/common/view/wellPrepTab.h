@@ -10,7 +10,6 @@
 
 #include <QWidget>
 
-class QComboBox;
 class QPushButton;
 class QSpinBox;
 class EmphasisButton;
@@ -31,12 +30,10 @@ public:
   CalibrationTargetTable* calibrationTargetTable() const;
   const EmphasisButton* openDataFileButton() const;
 
-  const QComboBox* smoothingOptions() const;
-  const QSpinBox* smoothingLength() const;
+  int smoothingLength() const;
   const QPushButton* buttonApplySmoothing() const;
 
-  const QComboBox* subsamplingOptions() const;
-  const QSpinBox* subsamplingDistance() const;
+  int subsamplingDistance() const;
   const QPushButton* buttonApplySubsampling() const;
 
   const QPushButton* buttonVPtoDT() const;
@@ -57,11 +54,9 @@ private:
 
   EmphasisButton* openDataFileButton_;
 
-  QComboBox* smoothingOptions_;
   QSpinBox* smoothingLength_;
   QPushButton* buttonApplySmoothing_;
 
-  QComboBox* subsamplingOptions_;
   QSpinBox* subsamplingDistance_;
   QPushButton* buttonApplySubsampling_;
 

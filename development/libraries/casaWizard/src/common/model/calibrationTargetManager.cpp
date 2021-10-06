@@ -2,6 +2,7 @@
 
 #include "logger.h"
 #include "model/dtToTwoWayTimeConverter.h"
+#include "model/functions/filterData.h"
 #include "model/input/cmbMapReader.h"
 #include "model/oneDModelDataExtractor.h"
 #include "model/vpToDTConverter.h"
@@ -90,7 +91,6 @@ void CalibrationTargetManager::renameUserPropertyNameInWells(const QString& oldN
   }
 }
 
-
 QMap<QString, QString> CalibrationTargetManager::userNameToCauldronNameMapping() const
 {
   return userNameToCauldronNameMapping_;
@@ -158,6 +158,107 @@ void CalibrationTargetManager::setHasDataInLayer(const int wellIndex, QVector<bo
 void CalibrationTargetManager::setWellMetaData(const int wellIndex, const QString& metaData)
 {
   wells_[wellIndex].setMetaData(metaData);
+}
+
+void CalibrationTargetManager::smoothenData(const QStringList& selectedProperties, const double radius)
+{
+  for (Well& well : wells_)
+  {
+    if (!well.isActive()) continue;
+
+    for ( const QString& property : selectedProperties )
+    {
+      // Get calibration targets for the selected property
+      QVector<const CalibrationTarget*> targets = well.calibrationTargetsWithPropertyUserName(property);
+
+      // Extract vectors of depth and the corresponding values
+      QVector<double> depths;
+      QVector<double> values;
+      for (const CalibrationTarget* target : targets)
+      {
+        depths.push_back(target->z());
+        values.push_back(target->value());
+      }
+
+      // Smoothing this data
+      QVector<double> smoothenedData = functions::smoothenData(depths, values, radius);
+
+      // Create new targets with the new data
+      int i=0;
+      QVector<CalibrationTarget> newTargets;
+      for (const CalibrationTarget* target : targets)
+      {
+        CalibrationTarget newTarget(target->name(), target->propertyUserName(), target->z(), smoothenedData[i], target->standardDeviation(), target->uaWeight());
+        newTargets.push_back(newTarget);
+        ++i;
+      }
+
+      // Delete the old calibration targets
+      well.removeCalibrationTargetsWithPropertyUserName(property);
+
+      // Add the new targets
+      for( const CalibrationTarget& newTarget : newTargets)
+      {
+        well.addCalibrationTarget(newTarget);
+      }
+
+      // Set metadata
+      const QString message("Gaussian smoothing with radius " + QString::number(radius) + " applied to " + property + " targets");
+      well.appendMetaData(message);
+
+      // Log info
+      Logger::log() << well.name() << ": " << message << Logger::endl();
+    }
+  }
+}
+
+void CalibrationTargetManager::subsampleData(const QStringList& selectedProperties, const double length)
+{
+  for (Well& well : wells_)
+  {
+    if (!well.isActive()) continue;
+
+    for ( const QString& property : selectedProperties )
+    {
+      // Get calibration targets for the selected property
+      QVector<const CalibrationTarget*> targets = well.calibrationTargetsWithPropertyUserName(property);
+
+      // Extract vectors of depth
+      QVector<double> depths;
+      for (const CalibrationTarget* target : targets)
+      {
+        depths.push_back(target->z());
+      }
+
+      // Subsampling this data
+      QVector<int> subsampledIndicesRemaining = functions::subsampleData(depths, length);
+
+      // Create a copy of the remaining targets
+      QVector<CalibrationTarget> newTargets;
+      for (const int index : subsampledIndicesRemaining)
+      {
+        const CalibrationTarget* target = targets[index];
+        CalibrationTarget newTarget = *target; //Copy
+        newTargets.push_back(newTarget);
+      }
+
+      // Delete all old calibration targets
+      well.removeCalibrationTargetsWithPropertyUserName(property);
+
+      // Add the new targets
+      for( const CalibrationTarget& newTarget : newTargets)
+      {
+        well.addCalibrationTarget(newTarget);
+      }
+
+      // Set metadata
+      const QString message("Subsampling with length " + QString::number(length) + " applied to " + property + " targets");
+      well.appendMetaData(message);
+
+      // Log info
+      Logger::log() << well.name() << ": " << message << Logger::endl();
+    }
+  }
 }
 
 void CalibrationTargetManager::removeCalibrationTargetsFromActiveWellsWithPropertyUserName(const QString& propertyUserName)

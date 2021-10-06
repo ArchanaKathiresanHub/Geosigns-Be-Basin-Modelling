@@ -509,3 +509,48 @@ TEST(CalibrationTargetManagerTest, testConvertVPToDTWithoutVPData)
 
   EXPECT_EQ(manager.well(0).calibrationTargets().size(), 1);
 }
+
+TEST(CalibrationTargetManagerTest, testSmoothenData)
+{
+  // Given
+  casaWizard::CalibrationTargetManager manager;
+  manager.addWell("well_1", 184550, 608300);
+  manager.addCalibrationTarget("target_1", "TWT", 0, 100, 100);
+  manager.addCalibrationTarget("target_2", "TWT", 0, 150, 200);
+  manager.addCalibrationTarget("target_3", "TWT", 0, 300, 130);
+  manager.addCalibrationTarget("target_4", "TWT", 0, 700, 400);
+
+  // When
+  manager.smoothenData({"TWT"}, 200);
+
+  // Then
+  const QVector<const casaWizard::CalibrationTarget*> targets = manager.well(0).calibrationTargets();
+  ASSERT_EQ(targets.size(), 4);
+  EXPECT_DOUBLE_EQ(targets[0]->value(), 145.78962600948938);
+  EXPECT_DOUBLE_EQ(targets[1]->value(), 147.13859153244337);
+  EXPECT_DOUBLE_EQ(targets[2]->value(), 158.51092271014977);
+  EXPECT_DOUBLE_EQ(targets[3]->value(), 361.99914465090529);
+}
+
+
+TEST(CalibrationTargetManagerTest, testSubsampleData)
+{
+  // Given
+  casaWizard::CalibrationTargetManager manager;
+  manager.addWell("well_1", 184550, 608300);
+  manager.addCalibrationTarget("target_1", "TWT", 0, 100, 100);
+  manager.addCalibrationTarget("target_2", "TWT", 0, 150, 200);
+  manager.addCalibrationTarget("target_3", "TWT", 0, 300, 130);
+  manager.addCalibrationTarget("target_4", "TWT", 0, 700, 400);
+  manager.addCalibrationTarget("target_5", "TWT", 0, 1100, 100);
+  manager.addCalibrationTarget("target_6", "TWT", 0, 1150, 200);
+  manager.addCalibrationTarget("target_7", "TWT", 0, 300, 130);
+  manager.addCalibrationTarget("target_8", "TWT", 0, 1700, 400);
+
+  // When
+  manager.subsampleData({"TWT"}, 200);
+
+  // Then
+  const QVector<const casaWizard::CalibrationTarget*> targets = manager.well(0).calibrationTargets();
+  EXPECT_EQ(targets.size(), 4);
+}

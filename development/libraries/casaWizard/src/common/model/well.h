@@ -37,6 +37,7 @@ public:
   void clear() override;
 
   QVector<const CalibrationTarget*> calibrationTargets() const;
+  QVector<const CalibrationTarget*> calibrationTargetsWithPropertyUserName(const QString& propertyUserName) const;
   QString name() const;
   double x() const;
   double y() const;
@@ -56,6 +57,7 @@ public:
   QVector<bool> hasDataInLayer() const;
   void setHasDataInLayer(QVector<bool> hasDataInLayer);
 
+  void addCalibrationTarget(const CalibrationTarget& newTarget);
   void addCalibrationTarget(const QString& name, const QString& propertyUserName, const double z, const double value);
   void applyObjectiveFunction(const ObjectiveFunctionManager& objectiveFunction);
   void shift(const double xShift);

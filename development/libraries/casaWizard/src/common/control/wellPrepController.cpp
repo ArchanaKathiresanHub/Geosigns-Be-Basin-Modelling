@@ -22,6 +22,7 @@
 #include "view/wellPrepTab.h"
 #include "view/calibrationTargetTable.h"
 #include "view/components/emphasisbutton.h"
+#include "view/userPropertyChoicePopup.h"
 
 #include <QFileDialog>
 #include <QPushButton>
@@ -40,6 +41,7 @@ WellPrepController::WellPrepController(WellPrepTab* wellPrepTab,
   scriptRunController_{scriptRunController},
   calibrationTargetController_{new CalibrationTargetWellPrepController(wellPrepTab->calibrationTargetTable(), casaScenario, this)},
   importWellPopupController_{new ImportWellPopupController(wellPrepTab->importWellPopup(), this)},
+  userPropertyChoicePopup_{new UserPropertyChoicePopup(wellPrepTab_)},
   waitingDialog_{},
   waitingDialogNeeded_{true}
 {
@@ -55,6 +57,9 @@ WellPrepController::WellPrepController(WellPrepTab* wellPrepTab,
   connect(wellPrepTab->openDataFileButton(), SIGNAL(clicked()), this, SLOT(slotPushSelectCalibrationClicked()));
   connect(wellPrepTab->buttonCropBasement(), SIGNAL(clicked()), this, SLOT(slotRemoveDataBelowBasementAndAboveMudline()));
   connect(wellPrepTab->buttonCropOutline(), SIGNAL(clicked()), this, SLOT(slotRemoveWellsOutOfBasinOutline()));
+
+  connect(wellPrepTab->buttonApplySmoothing(), SIGNAL(clicked()), this, SLOT(slotSelectPropertiesForSmoothing()));
+  connect(wellPrepTab->buttonApplySubsampling(), SIGNAL(clicked()), this, SLOT(slotSelectPropertiesForSubsampling()));
 
   connect(calibrationTargetController_, SIGNAL(wellSelectionChanged()), this, SLOT(slotWellSelectionChanged()));
 }
@@ -111,6 +116,52 @@ void WellPrepController::slotConvertVPToDT()
 void WellPrepController::slotWellSelectionChanged()
 {
   checkEnabledStateButtons();
+}
+
+void WellPrepController::slotSelectPropertiesForSmoothing()
+{  
+  const CalibrationTargetManager& calibrationManager = calibrationTargetController_->calibrationTargetManager();
+  const QStringList activePropertyUserNames = calibrationManager.activePropertyUserNames();
+
+  userPropertyChoicePopup_->updateTable(activePropertyUserNames);
+
+  connect(userPropertyChoicePopup_, SIGNAL(acceptedClicked()), this, SLOT(slotApplySmoothing()) );
+  userPropertyChoicePopup_->exec();
+  disconnect(userPropertyChoicePopup_, SIGNAL(acceptedClicked()), this, SLOT(slotApplySmoothing()) );
+}
+
+void WellPrepController::slotApplySmoothing()
+{
+  const double radius = wellPrepTab_->smoothingLength();
+  const QStringList selectedProperties = userPropertyChoicePopup_->selectedProperties();
+
+  CalibrationTargetManager& calibrationManager = calibrationTargetController_->calibrationTargetManager();
+  calibrationManager.smoothenData(selectedProperties, radius);
+
+  userPropertyChoicePopup_->done(0);
+}
+
+void WellPrepController::slotSelectPropertiesForSubsampling()
+{
+  const CalibrationTargetManager& calibrationManager = calibrationTargetController_->calibrationTargetManager();
+  const QStringList activePropertyUserNames = calibrationManager.activePropertyUserNames();
+
+  userPropertyChoicePopup_->updateTable(activePropertyUserNames);
+
+  connect(userPropertyChoicePopup_, SIGNAL(acceptedClicked()), this, SLOT(slotApplySubsampling()) );
+  userPropertyChoicePopup_->exec();
+  disconnect(userPropertyChoicePopup_, SIGNAL(acceptedClicked()), this, SLOT(slotApplySubsampling()) );
+}
+
+void WellPrepController::slotApplySubsampling()
+{
+  const double length = wellPrepTab_->subsamplingDistance();
+  const QStringList selectedProperties = userPropertyChoicePopup_->selectedProperties();
+
+  CalibrationTargetManager& calibrationManager = calibrationTargetController_->calibrationTargetManager();
+  calibrationManager.subsampleData(selectedProperties, length);
+
+  userPropertyChoicePopup_->done(0);
 }
 
 bool WellPrepController::allActiveWellsHave1DResults() const

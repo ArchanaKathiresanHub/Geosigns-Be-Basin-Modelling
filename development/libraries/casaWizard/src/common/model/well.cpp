@@ -159,6 +159,19 @@ void Well::setHasDataInLayer(QVector<bool> hasDataInLayer)
   hasDataInLayer_ = hasDataInLayer;
 }
 
+QVector<const CalibrationTarget*> Well::calibrationTargetsWithPropertyUserName(const QString& propertyUserName) const
+{
+  QVector<const CalibrationTarget*> targets;
+  for (const CalibrationTarget& target: calibrationTargets_)
+  {
+    if (target.propertyUserName() == propertyUserName)
+    {
+      targets.push_back(&target);
+    }
+  }
+  return targets;
+}
+
 QVector<const CalibrationTarget*> Well::calibrationTargets() const
 {
   QVector<const CalibrationTarget*> targets;
@@ -167,6 +180,11 @@ QVector<const CalibrationTarget*> Well::calibrationTargets() const
     targets.push_back(&target);
   }
   return targets;
+}
+
+void Well::addCalibrationTarget(const CalibrationTarget& newTarget)
+{
+  calibrationTargets_.append(newTarget);
 }
 
 void Well::addCalibrationTarget(const QString& name, const QString& propertyUserName,

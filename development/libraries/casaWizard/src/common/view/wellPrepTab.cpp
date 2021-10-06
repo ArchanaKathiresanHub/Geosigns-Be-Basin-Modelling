@@ -15,7 +15,6 @@
 #include "view/components/helpLabel.h"
 #include "view/importWellPopup.h"
 
-#include <QComboBox>
 #include <QLabel>
 #include <QHBoxLayout>
 #include <QPushButton>
@@ -29,11 +28,9 @@ namespace casaWizard
 WellPrepTab::WellPrepTab(QWidget* parent) :
   QWidget(parent),
   calibrationTargetWellPrepTable_{new CalibrationTargetTable(this)},
-  openDataFileButton_{new EmphasisButton("Add data from file", this)},
-  smoothingOptions_{new QComboBox(this)},
+  openDataFileButton_{new EmphasisButton("Add data from file", this)},  
   smoothingLength_{new QSpinBox(this)},
-  buttonApplySmoothing_{new QPushButton("Apply smoothing", this)},
-  subsamplingOptions_{new QComboBox(this)},
+  buttonApplySmoothing_{new QPushButton("Apply smoothing", this)},  
   subsamplingDistance_{new QSpinBox(this)},
   buttonApplySubsampling_{new QPushButton("Apply subsampling", this)},
   buttonVPtoDT_{new QPushButton("Convert VP log to DT log", this)},
@@ -54,34 +51,26 @@ WellPrepTab::WellPrepTab(QWidget* parent) :
   optionsLayout->addSpacing(20);
   optionsLayout->addWidget(new CustomTitle("Editing options", this), 0, Qt::AlignLeft);
 
-  smoothingOptions_->setMinimumContentsLength(20);
-  smoothingOptions_->setMinimumWidth(150);
-  smoothingOptions_->setSizePolicy(QSizePolicy(QSizePolicy::Maximum, QSizePolicy::Fixed));
-  smoothingOptions_->addItem("None");
   QHBoxLayout* smoothingLayout = new QHBoxLayout();
-  smoothingLayout->addWidget(new QLabel("Smoothing: ", this), 0, Qt::AlignLeft);
-  smoothingLayout->addWidget(smoothingOptions_, 1, Qt::AlignRight);
+  smoothingLayout->addWidget(new QLabel("Smoothing: ", this), 0, Qt::AlignLeft);  
   optionsLayout->addLayout(smoothingLayout);
   smoothingLength_->setMinimumWidth(150);
   smoothingLength_->setSizePolicy(QSizePolicy(QSizePolicy::Maximum, QSizePolicy::Fixed));
-  smoothingLength_->setMinimum(0);
+  smoothingLength_->setMinimum(1);
+  smoothingLength_->setMaximum(1e5);
   QHBoxLayout* smoothingLengthLayout = new QHBoxLayout();
   smoothingLengthLayout->addWidget(new QLabel("Length [m]: ", this), 0, Qt::AlignLeft);
   smoothingLengthLayout->addWidget(smoothingLength_, 1, Qt::AlignRight);
   optionsLayout->addLayout(smoothingLengthLayout);
   optionsLayout->addWidget(buttonApplySmoothing_);
 
-  subsamplingOptions_->setMinimumContentsLength(20);
-  subsamplingOptions_->setMinimumWidth(150);
-  subsamplingOptions_->setSizePolicy(QSizePolicy(QSizePolicy::Maximum, QSizePolicy::Fixed));
-  subsamplingOptions_->addItem("None");
   QHBoxLayout* subsamplingLayout = new QHBoxLayout();
   subsamplingLayout->addWidget(new QLabel("Subsampling: ", this), 0, Qt::AlignLeft);
-  subsamplingLayout->addWidget(subsamplingOptions_, 1, Qt::AlignRight);
   optionsLayout->addLayout(subsamplingLayout);
   subsamplingDistance_->setMinimumWidth(150);
   subsamplingDistance_->setSizePolicy(QSizePolicy(QSizePolicy::Maximum, QSizePolicy::Fixed));
-  subsamplingDistance_->setMinimum(0);
+  subsamplingDistance_->setMinimum(1);
+  subsamplingDistance_->setMaximum(1e5);
   QHBoxLayout* subsamplingDistanceLayout = new QHBoxLayout();
   subsamplingDistanceLayout->addWidget(new QLabel("Distance [m]: ", this), 0, Qt::AlignLeft);
   subsamplingDistanceLayout->addWidget(subsamplingDistance_, 1, Qt::AlignRight);
@@ -150,14 +139,9 @@ const EmphasisButton* WellPrepTab::openDataFileButton() const
   return openDataFileButton_;
 }
 
-const QComboBox* WellPrepTab::smoothingOptions() const
+int WellPrepTab::smoothingLength() const
 {
-  return smoothingOptions_;
-}
-
-const QSpinBox* WellPrepTab::smoothingLength() const
-{
-  return smoothingLength_;
+  return smoothingLength_->value();
 }
 
 const QPushButton* WellPrepTab::buttonApplySmoothing() const
@@ -165,14 +149,9 @@ const QPushButton* WellPrepTab::buttonApplySmoothing() const
   return buttonApplySmoothing_;
 }
 
-const QComboBox* WellPrepTab::subsamplingOptions() const
+int WellPrepTab::subsamplingDistance() const
 {
-  return subsamplingOptions_;
-}
-
-const QSpinBox* WellPrepTab::subsamplingDistance() const
-{
-  return subsamplingDistance_;
+  return subsamplingDistance_->value();
 }
 
 const QPushButton* WellPrepTab::buttonApplySubsampling() const
