@@ -179,24 +179,58 @@ namespace migration
       bool saveSeepageProperties (const Interface::Snapshot * end);
       /// @}
 
-      /// Trap Handling
+        /// @defgroup TrapHandling Trap Handling 
+        /// @brief Takes care of the trap construction and trap merging process.
+        /// 
+        /// First trap construction takes place in 5 steps. To find more details about trap construction process go to computeTraps().
+        /// 
+        /// Two traps merge if the following two conditions are satisfied:
+        ///     -# If any one of the traps is undersized. 
+        ///     -# If the two traps spill into each other.
+        /// 
+        /// The trap merging takes place in mergeSpillingTraps() function.
+        /// 
+        /// @{
 
-      /// move the traps computed during the previous snapshot interval to the list of previous traps.
+      /// @brief Move the traps computed during the previous snapshot interval to the list of previous traps.
       void retainPreviousTraps (void);
-      /// Remove the traps in the list of previous traps.
+      /// @brief Remove the traps in the list of previous traps.
       void removePreviousTraps (void);
-      /// Remove the traps in the list of traps.
+      /// @brief Remove the traps in the list of traps.
       void removeTraps (void);
-      /// save trap-related scalar properties
+      /// @brief Save trap-related scalar properties
       bool saveTrapProperties (const bool saveSnapshot);
-      /// compute the traps of this reservoir
-      bool computeTraps (void);
+
+      
+        /// @brief Contructs the traps of this reservoir.
+        /// 
+        /// The trap construction takes places in the following 5 steps:
+        /// -# Finding the trap tops i.e., finding the crest column and setting its 8 neighbor points. See computeTrapTops().
+        /// -# Computing the total no of traps. See computeMaximumTrapCount().
+        /// -# Computing the full extents of the identified traps. See computeTrapExtents().
+        /// -# Initializing the attributes of the traps. See initializeTraps().
+        /// -# Merging the undersized traps. Undersized traps are those whose capacity is smaller than a user-defined reservoir-wide threshold.
+        bool computeTraps (void);
+
       void printInconsistentTrapVolumes (void);
       /// recompute the depth to volume functions if oil to gas cracking has been performed
       bool recomputeTrapDepthToVolumeFunctions (void);
       void processTrapProperties (TrapPropertiesRequest & tpRequest);
       bool crackChargesToBeMigrated (OilToGasCracker & otgc);
-      bool fillAndSpill (void);
+
+        /// @brief Perform the filling and spilling process.
+        /// 
+        /// This is where the HCs loss/exchange are accounted.
+        /// Additionally, trap merging also happens in here.
+        /// 
+        /// In BPA2 engine, distribution happens first (i.e., calculate leakage, wasting and spillage),
+        /// then biodegrade and then calculate diffusion losses. If something is biodegraded,
+        /// or diffused, then a final re-distribution will be needed.
+        /// 
+        /// Also, go to collectAndSplitCharges(), distributeCharges(), mergeSpillingTraps() and biodegradeCharges() for more information.
+        bool fillAndSpill (void);
+
+      inline bool theDistributionCycle(bool &flashCharges);
       void incrementChargeDistributionCount (void);
       void reportChargeDistributionCount (void);
       void broadcastTrapDiffusionStartTimes (void);
@@ -206,6 +240,7 @@ namespace migration
       void accumulateErrorInPVT (double error);
       double getErrorPVT (void);
       double getLossPVT (void);
+      /// @}
 
 
       /// Migration Related
@@ -310,6 +345,10 @@ namespace migration
 
       bool distributionHasFinished (void);
       bool distributeCharges (const bool performAdvancedMigration, bool alwaysDistribute = false);
+      /// <summary>
+      /// This will put the loss in the reservoir of 
+      /// </summary>
+      /// <param name=""></param>
       void reportLeakages (void);
       bool computeDistributionParameters (void);
       double biodegradeCharges (void);
@@ -326,7 +365,14 @@ namespace migration
       bool addChargesToBeMigrated (const DataAccess::Interface::GridMap * gridMap, double fraction, Barrier * barrier);
       bool subtractChargesToBeMigrated (ComponentId componentId, const DataAccess::Interface::GridMap * gridMap, double fraction, Barrier * barrier);
       bool checkChargesToBeMigrated (ComponentId componentId);
-      void collectAndSplitCharges (bool always = false);
+      
+        /// @addtogroup TrapHandling
+        /// 
+        /// @{
+        /// 
+        void collectAndSplitCharges(bool always = false);
+        /// @}
+
       /// \brief Add the leakage before biodegradation/diffusion to the crest column once
       ///        re-distribution has finished. Care should be taken with merging traps.
       ///        Their initial leakage should be added to the crest column before deletion.
@@ -348,35 +394,85 @@ namespace migration
       int getNumberOfProxyColumns (void);
 
 
-      /// Trap Handling
+        /// @addtogroup TrapHandling
+        /// 
+        /// @{
+        /// Trap
 
-      /// initialize the traps
+      /// Initialize the traps
       bool initializeTraps (void);
+
       void changeTrapPropertiesRequestId (TrapPropertiesRequest * tpRequests, unsigned int maxNumberOfRequests, int oldId, int newId);
       /// collect properties of traps in tpRequests
       void collectTrapProperties (TrapPropertiesRequest * tpRequests, unsigned int maxNumberOfRequests);
       /// renumber the traps in the MigrationIoTbl and fill the TrapIoTbl
       void populateMigrationTables (TrapPropertiesRequest * tpRequests, unsigned int maxNumberOfRequests);
       void eliminateUndersizedTraps (TrapPropertiesRequest * tpRequests, unsigned int maxNumberOfRequests);
-      /// compute the columns for which the depth is at a local minimum and create a trap for them.
-      bool computeTrapTops (void);
-      /// compute the areas covered by each trap.
-      bool computeTrapExtents (void);
-      /// If the column at the given indices is at a local depth minimum, create a trap for it.
-      void computeTrapTop (PhaseId phase, unsigned int i, unsigned int j);
+
+        /// @brief Compute the columns for which the depth is at a local minimum and create a trap for them. 
+        /// See computeTrapTop().
+        bool computeTrapTops (void);
+
+        /// @brief Computes the area covered by each trap.
+        /// 
+        ///  Loops over all the traps and for each trap the trap extension operation is carried out in 4 steps: 
+        ///     -# Compute the trap area. See computeArea().
+        ///     -# Convert the volume to depth. See computeDepthToVolumeFunction().
+        ///     -# Compute the waste columns. See computeWasteColumns().
+        ///     -# Find the new spill targets. See computeSpillTarget().
+        bool computeTrapExtents(void);
+      
+        /// @brief If the column at the given indices is at a local depth minimum, create a trap for it.
+        /// 
+        /// If the column is:
+        ///     -# Valid.
+        ///     -# It is at a local depth minimum.
+        ///     -# It is not wasting.
+        ///     -# It is not sealing.
+        ///     -# It is not already assigned to a trap.
+        /// 
+        /// Then its composition is reset and a new trap is constructed and a trap id is assigned.
+        /// The column is set as interior column and its 8 neighbor is set as its perimeter.
+        /// 
+        /// @param HC phase, i-index of a column, j-index of a column
+        void computeTrapTop(PhaseId phase, unsigned int i, unsigned int j);
+
       Trap * findTrap (int globalId);
       void addTrap (Trap * trap);
+
+        /// @brief It merges the traps that are spilling to each other.
+        /// 
+        /// The trap merging takes place in three steps:
+        ///     -# Determine the traps that need to be merged.
+        ///     -# Transfer the interiors of the traps to be absorbed to the absorbing traps.
+        ///     -# Re-compute traps extents.
+        /// 
+        /// When two traps are merged, their interiors are merged and ordered, their perimeters are merged and ordered, 
+        /// and trap construction proceeds as described in computeTrapExtents().
       void mergeSpillingTraps (void);
 #ifdef MERGEUNDERSIZEDTRAPSAPRIORI
       bool mergeUndersizedTraps (void);
 #endif
+        /// @brief Determine whether and identify traps that need to merge
+        /// 
+        /// @return Returns true if no traps needed to merge.
       bool determineTrapsToMerge (ConditionTest conditionTest);
       void absorbTraps (void);
       void removeUndersizedTraps (void);
       void completeTrapExtensions (void);
-      int computeMaximumTrapCount (bool countUndersized = true);
+
+        /// @brief Loops over all the traps and counts the total no of traps 
+        /// 
+        /// If the parameter passed to this function is false, during the counting it excludes all the undersized traps.
+        /// Otherwise, it returns the total number of traps in the reservoir.
+        /// 
+        /// @param A booleam argument. By Default it is set as true.
+        /// @return An interger value containing the total number of traps.
+        int computeMaximumTrapCount(bool countUndersized = true);
+      
       int numberOfAllTraps (bool countUndersized = false);
       inline unsigned int getMaximumTrapCount (void);
+      /// @}
 
 
       /// Miscellaneous

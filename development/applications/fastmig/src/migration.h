@@ -138,7 +138,12 @@ namespace migration
    const int INITIAL = 1;
    const int LEAKED = 2;
    const int WASTED = 4;
-   const int SPILLED = 8;
+   const int SPILLED_IN = 8;
+   /// <summary>
+   /// MERGED - indicates a trap merge composition-state was attained.
+   /// in other words, new HCs being put in the CrestColumn by virtue of a trap merger process.
+   /// </summary>
+   const int MERGED = 16;
 
    /// Diffuse C1 to C5 contained in the gas phase of the trap
    const int DiffusionComponentSize = 5;

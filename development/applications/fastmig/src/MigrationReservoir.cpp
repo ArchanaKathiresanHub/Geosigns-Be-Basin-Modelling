@@ -2764,26 +2764,14 @@ namespace migration
       if (!computeDistributionParameters ())
          return false;
 
-      int iterationNumber = 1;
-
-      int maxFillAndSpillIterations = max(minFillAndSpillIterations, numberOfAllTraps());
       // In BPA2 engine, distribute first (i.e. calculate leakage, wasting and spillage),
       // then biodegrade and then calculate diffusion losses. If something is biodegraded,
       // or diffused, then a final re-distribution will be needed.
-      do
-      {
-         collectAndSplitCharges ();
-         distributeCharges (m_migrator->performAdvancedMigration());
-         
-         mergeSpillingTraps ();
-         processMigrationRequests ();
+      bool flashCharges = false;
 
-         ++iterationNumber;
-      }
-      while (!allProcessorsFinished (distributionHasFinished ()) and (iterationNumber < maxFillAndSpillIterations));
+      bool wasDistributedProperly = theDistributionCycle(flashCharges);
 
-      if (iterationNumber >= maxFillAndSpillIterations)
-         LogHandler (LogHandler::WARNING_SEVERITY) << "Maximum number of iteration in fill and spill has been reached\n";
+      
 
       m_biodegraded = 0;
       if (isBiodegradationEnabled())
@@ -2809,28 +2797,8 @@ namespace migration
       if (isBiodegradationEnabled() or
           isDiffusionEnabled())
       {
-         // Reset iteration counter
-         iterationNumber = 1;
-
-         bool flashCharges = true;
-         do
-         {
-            collectAndSplitCharges (flashCharges);
-            distributeCharges (m_migrator->performAdvancedMigration(), flashCharges);
-
-            mergeSpillingTraps ();
-            processMigrationRequests ();
-
-            // Making sure that if spillage occurs, every trap will be re-flashed.
-            // No easy way of knowing that in advance.
-            flashCharges = false;
-
-            ++iterationNumber;
-         }
-         while (!allProcessorsFinished (distributionHasFinished ()) and (iterationNumber < maxFillAndSpillIterations));
-
-         if (iterationNumber >= maxFillAndSpillIterations)
-            LogHandler (LogHandler::WARNING_SEVERITY) << "Maximum number of iteration in fill and spill has been reached\n";
+          flashCharges = true;
+          wasDistributedProperly = theDistributionCycle(flashCharges);
       }
 
       putInitialLeakageBack();
@@ -2838,8 +2806,33 @@ namespace migration
       reportLeakages ();
 
       processMigrationRequests ();
-      setSourceReservoir (0);
-      return true;
+      setSourceReservoir (nullptr);
+      return wasDistributedProperly;
+   }
+
+   inline bool MigrationReservoir::theDistributionCycle(bool &flashCharges)
+   {
+       int iterationNumber = 1;
+       int maxFillAndSpillIterations = max(minFillAndSpillIterations, numberOfAllTraps());
+       bool isAnyGood = true;
+	   do
+	   {
+           // flash charges just after biodegrade and/or diffusion
+		   collectAndSplitCharges(flashCharges);
+           isAnyGood = distributeCharges(m_migrator->performAdvancedMigration(),flashCharges);
+
+		   mergeSpillingTraps();
+		   processMigrationRequests();
+		   // Making sure that if spillage occurs, every trap will be re-flashed
+			// No easy way of knowing that in advance.
+           if (flashCharges)flashCharges = false;
+		   ++iterationNumber;
+	   } while (!allProcessorsFinished(distributionHasFinished()) and (iterationNumber < maxFillAndSpillIterations));
+
+	   if (iterationNumber >= maxFillAndSpillIterations)
+		   LogHandler(LogHandler::WARNING_SEVERITY) << "Maximum number of iteration in fill and spill has been reached\n";
+
+       return isAnyGood;
    }
 
    /// See whether distribution of charge has finished on this processor.
@@ -3219,7 +3212,13 @@ namespace migration
          for (unsigned int j = m_columnArray->firstJLocal(); j <= m_columnArray->lastJLocal(); ++j)
          {
             LocalColumn * column = getLocalColumn(i, j);
-            column->addMergedBuffer();
+            //!
+            //! Just like addSpillBuffer() adds SPILLED_IN compostionState,
+            //! we pass the MERGED composition state to this call.
+            //! We could just have a empty parameter list here, then the compositionState will be set to INITIAL.
+            //! Check the definition of the following method
+            //! 
+            column->addMergedBuffer(&MERGED);
          }
       }
       RequestHandling::FinishRequestHandling();

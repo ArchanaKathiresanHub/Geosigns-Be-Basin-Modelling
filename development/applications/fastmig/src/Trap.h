@@ -57,7 +57,23 @@ namespace migration
 
       size_t getSize (void);
 
-      void computeArea (void);
+        /// @addtogroup TrapHandling
+        /// 
+        /// @{
+
+        /// @brief Compute the area of a trap.
+        /// 
+        /// This function assumes that the perimeter is sorted with the sealing columns at the end.
+        /// So, if the first column of the perimeter (given by getSpillColumn ()) is sealing, all columns in the perimeter are sealing.
+        /// 
+        /// Steps involved are:
+        ///   -# Find the spill column. It is the column with the shallowest depth in the perimeter of a trap.
+        ///   -# Check if it has a neighboring column outside the trap that is shallower and is not sealing. If yes, then stop. If no, go the next step.
+        ///   -# Remove the "spill column" from perimeter and add it to trap interior.
+        ///   -# Add the neighbor columns of the "spill column" that are neither in the interior nor the perimeter to the perimeter.
+        ///   -# Go to step 1.
+        void computeArea (void);
+        /// @}
 
       void becomeObsolete (void);
       void beAbsorbed (void);
@@ -164,10 +180,28 @@ namespace migration
 
       double getSpillDepth (void) const;
 
-      void computeSpillTarget (void);
+        /// @addtogroup TrapHandling
+        /// 
+        /// @{
+
+        /// @brief Find the column the trap spills to
+        /// 
+        /// Loops over all the HC phases and finds the column the trap spills to for the particular HC phase.
+        void computeSpillTarget(void);
+        /// @}
+        
       Column * getSpillTarget (const PhaseId phase);
 
-      void computeWasteColumns (void);
+        /// @addtogroup TrapHandling
+        /// 
+        /// @{
+
+        /// @brief Compute the columns at which the trap will waste
+        /// 
+        /// Loops over all the HC phases and computes the columns at which the particular HC phase of the trap will waste.
+        void computeWasteColumns(void);
+        /// @}
+
       Column * getWasteColumn (PhaseId phase);
       double getWasteDepth (PhaseId phase);
 
@@ -277,6 +311,10 @@ namespace migration
       */
       double getVolumeBetweenDepths2 (double upperDepth, double lowerDepth) const;
 
+      /// @addtogroup TrapHandling
+      /// 
+      /// @{
+      
       /*!
       * \brief Compute the function that maps capacity to depth.
       * \details Compute the m_levelToVolume, from the MonotonicIncreasingPiecewiseLinearInvertableFunction class.
@@ -292,6 +330,8 @@ namespace migration
       *    |/____________________ Filling Depth (m)
       */
       void computeDepthToVolumeFunction (void);
+      /// @}
+      
       void computeVolumeToDepthFunction (void);
       void computeVolumeToDepthFunction2 (void);
 
@@ -420,7 +460,7 @@ namespace migration
       void moveBackToToBeDistributed (PhaseId lighterPhase);
       void moveBackToCrestColumn (void);
       void moveBackToCrestColumn (PhaseId phase);
-      /// After biodegradation and/or diffusion put in the crest column only the trap content 
+      /// After biodegradation and/or diffusion put only the trap content in the crest column (not the toBeDitributed)
       void moveDistributedToCrestColumn (void);
 
       void moveBackToBeMigrated (void);

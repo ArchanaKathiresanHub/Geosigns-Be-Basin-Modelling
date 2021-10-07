@@ -1161,16 +1161,25 @@ namespace migration
    {
       if (always || requiresDistribution ())
       {
-         // Biodegradation or diffusion occurred, only the trap content will be flashed and re-distributed.
-         // But if we're in the post-biodegradation/diffusion stage and spillage has occurred (2nd iteration)
+         // if Biodegradation or diffusion occurred, only the trap content will be flashed and re-distributed.
+         // But if we're in the after biodegradation/diffusion stage/cycle and spillage has occurred (2nd iteration)
          // don't save crest-column content in m_leakageBeforeBiodegDiffusion, as it is spillage from other traps.
          if (always and (biodegradationOccurred () or diffusionLeakageOccurred ()))
          {
             moveDistributedToCrestColumn ();
          }
-         // If there is no spillage, but there is leakage, then crest column only has leaked HCs.
-         // Put those temporarily in leakedBeforeBiodegDiffusion to reflash trap.
-         else if ((getCrestColumn ()->getCompositionState () & SPILLED) == 0 and (getCrestColumn ()->getCompositionState () & LEAKED) != 0)
+         /**
+          * If there is no new incoming spillage, but if there was leakage from the last iteration, then crest column only has leaked HCs. 
+          * Put those temporarily in leakedBeforeBiodegDiffusion to re flash trap.
+          * NOTE: A new quantity of HC might also arrive by virtue of a trap merging process.
+          * Make sure we account for this as well.
+          * The trap being absorbed might also contain LEAKED HCs in its crest column, we don't mind that,
+          * since after the trap merging process the leak might not be a "real" leak if it could be accommodated in the new larger trap.
+          * Remember that the seal-strength of the toBeAbsorbed trap is disregarded after Trap merger process
+          */
+         else if ((getCrestColumn ()->getCompositionState ()    & SPILLED_IN)   == 0 // no new HC has arrived due to spillage from other traps.
+             and ( getCrestColumn()->getCompositionState()      & MERGED    )   == 0 // no new HC has arrived due to trap merger of other non-empty trap into this one.
+             and ( getCrestColumn ()->getCompositionState ()    & LEAKED    )   != 0)// this trap has leaked some HCs (as ascertained from the last calculation step).
          {
             moveDistributedToCrestColumn ();
          }
@@ -2587,7 +2596,7 @@ namespace migration
    {
       bool result = false;
       if (getCrestColumn ()->containsComposition () &&
-          ((getCrestColumn ()->getCompositionState () & (INITIAL+ LEAKED + SPILLED)) != 0))
+          ((getCrestColumn ()->getCompositionState () & (INITIAL+ LEAKED + SPILLED_IN + MERGED)) != 0))
          result = true;
 
       for (int phase = FIRST_PHASE; phase < NUM_PHASES; ++phase)

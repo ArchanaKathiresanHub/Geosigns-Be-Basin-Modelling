@@ -496,7 +496,7 @@ namespace migration
 		void addTargetBuffer();
 		void addWasteBuffer();
 		void addSpillBuffer();
-		void addMergedBuffer();
+		void addMergedBuffer(const int *compositionState=nullptr);
 
 	 private:
 

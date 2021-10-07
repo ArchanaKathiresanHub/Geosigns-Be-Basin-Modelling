@@ -1624,7 +1624,7 @@ namespace migration
            {
                    if (!m_composition) m_composition = new Composition;
                    m_composition->add(m_vaporSpillBuffer[i].second);
-                   m_compositionState |= SPILLED;
+                   m_compositionState |= SPILLED_IN;
            }
 
            std::sort(m_liquidSpillBuffer.begin(), m_liquidSpillBuffer.end(), bufferCompositionSorter);
@@ -1632,7 +1632,7 @@ namespace migration
            {
                    if (!m_composition) m_composition = new Composition;
                    m_composition->add(m_liquidSpillBuffer[i].second);
-                   m_compositionState |= SPILLED;
+                   m_compositionState |= SPILLED_IN;
            }
            m_vaporSpillBuffer.clear();
            m_liquidSpillBuffer.clear();
@@ -1644,7 +1644,7 @@ namespace migration
            m_mergingBuffer.push_back(std::make_pair(position, composition));
    }
 
-   void LocalColumn::addMergedBuffer()
+   void LocalColumn::addMergedBuffer(const int *compositionState)
    {
            bufferCompositionSorter bufferCompositionSorter;
            std::sort(m_mergingBuffer.begin(), m_mergingBuffer.end(), bufferCompositionSorter);
@@ -1652,7 +1652,13 @@ namespace migration
            {
                    if (!m_composition) m_composition = new Composition;
                    m_composition->add(m_mergingBuffer[i].second);
-                   m_compositionState |= INITIAL;
+                   if (compositionState) {
+                       m_compositionState |= MERGED;
+                   }
+                   else
+                   {
+                       m_compositionState |= INITIAL; /// whats the implication of changeing this is yet to be determined.
+                   }                   
            }
            m_mergingBuffer.clear();
    }
