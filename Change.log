@@ -13,7 +13,7 @@
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Version				Date of update
 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-Cauldron-v2.7.0		2021-05-13 17:09:48 +0000
+Cauldron-v2.7.1		2021-10-07 05:57:16 +0000
 =============================================================
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Third-party Software 		version
@@ -36,6 +36,17 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2021-10-07  arijit.khan Khan  <arijit.khan@shell.com>
+
+	fix: usr: The HC accounting problem after trap merge !major.
+	 * this is the branch to fix the Malampaya like scenarios
+	 * a MERGE flag was introduced to identify the case of new HC coming into a larger after a smaller trap was merged into it
+
+	Related work items: #437820
+	================== COMMIT-END ========================
+	Commit-ID:<6ce05a7be1e5c65f1b32a6722609f4ced52fad6a>	  (tag: refs/tags/v2.7.1, refs/heads/master)
+
+++
 2021-10-06  Erik.vandenBoogaard  <Erik.vandenBoogaard@shell.com>
 
 	chg: Smoothing and Subsampling well prep data.
