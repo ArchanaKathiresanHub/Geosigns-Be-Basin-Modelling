@@ -17,7 +17,7 @@ TEST(DepthConversionScriptTest, testGenerateCommandsLocal)
   scenario.setProject3dFilePath("./Project.project3d");
   scenario.setT2zNumberCPUs(10);
   scenario.setApplicationName("fastcauldron \"-temperature\"");
-  std::unique_ptr<casaWizard::RunScript> script(new casaWizard::sac::DepthConversionScript(scenario, scenario.workingDirectory() + "/T2Z_step2"));
+  std::unique_ptr<casaWizard::RunScript> script(new casaWizard::sac::DepthConversionScript(scenario, scenario.workingDirectory() + "/T2Z_step2", workloadmanagers::WorkLoadManagerType::AUTO));
 
   script->generateCommands();
   std::string expectedCommand = "mpirun_wrap.sh -n 10 fastdepthconversion -project Project.project3d -temperature -onlyat 0 -referenceSurface 0 -endSurface 10 -noofpp -preserveErosion -noCalculatedTWToutput";
@@ -32,7 +32,7 @@ TEST(DepthConversionScriptTest, testGenerateCommandsLocal)
 
 }
 
-TEST(DepthConversionScriptTest, testGenerateCommandsCluster)
+TEST(DepthConversionScriptTest, testGenerateCommandsClusterSLURM)
 {
   // Given
   casaWizard::sac::SACScenario scenario{new casaWizard::StubProjectReader()};
@@ -40,7 +40,7 @@ TEST(DepthConversionScriptTest, testGenerateCommandsCluster)
   scenario.setClusterName("Cluster");
   scenario.setProject3dFilePath("./Project.project3d");
   scenario.setApplicationName("fastcauldron \"-temperature\"");
-  std::unique_ptr<casaWizard::RunScript> script(new casaWizard::sac::DepthConversionScript(scenario, scenario.workingDirectory() + "/T2Z_step2"));
+  std::unique_ptr<casaWizard::RunScript> script(new casaWizard::sac::DepthConversionScript(scenario, scenario.workingDirectory() + "/T2Z_step2", workloadmanagers::WorkLoadManagerType::SLURM));
 
   script->generateCommands();
 
@@ -48,7 +48,27 @@ TEST(DepthConversionScriptTest, testGenerateCommandsCluster)
   EXPECT_EQ(script->commands()[0].command, expectedCommand);
 #ifndef _WIN32
   system("sed -i '9d' ./T2Z_step2/runt2z.sh");
-  expectFileEq("./T2Z_step2/runt2z.sh", "./T2Z_step2/runt2zExpected.sh");
+  expectFileEq("./T2Z_step2/runt2z.sh", "./T2Z_step2/runt2zExpectedSLURM.sh");
+#endif
+}
+
+TEST(DepthConversionScriptTest, testGenerateCommandsClusterLSF)
+{
+  // Given
+  casaWizard::sac::SACScenario scenario{new casaWizard::StubProjectReader()};
+  scenario.setWorkingDirectory(".");
+  scenario.setClusterName("Cluster");
+  scenario.setProject3dFilePath("./Project.project3d");
+  scenario.setApplicationName("fastcauldron \"-temperature\"");
+  std::unique_ptr<casaWizard::RunScript> script(new casaWizard::sac::DepthConversionScript(scenario, scenario.workingDirectory() + "/T2Z_step2", workloadmanagers::WorkLoadManagerType::IBM_LSF));
+
+  script->generateCommands();
+
+  QString expectedCommand = scenario.workingDirectory() + "/T2Z_step2/runt2z.sh";
+  EXPECT_EQ(script->commands()[0].command, expectedCommand);
+#ifndef _WIN32
+  system("sed -i '9d' ./T2Z_step2/runt2z.sh");
+  expectFileEq("./T2Z_step2/runt2z.sh", "./T2Z_step2/runt2zExpectedLSF.sh");
 #endif
 }
 
@@ -58,7 +78,7 @@ TEST(DepthConversionScriptTest, testGenerateCommandsInvalidScriptLocation)
   casaWizard::sac::SACScenario scenario{new casaWizard::StubProjectReader()};
   scenario.setWorkingDirectory("doesNotExist");
   scenario.setClusterName("Cluster");
-  std::unique_ptr<casaWizard::RunScript> script(new casaWizard::sac::DepthConversionScript(scenario, scenario.workingDirectory() + "/T2Z_step2/"));
+  std::unique_ptr<casaWizard::RunScript> script(new casaWizard::sac::DepthConversionScript(scenario, scenario.workingDirectory() + "/T2Z_step2/", workloadmanagers::WorkLoadManagerType::SLURM));
 
   // Then
   EXPECT_FALSE(script->generateCommands());

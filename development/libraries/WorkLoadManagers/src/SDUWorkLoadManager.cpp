@@ -14,6 +14,7 @@
 #include "SDUWorkLoadManagerLOCAL.h"
 #include <cstdio>
 #include <iostream>
+#include <fstream>
 
 workloadmanagers::WorkLoadManager::WorkLoadManager(const std::string& JobScriptName)
 {
@@ -55,25 +56,28 @@ std::unique_ptr<workloadmanagers::WorkLoadManager> workloadmanagers::WorkLoadMan
 	if (type == WorkLoadManagerType::AUTO)
 	{
 		// First we check is the user want to use a LOCAL machine
-		char* detectWLM = getenv("LOCAL");
-		
-		if (detectWLM)
+		bool found = false;
+
+		if (getenv("LOCAL"))
 		{
 			// Here we don't check for the emptiness; cause the user can just $ export LOCAL="" should be sufficient
 			type = WorkLoadManagerType::LOCAL;
+			found = true;
 		}
-		else if (detectWLM = getenv("LSF_INSTALL")) // avoid nullptr
+		if (!found)
 		{
-			if (detectWLM[0])// avoid an empty string literal
+			if (getenv("LSF_INSTALL") && getenv("LSF_INSTALL")[0])// avoid an empty string literal
 			{
 				type = WorkLoadManagerType::IBM_LSF;
+				found = true;
 			}
 		} 
-		else if(detectWLM = getenv("SLURM_INSTALL"))
+		if(!found)
 		{
-			if (detectWLM[0])
+			if (access( "/usr/bin/srun", F_OK ) != -1 || (getenv("SLURM_INSTALL") && getenv("SLURM_INSTALL")[0]))
 			{
 				type = WorkLoadManagerType::SLURM;
+				found = true;
 			}
 		}
 	}
@@ -88,6 +92,7 @@ std::unique_ptr<workloadmanagers::WorkLoadManager> workloadmanagers::WorkLoadMan
 	case workloadmanagers::WorkLoadManagerType::LOCAL:
 		return std::unique_ptr<workloadmanagers::WorkLoadManagerForLOCAL>(new workloadmanagers::WorkLoadManagerForLOCAL);
 	case workloadmanagers::WorkLoadManagerType::IBM_LSF:
+
 		return std::unique_ptr<workloadmanagers::WorkLoadManagerForLSF>(new workloadmanagers::WorkLoadManagerForLSF(JobSubmissionScriptName));
 	case workloadmanagers::WorkLoadManagerType::SLURM:
 		return std::unique_ptr<workloadmanagers::WorkLoadManagerForSLURM>(new workloadmanagers::WorkLoadManagerForSLURM(JobSubmissionScriptName));
@@ -111,7 +116,7 @@ std::string workloadmanagers::GetCurrentWorkingDir()
 }
 
 std::string workloadmanagers::WorkLoadManager::JobSubmissionCommand(const std::string& project_name,
-	const std::string& queue_name, const std::string& maximum_runtime_limit,
+	const std::string& queue_name, int maximum_runtime_limit_seconds,
 	const std::string& job_name, const std::string& outfilename, const std::string& errorfilename, const std::string& number_of_cores, 
 	const std::string& setSpecificHost, const std::string& resourceSpec, const std::string& cwd, const bool isExlusive, const bool isInteractiveSession,
 	const std::string& appToRun)
@@ -121,20 +126,19 @@ std::string workloadmanagers::WorkLoadManager::JobSubmissionCommand(const std::s
 		isSuccess = writeQueueSpecification(queue_name);
 	if (isSuccess)
 		isSuccess = writeSlotsSpecification(number_of_cores);
-	if (isSuccess)
-		isSuccess = writeWaitTimeSpecification(maximum_runtime_limit);
+	if (isSuccess && maximum_runtime_limit_seconds > 0)
+		isSuccess = writeWaitTimeSpecification(maximum_runtime_limit_seconds);
 	if (isSuccess)
 		isSuccess = writeJobNameSpecification(job_name);
 
 	// The following are optional parameters that don't need check for success
 	if (isSuccess)
+	{
 		writeOutputLogSpecification(outfilename);
-	if (isSuccess)
 		writeErrorLogSpecification(errorfilename);
-	if (isSuccess)
 		writeExlusivitySpecification(isExlusive);
-	if (isSuccess)
 		writeInteractiveSessionSpecification(isInteractiveSession);
+	}
 
 	if (cwd.empty() && isSuccess)
 	{
@@ -157,12 +161,17 @@ std::string workloadmanagers::WorkLoadManager::JobSubmissionCommand(const std::s
 
 std::string workloadmanagers::WorkLoadManager::JobTerminationCommand()
 {
-	return JobTerminate();//NOT IMPLEMENTED YET;
+	return JobTerminate();
 }
 
 std::string workloadmanagers::WorkLoadManager::JobStatusCommand()
 {
-	return JobStatus(); //NOT IMPLEMENTED YET;
+	return JobStatus();
+}
+
+std::string workloadmanagers::WorkLoadManager::JobStatusCommandFinishedJobs(const std::string& JobID)
+{
+	return JobStatusFinishedJobs(JobID);
 }
 
 std::ofstream* workloadmanagers::WorkLoadManager::getTheFileStream(void) const

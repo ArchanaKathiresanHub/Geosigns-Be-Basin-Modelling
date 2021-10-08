@@ -62,13 +62,14 @@ namespace workloadmanagers{
 		"#!/bin/bash",
 		"#",
 		"#SBATCH\t -A cldrn",
-		"#SBATCH\t -q default.q",
+		"#SBATCH\t -p pt",
 		"#SBATCH\t -n 4",
-		"#SBATCH\t -t 0:30",
+		"#SBATCH\t -t 0:30:0",
 		"#SBATCH\t --job-name ctcPressureJob",
 		"#SBATCH\t -o out.log",
 		"#SBATCH\t -e err.log",
-		"#SBATCH\t -cwd \"" + boost::filesystem::current_path().string() + "\"",
+		"#SBATCH\t -W",
+		"#SBATCH\t -D \"" + boost::filesystem::current_path().string() + "\"",
 		"MPI_BIN -n 4 CLDRN_BIN -project filePath cldrnRunMode"
 	};
 
@@ -77,12 +78,12 @@ namespace workloadmanagers{
 		"#!/bin/bash",
 		"#",
 		"#SBATCH\t -A cldrn",
-		"#SBATCH\t -q default.q",
+		"#SBATCH\t -p pt",
 		"#SBATCH\t -n 4",
-		"#SBATCH\t -t 0:30",
+		"#SBATCH\t -t 0:30:0",
 		"#SBATCH\t --job-name ctcPressureJob",
 		"#SBATCH\t -e err.log",
-		"#SBATCH\t -cwd \"" + boost::filesystem::current_path().string() + "\"",
+		"#SBATCH\t -D \"" + boost::filesystem::current_path().string() + "\"",
 		"MPI_BIN -n 4 CLDRN_BIN -project filePath cldrnRunMode"
 	};
 
@@ -118,7 +119,7 @@ TEST(CTCWorkLoadManager, Job_Submission_Local) {
 
 	// always check for nullptr from Create
 	if (wlm) {
-		std::string runPT = wlm->JobSubmissionCommand("cldrn", "default.q", "0:30", "ctcPressureJob", "out.log",
+		std::string runPT = wlm->JobSubmissionCommand("cldrn", "default.q", 1800, "ctcPressureJob", "out.log",
 			"err.log", std::to_string(numProc), "", "", workingDirectory, false, false, (MPI_BIN + " -n " +
 				std::to_string(numProc) + ' ' + CLDRN_BIN + " -project " + filePath + " " + cldrnRunMode)
 		)
@@ -135,7 +136,7 @@ TEST(CTCWorkLoadManager, Job_Submission_LSF) {
 	auto wlm = workloadmanagers::WorkLoadManager::Create("cldrn.sh", workloadmanagers::WorkLoadManagerType::IBM_LSF);
 
 	if (wlm) {
-		std::string runPT = wlm->JobSubmissionCommand("cldrn", "default.q", "0:30", "ctcPressureJob", "out.log",
+		std::string runPT = wlm->JobSubmissionCommand("cldrn", "", 1800, "ctcPressureJob", "out.log",
 			"err.log", std::to_string(numProc), "", "", "", false, false, (MPI_BIN + " -n " +
 				std::to_string(numProc) + ' ' + CLDRN_BIN + " -project " + filePath + " " + cldrnRunMode)
 		);
@@ -148,8 +149,8 @@ TEST(CTCWorkLoadManager, Job_Submission_LSF) {
 			EXPECT_EQ(vecOfStr[i], expVecOfStrLSF[i]) << "Vectors differ at index " << i;
 		}
 
-		EXPECT_EQ(wlm->JobTerminationCommand(), std::string());
-		EXPECT_EQ(wlm->JobStatusCommand(), std::string());
+		EXPECT_EQ(wlm->JobTerminationCommand(), "bkill ");
+		EXPECT_EQ(wlm->JobStatusCommand(), "bjobs -a -hms -o 'stat' -json ");
 	}
 }
 
@@ -158,7 +159,7 @@ TEST(CTCWorkLoadManager, Job_Submission_no_outlog_LSF) {
 	auto wlm = workloadmanagers::WorkLoadManager::Create("cldrn.sh", workloadmanagers::WorkLoadManagerType::IBM_LSF);
 
 	if (wlm) {
-		std::string runPT = wlm->JobSubmissionCommand("cldrn", "default.q", "0:30", "ctcPressureJob", "",
+		std::string runPT = wlm->JobSubmissionCommand("cldrn", "default.q", 1800, "ctcPressureJob", "",
 			"err.log", std::to_string(numProc), "", "", "", false, false, (MPI_BIN + " -n " +
 				std::to_string(numProc) + ' ' + CLDRN_BIN + " -project " + filePath + " " + cldrnRunMode)
 		);
@@ -171,8 +172,8 @@ TEST(CTCWorkLoadManager, Job_Submission_no_outlog_LSF) {
 			EXPECT_EQ(vecOfStr[i], expNoOutLogVecOfStrLSF[i]) << "Vectors differ at index " << i;
 		}
 
-		EXPECT_EQ(wlm->JobTerminationCommand(), std::string());
-		EXPECT_EQ(wlm->JobStatusCommand(), std::string());
+		EXPECT_EQ(wlm->JobTerminationCommand(), "bkill ");
+		EXPECT_EQ(wlm->JobStatusCommand(), "bjobs -a -hms -o 'stat' -json ");
 	}
 }
 
@@ -181,8 +182,8 @@ TEST(CTCWorkLoadManager, Job_Submission_SLURM) {
 	auto wlm = workloadmanagers::WorkLoadManager::Create("cldrn.sh", workloadmanagers::WorkLoadManagerType::SLURM);
 
 	if (wlm) {
-		std::string runPT = wlm->JobSubmissionCommand("cldrn", "default.q", "0:30", "ctcPressureJob", "out.log",
-			"err.log", std::to_string(numProc), "", "", "", false, false, (MPI_BIN + " -n " +
+		std::string runPT = wlm->JobSubmissionCommand("cldrn", "pt", 1800, "ctcPressureJob", "out.log",
+			"err.log", std::to_string(numProc), "", "", "", false, true, (MPI_BIN + " -n " +
 				std::to_string(numProc) + ' ' + CLDRN_BIN + " -project " + filePath + " " + cldrnRunMode)
 		);
 
@@ -194,8 +195,8 @@ TEST(CTCWorkLoadManager, Job_Submission_SLURM) {
 			EXPECT_EQ(vecOfStr[i], expVecOfStrSLURM[i]) << "Vectors differ at index " << i;
 		}
 
-		EXPECT_EQ(wlm->JobTerminationCommand(), std::string());
-		EXPECT_EQ(wlm->JobStatusCommand(), std::string());
+		EXPECT_EQ(wlm->JobTerminationCommand(), std::string("scancel "));
+		EXPECT_EQ(wlm->JobStatusCommand(), std::string("squeue -o \"%.6i %t\" -j "));
 	}
 }
 
@@ -204,7 +205,7 @@ TEST(CTCWorkLoadManager, Job_Submission_no_outlog_SLURM) {
 	auto wlm = workloadmanagers::WorkLoadManager::Create("cldrn.sh", workloadmanagers::WorkLoadManagerType::SLURM);
 
 	if (wlm) {
-		std::string runPT = wlm->JobSubmissionCommand("cldrn", "default.q", "0:30", "ctcPressureJob", "",
+		std::string runPT = wlm->JobSubmissionCommand("cldrn", "", 1800, "ctcPressureJob", "",
 			"err.log", std::to_string(numProc), "", "", "", false, false, (MPI_BIN + " -n " +
 				std::to_string(numProc) + ' ' + CLDRN_BIN + " -project " + filePath + " " + cldrnRunMode)
 		);
@@ -217,7 +218,135 @@ TEST(CTCWorkLoadManager, Job_Submission_no_outlog_SLURM) {
 			EXPECT_EQ(vecOfStr[i], expNoOutLogVecOfStrSLURM[i]) << "Vectors differ at index " << i;
 		}
 
-		EXPECT_EQ(wlm->JobTerminationCommand(), std::string());
-		EXPECT_EQ(wlm->JobStatusCommand(), std::string());
+		EXPECT_EQ(wlm->JobTerminationCommand(), std::string("scancel "));
+		EXPECT_EQ(wlm->JobStatusCommand(), std::string("squeue -o \"%.6i %t\" -j "));
 	}
+}
+
+TEST(CTCWorkLoadManager, Get_JobID_LSF) {
+	// Given
+	auto wlm = workloadmanagers::WorkLoadManager::Create("cldrn.sh", workloadmanagers::WorkLoadManagerType::IBM_LSF);
+	if (!wlm)
+	{
+		FAIL() << "WorkLoadManager was not initialized correctly";
+	}
+
+	// When
+	const std::string commandOutput = "Job <20326251> is submitted to default queue <default.q>.";
+	const int JobID = wlm->getJobIDFromOutputOfSubmissionCommand(commandOutput);
+
+	// Then
+	EXPECT_EQ(JobID, 20326251);
+}
+
+TEST(CTCWorkLoadManager, Get_JobID_SLURM) {
+	// Given
+	auto wlm = workloadmanagers::WorkLoadManager::Create("cldrn.sh", workloadmanagers::WorkLoadManagerType::SLURM);
+	if (!wlm)
+	{
+		FAIL() << "WorkLoadManager was not initialized correctly";
+	}
+
+	// When
+	const std::string commandOutput = "Submitted batch job 34987";
+	const int JobID = wlm->getJobIDFromOutputOfSubmissionCommand(commandOutput);
+
+	// Then
+	EXPECT_EQ(JobID, 34987);
+}
+
+TEST(CTCWorkLoadManager, Get_JobStatus_Running_SLURM) {
+	// Given
+	auto wlm = workloadmanagers::WorkLoadManager::Create("cldrn.sh", workloadmanagers::WorkLoadManagerType::SLURM);
+	if (!wlm)
+	{
+		FAIL() << "WorkLoadManager was not initialized correctly";
+	}
+
+	// When
+	const std::string commandOutput = " JOBID ST\n   437 R\n";
+	const JobStatus status = wlm->getJobStatusFromOutputOfJobStatusCommand(commandOutput);
+
+	// Then
+	EXPECT_EQ(status, JobStatus::JobRunning);
+}
+
+TEST(CTCWorkLoadManager, Get_JobStatusFinishedJobs_Finished_SLURM) {
+	// Given
+	auto wlm = workloadmanagers::WorkLoadManager::Create("cldrn.sh", workloadmanagers::WorkLoadManagerType::SLURM);
+	if (!wlm)
+	{
+		FAIL() << "WorkLoadManager was not initialized correctly";
+	}
+
+	// When
+	const std::string commandOutput = "451.batch     COMPLETED      0:0";
+	const JobStatus status = wlm->getJobStatusFromOutputOfJobStatusFinishedJobsCommand(commandOutput);
+
+	// Then
+	EXPECT_EQ(status, JobStatus::JobFinished);
+}
+
+TEST(CTCWorkLoadManager, Get_JobStatus_Pending_SLURM) {
+	// Given
+	auto wlm = workloadmanagers::WorkLoadManager::Create("cldrn.sh", workloadmanagers::WorkLoadManagerType::SLURM);
+	if (!wlm)
+	{
+		FAIL() << "WorkLoadManager was not initialized correctly";
+	}
+
+	// When
+	const std::string commandOutput = "JOBID ST\n 65543 PD\n";
+	const JobStatus status = wlm->getJobStatusFromOutputOfJobStatusCommand(commandOutput);
+
+	// Then
+	EXPECT_EQ(status, JobStatus::JobPending);
+}
+
+TEST(CTCWorkLoadManager, Get_JobStatus_Failed_SLURM) {
+	// Given
+	auto wlm = workloadmanagers::WorkLoadManager::Create("cldrn.sh", workloadmanagers::WorkLoadManagerType::SLURM);
+	if (!wlm)
+	{
+		FAIL() << "WorkLoadManager was not initialized correctly";
+	}
+
+	// When
+	const std::string commandOutput = "JOBID ST\n 65543 F\n";
+	const JobStatus status = wlm->getJobStatusFromOutputOfJobStatusCommand(commandOutput);
+
+	// Then
+	EXPECT_EQ(status, JobStatus::JobFailed);
+}
+
+TEST(CTCWorkLoadManager, Get_JobStatus_Finished_SLURM) {
+	// Given
+	auto wlm = workloadmanagers::WorkLoadManager::Create("cldrn.sh", workloadmanagers::WorkLoadManagerType::SLURM);
+	if (!wlm)
+	{
+		FAIL() << "WorkLoadManager was not initialized correctly";
+	}
+
+	// When
+	const std::string commandOutput = "JOBID ST\n 65543 CD\n";
+	const JobStatus status = wlm->getJobStatusFromOutputOfJobStatusCommand(commandOutput);
+
+	// Then
+	EXPECT_EQ(status, JobStatus::JobFinished);
+}
+
+TEST(CTCWorkLoadManager, Get_JobStatus_Unknown_SLURM) {
+	// Given
+	auto wlm = workloadmanagers::WorkLoadManager::Create("cldrn.sh", workloadmanagers::WorkLoadManagerType::SLURM);
+	if (!wlm)
+	{
+		FAIL() << "WorkLoadManager was not initialized correctly";
+	}
+
+	// When
+	const std::string commandOutput = "JOBID ST\n"; // There should always be one JobID
+	const JobStatus status = wlm->getJobStatusFromOutputOfJobStatusCommand(commandOutput);
+
+	// Then
+	EXPECT_EQ(status, JobStatus::JobStatusUnknown);
 }

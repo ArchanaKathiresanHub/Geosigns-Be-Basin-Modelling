@@ -26,7 +26,7 @@ namespace workloadmanagers {
 		 std::string JobSubmissionCommand(
 			 const std::string& project_name,
 			 const std::string& queue_name,
-			 const std::string& maximum_runtime_limit,
+			 int maximum_runtime_limit,
 			 const std::string& job_name,
 			 const std::string& outfilename,
 			 const std::string& errorfilename,
@@ -40,7 +40,7 @@ namespace workloadmanagers {
 
 	protected:
 		bool writeProjectNameSpecification(const std::string& theJobSubmissionProjectName) final;
-		bool writeWaitTimeSpecification(const std::string& theJobSubmissionWaitTimeSpec) final;
+		bool writeWaitTimeSpecification(int theJobSubmissionWaitTimeSpec) final;
 		bool writeJobNameSpecification(const std::string& theJobSubmissionJobName) final;
 		bool writeSlotsSpecification(const std::string& theJobSubmissionNProcsSpec) final;
 		bool writeOutputLogSpecification(const std::string& theJobSubmissionOutputLogSpec) final;
@@ -51,8 +51,12 @@ namespace workloadmanagers {
 		bool writeQueueSpecification(const std::string& theJobSubmissionQueueSpec) final;
 		std::string theSchedulerDirective() final;
 		std::string theSchedulerJobSubmissionCommand()final;
-		std::string JobTerminate() const override { return std::string(); };
-		std::string JobStatus() const override { return std::string(); };
+		std::string JobTerminate() const override { return std::string(); }
+		std::string JobStatus() const override { return std::string(); }
+		std::string JobStatusFinishedJobs(const std::string& /*JobID*/) const override {return std::string();}
+		int getJobIDFromOutputOfSubmissionCommand(const std::string &/*output*/) const override {return -1;}
+		enum JobStatus getJobStatusFromOutputOfJobStatusCommand(const std::string &/*output*/) const override {return JobStatus::JobFailed;}
+		enum JobStatus getJobStatusFromOutputOfJobStatusFinishedJobsCommand(const std::string &/*output*/) const override {return JobStatus::JobFailed;}
 	};
 }
 

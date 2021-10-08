@@ -50,9 +50,6 @@ namespace casa
       // get job state
       virtual JobState jobState( JobID job );
 
-      // get internal job ID for logging
-      virtual std::string schedulerJobID( JobID job );
-
       // should mpirun command contains -np CPUS or number of cpus will be requested by the job scheduler
       virtual bool cpusNumberByScheduler() { return false; }
 

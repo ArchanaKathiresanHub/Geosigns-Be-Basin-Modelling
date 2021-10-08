@@ -32,7 +32,6 @@ public:
 protected:
    std::string  m_cldVer;         // cauldron version
    std::string  m_cluster;        // cluster name
-   std::string  m_resStr;         // cluster resource selection string
    size_t       m_maxPendingJobs; // max number of pending jobs for submitting to the cluster, to stick with fair share policy
 };
 

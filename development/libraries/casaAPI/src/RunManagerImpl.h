@@ -60,11 +60,6 @@ namespace casa
       /// @return ErrorHandler::NoError on success or error code otherwise
       virtual ErrorHandler::ReturnCode setMaxNumberOfPendingJobs( size_t pendJobsNum );
 
-      /// @brief Defines resource request string for LSF job scheduler in the same format as bsub -R option
-      /// @param resReqStr resReqStr request string in bsub -R option format
-      /// @return ErrorHandler::NoError on success, error code otherwise
-      virtual ErrorHandler::ReturnCode setResourceRequirements( const std::string & resReqStr );
-
       /// @brief Execute all scheduled cases
       /// @param updateStateTimeInterval how much to sleep before ask for the jobs states
       /// @return ErrorHandler::NoError on success or error code otherwise

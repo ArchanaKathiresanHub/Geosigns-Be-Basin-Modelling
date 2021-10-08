@@ -102,11 +102,10 @@ namespace casa
    inline bool loadVal( std::istream & fp, T & val, const std::string & valName, const char * typeName )
    {
       std::vector<std::string> tokens;
-
-      if ( !readAndSplitLine( fp, tokens ) )
+      readAndSplitLine(fp, tokens);
+      while(tokens.size() > 1 && tokens[1] != valName)
       {
-         throw ErrorHandler::Exception( ErrorHandler::DeserializationError )
-            << "SimpleTxtDeserializer: Can't read line from input file for " << typeName << " value: " << valName;
+        readAndSplitLine(fp, tokens);
       }
 
       if ( tokens.size() != 3 )

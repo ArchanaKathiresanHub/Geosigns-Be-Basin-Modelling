@@ -35,6 +35,11 @@ namespace workloadmanagers
 		LOCAL, IBM_LSF, SLURM, OTHER, AUTO
 	};
 
+	enum class JobStatus
+	{
+		JobFailed, JobPending, JobRunning, JobFinished, JobStatusUnknown
+	};
+
 	std::string GetCurrentWorkingDir();
 
 	/// <summary>
@@ -87,10 +92,9 @@ namespace workloadmanagers
 		// The factory
 		static std::unique_ptr<WorkLoadManager> Create(const std::string& JobSubmissionScriptName, WorkLoadManagerType type=WorkLoadManagerType::AUTO);
 		// This method has to be re-factored to have a concise parameter list like <allThingsWlm>
-		virtual std::string JobSubmissionCommand(
-			const std::string& project_name,
+		virtual std::string JobSubmissionCommand(const std::string& project_name,
 			const std::string& queue_name,
-			const std::string& maximum_runtime_limit,
+			int maximum_runtime_limit_second,
 			const std::string& job_name,
 			const std::string& outfilename,
 			const std::string& errorfilename,
@@ -105,7 +109,11 @@ namespace workloadmanagers
 		);
 		virtual std::string JobTerminationCommand();
 		virtual std::string JobStatusCommand();
-		
+		virtual std::string JobStatusCommandFinishedJobs(const std::string& JobID);
+		virtual int getJobIDFromOutputOfSubmissionCommand(const std::string& output) const = 0;
+		virtual JobStatus getJobStatusFromOutputOfJobStatusCommand(const std::string& output) const = 0;
+		virtual JobStatus getJobStatusFromOutputOfJobStatusFinishedJobsCommand(const std::string& output) const = 0;
+
 	protected:
 		virtual bool writeProjectNameSpecification(const std::string & theJobSubmissionProjectName) = 0;
 		/// <summary>
@@ -113,7 +121,7 @@ namespace workloadmanagers
 		/// </summary>
 		/// <param name="theJobSubmissionWaitTimeSpec"></param>
 		/// <returns></returns>
-		virtual bool writeWaitTimeSpecification(const std::string& theJobSubmissionWaitTimeSpec) = 0;
+		virtual bool writeWaitTimeSpecification(int theJobSubmissionWaitTimeSpec) = 0;
 		virtual bool writeJobNameSpecification(const std::string& theJobSubmissionJobName) = 0;
 
 		/// <summary>
@@ -133,6 +141,7 @@ namespace workloadmanagers
 
 		virtual std::string JobTerminate() const = 0;
 		virtual std::string JobStatus() const = 0;
+		virtual std::string JobStatusFinishedJobs(const std::string& JobID) const = 0;
 
 		virtual std::string theSchedulerDirective() = 0;
 		virtual std::string theSchedulerJobSubmissionCommand() = 0;

@@ -27,7 +27,8 @@
 #include <QFileDialog>
 #include <QPushButton>
 
-
+#include <unistd.h>
+#include "model/logger.h"
 namespace casaWizard
 {
 

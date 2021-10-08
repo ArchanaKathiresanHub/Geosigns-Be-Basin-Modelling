@@ -28,6 +28,8 @@
 #include "view/sacTabIDs.h"
 #include "view/t2zTab.h"
 
+#include "SDUWorkLoadManager.h"
+
 #include <QComboBox>
 #include <QDialogButtonBox>
 #include <QDir>
@@ -178,7 +180,7 @@ void T2Zcontroller::setSubSampling()
 
 void T2Zcontroller::runDepthConversion()
 {
-  DepthConversionScript depthConversion{casaScenario_, t2zDir_}; 
+  DepthConversionScript depthConversion{casaScenario_, t2zDir_, workloadmanagers::WorkLoadManagerType::AUTO};
 
   const char* slot = nullptr;
   if (casaScenario_.clusterName() != "LOCAL")

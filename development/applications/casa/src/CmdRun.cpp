@@ -32,9 +32,7 @@ CmdRun::CmdRun( CasaCommander & parent, const std::vector< std::string > & cmdPr
    if ( m_prms.size() > 2 )
    {
       if ( CfgFileParser::isNumericPrm( m_prms[2] ) ) { m_maxPendingJobs = atol( m_prms[2].c_str() ); }
-      else                                            { m_resStr = m_prms[2];                         }
    }
-   if ( m_prms.size() > 3 ) { m_resStr = m_prms[3]; }
 
    if ( m_cluster.empty() ) throw ErrorHandler::Exception( ErrorHandler::UndefinedValue ) << "Empty HPC cluster name";
 
@@ -53,8 +51,6 @@ void CmdRun::execute( std::unique_ptr<casa::ScenarioAnalysis> & sa )
       ) throw ErrorHandler::Exception( rm.errorCode() ) << rm.errorMessage();
 
    if ( m_maxPendingJobs > 0 ) rm.setMaxNumberOfPendingJobs( m_maxPendingJobs );
-   if ( !m_resStr.empty()    ) rm.setResourceRequirements( m_resStr );
-
 
    // submit jobs
    for ( size_t i = 0; i < sa->doeCaseSet().size(); ++i )
@@ -94,30 +90,7 @@ void CmdRun::printHelpPage( const char * cmdName )
        <Cauldron version> - simulator version. Must be installed in IBS folder. Could be specified as "Default"
                             In this case the same simulator version as casa application will be used.
        <max number of pending jobs> - (Optional) if this parameter is specified, casa will not submit jobs till the number of
-                                      pending jobs on cluster is bigger the the given value
-       <hostSpec>         - LSF resources selection string. It is in the same format as bsub parameter -R
-
-       User could customize LSF options throug envinronment variables:\n)";
-
-   const char * envVar = getenv( "LSF_CAULDRON_PROJECT_NAME" );
-   std::cout << "    LSF_CAULDRON_PROJECT_NAME - project name (bsub -P ...)\n";
-   std::cout << "        the default value: " << LSF_CAULDRON_PROJECT_NAME << "\n";
-   std::cout << "        the current value: " << ( envVar ? envVar : LSF_CAULDRON_PROJECT_NAME ) << "\n";
-
-   envVar = getenv( "LSF_CAULDRON_PROJECT_QUEUE" );
-   std::cout << "    LSF_CAULDRON_PROJECT_QUEUE - project queue (bsub -q .. )\n";
-   std::cout << "        the default value: NotDefined" << "\n";
-   std::cout << "        the current value: " << ( envVar ? envVar : "NotDefined" ) << "\n";
-
-   envVar = getenv( "LSF_CAULDRON_PROJECT_GROUP" );
-   std::cout << "    LSF_CAULDRON_PROJECT_GROUP - project group (bsub -G ...)\n";
-   std::cout << "        the default value: NotDefined" << "\n";
-   std::cout << "        the current value: " << ( envVar ? envVar : "NotDefined" ) << "\n";
-
-   envVar = getenv( "LSF_CAULDRON_PROJECT_SERVICE_CLASS_NAME" );
-   std::cout << "    LSF_CAULDRON_PROJECT_SERVICE_CLASS_NAME - project class service name (bsla)\n";
-   std::cout << "        the default value: NotDefined" << "\n";
-   std::cout << "        the current value: " << ( envVar ? envVar : "NotDefined" ) << "\n";
+                                      pending jobs on cluster is bigger the the given value\n)";
 
    std::cout << "\n";
    std::cout << "    Examples:\n";
@@ -126,9 +99,6 @@ void CmdRun::printHelpPage( const char * cmdName )
    std::cout << "\n";
    std::cout << "    #     Cluster  Cauldron ver.   Max pend. jobs\n";
    std::cout << "    " << cmdName << " \"AMSGDC\"        \"v2016.1101\"  5\n";
-   std::cout << "\n";
-   std::cout << "    #     Cluster  Cauldron ver.   Max pend. jobs\n";
-   std::cout << "    " << cmdName << " \"AMSGDC\"        \"v2017.11nightly\"  5  \"select[ostype==RHEL6.6]\"\n";
    std::cout << "\n";
 }
 

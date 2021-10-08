@@ -3,10 +3,16 @@
 #include "model/logger.h"
 #include "model/sacScenario.h"
 
+#include "SDUWorkLoadManager.h"
+
 #include <QFile>
 #include <QFileInfo>
 #include <QTextStream>
 #include <QCoreApplication>
+
+#ifndef _WIN32
+#include <sys/stat.h>
+#endif
 
 namespace casaWizard
 {
@@ -14,11 +20,25 @@ namespace casaWizard
 namespace sac
 {
 
-DepthConversionScript::DepthConversionScript(const SACScenario& scenario, const QString& baseDirectory) :
-  RunScript(baseDirectory),
+DepthConversionScript::DepthConversionScript(const SACScenario& scenario, const QString& baseDirectoryVar, const workloadmanagers::WorkLoadManagerType& workloadManagerType) :
+  RunScript(baseDirectoryVar),
   scenario_{scenario},
-  scriptFilename_{baseDirectory + "/runt2z.sh"}
+  scriptFilename_{baseDirectoryVar + "/runt2z.sh"}
 {
+  try
+  {
+    workloadManager_ = workloadmanagers::WorkLoadManager::Create(baseDirectory().toStdString() + "/run.sh", workloadManagerType);
+  }
+  catch (workloadmanagers::WLMException)
+  {
+    Logger::log() << "The folder for creating a depth conversion script does not exist!" << Logger::endl();
+    return;
+  }
+}
+
+DepthConversionScript::~DepthConversionScript()
+{
+
 }
 
 bool DepthConversionScript::generateCommands()
@@ -31,7 +51,7 @@ bool DepthConversionScript::generateCommands()
   {
     QFile file(scriptFilename_);
 
-    if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Text) || !workloadManager_)
     {
       Logger::log() << "- Failed to write depth conversion script, as file can not be opened" << Logger::endl();
       return false;
@@ -59,14 +79,10 @@ void DepthConversionScript::writeScriptContents(QFile& file) const
 {   
   QTextStream out(&file);
 
+#ifndef _WIN32
+  chmod( (baseDirectory().toStdString() + "/run.sh").c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH );
+#endif
   out << QString("#!/bin/bash -lx\n");
-  out << QString("cat > runt2zCluster.sh << EOF\n");
-  out << QString("#BSUB -P cldrn\n");
-  out << QString("#BSUB -We 3:00\n");
-  out << QString("#BSUB -J \"Fastcauldron T2Z conversion run\"\n");
-  out << QString("#BSUB -n " + QString::number(scenario_.t2zNumberCPUs()) + "\n");
-  out << QString("#BSUB -o output.log\n");
-  out << QString("#BSUB -cwd " + baseDirectory() + "\n");
 
   std::string applicationPath = QCoreApplication::applicationDirPath().toStdString();
   std::size_t index = applicationPath.find("/apps/sss");
@@ -77,9 +93,10 @@ void DepthConversionScript::writeScriptContents(QFile& file) const
 
   out << QString("export PATH=" + QString::fromStdString(applicationPath) + ":$PATH\n" +
                  "source setupEnv.sh\n");
-  out << getDepthConversionCommand() + "\n";
-  out << QString("EOF\n\n");
-  out << QString("bsub -Is < runt2zCluster.sh\n");
+
+  out << QString::fromStdString(workloadManager_->JobSubmissionCommand("cldrn", "", -1, "\"Fastcauldron T2Z conversion run\"", "output.log",
+                                                                   "err.log", std::to_string(scenario_.t2zNumberCPUs()), "", "", baseDirectory().toStdString(), false, true,
+                                                                   getDepthConversionCommand().toStdString())) << "\n";
 }
 
 QString DepthConversionScript::getDepthConversionCommand() const

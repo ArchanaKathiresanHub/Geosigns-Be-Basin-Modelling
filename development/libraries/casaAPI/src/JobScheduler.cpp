@@ -20,7 +20,7 @@
 // CASA
 #include "CasaDeserializer.h"
 #include "JobSchedulerLocal.h"
-#include "JobSchedulerLSF.h"
+#include "jobSchedulerCluster.h"
 
 casa::JobScheduler * casa::JobScheduler::load( CasaDeserializer & dz, const char * objName )
 {
@@ -36,7 +36,7 @@ casa::JobScheduler * casa::JobScheduler::load( CasaDeserializer & dz, const char
          << ", but stream gave object with name: " << on;
    }
    if (      ot == "JobSchedulerLocal" ) { return new JobSchedulerLocal(  dz, vr ); }
-   else if ( ot == "JobSchedulerLSF"   ) { return new JobSchedulerLSF(    dz, vr ); }
+   else if ( ot == "JobSchedulerCluster" || ot == "JobSchedulerLSF" ) { return new JobSchedulerCluster( dz, vr ); }
    else
    {
       throw ErrorHandler::Exception( ErrorHandler::DeserializationError )

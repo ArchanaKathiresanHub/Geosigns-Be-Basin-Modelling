@@ -46,12 +46,3 @@ set(FLEXLM_ROOT "/apps/3rdparty/EPTFlexLm/v9.2" CACHE PATH "Path to FlexLM direc
 set(FLEXLM_LIBRARY "${FLEXLM_ROOT}/LinuxRHEL_i686_30WS/lib64/EPTFlexLm.o" CACHE FILEPATH "Path of FlexLM libraries" )
 
 set(DOXYGEN_EXECUTABLE "/glb/data/hpcrnd/easybuild/PRODUCTION/software/rhel/6/Doxygen/1.8.10/bin/doxygen" CACHE PATH "Path to doxygen executable")
-
-# LSF setup
-if (DEFINED ENV{LSF_BINDIR})
-   set(LSF_HOME "$ENV{LSF_BINDIR}/.." CACHE PATH "Home dir for LSF binary files")
-else ()
-   set(LSF_HOME "/glb/apps/hpc/lsfprod/9.1/linux2.6-glibc2.3-x86_64" CACHE PATH "Home dir for LSF binary files")
-endif ()
-set(LSF_CAULDRON_PROJECT_NAME               "cldrn"     CACHE STRING "Project name for submitting jobs to LSF (for billing purpose)" )
-

@@ -21,12 +21,12 @@ file(GLOB CASAWIZARD_SAC_MODEL_CPP_SOURCES model/*.cpp
 include_directories( ${QTXLSX_INCLUDE_DIRS} )
 
 create_bm_library( TARGET ${CASAWIZARD_SAC_LIBNAME}
-                   LIBRARIES Qt5::Core Qt5::Gui Qt5::Widgets Qt5::Charts Qt5::Svg ${CASAWIZARD_COMMON_LIBNAME} utilities
+                   LIBRARIES Qt5::Core Qt5::Gui Qt5::Widgets Qt5::Charts Qt5::Svg ${CASAWIZARD_COMMON_LIBNAME} utilities WorkLoadManagers
                    ADD_HEADERS ${CASAWIZARD_SAC_H_HEADERS}
                    ADD_SOURCES ${CASAWIZARD_SAC_CPP_SOURCES} )
 
 create_bm_library( TARGET ${CASAWIZARD_SAC_MODEL_LIBNAME}
-                   LIBRARIES Qt5::Core ${CASAWIZARD_COMMON_MODEL_LIBNAME}
+                   LIBRARIES Qt5::Core ${CASAWIZARD_COMMON_MODEL_LIBNAME} WorkLoadManagers
                    ADD_HEADERS ${CASAWIZARD_SAC_MODEL_H_HEADERS}
                    ADD_SOURCES ${CASAWIZARD_SAC_MODEL_CPP_SOURCES} )
 

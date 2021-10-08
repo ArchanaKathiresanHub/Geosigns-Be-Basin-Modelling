@@ -21,8 +21,8 @@ std::string workloadmanagers::WorkLoadManagerForLOCAL::theSchedulerJobSubmission
 	return std::string("");
 }
 
-std::string workloadmanagers::WorkLoadManagerForLOCAL::JobSubmissionCommand(const std::string& project_name, const std::string& queue_name, 
-    const std::string& maximum_runtime_limit, const std::string& job_name, const std::string& outfilename, const std::string& errorfilename, 
+std::string workloadmanagers::WorkLoadManagerForLOCAL::JobSubmissionCommand(const std::string& project_name, const std::string& queue_name,
+    int maximum_runtime_limit, const std::string& job_name, const std::string& outfilename, const std::string& errorfilename,
     const std::string& number_of_cores, const std::string& setSpecificHost, const std::string& resourceSpec, const std::string& cwd,
     const bool isExlusive, const bool isInteractiveSession, const std::string& appToRun)
 {
@@ -64,7 +64,7 @@ bool workloadmanagers::WorkLoadManagerForLOCAL::writeProjectNameSpecification(co
     return false;
 }
 
-bool workloadmanagers::WorkLoadManagerForLOCAL::writeWaitTimeSpecification(const std::string& theJobSubmissionWaitTimeSpec)
+bool workloadmanagers::WorkLoadManagerForLOCAL::writeWaitTimeSpecification(int theJobSubmissionWaitTimeSpec)
 {
     return false;
 }

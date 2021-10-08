@@ -3,7 +3,11 @@
 
 #include "model/script/runScript.h"
 
+#include "SDUWorkLoadManager.h"
+
 #include <QString>
+
+#include <memory>
 
 class QFile;
 
@@ -18,7 +22,8 @@ class SACScenario;
 class DepthConversionScript : public RunScript
 {
 public:
-  explicit DepthConversionScript(const SACScenario& scenario, const QString& baseDirectory);
+  explicit DepthConversionScript(const SACScenario& scenario, const QString& baseDirectory, const workloadmanagers::WorkLoadManagerType& workloadManagerType);
+  ~DepthConversionScript() override;
 
 private:
   bool generateCommands() override;
@@ -28,7 +33,7 @@ private:
 
   const SACScenario& scenario_;
   QString scriptFilename_;
-
+  std::unique_ptr<workloadmanagers::WorkLoadManager> workloadManager_;
 };
 
 } // namespace sac

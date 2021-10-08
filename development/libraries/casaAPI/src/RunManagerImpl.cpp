@@ -22,7 +22,7 @@
 #include "CauldronEnvConfig.h"
 
 #include "JobSchedulerLocal.h"
-#include "JobSchedulerLSF.h"
+#include "jobSchedulerCluster.h"
 
 #include "LogHandler.h"
 
@@ -286,33 +286,6 @@ ErrorHandler::ReturnCode RunManagerImpl::setMaxNumberOfPendingJobs( size_t pendJ
    return NoError;
 }
 
-
-ErrorHandler::ReturnCode RunManagerImpl::setResourceRequirements( const std::string & resReqStr )
-{
-   try
-   {
-      if ( !m_jobSched.get() )
-      {
-         throw Exception( ErrorHandler::UndefinedValue ) << "Cluster name is not defined, can not request cluster specific resources: " << resReqStr;
-      }
-
-      JobSchedulerLSF * jsc = dynamic_cast<JobSchedulerLSF*>( m_jobSched.get() );
-      if ( ! jsc )
-      {
-         throw Exception( ErrorHandler::OutOfRangeValue ) << "Cluster " << m_jobSched->clusterName() <<
-            " does not support such resource request: " << resReqStr;
-      }
-      jsc->setResourceRequirements( resReqStr );
-
-   }
-   catch ( const Exception & ex )
-   {
-      return reportError( ex.errorCode(), ex.what() );
-   }
-
-   return NoError;
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 // run over all jobs and collect runs statistics. Also report progress if any change in numbers
 void RunManagerImpl::collectStatistics( size_t & pFinished, size_t & pPending, size_t & pRunning, size_t & pToBeSubmitted )
@@ -504,7 +477,7 @@ ErrorHandler::ReturnCode RunManagerImpl::setClusterName( const char * clusterNam
 
    if ( m_jobSched->clusterName() == clusterName ) return NoError;
 
-#if defined (_WIN32) || !defined (WITH_LSF_SCHEDULER)
+#if defined (_WIN32)
    m_jobSched.reset( new JobSchedulerLocal() );
 #else
    if ( !strcmp( clusterName, "LOCAL" ) )
@@ -513,7 +486,7 @@ ErrorHandler::ReturnCode RunManagerImpl::setClusterName( const char * clusterNam
    }
    else
    {
-      m_jobSched.reset( new JobSchedulerLSF( clusterName ) );
+      m_jobSched.reset( new JobSchedulerCluster( clusterName ) );
    }
 #endif
    return NoError;
@@ -662,13 +635,8 @@ void RunManagerImpl::resetState( bool cleanApps )
    // save some settings of current state
    std::string clusterName = m_jobSched->clusterName();
 
-   std::string       resourcReq;
-   JobSchedulerLSF * jsc = dynamic_cast<JobSchedulerLSF*>( m_jobSched.get() );
-   if ( jsc ) { resourcReq = jsc->resourceRequirements(); }
-
    // re create instance of job scheduler
    createJobScheduler( clusterName );
-   if ( !resourcReq.empty() ) { setResourceRequirements( resourcReq ); }
 
    // delete apps list
    if ( cleanApps )
@@ -772,7 +740,7 @@ void RunManagerImpl::createJobScheduler( const std::string & clusterName )
    m_jobSched.reset( new JobSchedulerLocal() );
 #else
    if ( clusterName == "LOCAL" ) { m_jobSched.reset( new JobSchedulerLocal()            ); }
-   else                          { m_jobSched.reset( new JobSchedulerLSF( clusterName ) ); }
+   else                          { m_jobSched.reset( new JobSchedulerCluster( clusterName ) ); }
 #endif
    // delete file with jobs list if exist
    ibs::FilePath jobsIDFile( "." );

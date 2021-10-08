@@ -547,17 +547,6 @@ JobScheduler::JobState JobSchedulerLocal::jobState( JobID id )
    return jobState;
 }
 
-std::string JobSchedulerLocal::schedulerJobID( JobID id )
-{
-   if ( id >= m_jobs.size() ) throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "jobState(): no such job in the queue";
-
-   std::ostringstream oss;
-   oss << m_jobs[id]->id();
-
-   return oss.str();
-}
-
-
 void JobSchedulerLocal::sleep( int secs )
 {
    if (      secs < 0 ) { Wait( 10 );   }

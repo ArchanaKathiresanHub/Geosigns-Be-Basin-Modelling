@@ -35,16 +35,12 @@ create_bm_library( TARGET ${LIB_NAME}
                              SUMlib
                              modelpseudo1dlib
                              NNlib
+                             WorkLoadManagers
                              ${Boost_LIBRARIES} )
 
 if (UNIX)
   add_dependencies(${LIB_NAME} Boost)
 endif (UNIX)
-
-if (LSF_HOME)
-   include_directories(SYSTEM ${LSF_INCLUDE_DIR})
-   target_link_libraries(${LIB_NAME} ${LSF_LIBS})
-endif(LSF_HOME)
 
 configure_file(src/CauldronEnvConfig.h.in CauldronEnvConfig.h)
 generate_dox( src/API.cfg )
@@ -88,15 +84,6 @@ add_casa_gtest( NAME DoETest SOURCES test/DoETest.cpp
 add_casa_gtest( NAME MutatorTest SOURCES test/MutatorTest.cpp )
 
 add_casa_gtest( NAME ValidatorTest SOURCES test/ValidatorTest.cpp )
-
-if (LSF_HOME)
-   add_gtest( NAME casaAPI::RunManagerTest
-      SOURCES test/RunManagerTest.cpp
-      INCLUDE_DIRS ${LSF_INCLUDE_DIR}
-      LIBRARIES ${LIB_NAME} cmbapi DataAccess SerialDataAccess TableIO ${HDF5_LIBRARIES} ${Boost_LIBRARIES} ${LSF_LIBS}
-      FOLDER "${BASE_FOLDER}/${LIB_NAME}"
-   )
-endif()
 
 add_casa_gtest( NAME DataDiggerTest SOURCES test/DataDiggerTest.cpp )
 

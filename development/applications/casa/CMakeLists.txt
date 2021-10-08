@@ -60,7 +60,6 @@ target_link_libraries( ${APP_NAME}
    NNlib
    ${HDF5_LIBRARIES}
    ${Boost_LIBRARIES}
-   ${LSF_LIBS}
 )
 
 install( TARGETS ${APP_NAME}

@@ -141,7 +141,7 @@ void Controller::executeFastcauldronScript(const QString& filePath, const QStrin
 
     QString runPT = QString::fromStdString
     (
-        wlm->JobSubmissionCommand("cldrn", "default.q", "0:30", "ctcPressureJob", "",
+        wlm->JobSubmissionCommand("cldrn", "", 1800, "ctcPressureJob", "",
             "err.log", numProc.toStdString(), "", "", qtutils::AddDoubleQuotes(process.workingDirectory()).toStdString(), false, true,
             (qtutils::AddDoubleQuotes(MPI_BIN).toStdString() + " -n " +
                 numProc.toStdString() + ' ' + qtutils::AddDoubleQuotes(CLDRN_BIN).toStdString() + fpp +
@@ -258,7 +258,7 @@ void Controller::executeCtcScript(const QString& ctcFilenameWithPath, const QStr
 
     QString runCTC = QString::fromStdString
     (
-        wlm->JobSubmissionCommand("cldrn", "default.q", "0:30", "ctcCalcJob", "",
+        wlm->JobSubmissionCommand("cldrn", "", 1800, "ctcCalcJob", "",
             "err.log", numProc.toStdString(), "", "", qtutils::AddDoubleQuotes(process.workingDirectory()).toStdString(), false, true,
             (qtutils::AddDoubleQuotes(MPI_BIN).toStdString() + " -n " +
                 numProc.toStdString() + ' ' + qtutils::AddDoubleQuotes(CTC_BIN).toStdString() +

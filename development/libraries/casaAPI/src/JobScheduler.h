@@ -68,9 +68,6 @@ namespace casa
       // stop submitted job
       virtual JobState stopJob( JobID job ) = 0;
 
-      // get internal job ID for logging
-      virtual std::string schedulerJobID( JobID job ) = 0;
-
       // get job state
       virtual JobState jobState( JobID job ) = 0;
 

@@ -243,7 +243,6 @@ endif (BM_BUILD_HYPRE)
 find_package(PETSC REQUIRED CONFIG)
 find_package(SUMlib REQUIRED CONFIG)
 find_package(NNlib REQUIRED CONFIG)
-find_package(LSF REQUIRED CONFIG)
 find_package(PugiXMLlib REQUIRED CONFIG)
 find_package(LZlib REQUIRED CONFIG)
 ## for ctcWizard on Windows
