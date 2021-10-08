@@ -36,6 +36,14 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2021-10-08  Richard Faasse  <Richard.Faasse@shell.com>
+
+	chg: Extension of Workloadmanagers and making casa independent of the LSF API
+	* Related work items: #437921
+	================== COMMIT-END ========================
+	Commit-ID:<8f2924484afc0257c46f8cf9ee51b0a7db83f8c9>	  (refs/heads/master, refs/heads/Developers/Richard.Faasse/UpdateChangeLog)
+
+++
 2021-10-07  arijit.khan Khan  <arijit.khan@shell.com>
 
 	fix: usr: The HC accounting problem after trap merge !major.
