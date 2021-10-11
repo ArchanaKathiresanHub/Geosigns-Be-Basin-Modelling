@@ -654,7 +654,6 @@ void CalibrationTargetManager::removeWellsOutsideBasinOutline(const std::string&
 void CalibrationTargetManager::convertDTtoTWT(const std::string& iterationFolder, const std::string& project3dFilename)
 {
   const OneDModelDataExtractor extractor(*this, iterationFolder, project3dFilename);
-
   const ModelDataPropertyMap data = extractor.extract("TwoWayTime");
 
   const DTToTwoWayTimeConverter converter;
