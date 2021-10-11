@@ -36,6 +36,17 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2021-10-11  Erik.vandenBoogaard  <Erik.vandenBoogaard@shell.com>
+
+	chg: Refactor calibration target manager.
+	* Refactor calibration target manager
+
+	* Related work items: #440664
+
+	================== COMMIT-END ========================
+	Commit-ID:<d18447d143e99a37796c431fd31f9dee26270c19>	  (refs/heads/master, refs/heads/Developers/Erik.vdBoogaard/ChangeLog)
+
+++
 2021-10-08  Richard Faasse  <Richard.Faasse@shell.com>
 
 	chg: Extension of Workloadmanagers and making casa independent of the LSF API
