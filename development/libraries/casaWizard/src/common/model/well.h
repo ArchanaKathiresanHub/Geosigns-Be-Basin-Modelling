@@ -62,7 +62,7 @@ public:
   void applyObjectiveFunction(const ObjectiveFunctionManager& objectiveFunction);
   void shift(const double xShift);
   void renameUserPropertyName(const QString& oldName, const QString& newName);
-  void removeCalibrationTargetsWithPropertyUserName(const QString& propertyUserName);
+  bool removeCalibrationTargetsWithPropertyUserName(const QString& propertyUserName);
   bool removeDataBelowDepth(const double depth);
   bool removeDataAboveDepth(const double depth);
 

@@ -26,7 +26,7 @@ class UAScenario : public CasaScenario
 {
 public:
   UAScenario(ProjectReader* projectReader);
-  ~UAScenario();
+  virtual ~UAScenario() override;
 
   QVector<DoeOption*> doeSelected() const;
   QVector<DoeOption*> doeOptions() const;

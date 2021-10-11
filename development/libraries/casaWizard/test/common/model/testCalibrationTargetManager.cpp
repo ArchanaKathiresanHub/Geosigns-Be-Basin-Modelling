@@ -193,42 +193,10 @@ TEST(CalibrationTargetManagerTest, testExtractWells)
   EXPECT_EQ(valueTWTActual, valueTWTExcpected);
 }
 
-//TEST(CalibrationTargetManagerTest, testExtractMultipleWells)
-//{
-//  casaWizard::CalibrationTargetManager manager;
-//  const int actualIDWell0 = manager.addWell("testWell0", 0.0, 1.0);
-//  const int actualIDWell1 = manager.addWell("testWell1", 0.0, 1.0);
-//  const int actualIDWell2 = manager.addWell("testWell2", 0.0, 1.0);
-
-//  const double valueT1Expected{1};
-//  const double valueT2Expected{2};
-//  const double valueTWTExcpected{3};
-
-//  manager.addCalibrationTarget("A","Temperature", "Temperature",actualIDWell0, 0.0, valueT1Expected);
-//  manager.addCalibrationTarget("A","Temperature", "Temperature", actualIDWell1, 0.0, valueT2Expected);
-//  manager.addCalibrationTarget("A","TwoWayTime", "TWTT", actualIDWell2, 0.0, valueTWTExcpected);
-
-//  QStringList propertiesExpected{"Temperature", "TwoWayTime"};
-//  QStringList propertiesActual;
-
-//  QVector<QVector<casaWizard::CalibrationTarget>> targetsInWell = manager.extractWellTargets(propertiesActual, {0,2});
-
-//  for (int i = 1; i < propertiesExpected.size(); ++i )
-//  {
-//    EXPECT_EQ(propertiesActual[i].toStdString(), propertiesExpected[i].toStdString());
-//  }
-
-//  const double valueT1Actual = targetsInWell[0][0].value();
-//  const double valueTWTActual = targetsInWell[1][0].value();
-
-//  EXPECT_EQ(valueT1Actual, valueT1Expected);
-//  EXPECT_EQ(valueTWTActual, valueTWTExcpected);
-//}
-
 TEST(CalibrationTargetManagerTest, testActiveWells)
 {
   casaWizard::CalibrationTargetManager manager;
-  const int wellID0 = manager.addWell("testWell0", 0.0, 1.0);
+  manager.addWell("testWell0", 0.0, 1.0);
   const int wellID1 = manager.addWell("testWell1", 2.0, 3.0);
   manager.setWellIsActive(false, 0);
   manager.setWellIsActive(true, 1);
@@ -347,40 +315,6 @@ TEST(CalibrationTargetManagerTest, testRenamePropertyUserName)
   }
 }
 
-TEST(CalibrationTargetManagerTest, testGetSonicSlownessName)
-{
-  casaWizard::CalibrationTargetManager manager;
-  manager.addToMapping("Sonic", "SonicSlowness");
-  manager.addToMapping("DT", "SonicSlowness");
-  manager.addToMapping("DTFromVP", "SonicSlowness");
-  manager.addToMapping("TWTT", "TwoWayTime");
-  manager.addToMapping("VP", "Velocity");
-
-  EXPECT_EQ(manager.getSonicSlownessUserNameForConversion({"Sonic", "TWTT"}), "Sonic");
-  EXPECT_EQ(manager.getSonicSlownessUserNameForConversion({"Sonic", "DT"}), "DT");
-  EXPECT_EQ(manager.getSonicSlownessUserNameForConversion({"DTFromVP", "Sonic"}), "DTFromVP");
-
-  EXPECT_EQ(manager.getSonicSlownessUserNameForConversion({"VP", "TWTT"}), "");
-  EXPECT_EQ(manager.getSonicSlownessUserNameForConversion({""}), "");
-}
-
-TEST(CalibrationTargetManagerTest, testGetVelocityName)
-{
-  casaWizard::CalibrationTargetManager manager;
-  manager.addToMapping("Velocity", "Velocity");
-  manager.addToMapping("VP", "Velocity");
-  manager.addToMapping("VP_FROM_DT", "Velocity");
-  manager.addToMapping("TWTT", "TwoWayTime");
-  manager.addToMapping("DT", "SonicSlowness");
-
-  EXPECT_EQ(manager.getVelocityUserNameForConversion({"Velocity", "TWTT"}), "Velocity");
-  EXPECT_EQ(manager.getVelocityUserNameForConversion({"Velocity", "VP"}), "VP");
-  EXPECT_EQ(manager.getVelocityUserNameForConversion({"VP_FROM_DT", "Velocity"}), "VP_FROM_DT");
-
-  EXPECT_EQ(manager.getVelocityUserNameForConversion({"TWTT", "DT"}), "");
-  EXPECT_EQ(manager.getVelocityUserNameForConversion({""}), "");
-}
-
 TEST(CalibrationTargetManagerTest, testRemoveDataOutofModelDepths)
 {
   std::vector<double> basementDepthsActiveAtWellLocations = {6000, 5000};
@@ -436,11 +370,11 @@ TEST(CalibrationTargetManagerTest, testConvertDTtoTWT)
 {
   casaWizard::CalibrationTargetManager manager;
   manager.addWell("10_AML2_AV", 184550, 608300);
-  manager.addCalibrationTarget("Test", "DT", 0, 100, 100);
+  manager.addCalibrationTarget("Test", "SonicSlowness", 0, 100, 100);
   manager.addWell("11_AMN1_AV", 192000, 615000);
-  manager.addCalibrationTarget("Test", "DT", 1, 100, 100);
+  manager.addCalibrationTarget("Test", "SonicSlowness", 1, 100, 100);
   manager.setWellIsActive(false, 1);
-  manager.addToMapping("DT", "SonicSlowness");
+  manager.addToMapping("SonicSlowness", "SonicSlowness");
 
   manager.convertDTtoTWT("./original1d/CaseSet/Iteration_1/", "Project.project3d");
 
@@ -455,8 +389,8 @@ TEST(CalibrationTargetManagerTest, testConvertDTtoTWTWithoutDTData)
 
   casaWizard::CalibrationTargetManager manager;
   manager.addWell("10_AML2_AV", 184550, 608300);
-  manager.addCalibrationTarget("Test", "TWT", 0, 100, 100);
-  manager.addToMapping("TWT", "TwoWayTime");
+  manager.addCalibrationTarget("Test", "TwoWayTime", 0, 100, 100);
+  manager.addToMapping("TwoWayTime", "TwoWayTime");
 
   manager.convertDTtoTWT("./original1d/CaseSet/Iteration_1/", "Project.project3d");
 
@@ -467,11 +401,11 @@ TEST(CalibrationTargetManagerTest, testConvertDTtoTWT_MultipleTimes)
 {
   casaWizard::CalibrationTargetManager manager;
   manager.addWell("10_AML2_AV", 184550, 608300);
-  manager.addCalibrationTarget("Test", "DT", 0, 100, 100);
+  manager.addCalibrationTarget("Test", "SonicSlowness", 0, 100, 100);
   manager.addWell("11_AMN1_AV", 192000, 615000);
-  manager.addCalibrationTarget("Test", "DT", 1, 100, 100);
+  manager.addCalibrationTarget("Test", "SonicSlowness", 1, 100, 100);
   manager.setWellIsActive(false, 1);
-  manager.addToMapping("DT", "SonicSlowness");
+  manager.addToMapping("SonicSlowness", "SonicSlowness");
 
   manager.convertDTtoTWT("./original1d/CaseSet/Iteration_1/", "Project.project3d");
   manager.convertDTtoTWT("./original1d/CaseSet/Iteration_1/", "Project.project3d");
@@ -485,16 +419,16 @@ TEST(CalibrationTargetManagerTest, testConvertVPtoDT)
 {
   casaWizard::CalibrationTargetManager manager;
   manager.addWell("10_AML2_AV", 184550, 608300);
-  manager.addCalibrationTarget("Test", "VP", 0, 100, 100);
+  manager.addCalibrationTarget("Test", "Velocity", 0, 100, 100);
   manager.addWell("11_AMN1_AV", 192000, 615000);
-  manager.addCalibrationTarget("Test", "VP", 1, 100, 100);
+  manager.addCalibrationTarget("Test", "Velocity", 1, 100, 100);
   manager.setWellIsActive(false, 1);
-  manager.addToMapping("VP", "Velocity");
+  manager.addToMapping("Velocity", "Velocity");
 
   manager.convertVPtoDT();
 
   EXPECT_EQ(manager.well(0).calibrationTargets().size(), 2);
-  EXPECT_EQ(manager.well(0).metaData(), "Created DT_FROM_VP targets converted from VP.");
+  EXPECT_EQ(manager.well(0).metaData().toStdString(), "Created DT_FROM_VP targets converted from Velocity.");
   EXPECT_EQ(manager.well(1).calibrationTargets().size(), 1);
 }
 
@@ -502,8 +436,8 @@ TEST(CalibrationTargetManagerTest, testConvertVPToDTWithoutVPData)
 {
   casaWizard::CalibrationTargetManager manager;
   manager.addWell("10_AML2_AV", 184550, 608300);
-  manager.addCalibrationTarget("Test", "TWT", 0, 100, 100);
-  manager.addToMapping("TWT", "TwoWayTime");
+  manager.addCalibrationTarget("Test", "TwoWayTime", 0, 100, 100);
+  manager.addToMapping("TwoWayTime", "TwoWayTime");
 
   manager.convertVPtoDT();
 
@@ -515,13 +449,13 @@ TEST(CalibrationTargetManagerTest, testSmoothenData)
   // Given
   casaWizard::CalibrationTargetManager manager;
   manager.addWell("well_1", 184550, 608300);
-  manager.addCalibrationTarget("target_1", "TWT", 0, 100, 100);
-  manager.addCalibrationTarget("target_2", "TWT", 0, 150, 200);
-  manager.addCalibrationTarget("target_3", "TWT", 0, 300, 130);
-  manager.addCalibrationTarget("target_4", "TWT", 0, 700, 400);
+  manager.addCalibrationTarget("target_1", "TwoWayTime", 0, 100, 100);
+  manager.addCalibrationTarget("target_2", "TwoWayTime", 0, 150, 200);
+  manager.addCalibrationTarget("target_3", "TwoWayTime", 0, 300, 130);
+  manager.addCalibrationTarget("target_4", "TwoWayTime", 0, 700, 400);
 
   // When
-  manager.smoothenData({"TWT"}, 200);
+  manager.smoothenData({"TwoWayTime"}, 200);
 
   // Then
   const QVector<const casaWizard::CalibrationTarget*> targets = manager.well(0).calibrationTargets();
@@ -532,23 +466,22 @@ TEST(CalibrationTargetManagerTest, testSmoothenData)
   EXPECT_DOUBLE_EQ(targets[3]->value(), 361.99914465090529);
 }
 
-
 TEST(CalibrationTargetManagerTest, testSubsampleData)
 {
   // Given
   casaWizard::CalibrationTargetManager manager;
   manager.addWell("well_1", 184550, 608300);
-  manager.addCalibrationTarget("target_1", "TWT", 0, 100, 100);
-  manager.addCalibrationTarget("target_2", "TWT", 0, 150, 200);
-  manager.addCalibrationTarget("target_3", "TWT", 0, 300, 130);
-  manager.addCalibrationTarget("target_4", "TWT", 0, 700, 400);
-  manager.addCalibrationTarget("target_5", "TWT", 0, 1100, 100);
-  manager.addCalibrationTarget("target_6", "TWT", 0, 1150, 200);
-  manager.addCalibrationTarget("target_7", "TWT", 0, 300, 130);
-  manager.addCalibrationTarget("target_8", "TWT", 0, 1700, 400);
+  manager.addCalibrationTarget("target_1", "TwoWayTime", 0, 100, 100);
+  manager.addCalibrationTarget("target_2", "TwoWayTime", 0, 150, 200);
+  manager.addCalibrationTarget("target_3", "TwoWayTime", 0, 300, 130);
+  manager.addCalibrationTarget("target_4", "TwoWayTime", 0, 700, 400);
+  manager.addCalibrationTarget("target_5", "TwoWayTime", 0, 1100, 100);
+  manager.addCalibrationTarget("target_6", "TwoWayTime", 0, 1150, 200);
+  manager.addCalibrationTarget("target_7", "TwoWayTime", 0, 300, 130);
+  manager.addCalibrationTarget("target_8", "TwoWayTime", 0, 1700, 400);
 
   // When
-  manager.subsampleData({"TWT"}, 200);
+  manager.subsampleData({"TwoWayTime"}, 200);
 
   // Then
   const QVector<const casaWizard::CalibrationTarget*> targets = manager.well(0).calibrationTargets();

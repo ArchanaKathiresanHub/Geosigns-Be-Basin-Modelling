@@ -37,8 +37,8 @@ signals:
   void signalRefreshChildWidgets();
 
 private:
-  TargetTab* targetTab_;
   UAScenario& scenario_;
+  TargetTab* targetTab_;
 
   DepthTargetController* depthTargetController_;
   SurfaceTargetController* surfaceTargetController_;

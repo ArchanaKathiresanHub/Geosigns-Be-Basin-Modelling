@@ -99,7 +99,7 @@ void SACScript::writeScriptContents(QFile& file) const
     {
       for (const QString& propertyUserName : ctManager.getPropertyUserNamesForWell(well->id()))
       {
-        if (ctManager.propertyIsActive(propertyUserName))
+        if (scenario_.propertyIsActive(propertyUserName))
         {
           out << writeWellTrajectory(well->name(), well->id(), propertyUserName);
         }

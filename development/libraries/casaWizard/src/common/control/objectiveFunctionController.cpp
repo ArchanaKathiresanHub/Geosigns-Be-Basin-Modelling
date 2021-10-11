@@ -8,7 +8,9 @@
 
 #include "objectiveFunctionController.h"
 
+#include "model/casaScenario.h"
 #include "model/calibrationTargetManager.h"
+#include "model/objectiveFunctionManager.h"
 #include "view/objectiveFunctionTable.h"
 
 #include <QTableWidgetItem>
@@ -17,11 +19,11 @@ namespace casaWizard
 {
 
 ObjectiveFunctionController::ObjectiveFunctionController(ObjectiveFunctionTable* objectiveFunctionTable,
-                                                         CalibrationTargetManager& calibrationTargetManager,
+                                                         CasaScenario& casaScenario,
                                                          QObject* parent) :
   QObject{parent},
   objectiveFunctionTable_{objectiveFunctionTable},
-  calibrationTargetManager_{calibrationTargetManager}
+  casaScenario_{casaScenario}
 {
   connect(objectiveFunctionTable_, SIGNAL(itemChanged(QTableWidgetItem*)),
           this,                    SLOT(slotTableObjectiveFunctionChanged(QTableWidgetItem*)));
@@ -31,12 +33,18 @@ ObjectiveFunctionController::ObjectiveFunctionController(ObjectiveFunctionTable*
 
 void ObjectiveFunctionController::slotRefresh()
 {
-  objectiveFunctionTable_->updateTable(calibrationTargetManager_.objectiveFunctionManager());
+  objectiveFunctionTable_->updateTable(casaScenario_.objectiveFunctionManager());
 }
 
 void ObjectiveFunctionController::slotTableObjectiveFunctionChanged(QTableWidgetItem* item)
 {
-  calibrationTargetManager_.setObjectiveFunction(item->row(), item->column(), item->data(0).toDouble());
+  casaScenario_.objectiveFunctionManager().setValue(item->row(), item->column() - offsetColumnToObjectiveFunctionManagerValue(), item->data(0).toDouble());
+  casaScenario_.applyObjectiveFunctionOnCalibrationTargets();
+}
+
+int ObjectiveFunctionController::offsetColumnToObjectiveFunctionManagerValue() const
+{
+  return 0;
 }
 
 }  // namespace casaWizard

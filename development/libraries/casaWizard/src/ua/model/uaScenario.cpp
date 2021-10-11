@@ -33,19 +33,20 @@ UAScenario::UAScenario(ProjectReader* projectReader) :
   proxy_{},
   influentialParameterManager_{CasaScenario::projectReader()},
   predictionTargetManager_{CasaScenario::projectReader()},
+  monteCarloDataManager_{},
+  manualDesignPointManager_{},
+  runCaseSetFileManager_{},
   doeOptions_{DoeOption::getDoeOptions()},
   targetQCs_{},
   isDoeOptionSelected_{QVector<bool>(doeOptions_.size(), false)},
   isQcDoeOptionSelected_{},
-  isStageComplete_{},
-  monteCarloDataManager_{},
-  manualDesignPointManager_{},
-  runCaseSetFileManager_{}
+  isStageComplete_{}
 {
-  calibrationTargetManager().setObjectiveFunctionVariables(predictionTargetManager_.predictionTargetOptions());
-  calibrationTargetManager().setObjectiveFunction(0, 1, 5);
-  calibrationTargetManager().setObjectiveFunction(0, 2, 0.05);
-  calibrationTargetManager().setObjectiveFunction(1, 1, 0.1);
+  objectiveFunctionManager().setVariables(predictionTargetManager_.predictionTargetOptions(), calibrationTargetManager().userNameToCauldronNameMapping());
+  objectiveFunctionManager().setValue(0, 1, 5);
+  objectiveFunctionManager().setValue(0, 2, 0.05);
+  objectiveFunctionManager().setValue(1, 1, 0.1);
+  applyObjectiveFunctionOnCalibrationTargets();
 }
 
 UAScenario::~UAScenario()

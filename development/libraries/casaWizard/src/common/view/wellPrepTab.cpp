@@ -58,6 +58,7 @@ WellPrepTab::WellPrepTab(QWidget* parent) :
   smoothingLength_->setSizePolicy(QSizePolicy(QSizePolicy::Maximum, QSizePolicy::Fixed));
   smoothingLength_->setMinimum(1);
   smoothingLength_->setMaximum(1e5);
+  smoothingLength_->setValue(20); //Default
   QHBoxLayout* smoothingLengthLayout = new QHBoxLayout();
   smoothingLengthLayout->addWidget(new QLabel("Length [m]: ", this), 0, Qt::AlignLeft);
   smoothingLengthLayout->addWidget(smoothingLength_, 1, Qt::AlignRight);
@@ -71,6 +72,7 @@ WellPrepTab::WellPrepTab(QWidget* parent) :
   subsamplingDistance_->setSizePolicy(QSizePolicy(QSizePolicy::Maximum, QSizePolicy::Fixed));
   subsamplingDistance_->setMinimum(1);
   subsamplingDistance_->setMaximum(1e5);
+  subsamplingDistance_->setValue(10); //Default
   QHBoxLayout* subsamplingDistanceLayout = new QHBoxLayout();
   subsamplingDistanceLayout->addWidget(new QLabel("Distance [m]: ", this), 0, Qt::AlignLeft);
   subsamplingDistanceLayout->addWidget(subsamplingDistance_, 1, Qt::AlignRight);

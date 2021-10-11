@@ -225,18 +225,7 @@ void WellPrepController::slotPushSelectCalibrationClicked()
     return;
   }
 
-  temporaryImportCalibrationTargetManager.removeCalibrationTargetsWithUnknownCauldronProperty();
-  ctManager.appendFrom(temporaryImportCalibrationTargetManager);
-  ctManager.updateObjectiveFunctionFromTargets();
-
-  if (ctManager.objectiveFunctionManager().indexOfCauldronName("Velocity") != -1)
-  {
-    QMessageBox velocityDisabled(QMessageBox::Icon::Information,
-                          "Velocity calibration data disabled",
-                          "It is not possible to optimize using velocity calibration data. If you want to use the velocity data, first convert to SonicSlowness (DT)",
-                          QMessageBox::Ok);
-    velocityDisabled.exec();
-  }
+  ctManager.appendFrom(temporaryImportCalibrationTargetManager);    
 
   refreshGUI();
 }

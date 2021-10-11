@@ -9,32 +9,28 @@
 // Controller to list the objective functions
 #pragma once
 
-#include <QObject>
-
-class QTableWidgetItem;
+#include "control/objectiveFunctionController.h"
 
 namespace casaWizard
 {
 
 class ObjectiveFunctionTableSAC;
-class CalibrationTargetManager;
 class CasaScenario;
 
-class ObjectiveFunctionControllerSAC : public QObject
+class ObjectiveFunctionControllerSAC : public ObjectiveFunctionController
 {
   Q_OBJECT
 
 public:
-  ObjectiveFunctionControllerSAC(ObjectiveFunctionTableSAC* objectiveFunctionTableSAC, CalibrationTargetManager& calibrationTargetManager,
+  ObjectiveFunctionControllerSAC(ObjectiveFunctionTableSAC* objectiveFunctionTableSAC,
                                  casaWizard::CasaScenario& scenario, QObject* parent);
-private slots:
-  void slotTableObjectiveFunctionChanged(QTableWidgetItem* item);
+private slots:  
   void slotEnabledStateChanged(int state, int row);
-  void slotRefresh();
 
 private:
-  ObjectiveFunctionTableSAC* objectiveFunctionTableSAC_;
-  CalibrationTargetManager& calibrationTargetManager_;
+  int offsetColumnToObjectiveFunctionManagerValue() const override;
+
+  ObjectiveFunctionTableSAC* objectiveFunctionTableSAC_;  
   casaWizard::CasaScenario& scenario_;
 };
 

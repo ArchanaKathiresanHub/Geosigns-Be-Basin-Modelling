@@ -44,7 +44,7 @@ int ImportWellPopupController::executeImportWellPopup()
   }
 
   importWellPopup_->updateTable(targetVariableUserNames_.toList(), defaultCauldronNames,
-                                {"TwoWayTime", "GammaRay", "BulkDensity", "SonicSlowness",
+                                {"TWT_FROM_DT","TwoWayTime", "GammaRay", "BulkDensity", "SonicSlowness", "DT_FROM_VP",
                                  "Pressure", "Temperature", "VRe", "Velocity", "Unknown"});
   return importWellPopup_->exec();
 }
@@ -53,67 +53,22 @@ void ImportWellPopupController::slotAcceptedClicked()
 {
   const QMap<QString,QString> newMapping = importWellPopup_->propertyMappingTable()->getCurrentMapping();
 
-  if (!overwrittenMappingKeys(newMapping).empty())
-  {
-    QString message = "The properties with the following user names are already defined, either by previously imported calibration targets"
-                      " or by the default values: \n\n";
-    for (const QString& propertyUserName : overwrittenMappingKeys(newMapping))
-    {
-      message += propertyUserName + "\n";
-    }
-    message += "\nTheir 'Cauldron Property Name' will be overwritten by the current settings. Do you want to continue anyway? If not, press 'No' and rename the properties listed above.";
-
-    QMessageBox overwriteMapping(QMessageBox::Icon::Question,
-                             "Overwrite Cauldron Property Name?",
-                             message,
-                             QMessageBox::Yes | QMessageBox::No );
-
-    if (overwriteMapping.exec() != QMessageBox::Yes)
-    {
-      return;
-    }
-  }
-
-  int counter = 0;
   for (const QString& key : newMapping.keys())
-  {
-    importCalibrationTargetManager_.addToMapping(key, newMapping[key]);
-    counter++;
+  {    
+    QString cauldronName = newMapping[key];
+    // User name is the Cauldron name, or "TWT_FROM_DT" or "DT_FROM_VP"
+    importCalibrationTargetManager_.renameUserPropertyNameInWells(key, cauldronName);
+
+    // Real Cauldron property name, so remove the fake ones
+    if (cauldronName == "TWT_FROM_DT") cauldronName="TwoWayTime";
+    if (cauldronName == "DT_FROM_VP")  cauldronName="SonicSlowness";
+    importCalibrationTargetManager_.addToMapping(newMapping[key], cauldronName);
   }
 
-  renameUserPropertyNames();
+  importCalibrationTargetManager_.removeCalibrationTargetsWithUnknownPropertyUserName();
 
   targetVariableUserNames_.clear();
   importWellPopup_->accept();
-}
-
-QVector<QString> ImportWellPopupController::overwrittenMappingKeys(const QMap<QString, QString>& newMapping) const
-{
-  const QMap<QString, QString> originalMapping = importCalibrationTargetManager_.userNameToCauldronNameMapping();
-
-  QVector<QString> overwrittenKeys;
-  for (const QString& key : newMapping.keys())
-  {
-    if (newMapping.value(key, "Unknown") != "Unknown" && originalMapping[key] != newMapping[key])
-    {
-      overwrittenKeys.push_back(key);
-    }
-  }
-
-  return overwrittenKeys;
-}
-
-void ImportWellPopupController::renameUserPropertyNames()
-{
-  for (int i = 0; i < targetVariableUserNames_.size(); i++)
-  {
-    importCalibrationTargetManager_.renameUserPropertyNameInWells(targetVariableUserNames_.toList()[i], getRenamedUserPropertyName(i));
-  }
-}
-
-QString ImportWellPopupController::getRenamedUserPropertyName(const int rowNumber)
-{
- return importWellPopup_->propertyMappingTable()->item(rowNumber, 0)->text();
 }
 
 CalibrationTargetManager& ImportWellPopupController::importCalibrationTargetManager()

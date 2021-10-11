@@ -39,8 +39,8 @@ TEST(SACScriptTest, testWriteScript)
   const int wellIndex3 = ctManager.addWell("Well2", 1, 2);
   wellTrajectoryManager.addWellTrajectory(wellIndex3, "DT");
   ctManager.addCalibrationTarget("TargetName", "DT", wellIndex3, 200.0, 0.5);
-  ctManager.updateObjectiveFunctionFromTargets();
-  ctManager.setObjectiveFunctionEnabledState(false, ctManager.objectiveFunctionManager().indexOfUserName("DT"));
+  scenario.updateObjectiveFunctionFromTargets();
+  scenario.objectiveFunctionManager().setEnabledState(false, scenario.objectiveFunctionManager().indexOfUserName("DT"));
   wellTrajectoryManager.updateWellTrajectories(ctManager);
 
   scenario.calibrationTargetManager().addToMapping("TWTT", "TwoWayTime");

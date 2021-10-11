@@ -26,6 +26,9 @@ public:
   void constructWindow(LogReceiver* logReceiver);
   void showFirstTab();
 
+public slots:
+  void slotSwitchToTab(int tabIndex);
+
 private slots:
   void slotNew();
   void slotOpen();

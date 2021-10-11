@@ -4,6 +4,7 @@
 #include "objectiveFunctionValue.h"
 #include "writable.h"
 
+#include <QMap>
 #include <QVector>
 #include <QStringList>
 
@@ -13,10 +14,10 @@ namespace casaWizard
 class ObjectiveFunctionManager : public Writable
 {
 public:
-  explicit ObjectiveFunctionManager(const QMap<QString, QString>& mapping);
+  explicit ObjectiveFunctionManager();
 
   void setValue(const int row, const int col, const double value);
-  void setVariables(const QStringList& variables);
+  void setVariables(const QStringList& variables, const QMap<QString, QString>& userNameToCauldronNameMapping);
   void setEnabledState(const bool state, const int row);
 
   double absoluteError(const int index) const;
@@ -34,6 +35,9 @@ public:
   void clear() override;
 
   const QVector<ObjectiveFunctionValue>& values() const;
+  void setValues(const QVector<ObjectiveFunctionValue>& values);
+
+  void setUserNameToCauldronNameMapping(const QMap<QString, QString>& mapping);
 
 private:
   ObjectiveFunctionManager(const ObjectiveFunctionManager&) = delete;
@@ -41,7 +45,7 @@ private:
   ObjectiveFunctionValue createObjectiveFunctionValue(const QString& variableUserName) const;
 
   QVector<ObjectiveFunctionValue> values_;
-  const QMap<QString, QString>& userNameToCauldronNameMapping_;
+  QMap<QString, QString> userNameToCauldronNameMapping_;
 };
 
 } // namespace casaWizard

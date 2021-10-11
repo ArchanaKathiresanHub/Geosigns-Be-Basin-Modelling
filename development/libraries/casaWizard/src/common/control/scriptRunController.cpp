@@ -105,6 +105,7 @@ bool ScriptRunController::runScript(RunScript& script, QObject * receiver, const
   if (processCancelled_)
   {
     Logger::log() << "Command pipeline interrupted" << Logger::endl();
+    dialog_.close();
   }
   else
   {

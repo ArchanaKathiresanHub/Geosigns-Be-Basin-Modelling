@@ -18,6 +18,7 @@ namespace casaWizard
 
 class ObjectiveFunctionTable;
 class CalibrationTargetManager;
+class CasaScenario;
 
 class ObjectiveFunctionController : public QObject
 {
@@ -25,8 +26,8 @@ class ObjectiveFunctionController : public QObject
 
 public:
   ObjectiveFunctionController(ObjectiveFunctionTable* objFunTable,
-                              CalibrationTargetManager& casaScenario,
-                              QObject* parent);
+                              CasaScenario& casaScenario,
+                              QObject* parent);  
 
 private slots:
   void slotTableObjectiveFunctionChanged(QTableWidgetItem* item);
@@ -34,8 +35,10 @@ private slots:
   void slotRefresh();
 
 private:
+  virtual int offsetColumnToObjectiveFunctionManagerValue() const;
+
   ObjectiveFunctionTable* objectiveFunctionTable_;
-  CalibrationTargetManager& calibrationTargetManager_;
+  CasaScenario& casaScenario_;
 };
 
 }  // namespace casaWizard

@@ -35,27 +35,17 @@ public:
   void setWellIsActive(bool active, int wellIndex);
   void setWellIsExcluded(bool excluded, int wellIndex);
   int addWell(const QString& wellName, double x, double y);
-  void setHasDataInLayer(const int wellIndex, QVector<bool> hasDataInLayer);
-  void removeCalibrationTargetsFromActiveWellsWithPropertyUserName(const QString& propertyUserName);
-  void removeCalibrationTargetsWithUnknownCauldronProperty();
+  void setHasDataInLayer(const int wellIndex, QVector<bool> hasDataInLayer);  
+  void removeCalibrationTargetsWithUnknownPropertyUserName();
 
   int amountOfActiveCalibrationTargets() const;
   QVector<QVector<const CalibrationTarget*>> extractWellTargets(QStringList& propertyUserNames, const QVector<int> wellIndices) const;
   QVector<QVector<const CalibrationTarget*>> extractWellTargets(QStringList& propertyUserNames, const int wellIndex) const;
 
-  const ObjectiveFunctionManager& objectiveFunctionManager() const;
-
-  void updateObjectiveFunctionFromTargets();
-  void applyObjectiveFunctionOnCalibrationTargets();
-  void setObjectiveFunction(int row, int col, double value);
-  void setObjectiveFunctionVariables(const QStringList& variables);
-  void setObjectiveFunctionEnabledState(const bool state, const int row);
-  bool propertyIsActive(const QString& property) const;
+  void applyObjectiveFunctionOnCalibrationTargets(const ObjectiveFunctionManager& objectiveFunctionManager);
 
   void addToMapping(const QString& userName, const QString& cauldronName);
   QString getCauldronPropertyName(const QString& userPropertyName) const;
-  QString getSonicSlownessUserNameForConversion(const QStringList& propertyUserNames);
-  QString getVelocityUserNameForConversion(const QStringList& propertyUserNames);
 
   void removeDataOutsideModelDepths(const std::vector<double>& basementDepthsAtActiveWellLocations, const std::vector<double>& mudlineDepthsAtActiveWellLocations);
   void removeWellsOutsideBasinOutline(const std::string& projectFileName, const std::string& depthGridName);
@@ -85,7 +75,6 @@ private:
   int addWell(Well well);
   double getShiftToAvoidOverlap(const QString& wellName, const double x, const double y);
 
-  ObjectiveFunctionManager objectiveFunctionManager_;
   QMap<QString, QString> userNameToCauldronNameMapping_;
   QVector<Well> wells_;
 };

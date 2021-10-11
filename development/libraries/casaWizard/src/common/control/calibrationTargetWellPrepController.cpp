@@ -40,7 +40,7 @@ QMap<QString, QSet<int>> CalibrationTargetWellPrepController::getPropertyNamesPe
     const int wellId = well->id();
     for ( const QString& propertyUserName : calibrationTargetManager().getPropertyUserNamesForWell(wellId))
     {
-      propertyNamesPerWell[calibrationTargetManager().getCauldronPropertyName(propertyUserName)].insert(wellId);
+      propertyNamesPerWell[propertyUserName].insert(wellId);
     }
   }
   return propertyNamesPerWell;

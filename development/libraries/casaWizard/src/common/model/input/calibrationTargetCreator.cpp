@@ -74,9 +74,7 @@ void CalibrationTargetCreator::createFromExcel(const QString& excelFileName)
       nTotalTargets += nTargetsPerVariable[iVariable];
     }
     setWellHasDataInLayer(wellIndex, mapReader);
-  }
-
-  calibrationTargetManager_.updateObjectiveFunctionFromTargets();
+  }  
 }
 
 void CalibrationTargetCreator::setWellHasDataInLayer(const int wellIndex, const CMBMapReader& mapReader)

@@ -22,17 +22,11 @@ CalibrationTargetTable::CalibrationTargetTable(QWidget* parent)
   setHorizontalHeaderItem(2, new QTableWidgetItem("x [m]"));
   setHorizontalHeaderItem(3, new QTableWidgetItem("y [m]"));
 
-  stretchColumns();
+  horizontalHeader()->sectionSizeHint(100);
+  horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
 
   disconnect(horizontalHeader(), SIGNAL(sectionPressed(int)), this, SLOT(selectColumn(int)));
   disconnect(verticalHeader(), SIGNAL(sectionPressed(int)), this, SLOT(selectRow(int)));
-}
-
-void CalibrationTargetTable::stretchColumns()
-{
-  horizontalHeader()->sectionSizeHint(100);
-  horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-  resizeColumnsToContents();
 }
 
 void CalibrationTargetTable::updateTable(const QVector<const Well*> wells, const QMap<QString, QSet<int>>& propertyNamesPerWell)
@@ -103,7 +97,7 @@ void CalibrationTargetTable::updateTable(const QVector<const Well*> wells, const
     col++;
   }
 
-  stretchColumns();
+  update();
 }
 
 void CalibrationTargetTable::selectAllWells()

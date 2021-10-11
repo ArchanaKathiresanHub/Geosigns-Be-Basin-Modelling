@@ -8,6 +8,7 @@
 #include "output/projectWriter.h"
 
 #include <QFileInfo>
+#include <QSet>
 #include <QStringList>
 #include <QTextStream>
 
@@ -24,6 +25,7 @@ CasaScenario::CasaScenario(ProjectReader* projectReader) :
   applicationName_(defaultApplication),
   calibrationTargetManager_(),
   calibrationTargetManagerWellPrep_(),
+  objectiveFunctionManager_(),
   clusterName_(defaultClusterName),
   expertUser_(defaultExpertUser),
   numberCPUs_(defaultNumberCPUs),
@@ -83,6 +85,27 @@ void CasaScenario::loadProject3dFile() const
   {
     projectReader_->load(project3dPath());
   }
+}
+
+void CasaScenario::applyObjectiveFunctionOnCalibrationTargets()
+{
+  calibrationTargetManager_.applyObjectiveFunctionOnCalibrationTargets(objectiveFunctionManager_);
+}
+
+void CasaScenario::updateObjectiveFunctionFromTargets()
+{
+  QSet<QString> targetVariableUserNames;
+  for (const CalibrationTarget *const target : calibrationTargetManager_.calibrationTargets())
+  {
+    targetVariableUserNames.insert(target->propertyUserName());
+  }
+  objectiveFunctionManager_.setVariables(targetVariableUserNames.toList(), calibrationTargetManager_.userNameToCauldronNameMapping());
+  applyObjectiveFunctionOnCalibrationTargets();
+}
+
+bool CasaScenario::propertyIsActive(const QString& property) const
+{
+  return objectiveFunctionManager_.enabled(objectiveFunctionManager_.indexOfUserName(property));
 }
 
 void CasaScenario::updateRelevantProperties(ProjectWriter& projectWriter)
@@ -147,6 +170,16 @@ const CalibrationTargetManager& CasaScenario::calibrationTargetManagerWellPrep()
   return calibrationTargetManagerWellPrep_;
 }
 
+ObjectiveFunctionManager& CasaScenario::objectiveFunctionManager()
+{
+  return objectiveFunctionManager_;
+}
+
+const ObjectiveFunctionManager& CasaScenario::objectiveFunctionManager() const
+{
+  return objectiveFunctionManager_;
+}
+
 QString CasaScenario::workingDirectory() const
 {
   return workingDirectory_;
@@ -174,7 +207,7 @@ const ProjectReader& CasaScenario::projectReader() const
 
 void CasaScenario::writeToFile(ScenarioWriter& writer) const
 {
-  writer.writeValue("CasaScenarioVersion", 1);
+  writer.writeValue("CasaScenarioVersion", 2);
   writer.writeValue("workingDirectory", workingDirectory_);  
   writer.writeValue("clusterName", clusterName_);
   writer.writeValue("applicationName", applicationName_);
@@ -184,6 +217,7 @@ void CasaScenario::writeToFile(ScenarioWriter& writer) const
   writer.writeValue("numberCPUs", numberCPUs_);
 
   calibrationTargetManager_.writeToFile(writer);
+  objectiveFunctionManager_.writeToFile(writer);
 }
 
 void CasaScenario::readFromFile(const ScenarioReader& reader)
@@ -199,6 +233,23 @@ void CasaScenario::readFromFile(const ScenarioReader& reader)
   numberCPUs_ = reader.readInt("numberCPUs");
 
   calibrationTargetManager_.readFromFile(reader);
+  if (version >= 2)
+  {
+    objectiveFunctionManager_.readFromFile(reader);
+  }
+  else
+  {
+    QVector<ObjectiveFunctionValue> values = reader.readVector<ObjectiveFunctionValue>("objectiveFunction");
+    objectiveFunctionManager_.setValues(values);
+    for (const auto& val : objectiveFunctionManager_.values())
+    {
+      if (calibrationTargetManager().userNameToCauldronNameMapping().value(val.variableUserName(), "Unknown") == "Unknown")
+      {
+        calibrationTargetManager_.addToMapping(val.variableUserName(), val.variableUserName());
+      }
+    }
+  }
+  objectiveFunctionManager_.setUserNameToCauldronNameMapping(calibrationTargetManager_.userNameToCauldronNameMapping());
 }
 
 void CasaScenario::clear()
@@ -212,6 +263,7 @@ void CasaScenario::clear()
   workingDirectory_ = "";
 
   calibrationTargetManager_.clear();
+  objectiveFunctionManager_.clear();
 }
 
 } // namespace casaWizard

@@ -8,21 +8,21 @@
 
 #pragma once
 
-#include <QTableWidget>
+#include "../common/view/objectiveFunctionTable.h"
 
 namespace casaWizard
 {
 
 class ObjectiveFunctionManager;
 
-class ObjectiveFunctionTableSAC : public QTableWidget
+class ObjectiveFunctionTableSAC : public ObjectiveFunctionTable
 {
   Q_OBJECT
 
 public:
   explicit ObjectiveFunctionTableSAC(QWidget* parent = nullptr);
 
-  void updateTable(const ObjectiveFunctionManager& objectiveFunction);
+  void updateTable(const ObjectiveFunctionManager& objectiveFunction) final;
 
 private:
   QWidget* createEnabledCheckBox(const bool enabled);

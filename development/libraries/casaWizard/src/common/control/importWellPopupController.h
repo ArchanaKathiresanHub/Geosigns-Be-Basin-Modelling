@@ -32,11 +32,7 @@ public:
 private slots:
   void slotAcceptedClicked();
 
-private:
-  QVector<QString> overwrittenMappingKeys(const QMap<QString, QString>& newMapping) const;
-  QString getRenamedUserPropertyName(const int rowNumber);
-  void renameUserPropertyNames();
-
+private:  
   CalibrationTargetManager importCalibrationTargetManager_;
   ImportWellPopup* importWellPopup_;
   QSet<QString> targetVariableUserNames_;

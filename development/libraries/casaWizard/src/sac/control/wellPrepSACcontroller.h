@@ -41,6 +41,9 @@ private slots:
 protected:
   virtual bool checkTabID(int TabID) const override;
 
+signals:
+  void switchToTab(int);
+
 private:
   SACScenario& scenario_;
 };

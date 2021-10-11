@@ -15,6 +15,7 @@
 #include <QLabel>
 #include <QTableWidget>
 #include <QVBoxLayout>
+#include <QHeaderView>
 
 namespace casaWizard
 {
@@ -38,7 +39,7 @@ UserPropertyChoicePopup::UserPropertyChoicePopup(QWidget *parent) :
 
 void UserPropertyChoicePopup::updateTable(const QStringList& propertyUserNames)
 {
-  propertyTable_->clear();
+  propertyTable_->clear();  
   propertyTable_->setRowCount(propertyUserNames.size());
   propertyTable_->setColumnCount(2);
   for (int i=0; i<propertyUserNames.size(); ++i)
@@ -56,6 +57,8 @@ void UserPropertyChoicePopup::updateTable(const QStringList& propertyUserNames)
     QTableWidgetItem* nameItem = new QTableWidgetItem(propertyUserNames[i]);
     propertyTable_->setItem(i,1, nameItem);    
   }
+  propertyTable_->setHorizontalHeaderLabels({"Select", "Property"});
+  propertyTable_->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
 }
 
 QStringList UserPropertyChoicePopup::selectedProperties() const

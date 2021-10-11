@@ -62,8 +62,8 @@ SACcontroller::SACcontroller(SACtab* sacTab,
   scriptRunController_{scriptRunController},  
   calibrationTargetController_{new CalibrationTargetController(sacTab->calibrationTargetTable(), casaScenario_, this)},
   dataExtractionController_{new DataExtractionController(casaScenario_, scriptRunController_, this)},
-  lithofractionController_{new LithofractionController(sacTab->lithofractionTable() , casaScenario_, this)},
-  objectiveFunctionController_{new ObjectiveFunctionControllerSAC(sacTab->objectiveFunctionTable(), casaScenario_.calibrationTargetManager(), casaScenario, this)}
+  lithofractionController_{new LithofractionController(sacTab->lithofractionTable(), casaScenario_, this)},
+  objectiveFunctionController_{new ObjectiveFunctionControllerSAC(sacTab->objectiveFunctionTable(), casaScenario_, this)}
 {
   sacTab_->lineEditProject3D()->setText("");
   sacTab_->comboBoxCluster()->setCurrentText(casaScenario_.clusterName());

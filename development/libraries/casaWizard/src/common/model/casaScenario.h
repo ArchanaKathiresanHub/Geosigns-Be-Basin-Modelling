@@ -57,6 +57,9 @@ public:
   CalibrationTargetManager& calibrationTargetManagerWellPrep();
   const CalibrationTargetManager& calibrationTargetManagerWellPrep() const;
 
+  ObjectiveFunctionManager& objectiveFunctionManager();
+  const ObjectiveFunctionManager& objectiveFunctionManager() const;
+
   const ProjectReader& projectReader() const;
 
   virtual void writeToFile(ScenarioWriter& writer) const override;
@@ -67,10 +70,15 @@ public:
   void updateRelevantProperties(casaWizard::ProjectWriter& projectWriter);
   void loadProject3dFile() const;
 
+  void applyObjectiveFunctionOnCalibrationTargets();
+  void updateObjectiveFunctionFromTargets();
+  bool propertyIsActive(const QString& property) const;
+
 private:
   QString applicationName_;
   CalibrationTargetManager calibrationTargetManager_;
   CalibrationTargetManager calibrationTargetManagerWellPrep_;
+  ObjectiveFunctionManager objectiveFunctionManager_;
   QString clusterName_;
   bool expertUser_;
   int numberCPUs_;

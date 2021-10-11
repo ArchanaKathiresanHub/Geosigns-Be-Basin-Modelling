@@ -143,4 +143,9 @@ void MainController::slotTabSwitch(int tabIndex)
   emit signalUpdateTabGUI(tabIndex);
 }
 
+void MainController::slotSwitchToTab(int tabIndex)
+{
+  mainWindow().tabWidget()->setCurrentIndex(tabIndex);
+}
+
 } // namespace casaWizard

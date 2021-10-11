@@ -31,6 +31,8 @@ Controller::Controller() :
   connect(this, SIGNAL(signalUpdateTabGUI(int)), sacController_,         SLOT(slotUpdateTabGUI(int)));
   connect(this, SIGNAL(signalUpdateTabGUI(int)), t2zController_,         SLOT(slotUpdateTabGUI(int)));
 
+  connect(wellPrepSACcontroller_, SIGNAL(switchToTab(int)), this, SLOT(slotSwitchToTab(int)));
+
   ui_.show();
   constructWindow(new LogDisplayController(ui_.logDisplay(), this));
 }

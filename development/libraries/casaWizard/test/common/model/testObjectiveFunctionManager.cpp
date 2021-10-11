@@ -8,9 +8,8 @@
 #include <gtest/gtest.h>
 
 TEST(ObjectiveFunctionTest, testEmptyVector)
-{
-  QMap<QString, QString> mapping;
-  casaWizard::ObjectiveFunctionManager objectiveFunction(mapping);
+{  
+  casaWizard::ObjectiveFunctionManager objectiveFunction;
 
   QStringList values = objectiveFunction.variablesCauldronNames();
 
@@ -27,8 +26,8 @@ TEST(ObjectiveFunctionTest, testDefaultVector)
   mapping["Vre"] = "VRe";
   mapping["Pressure"] = "Pressure";
 
-  casaWizard::ObjectiveFunctionManager objectiveFunction(mapping);
-  objectiveFunction.setVariables(variables);
+  casaWizard::ObjectiveFunctionManager objectiveFunction;  
+  objectiveFunction.setVariables(variables, mapping);
 
   QStringList values = objectiveFunction.variablesCauldronNames();
 
@@ -51,8 +50,8 @@ TEST(ObjectiveFunctionTest, testSetValue)
   QStringList variables{"Temperature"};
   QMap<QString, QString> mapping;
   mapping["Temperature"] = "Temperature";
-  casaWizard::ObjectiveFunctionManager objectiveFunction(mapping);
-  objectiveFunction.setVariables(variables);
+  casaWizard::ObjectiveFunctionManager objectiveFunction;  
+  objectiveFunction.setVariables(variables, mapping);
 
   double expectedValue{10};
   objectiveFunction.setValue(0, 1, expectedValue);
@@ -66,9 +65,9 @@ TEST(ObjectiveFunctionTest, testWriteToFile)
   QMap<QString, QString> mapping;
   mapping["Temperature"] = "Temperature";
   mapping["VReUserName"] = "VRe";
-  casaWizard::ObjectiveFunctionManager objectiveFunction(mapping);
+  casaWizard::ObjectiveFunctionManager objectiveFunction;  
   QStringList variables{"Temperature", "VReUserName"};
-  objectiveFunction.setVariables(variables);
+  objectiveFunction.setVariables(variables, mapping);
 
   objectiveFunction.setValue(0, 0, 1);
   objectiveFunction.setValue(0, 1, 2);
@@ -98,7 +97,8 @@ void testReading(const QString& testFile, const int version)
   }
 
   casaWizard::ScenarioReader reader{testFile};
-  casaWizard::ObjectiveFunctionManager objectiveFunction(mapping);
+  casaWizard::ObjectiveFunctionManager objectiveFunction;
+  objectiveFunction.setUserNameToCauldronNameMapping(mapping);
   objectiveFunction.readFromFile(reader);
 
   QStringList variables{objectiveFunction.variablesCauldronNames()};

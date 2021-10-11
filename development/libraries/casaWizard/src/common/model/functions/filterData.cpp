@@ -20,7 +20,7 @@ QVector<double> smoothenData(const QVector<double>& depths, const QVector<double
 {
   QVector<double> smoothenedData;
 
-  if (radius < 1.0) return smoothenedData;
+  if (radius < 1.0) return values;
 
   for ( const double depth : depths )
   {
@@ -50,13 +50,22 @@ QVector<int> subsampleData(const QVector<double>& depths, const double length)
 
   if (depths.empty()) return subsampleData;
 
-  double prevDepth = -1.0e10;
-  for (int i=0; i<depths.size(); ++i)
+  const int originalSize = depths.size();
+
+  QVector<QPair<int, double>> indexDepthPair;
+  for (int i=0; i<originalSize; ++i)
   {
-    if (depths[i]>prevDepth+length)
+    indexDepthPair.push_back(QPair<int, double>(i, depths[i]));
+  }
+  std::sort(indexDepthPair.begin(), indexDepthPair.end(), [=](const QPair<int, double>& a, const QPair<int, double>& b){return a.second < b.second;});
+
+  double prevDepth = -1.0e10;
+  for (int i=0; i<originalSize; ++i)
+  {
+    if (indexDepthPair[i].second>prevDepth+length)
     {
-      subsampleData.push_back(i);
-      prevDepth=depths[i];
+      subsampleData.push_back(indexDepthPair[i].first);
+      prevDepth=indexDepthPair[i].second;
     }
   }
 

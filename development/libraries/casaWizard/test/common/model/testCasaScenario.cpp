@@ -73,6 +73,42 @@ TEST( CasaScenarioTest, testClearScenario )
   EXPECT_EQ(scenario.runLocation().toStdString(), "CaseSet");
 }
 
+TEST( CasaScenarioTest, testApplyObjectiveFunctionOnCalibrationTargets )
+{
+  // Given
+  casaWizard::StubCasaScenario scenario{};
+  defineScenario(scenario);
+
+  casaWizard::CalibrationTargetManager& ctManagerWriter = scenario.calibrationTargetManager();
+  ctManagerWriter.addToMapping("Temperature", "Temperature");
+  ctManagerWriter.addToMapping("Vre", "VRe");
+  ctManagerWriter.addWell("Test1", 10, 10);
+  ctManagerWriter.addWell("Test2", 3, 4);
+  ctManagerWriter.addCalibrationTarget("Target1", "Temperature", 1, 2, 3);
+  ctManagerWriter.addCalibrationTarget("Target2", "Vre", 1, 6, 7);
+
+  casaWizard::ObjectiveFunctionManager& ofManagerWriter = scenario.objectiveFunctionManager();
+  ofManagerWriter.setVariables({"Temperature","Vre"}, ctManagerWriter.userNameToCauldronNameMapping());
+  ofManagerWriter.setValue(0, 0, 1);
+  ofManagerWriter.setValue(0, 1, 2);
+  ofManagerWriter.setValue(0, 2, 0.75);
+  ofManagerWriter.setValue(1, 0, 4);
+  ofManagerWriter.setValue(1, 1, 6);
+  ofManagerWriter.setValue(1, 2, 0.25);
+
+  // When
+  scenario.applyObjectiveFunctionOnCalibrationTargets();
+
+  // Then
+  const QVector<const casaWizard::CalibrationTarget*> targets = ctManagerWriter.calibrationTargets();
+
+  EXPECT_DOUBLE_EQ(targets[0]->standardDeviation(), 1 + 2 * 3);
+  EXPECT_DOUBLE_EQ(targets[1]->standardDeviation(), 4 + 6 * 7);
+
+  EXPECT_DOUBLE_EQ(targets[0]->uaWeight(), 0.75);
+  EXPECT_DOUBLE_EQ(targets[1]->uaWeight(), 0.25);
+}
+
 TEST( CasaScenarioTest, testWriteToFile )
 {
   // Definition of the scenario to write
@@ -86,11 +122,14 @@ TEST( CasaScenarioTest, testWriteToFile )
   ctManagerWriter.addWell("Test2", 3, 4);
   ctManagerWriter.addCalibrationTarget("Target1", "Temperature", 1, 2, 3);
   ctManagerWriter.addCalibrationTarget("Target2", "Vre", 1, 6, 7);
-  ctManagerWriter.setObjectiveFunctionVariables({"Temperature","Vre"});
-  ctManagerWriter.setObjectiveFunction(0, 0, 1);
-  ctManagerWriter.setObjectiveFunction(0, 1, 2);
-  ctManagerWriter.setObjectiveFunction(0, 2, 3);
-  ctManagerWriter.setObjectiveFunction(1, 0, 4);
+
+  casaWizard::ObjectiveFunctionManager& ofManagerWriter = writeScenario.objectiveFunctionManager();
+  ofManagerWriter.setVariables({"Temperature","Vre"}, ctManagerWriter.userNameToCauldronNameMapping());
+  ofManagerWriter.setValue(0, 0, 1);
+  ofManagerWriter.setValue(0, 1, 2);
+  ofManagerWriter.setValue(0, 2, 3);
+  ofManagerWriter.setValue(1, 0, 4);
+  writeScenario.applyObjectiveFunctionOnCalibrationTargets();
 
   // Writing the scenario
   const QString filename{"scenario.dat"};
@@ -146,7 +185,7 @@ TEST( CasaScenarioTest, testWriteToFile )
   EXPECT_DOUBLE_EQ(targets[1]->z(), 6);
   EXPECT_DOUBLE_EQ(targets[1]->value(), 7);
 
-  const casaWizard::ObjectiveFunctionManager& objectiveFunctionRead = ctManagerRead.objectiveFunctionManager();
+  const casaWizard::ObjectiveFunctionManager& objectiveFunctionRead = readScenario.objectiveFunctionManager();
   QStringList variables{objectiveFunctionRead.variablesCauldronNames()};
   ASSERT_EQ(variables.size(), 2);
   EXPECT_EQ(variables[0].toStdString(), "Temperature");

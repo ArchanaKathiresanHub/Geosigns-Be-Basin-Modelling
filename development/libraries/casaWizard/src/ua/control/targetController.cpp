@@ -30,7 +30,7 @@ TargetController::TargetController(TargetTab* targetTab,
   depthTargetController_{new DepthTargetController(targetTab_->depthTargetTable(), scenario_.predictionTargetManager(), this)},
   surfaceTargetController_{new SurfaceTargetController(targetTab_->surfaceTargetTable(), scenario_.predictionTargetManager(), this)},
   calibrationTargetController_{new CalibrationTargetController(targetTab_->calibrationTargetTable(), scenario_, this)},
-  objectiveFunctionController_{new ObjectiveFunctionController(targetTab_->objectiveFunctionTable(), scenario_.calibrationTargetManager(), this)}
+  objectiveFunctionController_{new ObjectiveFunctionController(targetTab_->objectiveFunctionTable(), scenario_, this)}
 {
   connect(parent, SIGNAL(signalUpdateTabGUI(int)), this, SLOT(slotUpdateTabGUI(int)));
 
@@ -83,6 +83,7 @@ void TargetController::slotLineEditCalibrationTextChanged(const QString& calibra
 
   CalibrationTargetCreator targetCreator(scenario_, scenario_.calibrationTargetManager());
   targetCreator.createFromExcel(calibrationTargetsFilename);
+  scenario_.updateObjectiveFunctionFromTargets();
 
   emit signalRefreshChildWidgets();
 }

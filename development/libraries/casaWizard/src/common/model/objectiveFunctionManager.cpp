@@ -3,21 +3,22 @@
 #include "scenarioReader.h"
 #include "scenarioWriter.h"
 
-#include <QMap>
 #include <QPair>
 #include <QString>
 
 namespace casaWizard
 {
 
-ObjectiveFunctionManager::ObjectiveFunctionManager(const QMap<QString, QString>& mapping) :
+ObjectiveFunctionManager::ObjectiveFunctionManager() :
   values_{},
-  userNameToCauldronNameMapping_{mapping}
+  userNameToCauldronNameMapping_{}
 {
 }
 
-void ObjectiveFunctionManager::setVariables(const QStringList& variables)
+void ObjectiveFunctionManager::setVariables(const QStringList& variables, const QMap<QString, QString>& userNameToCauldronNameMapping)
 {
+  userNameToCauldronNameMapping_ = userNameToCauldronNameMapping;
+
   bool change = false;
   QStringList currentVariables;
   if (!values_.empty())
@@ -173,6 +174,16 @@ void ObjectiveFunctionManager::clear()
 const QVector<ObjectiveFunctionValue>& ObjectiveFunctionManager::values() const
 {
   return values_;
+}
+
+void ObjectiveFunctionManager::setValues(const QVector<ObjectiveFunctionValue>& values)
+{
+  values_ = values;
+}
+
+void ObjectiveFunctionManager::setUserNameToCauldronNameMapping(const QMap<QString, QString>& mapping)
+{
+  userNameToCauldronNameMapping_ = mapping;
 }
 
 ObjectiveFunctionValue ObjectiveFunctionManager::createObjectiveFunctionValue(const QString& variableUserName) const

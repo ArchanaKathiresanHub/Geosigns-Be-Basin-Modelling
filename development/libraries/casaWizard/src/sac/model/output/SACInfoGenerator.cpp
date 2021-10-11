@@ -90,9 +90,8 @@ void SACInfoGenerator::addFormationInfo()
 
 void SACInfoGenerator::addObjectiveFunction()
 {
-  addHeader("Objective Function");
-  const casaWizard::CalibrationTargetManager& manager = scenario_.calibrationTargetManager();
-  QVector<ObjectiveFunctionValue> objectiveFunctionValues = manager.objectiveFunctionManager().values();
+  addHeader("Objective Function");  
+  QVector<ObjectiveFunctionValue> objectiveFunctionValues = scenario_.objectiveFunctionManager().values();
 
   std::sort(objectiveFunctionValues.begin(), objectiveFunctionValues.end(), [](const ObjectiveFunctionValue& a, const ObjectiveFunctionValue& b)
   {

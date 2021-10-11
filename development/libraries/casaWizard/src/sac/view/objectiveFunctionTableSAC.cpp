@@ -20,20 +20,8 @@ namespace casaWizard
 {
 
 ObjectiveFunctionTableSAC::ObjectiveFunctionTableSAC(QWidget* parent)
-  : QTableWidget(parent)
-{
-  setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
-  setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
-
-  horizontalHeader()->sectionSizeHint(50);
-  horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
-  QSizePolicy policy = sizePolicy();
-  policy.setHorizontalPolicy(QSizePolicy::Policy::Expanding);
-  policy.setVerticalPolicy(QSizePolicy::Policy::Expanding);
-  setSizePolicy(policy);
-
-  disconnect(horizontalHeader(), SIGNAL(sectionPressed(int)), this, SLOT(selectColumn(int)));
-  disconnect(verticalHeader(), SIGNAL(sectionPressed(int)), this, SLOT(selectRow(int)));
+  : ObjectiveFunctionTable(parent)
+{  
 }
 
 void ObjectiveFunctionTableSAC::updateTable(const ObjectiveFunctionManager& objectiveFunction)

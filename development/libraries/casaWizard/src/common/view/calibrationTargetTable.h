@@ -23,9 +23,6 @@ public:
 signals:
   void checkBoxChanged(int, int);
 
-private:
-  void stretchColumns();
-
 };
 
 }  // namespace casaWizard

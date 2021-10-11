@@ -18,10 +18,8 @@ ImportWellPropertyTable::ImportWellPropertyTable(QWidget *parent) :
   QTableWidget(parent)
 {
   setColumnCount(2);
-  setHorizontalHeaderItem(0, new QTableWidgetItem("User Property Name"));
-  setHorizontalHeaderItem(1, new QTableWidgetItem("Cauldron Property Name"));
-  auto header = horizontalHeader();
-  header->setSectionResizeMode(QHeaderView::ResizeToContents);
+  setHorizontalHeaderLabels({"User Property Name", "Cauldron Property Name"});
+  horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
 }
 
 void ImportWellPropertyTable::updateTable(const QStringList& propertyUserNames, const QStringList& defaultCauldronNames, const QStringList& availableCauldronNames)
@@ -32,9 +30,11 @@ void ImportWellPropertyTable::updateTable(const QStringList& propertyUserNames, 
   for (const QString& propertyUserName : propertyUserNames)
   {
     setRowCount(counter+1);
-    setItem(counter, 0, new QTableWidgetItem(propertyUserName));
-    QComboBox* propertySelector = new QComboBox();
+    QTableWidgetItem* item = new QTableWidgetItem(propertyUserName);
+    item->setFlags(item->flags() ^ Qt::ItemIsEditable);
+    setItem(counter, 0, item);
 
+    QComboBox* propertySelector = new QComboBox();
     propertySelector->addItems(availableCauldronNames);
     propertySelector->setCurrentText(defaultCauldronNames[counter]);
     setCellWidget(counter, 1, propertySelector);

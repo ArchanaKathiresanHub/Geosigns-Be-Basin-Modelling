@@ -12,9 +12,9 @@ class ObjectiveFunctionTable : public QTableWidget
   Q_OBJECT
 
 public:
-  explicit ObjectiveFunctionTable(QWidget* parent = 0);
+  explicit ObjectiveFunctionTable(QWidget* parent = nullptr);
 
-  void updateTable(const ObjectiveFunctionManager& objectiveFunction);  
+  virtual void updateTable(const ObjectiveFunctionManager& objectiveFunction);
 };
 
 }  // namespace casaWizard

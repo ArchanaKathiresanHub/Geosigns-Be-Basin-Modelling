@@ -15,7 +15,7 @@ ObjectiveFunctionTable::ObjectiveFunctionTable(QWidget* parent)
   setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
 
   horizontalHeader()->sectionSizeHint(50);
-  horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+  horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
   QSizePolicy policy = sizePolicy();
   policy.setHorizontalPolicy(QSizePolicy::Policy::Expanding);
   policy.setVerticalPolicy(QSizePolicy::Policy::Expanding);

@@ -20,11 +20,10 @@
 namespace casaWizard
 {
 
-CalibrationTargetManager::CalibrationTargetManager() :
-  objectiveFunctionManager_{userNameToCauldronNameMapping_},
+CalibrationTargetManager::CalibrationTargetManager() :  
   userNameToCauldronNameMapping_{},
   wells_{}
-{
+{  
 }
 
 QVector<const CalibrationTarget*> CalibrationTargetManager::calibrationTargets() const
@@ -72,7 +71,7 @@ void CalibrationTargetManager::appendFrom(const CalibrationTargetManager& calibr
 
 void CalibrationTargetManager::copyMappingFrom(const CalibrationTargetManager& calibrationTargetManager)
 {
-  for (const QString& key : calibrationTargetManager.userNameToCauldronNameMapping().keys())
+  for (const QString& key : calibrationTargetManager.userNameToCauldronNameMapping_.keys())
   {
     addToMapping(key, calibrationTargetManager.getCauldronPropertyName(key));
   }
@@ -261,34 +260,11 @@ void CalibrationTargetManager::subsampleData(const QStringList& selectedProperti
   }
 }
 
-void CalibrationTargetManager::removeCalibrationTargetsFromActiveWellsWithPropertyUserName(const QString& propertyUserName)
+void CalibrationTargetManager::removeCalibrationTargetsWithUnknownPropertyUserName()
 {
   for (Well& well: wells_)
   {
-    if (well.isActive())
-    {
-      well.removeCalibrationTargetsWithPropertyUserName(propertyUserName);
-    }
-  }
-}
-
-void CalibrationTargetManager::removeCalibrationTargetsWithUnknownCauldronProperty()
-{
-  QStringList unknownPropertyUserNames;
-  for (const QString& propertyUserName : userNameToCauldronNameMapping_.keys())
-  {
-    if (getCauldronPropertyName(propertyUserName) == "Unknown")
-    {
-      unknownPropertyUserNames.push_back(propertyUserName);
-    }
-  }
-
-  for (const QString& unknownPropertyUserName : unknownPropertyUserNames)
-  {
-    for (Well& well: wells_)
-    {
-      well.removeCalibrationTargetsWithPropertyUserName(unknownPropertyUserName);
-    }
+    well.removeCalibrationTargetsWithPropertyUserName("Unknown");
   }
 }
 
@@ -352,16 +328,14 @@ int CalibrationTargetManager::amountOfActiveCalibrationTargets() const
 }
 
 void CalibrationTargetManager::clear()
-{
-  objectiveFunctionManager_.clear();
+{  
   userNameToCauldronNameMapping_.clear();
   wells_.clear();
 }
 
 void CalibrationTargetManager::writeToFile(ScenarioWriter& writer) const
 {
-  writer.writeValue("CalibrationTargetManagerVersion", 1);
-  objectiveFunctionManager_.writeToFile(writer);
+  writer.writeValue("CalibrationTargetManagerVersion", 2);
   QVector<int> wellIds;
   for (const Well& well : wells_)
   {
@@ -382,7 +356,6 @@ void CalibrationTargetManager::readFromFile(const ScenarioReader& reader)
 {
   const int version = reader.readInt("CalibrationTargetManagerVersion");
 
-  objectiveFunctionManager_.readFromFile(reader);
   wells_.clear();
 
   QVector<int> wellIds = reader.readVector<int>("wellIndices");
@@ -401,14 +374,6 @@ void CalibrationTargetManager::readFromFile(const ScenarioReader& reader)
       QStringList entries = reader.readString("MappingEntry_" + QString::number(i)).split(",");
       addToMapping(entries[0], entries[1]);
       i++;
-    }
-  }
-
-  for (const auto& val : objectiveFunctionManager_.values())
-  {
-    if (userNameToCauldronNameMapping_.value(val.variableUserName(), "Unknown") == "Unknown")
-    {
-      addToMapping(val.variableUserName(), val.variableUserName());
     }
   }
 }
@@ -525,25 +490,28 @@ void CalibrationTargetManager::convertVPtoDT()
 {
   const VPToDTConverter converter;
 
-  const QString convertedDTName = "DT_FROM_VP";
-  removeCalibrationTargetsFromActiveWellsWithPropertyUserName(convertedDTName);
+  const QString convertedDTName = "DT_FROM_VP";  
+  const QString velocityUserName = "Velocity";
 
   for (Well& well : wells_)
   {
     if (well.isActive())
     {
+      if (well.removeCalibrationTargetsWithPropertyUserName(convertedDTName))
+      {
+        Logger::log() << "Overwriting " << convertedDTName << " data for well: " << well.name() << Logger::endl();
+      }
+
       QStringList properties;
       const QVector<QVector<const CalibrationTarget*>> targetsInWell = extractWellTargets(properties, well.id());
 
-      const QString VelocityUserName = getVelocityUserNameForConversion(properties);
-
-      if (VelocityUserName == "")
+      if (properties.indexOf(velocityUserName) < 0)
       {
         Logger::log() << "Well " << well.name() << " does not have any Velocity data to convert to SonicSlowness." << Logger::endl();
         continue;
       }
 
-      const QVector<const CalibrationTarget*> vpTargets = targetsInWell[properties.indexOf(VelocityUserName)];
+      const QVector<const CalibrationTarget*> vpTargets = targetsInWell[properties.indexOf(velocityUserName)];
 
       std::vector<double> VP;
       std::vector<double> depth;
@@ -564,12 +532,11 @@ void CalibrationTargetManager::convertVPtoDT()
         addCalibrationTarget(targetName, convertedDTName, well.id(), depth[i], DT[i]);
       }
 
-      well.appendMetaData("Created " + convertedDTName + " targets converted from " + VelocityUserName + ".");
+      well.appendMetaData("Created " + convertedDTName + " targets converted from " + velocityUserName + ".");
     }
   }
 
-  addToMapping("DT_FROM_VP", "SonicSlowness");
-  updateObjectiveFunctionFromTargets();
+  addToMapping("DT_FROM_VP", "SonicSlowness");  
 }
 
 void CalibrationTargetManager::deleteWells(const QVector<int>& wellIDs)
@@ -617,49 +584,12 @@ QVector<QVector<const CalibrationTarget*> > CalibrationTargetManager::extractWel
   return targetsInWells;
 }
 
-const ObjectiveFunctionManager& CalibrationTargetManager::objectiveFunctionManager() const
-{
-  return objectiveFunctionManager_;
-}
-
-void CalibrationTargetManager::updateObjectiveFunctionFromTargets()
-{
-  QSet<QString> targetVariableUserNames;
-  for (const CalibrationTarget *const target : calibrationTargets())
-  {
-    targetVariableUserNames.insert(target->propertyUserName());
-  }
-  objectiveFunctionManager_.setVariables(targetVariableUserNames.toList());
-  applyObjectiveFunctionOnCalibrationTargets();
-}
-
-void CalibrationTargetManager::applyObjectiveFunctionOnCalibrationTargets()
+void CalibrationTargetManager::applyObjectiveFunctionOnCalibrationTargets(const ObjectiveFunctionManager& objectiveFunctionManager)
 {
   for (Well& well : wells_)
   {
-    well.applyObjectiveFunction(objectiveFunctionManager_);
+    well.applyObjectiveFunction(objectiveFunctionManager);
   }
-}
-
-void CalibrationTargetManager::setObjectiveFunction(int row, int col, double value)
-{
-  objectiveFunctionManager_.setValue(row, col, value);
-  applyObjectiveFunctionOnCalibrationTargets();
-}
-
-void CalibrationTargetManager::setObjectiveFunctionVariables(const QStringList& variables)
-{
-  objectiveFunctionManager_.setVariables(variables);
-}
-
-void CalibrationTargetManager::setObjectiveFunctionEnabledState(const bool state, const int row)
-{
-  objectiveFunctionManager_.setEnabledState(state, row);
-}
-
-bool CalibrationTargetManager::propertyIsActive(const QString& property) const
-{
-  return objectiveFunctionManager_.enabled(objectiveFunctionManager_.indexOfUserName(property));
 }
 
 void CalibrationTargetManager::addToMapping(const QString& userName, const QString& cauldronName)
@@ -670,56 +600,6 @@ void CalibrationTargetManager::addToMapping(const QString& userName, const QStri
 QString CalibrationTargetManager::getCauldronPropertyName(const QString& userPropertyName) const
 {
   return userNameToCauldronNameMapping_.value(userPropertyName, "Unknown");
-}
-
-QString CalibrationTargetManager::getSonicSlownessUserNameForConversion(const QStringList& propertyUserNames)
-{
-  QStringList sonicSlownessProperties;
-  for (const QString& propertyUserName : propertyUserNames)
-  {
-    if (getCauldronPropertyName(propertyUserName) == "SonicSlowness")
-    {
-      sonicSlownessProperties.push_back(propertyUserName);
-    }
-  }
-
-  if (sonicSlownessProperties.empty())
-  {
-    return "";
-  }
-  else if (sonicSlownessProperties.contains("DT"))
-  {
-    return "DT";
-  }
-  else
-  {
-    return sonicSlownessProperties[0];
-  }
-}
-
-QString CalibrationTargetManager::getVelocityUserNameForConversion(const QStringList& propertyUserNames)
-{
-  QStringList velocityProperties;
-  for (const QString& propertyUserName : propertyUserNames)
-  {
-    if (getCauldronPropertyName(propertyUserName) == "Velocity")
-    {
-      velocityProperties.push_back(propertyUserName);
-    }
-  }
-
-  if (velocityProperties.empty())
-  {
-    return "";
-  }
-  else if (velocityProperties.contains("VP"))
-  {
-    return "VP";
-  }
-  else
-  {
-    return velocityProperties[0];
-  }
 }
 
 void CalibrationTargetManager::removeDataOutsideModelDepths(const std::vector<double>& basementDepthsAtActiveWellLocations, const std::vector<double>& mudlineDepthsAtActiveWellLocations)
@@ -780,18 +660,21 @@ void CalibrationTargetManager::convertDTtoTWT(const std::string& iterationFolder
   const DTToTwoWayTimeConverter converter;
 
   const QString convertedTWTName = "TWT_FROM_DT";
-  removeCalibrationTargetsFromActiveWellsWithPropertyUserName(convertedTWTName);
+  const QString sonicSlownessUserName = "SonicSlowness";
 
   for (Well& well : wells_)
   {
     if (well.isActive())
-    {
+    {     
+      if (well.removeCalibrationTargetsWithPropertyUserName(convertedTWTName))
+      {
+        Logger::log() << "Overwriting " << convertedTWTName << " data for well: " << well.name() << Logger::endl();
+      }
+
       QStringList properties;
       const QVector<QVector<const CalibrationTarget*>> targetsInWell = extractWellTargets(properties, well.id());
 
-      const QString sonicSlownessUserName = getSonicSlownessUserNameForConversion(properties);
-
-      if (sonicSlownessUserName == "")
+      if (properties.indexOf(sonicSlownessUserName) < 0)
       {
         Logger::log() << "Well " << well.name() << " does not have any SonicSlowness data to convert to TwoWayTime." << Logger::endl();
         continue;
@@ -824,7 +707,6 @@ void CalibrationTargetManager::convertDTtoTWT(const std::string& iterationFolder
   }
 
   addToMapping(convertedTWTName, "TwoWayTime");
-  updateObjectiveFunctionFromTargets();
 }
 
 } // namespace casaWizard
