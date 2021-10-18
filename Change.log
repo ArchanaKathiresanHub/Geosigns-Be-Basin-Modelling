@@ -38,6 +38,17 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 +
 2021-10-18  Erik.vandenBoogaard  <Erik.vandenBoogaard@shell.com>
 
+	fix: Select DT_FROM_VP in case there is no sonicslowness.
+	* Select DT_FROM_VP in case there is no sonicslowness
+
+	* Related work items: #440664
+
+	================== COMMIT-END ========================
+	Commit-ID:<9b2a4052ed6e5fc8709635703f7ac34313cf510f>	  (refs/heads/master)
+
+++
+2021-10-18  Erik.vandenBoogaard  <Erik.vandenBoogaard@shell.com>
+
 	chg: Cut off ranges.
 	* Cut off ranges
 
