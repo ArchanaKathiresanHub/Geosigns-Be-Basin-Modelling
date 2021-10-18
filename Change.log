@@ -36,6 +36,17 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2021-10-18  Erik.vandenBoogaard  <Erik.vandenBoogaard@shell.com>
+
+	chg: Cut off ranges.
+	* Cut off ranges
+
+	* Related work items: #440730
+
+	================== COMMIT-END ========================
+	Commit-ID:<fed9fa2619128d9807db564aeaf7b25f5e3e4ced>	  (refs/heads/master)
+
+++
 2021-10-11  Erik.vandenBoogaard  <Erik.vandenBoogaard@shell.com>
 
 	chg: Refactor calibration target manager.
