@@ -12,6 +12,8 @@
 
 #include "xlsxworksheet.h"
 
+#include <cmath>
+
 namespace casaWizard
 {
 
@@ -53,7 +55,10 @@ void SaveWellDataXlsx::saveWellData(const QString& wellName, const WellData& wel
     {
       sheet->write(row + rowOffset, col, wellData.depth_[i], format);
       sheet->write(row + rowOffset, col+1, wellData.calibrationTargetValues_[i], format);
-      sheet->write(row + rowOffset, col+2, wellData.calibrationTargetStdDeviation_[i], format);
+      if (std::fabs(wellData.calibrationTargetStdDeviation_[i]) > std::numeric_limits<double>::epsilon())
+      {
+        sheet->write(row + rowOffset, col+2, wellData.calibrationTargetStdDeviation_[i], format);
+      }
       ++i;
     }
     col += 3;

@@ -66,14 +66,28 @@ QStringList UserPropertyChoicePopup::selectedProperties() const
   QStringList properties;
   for (int i=0; i<propertyTable_->rowCount(); ++i)
   {
-    CustomCheckbox* itemCheckBox = static_cast<CustomCheckbox*>(propertyTable_->cellWidget(i, 0)->children()[1]);
-    if (itemCheckBox->isChecked())
+    const QString property = getPropertyIfChecked(i);
+    if (!property.isEmpty())
     {      
-      properties.push_back(propertyTable_->item(i,1)->text());
+      properties.push_back(property);
     }
   }
   return properties;
 }
 
+QTableWidget* UserPropertyChoicePopup::propertyTable() const
+{
+  return propertyTable_;
+}
+
+QString UserPropertyChoicePopup::getPropertyIfChecked(int row) const
+{
+  const CustomCheckbox* itemCheckBox = static_cast<CustomCheckbox*>(propertyTable_->cellWidget(row, 0)->children()[1]);
+  if (itemCheckBox->isChecked())
+  {
+    return propertyTable_->item(row, 1)->text();
+  }
+  return "";
+}
 
 } // namespace casaWizard

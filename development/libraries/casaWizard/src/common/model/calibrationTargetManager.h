@@ -19,7 +19,8 @@ public:
 
   QVector<const CalibrationTarget*> calibrationTargets() const;
   void addCalibrationTarget(const QString& name, const QString& propertyUserName,
-                            const int wellIndex, const double z, const double value);
+                            const int wellIndex, const double z, const double value,
+                            double standardDeviation = 0.0, double uaWeight = 1.0);
   void setCalibrationTargetStandardDeviation(int index, double value);
   void setCalibrationTargetUAWeight(int index, double value);
 
@@ -68,6 +69,7 @@ public:
 
   void smoothenData(const QStringList& selectedProperties, const double radius);
   void subsampleData(const QStringList& selectedProperties, const double length);
+  void applyCutOff(const QMap<QString,QPair<double,double>>& propertiesWithCutOfRanges);
 
 private:
   CalibrationTargetManager(const CalibrationTargetManager&) = delete;

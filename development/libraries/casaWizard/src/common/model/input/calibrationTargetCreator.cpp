@@ -45,11 +45,13 @@ void CalibrationTargetCreator::createFromExcel(const QString& excelFileName)
     {
       const QVector<double> z = wellData.depth();
       const QVector<double> value = wellData.calibrationTargetValues();
+      const QVector<double> stdDeviations = wellData.calibrationTargetStdDeviation();
 
       const int nZ = z.size();
       const int nValue = value.size();
+      const int nStdDev = stdDeviations.size();
 
-      if ( nZ != nValue )
+      if (nZ != nValue || nZ != nStdDev)
       {
         continue; // inconsistent array lengths, skip this variable
       }
@@ -68,7 +70,7 @@ void CalibrationTargetCreator::createFromExcel(const QString& excelFileName)
                                  QString::number(wellData.yCoord(),'f',1) + "," +
                                  QString::number(z[iTarget],'f',1) + ")");
         calibrationTargetManager_.addCalibrationTarget(targetName, variableUserNames[iVariable],
-                                                      wellIndex, z[iTarget], value[iTarget]);
+                                                      wellIndex, z[iTarget], value[iTarget], stdDeviations[iTarget]);
 
       }
       nTotalTargets += nTargetsPerVariable[iVariable];

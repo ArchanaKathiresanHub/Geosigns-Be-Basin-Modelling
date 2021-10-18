@@ -20,6 +20,7 @@ class CasaScenario;
 class ImportWellPopupController;
 class ScriptRunController;
 class UserPropertyChoicePopup;
+class UserPropertyChoiceCutOffPopup;
 class WellPrepTab;
 
 class WellPrepController : public QObject
@@ -56,6 +57,8 @@ private slots:
   void slotApplySmoothing();
   void slotSelectPropertiesForSubsampling();
   void slotApplySubsampling();
+  void slotSelectPropertiesForCutOff();
+  void slotApplyCutOff();
 
 private:
   void importOnSeparateThread(CalibrationTargetManager& calibrationTargetManager, const QString& fileName);
@@ -69,6 +72,7 @@ private:
   CalibrationTargetWellPrepController* calibrationTargetController_;
   ImportWellPopupController* importWellPopupController_;
   UserPropertyChoicePopup* userPropertyChoicePopup_;
+  UserPropertyChoiceCutOffPopup* userPropertyChoiceCutOffPopup_;
   QMessageBox waitingDialog_;
   bool waitingDialogNeeded_;
 };

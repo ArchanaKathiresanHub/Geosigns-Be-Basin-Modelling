@@ -36,6 +36,8 @@ public:
   int subsamplingDistance() const;
   const QPushButton* buttonApplySubsampling() const;
 
+  const QPushButton* buttonApplyCutOff() const;
+
   const QPushButton* buttonVPtoDT() const;
   QPushButton* buttonDTtoTWT() const;
   QPushButton* buttonCropOutline() const;
@@ -59,6 +61,8 @@ private:
 
   QSpinBox* subsamplingDistance_;
   QPushButton* buttonApplySubsampling_;
+
+  QPushButton* buttonApplyCutOff_;
 
   QPushButton* buttonVPtoDT_;
   QPushButton* buttonDTtoTWT_;

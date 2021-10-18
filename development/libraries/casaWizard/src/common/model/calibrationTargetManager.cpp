@@ -40,14 +40,15 @@ QVector<const CalibrationTarget*> CalibrationTargetManager::calibrationTargets()
 }
 
 void CalibrationTargetManager::addCalibrationTarget(const QString& name, const QString& propertyUserName,
-                                                    const int wellIndex, const double z, const double value)
+                                                    const int wellIndex, const double z, const double value,
+                                                    double standardDeviation, double uaWeight)
 {
   if (wellIndex >= wells_.size())
   {
     return;
   }
 
-  wells_[wellIndex].addCalibrationTarget(name, propertyUserName, z, value);
+  wells_[wellIndex].addCalibrationTarget(name, propertyUserName, z, value, standardDeviation, uaWeight);
 }
 
 void CalibrationTargetManager::appendFrom(const CalibrationTargetManager& calibrationTargetManager)
@@ -256,6 +257,57 @@ void CalibrationTargetManager::subsampleData(const QStringList& selectedProperti
 
       // Log info
       Logger::log() << well.name() << ": " << message << Logger::endl();
+    }
+  }
+}
+
+void CalibrationTargetManager::applyCutOff(const QMap<QString, QPair<double, double>>& propertiesWithCutOfRanges)
+{
+  for (Well& well : wells_)
+  {
+    if (!well.isActive()) continue;
+
+    for (const QString& property : propertiesWithCutOfRanges.keys())
+    {
+      // Get calibration targets for the selected property
+      QVector<const CalibrationTarget*> targets = well.calibrationTargetsWithPropertyUserName(property);
+
+      int cutOff = 0;
+      // Create a copy of the remaining targets
+      QVector<CalibrationTarget> newTargets;
+      for (const CalibrationTarget* target : targets)
+      {
+        if (target->value() < propertiesWithCutOfRanges[property].first ||
+            target->value() > propertiesWithCutOfRanges[property].second)
+        {
+          cutOff++;
+        }
+        else
+        {
+          newTargets.push_back(*target);//Copy
+        }
+      }
+
+      // Delete all old calibration targets
+      well.removeCalibrationTargetsWithPropertyUserName(property);
+
+      // Add the new targets
+      for( const CalibrationTarget& newTarget : newTargets)
+      {
+        well.addCalibrationTarget(newTarget);
+      }
+
+      if (cutOff>0)
+      {
+        // Set metadata
+        const QString message("Cut off " + QString::number(cutOff) + " targets of property " + property + " outside the range [" +
+                              QString::number(propertiesWithCutOfRanges[property].first) + ", " +
+                              QString::number(propertiesWithCutOfRanges[property].second) + "]" );
+        well.appendMetaData(message);
+
+        // Log info
+        Logger::log() << well.name() << ": " << message << Logger::endl();
+      }
     }
   }
 }

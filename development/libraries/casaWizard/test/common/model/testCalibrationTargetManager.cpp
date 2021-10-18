@@ -122,12 +122,12 @@ void testReading(const QString& testFile, const int version)
   EXPECT_EQ(targets[0]->propertyUserName().toStdString(), "Temperature");
   EXPECT_DOUBLE_EQ(targets[0]->z(), 2.0);
   EXPECT_DOUBLE_EQ(targets[0]->value(), 3.0);
-  EXPECT_DOUBLE_EQ(targets[0]->standardDeviation(), 1);
+  EXPECT_DOUBLE_EQ(targets[0]->standardDeviation(), 0);
   EXPECT_EQ(targets[1]->name().toStdString(), "Target2");
   EXPECT_EQ(targets[1]->propertyUserName().toStdString(), "VReUserName");
   EXPECT_DOUBLE_EQ(targets[1]->z(), 6.0);
   EXPECT_DOUBLE_EQ(targets[1]->value(), 7.0);
-  EXPECT_DOUBLE_EQ(targets[1]->standardDeviation(), 1);
+  EXPECT_DOUBLE_EQ(targets[1]->standardDeviation(), 0);
 }
 
 TEST(CalibrationTargetManagerTest, testReadVersion0FromFile)
@@ -482,6 +482,31 @@ TEST(CalibrationTargetManagerTest, testSubsampleData)
 
   // When
   manager.subsampleData({"TwoWayTime"}, 200);
+
+  // Then
+  const QVector<const casaWizard::CalibrationTarget*> targets = manager.well(0).calibrationTargets();
+  EXPECT_EQ(targets.size(), 4);
+}
+
+TEST(CalibrationTargetManagerTest, testApplyCutOff)
+{
+  // Given
+  casaWizard::CalibrationTargetManager manager;
+  manager.addWell("well_1", 184550, 608300);
+  manager.addCalibrationTarget("target_1", "TwoWayTime", 0, 100, 100);
+  manager.addCalibrationTarget("target_2", "TwoWayTime", 0, 150, 200);
+  manager.addCalibrationTarget("target_3", "TwoWayTime", 0, 300, 130);
+  manager.addCalibrationTarget("target_4", "TwoWayTime", 0, 700, 400);
+  manager.addCalibrationTarget("target_5", "TwoWayTime", 0, 1100, 100);
+  manager.addCalibrationTarget("target_6", "TwoWayTime", 0, 1150, 200);
+  manager.addCalibrationTarget("target_7", "TwoWayTime", 0, 300, 130);
+  manager.addCalibrationTarget("target_8", "TwoWayTime", 0, 1700, 400);
+
+  QMap<QString,QPair<double,double>> propertiesWithCutOffRanges;
+  propertiesWithCutOffRanges["TwoWayTime"] = {110,300};
+
+  // When
+  manager.applyCutOff(propertiesWithCutOffRanges);
 
   // Then
   const QVector<const casaWizard::CalibrationTarget*> targets = manager.well(0).calibrationTargets();

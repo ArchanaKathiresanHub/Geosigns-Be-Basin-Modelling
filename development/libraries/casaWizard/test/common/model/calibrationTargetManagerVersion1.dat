@@ -8,7 +8,7 @@ well0isActive|bool|0
 well0isExcluded|bool|0
 well0isInvalid|bool|0
 well0targets|vector|1
-well0targets|0|Target1|Temperature|2|3|1|1
+well0targets|0|Target1|Temperature|2|3|0|1
 well0hasDataInLayer|vector|2
 well0hasDataInLayer|0
 well0hasDataInLayer|1
@@ -22,7 +22,7 @@ well1isActive|bool|1
 well1isExcluded|bool|1
 well1isInvalid|bool|0
 well1targets|vector|1
-well1targets|0|Target2|VReUserName|6|7|1|1
+well1targets|0|Target2|VReUserName|6|7|0|1
 well1hasDataInLayer|vector|2
 well1hasDataInLayer|1
 well1hasDataInLayer|0

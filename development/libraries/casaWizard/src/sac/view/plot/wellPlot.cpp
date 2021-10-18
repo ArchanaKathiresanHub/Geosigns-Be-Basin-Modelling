@@ -94,8 +94,11 @@ void WellPlot::setData(const QVector<const CalibrationTarget*>& targets,
       zDataRange_.first = depth < zDataRange_.first ? depth : zDataRange_.first;
       zDataRange_.second = depth > zDataRange_.second ? depth : zDataRange_.second;
 
-      xCoordsHorizontalErrorBars.push_back({value - target->standardDeviation()*2, value + target->standardDeviation()*2});
-      yCoordsHorizontalErrorBars.push_back(depth);
+      if (target->standardDeviation() > 0.0)
+      {
+        xCoordsHorizontalErrorBars.push_back({value - target->standardDeviation()*2, value + target->standardDeviation()*2});
+        yCoordsHorizontalErrorBars.push_back(depth);
+      }
     }
   }
 

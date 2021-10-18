@@ -20,11 +20,16 @@ class UserPropertyChoicePopup : public QDialog
   Q_OBJECT
 public:
   explicit UserPropertyChoicePopup(QWidget *parent = nullptr);
-  void updateTable(const QStringList& propertyUserNames);
+  virtual void updateTable(const QStringList& propertyUserNames);
   QStringList selectedProperties() const;
+
+  QTableWidget* propertyTable() const;
 
 signals:
   void acceptedClicked();
+
+protected:
+  QString getPropertyIfChecked(int row) const;
 
 private:
   QTableWidget* propertyTable_;

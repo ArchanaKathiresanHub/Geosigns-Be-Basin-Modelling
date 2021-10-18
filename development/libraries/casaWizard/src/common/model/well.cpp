@@ -188,11 +188,8 @@ void Well::addCalibrationTarget(const CalibrationTarget& newTarget)
 }
 
 void Well::addCalibrationTarget(const QString& name, const QString& propertyUserName,
-                                const double z, const double value)
+                                const double z, const double value, double standardDeviation, double uaWeight)
 {
-  const double standardDeviation = 1;
-  const double uaWeight = 1;
-
   CalibrationTarget newTarget{name, propertyUserName, z, value, standardDeviation, uaWeight};
   calibrationTargets_.append(newTarget);
 }

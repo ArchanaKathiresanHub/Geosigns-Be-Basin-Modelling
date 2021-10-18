@@ -58,7 +58,7 @@ public:
   void setHasDataInLayer(QVector<bool> hasDataInLayer);
 
   void addCalibrationTarget(const CalibrationTarget& newTarget);
-  void addCalibrationTarget(const QString& name, const QString& propertyUserName, const double z, const double value);
+  void addCalibrationTarget(const QString& name, const QString& propertyUserName, const double z, const double value, double standardDeviation = 0.0, double uaWeight = 1.0);
   void applyObjectiveFunction(const ObjectiveFunctionManager& objectiveFunction);
   void shift(const double xShift);
   void renameUserPropertyName(const QString& oldName, const QString& newName);

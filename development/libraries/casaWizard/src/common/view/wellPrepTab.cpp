@@ -33,6 +33,7 @@ WellPrepTab::WellPrepTab(QWidget* parent) :
   buttonApplySmoothing_{new QPushButton("Apply smoothing", this)},  
   subsamplingDistance_{new QSpinBox(this)},
   buttonApplySubsampling_{new QPushButton("Apply subsampling", this)},
+  buttonApplyCutOff_{new QPushButton("Apply cut off ranges", this)},
   buttonVPtoDT_{new QPushButton("Convert VP log to DT log", this)},
   buttonDTtoTWT_{new QPushButton("Convert DT log to TWT log", this)},
   buttonCropOutline_{new QPushButton("Remove locations outside basin outline", this)},
@@ -78,6 +79,11 @@ WellPrepTab::WellPrepTab(QWidget* parent) :
   subsamplingDistanceLayout->addWidget(subsamplingDistance_, 1, Qt::AlignRight);
   optionsLayout->addLayout(subsamplingDistanceLayout);
   optionsLayout->addWidget(buttonApplySubsampling_);
+
+  QHBoxLayout* cutOffLayout = new QHBoxLayout();
+  cutOffLayout->addWidget(new QLabel("Cut off: ", this), 0, Qt::AlignLeft);
+  optionsLayout->addLayout(cutOffLayout);
+  optionsLayout->addWidget(buttonApplyCutOff_);
 
   optionsLayout->addSpacing(20);
 
@@ -159,6 +165,11 @@ int WellPrepTab::subsamplingDistance() const
 const QPushButton* WellPrepTab::buttonApplySubsampling() const
 {
   return buttonApplySubsampling_;
+}
+
+const QPushButton* WellPrepTab::buttonApplyCutOff() const
+{
+  return buttonApplyCutOff_;
 }
 
 const QPushButton* WellPrepTab::buttonVPtoDT() const

@@ -22,6 +22,7 @@
 #include "view/wellPrepTab.h"
 #include "view/calibrationTargetTable.h"
 #include "view/components/emphasisbutton.h"
+#include "view/userPropertyChoiceCutOffPopup.h"
 #include "view/userPropertyChoicePopup.h"
 
 #include <QFileDialog>
@@ -43,6 +44,7 @@ WellPrepController::WellPrepController(WellPrepTab* wellPrepTab,
   calibrationTargetController_{new CalibrationTargetWellPrepController(wellPrepTab->calibrationTargetTable(), casaScenario, this)},
   importWellPopupController_{new ImportWellPopupController(wellPrepTab->importWellPopup(), this)},
   userPropertyChoicePopup_{new UserPropertyChoicePopup(wellPrepTab_)},
+  userPropertyChoiceCutOffPopup_{new UserPropertyChoiceCutOffPopup(wellPrepTab_)},
   waitingDialog_{},
   waitingDialogNeeded_{true}
 {
@@ -61,6 +63,7 @@ WellPrepController::WellPrepController(WellPrepTab* wellPrepTab,
 
   connect(wellPrepTab->buttonApplySmoothing(), SIGNAL(clicked()), this, SLOT(slotSelectPropertiesForSmoothing()));
   connect(wellPrepTab->buttonApplySubsampling(), SIGNAL(clicked()), this, SLOT(slotSelectPropertiesForSubsampling()));
+  connect(wellPrepTab->buttonApplyCutOff(), SIGNAL(clicked()), this, SLOT(slotSelectPropertiesForCutOff()));
 
   connect(calibrationTargetController_, SIGNAL(wellSelectionChanged()), this, SLOT(slotWellSelectionChanged()));
 }
@@ -163,6 +166,28 @@ void WellPrepController::slotApplySubsampling()
   calibrationManager.subsampleData(selectedProperties, length);
 
   userPropertyChoicePopup_->done(0);
+}
+
+void WellPrepController::slotSelectPropertiesForCutOff()
+{
+  const CalibrationTargetManager& calibrationManager = calibrationTargetController_->calibrationTargetManager();
+  const QStringList activePropertyUserNames = calibrationManager.activePropertyUserNames();
+
+  userPropertyChoiceCutOffPopup_->updateTable(activePropertyUserNames);
+
+  connect(userPropertyChoiceCutOffPopup_, SIGNAL(acceptedClicked()), this, SLOT(slotApplyCutOff()) );
+  userPropertyChoiceCutOffPopup_->exec();
+  disconnect(userPropertyChoiceCutOffPopup_, SIGNAL(acceptedClicked()), this, SLOT(slotApplyCutOff()) );
+}
+
+void WellPrepController::slotApplyCutOff()
+{  
+  const PropertiesWithCutOffRanges propertiesWithCutOffRanges = userPropertyChoiceCutOffPopup_->getPropertiesWithCutOffRanges();
+
+  CalibrationTargetManager& calibrationManager = calibrationTargetController_->calibrationTargetManager();
+  calibrationManager.applyCutOff(propertiesWithCutOffRanges);
+
+  userPropertyChoiceCutOffPopup_->done(0);
 }
 
 bool WellPrepController::allActiveWellsHave1DResults() const

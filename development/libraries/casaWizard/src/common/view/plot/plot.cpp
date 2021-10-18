@@ -7,6 +7,7 @@
 #include <QRectF>
 
 #include <algorithm>
+#include <cmath>
 
 namespace casaWizard
 {
@@ -206,13 +207,13 @@ void Plot::updateMinMaxData()
 
   if (xAxisMaxValue == xAxisMinValue)
   {
-    xAxisMaxValue += 0.1*xAxisMaxValue;
-    xAxisMinValue -= 0.1*xAxisMinValue;
+    xAxisMaxValue += 0.1*std::fabs(xAxisMaxValue);
+    xAxisMinValue -= 0.1*std::fabs(xAxisMinValue);
   }
   if (yAxisMaxValue == yAxisMinValue)
   {
-    yAxisMaxValue += 0.1*yAxisMaxValue;
-    yAxisMinValue -= 0.1*yAxisMinValue;
+    yAxisMaxValue += 0.1*std::fabs(yAxisMaxValue);
+    yAxisMinValue -= 0.1*std::fabs(yAxisMinValue);
   }
 
   setMinMaxValues(xAxisMinValue, xAxisMaxValue, yAxisMinValue, yAxisMaxValue);

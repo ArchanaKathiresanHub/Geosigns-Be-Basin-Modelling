@@ -39,12 +39,12 @@ public:
     const QVector<double> twoWayTime1 = {30, 60, 90};
     for (int i=0; i<3; ++i)
     {
-      ctManager.addCalibrationTarget("", "Temp", wellid1, depth1[i], temperature1[i]);
-      ctManager.addCalibrationTarget("", "TWTT", wellid1, depth1[i], twoWayTime1[i]);
+      ctManager.addCalibrationTarget("", "Temp", wellid1, depth1[i], temperature1[i], 1);
+      ctManager.addCalibrationTarget("", "TWTT", wellid1, depth1[i], twoWayTime1[i], 1);
     }
 
-    ctManager.addCalibrationTarget("", "Temp", wellid2, 0, 273.15);
-    ctManager.addCalibrationTarget("", "Temp", wellid2, 1000, 473.15);
+    ctManager.addCalibrationTarget("", "Temp", wellid2, 0, 273.15, 1);
+    ctManager.addCalibrationTarget("", "Temp", wellid2, 1000, 473.15, 1);
   }
   void TearDown() override
   {

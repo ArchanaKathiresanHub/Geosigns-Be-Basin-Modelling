@@ -17,9 +17,9 @@ protected:
   void SetUp() final
   {
     const int wellID = ctManager_.addWell("testWell0", 0.0, 0.0);
-    ctManager_.addCalibrationTarget("Target1", "Temperature", wellID, 0.0, 1.1);
-    ctManager_.addCalibrationTarget("Target2", "Temperature", wellID, 1.0, 2.3);
-    ctManager_.addCalibrationTarget("Target2", "Temperature", wellID, 2.0, 4.5);
+    ctManager_.addCalibrationTarget("Target1", "Temperature", wellID, 0.0, 1.1, 1.0);
+    ctManager_.addCalibrationTarget("Target2", "Temperature", wellID, 1.0, 2.3, 1.0);
+    ctManager_.addCalibrationTarget("Target2", "Temperature", wellID, 2.0, 4.5, 1.0);
   }
 
   casaWizard::CalibrationTargetManager ctManager_;
