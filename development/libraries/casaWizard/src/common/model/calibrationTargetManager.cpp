@@ -725,13 +725,18 @@ void CalibrationTargetManager::convertDTtoTWT(const std::string& iterationFolder
       QStringList properties;
       const QVector<QVector<const CalibrationTarget*>> targetsInWell = extractWellTargets(properties, well.id());
 
-      if (properties.indexOf(sonicSlownessUserName) < 0)
+      QString sonicSlownessUserNameLocal = sonicSlownessUserName;
+      if (properties.indexOf(sonicSlownessUserNameLocal) < 0)
       {
-        Logger::log() << "Well " << well.name() << " does not have any SonicSlowness data to convert to TwoWayTime." << Logger::endl();
-        continue;
+        sonicSlownessUserNameLocal = "DT_FROM_VP";
+        if (properties.indexOf(sonicSlownessUserNameLocal) < 0)
+        {
+          Logger::log() << "Well " << well.name() << " does not have any SonicSlowness data to convert to TwoWayTime." << Logger::endl();
+          continue;
+        }
       }
 
-      const QVector<const CalibrationTarget*> dtTargets = targetsInWell[properties.indexOf(sonicSlownessUserName)];
+      const QVector<const CalibrationTarget*> dtTargets = targetsInWell[properties.indexOf(sonicSlownessUserNameLocal)];
       const DepthPropertyPair modelDataForWell = data.at(well.name().toStdString());
 
       PropertyVector sonicSlowness;
@@ -753,7 +758,7 @@ void CalibrationTargetManager::convertDTtoTWT(const std::string& iterationFolder
         addCalibrationTarget(targetName, convertedTWTName, well.id(), depth[i], twt[i]);
       }
 
-      well.appendMetaData("Created " + convertedTWTName + " targets converted from " + sonicSlownessUserName + ".");
+      well.appendMetaData("Created " + convertedTWTName + " targets converted from " + sonicSlownessUserNameLocal + ".");
     }
   }
 
