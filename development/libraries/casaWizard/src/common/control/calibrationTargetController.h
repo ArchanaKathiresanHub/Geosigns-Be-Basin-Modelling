@@ -21,9 +21,6 @@ public:
                               CasaScenario& casaScenario,
                               QObject* parent);
 
-
-  void validateWells();
-
   virtual CalibrationTargetManager& calibrationTargetManager();
   virtual const CalibrationTargetManager& calibrationTargetManager() const;
   virtual QMap<QString, QSet<int>> getPropertyNamesPerWell() const;

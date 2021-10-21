@@ -69,6 +69,8 @@ public:
   void setActivePlots(const QVector<bool>& activePlots);
   void updateT2zLastSurface();
 
+  void wellPrepToSAC();
+
 private:
   QString stateFileNameSAC_;
   QString calibrationDirectory_;

@@ -19,24 +19,28 @@ using namespace casaWizard;
 
 TEST(CalibrationTargetSaverTest, testSave)
 {
-  const QString& excelFilename{"testWellData.xlsx"};
+  const QString excelFilename{"testWellData.xlsx"};
+  const QString excelFilename2{"testWritingWells.xlsx"};
   casaWizard::StubCasaScenario scenarioWrite{};
 
   casaWizard::CalibrationTargetCreator targetCreator(scenarioWrite, scenarioWrite.calibrationTargetManager());
   targetCreator.createFromExcel(excelFilename);
 
   CalibrationTargetSaver saver(scenarioWrite.calibrationTargetManager());
-  saver.saveToExcel("testWritingWells.xlsx");
+  saver.saveToExcel(excelFilename2);
 
   casaWizard::StubCasaScenario scenarioRead{};
 
   casaWizard::CalibrationTargetCreator targetCreator2(scenarioRead, scenarioRead.calibrationTargetManager());
-  targetCreator2.createFromExcel(excelFilename);
+  targetCreator2.createFromExcel(excelFilename2);
 
-  const QVector<const CalibrationTarget*> calibrationTargetsRead = scenarioRead.calibrationTargetManager().calibrationTargets();
-  const QVector<const CalibrationTarget*> calibrationTargetsWrite = scenarioWrite.calibrationTargetManager().calibrationTargets();
+  QVector<const CalibrationTarget*> calibrationTargetsRead = scenarioRead.calibrationTargetManager().calibrationTargets();
+  QVector<const CalibrationTarget*> calibrationTargetsWrite = scenarioWrite.calibrationTargetManager().calibrationTargets();
   EXPECT_EQ(calibrationTargetsRead.size(), calibrationTargetsWrite.size());
   EXPECT_EQ(calibrationTargetsRead.size(), 8);
+
+  std::sort(calibrationTargetsRead.begin(), calibrationTargetsRead.end(), [=](const CalibrationTarget* a, const CalibrationTarget* b){return a->name()>b->name();});
+  std::sort(calibrationTargetsWrite.begin(), calibrationTargetsWrite.end(), [=](const CalibrationTarget* a, const CalibrationTarget* b){return a->name()>b->name();});
 
   for (int i = 0; i < calibrationTargetsRead.size(); i++)
   {

@@ -41,16 +41,14 @@ bool WellPrepSACcontroller::checkTabID(int tabID) const
 
 void WellPrepSACcontroller::slotToSAC()
 {
-  Logger::log() << "Importing selected wells to the SAC workflow..." << Logger::endl();
   if (scenario_.project3dPath().isEmpty())
   {
     return;
   }
 
-  scenario_.calibrationTargetManager().appendFrom(scenario_.calibrationTargetManagerWellPrep());
-  scenario_.calibrationTargetManager().disableInvalidWells(scenario_.project3dPath().toStdString(), scenario_.projectReader().getDepthGridName(0).toStdString());
+  Logger::log() << "Importing selected wells to the SAC workflow..." << Logger::endl();
 
-  scenario_.updateObjectiveFunctionFromTargets();
+  scenario_.wellPrepToSAC();
 
   if (scenario_.objectiveFunctionManager().indexOfCauldronName("Velocity") != -1)
   {
@@ -60,9 +58,6 @@ void WellPrepSACcontroller::slotToSAC()
                           QMessageBox::Ok);
     velocityDisabled.exec();
   }
-
-  WellTrajectoryManager& wtManager = scenario_.wellTrajectoryManager();
-  wtManager.updateWellTrajectories(scenario_.calibrationTargetManager());
 
   scenarioBackup::backup(scenario_);  
   Logger::log() << "Done!" << Logger::endl();

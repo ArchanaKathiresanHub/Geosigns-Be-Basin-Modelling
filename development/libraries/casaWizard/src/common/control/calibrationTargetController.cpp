@@ -38,11 +38,6 @@ QMap<QString, QSet<int>> CalibrationTargetController::getPropertyNamesPerWell() 
   return {};
 }
 
-void CalibrationTargetController::validateWells()
-{  
-  calibrationTargetManager().disableInvalidWells(casaScenario_.project3dPath().toStdString(), casaScenario_.projectReader().getDepthGridName(0).toStdString());
-}
-
 void CalibrationTargetController::slotSelectAllWells()
 {
   calibrationTargetTable_->selectAllWells();

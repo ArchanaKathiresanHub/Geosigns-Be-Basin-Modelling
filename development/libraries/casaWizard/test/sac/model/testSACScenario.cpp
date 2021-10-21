@@ -112,3 +112,29 @@ TEST(SACScenarioTest, testWriteRead)
   EXPECT_FALSE(readScenario.t2zRunOnOriginalProject());
   EXPECT_EQ(readScenario.t2zNumberCPUs(), 1);
 }
+
+TEST(SACScenarioTest, testWellPrepToSAC)
+{
+  // Given
+  casaWizard::sac::SACScenario scenario{new casaWizard::StubProjectReader()};
+
+  scenario.calibrationTargetManagerWellPrep().addWell("WellName", 1.0, 2.0);
+  scenario.calibrationTargetManagerWellPrep().addCalibrationTarget("TwoWayTime", "TwoWayTime", 0, 10.0, 1000.0);
+  scenario.calibrationTargetManagerWellPrep().addCalibrationTarget("TwoWayTime", "TwoWayTime", 0, 30.0, 2000.0);
+
+  // When
+  scenario.wellPrepToSAC();
+
+  // Then
+  const QVector<const casaWizard::Well*> wells = scenario.calibrationTargetManagerWellPrep().wells();
+  const QVector<casaWizard::ObjectiveFunctionValue>& values = scenario.objectiveFunctionManager().values();
+  const QVector<QVector<casaWizard::sac::WellTrajectory>> trajectories = scenario.wellTrajectoryManager().trajectories();
+
+  EXPECT_EQ(wells.size(), 1);
+  EXPECT_EQ(values.size(), 1);
+  EXPECT_EQ(trajectories.size(), 4);
+  EXPECT_EQ(trajectories[0].size(), 1);
+  EXPECT_EQ(trajectories[1].size(), 1);
+  EXPECT_EQ(trajectories[2].size(), 1);
+  EXPECT_EQ(trajectories[3].size(), 1);
+}

@@ -33,7 +33,7 @@ TEST( CalibrationTargetCreatorTest, testCreateFromExcel )
     EXPECT_DOUBLE_EQ(wellsActual[iWell]->x(),                  wellsExpected[iWell].x())                  << " Mismatch at index " << iWell;
     EXPECT_DOUBLE_EQ(wellsActual[iWell]->y(),                  wellsExpected[iWell].y())                  << " Mismatch at index " << iWell;
     EXPECT_EQ       (wellsActual[iWell]->isActive(),           wellsExpected[iWell].isActive())           << " Mismatch at index " << iWell;
-    ASSERT_EQ(wellsActual[iWell]->hasDataInLayer().size(), 1);
+    ASSERT_EQ(wellsActual[iWell]->hasDataInLayer().size(), 0);
     EXPECT_FALSE(wellsActual[iWell]->hasDataInLayer()[0]);
   }
 

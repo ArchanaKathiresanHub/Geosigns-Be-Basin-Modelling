@@ -2,7 +2,6 @@
 
 #include "extractWellDataXlsx.h"
 #include "model/casaScenario.h"
-#include "model/input/cmbMapReader.h"
 
 #include <QString>
 
@@ -18,9 +17,6 @@ CalibrationTargetCreator::CalibrationTargetCreator(CasaScenario& casaScenario, C
 void CalibrationTargetCreator::createFromExcel(const QString& excelFileName)
 {
   ExtractWellDataXlsx wellData{excelFileName};
-
-  CMBMapReader mapReader;
-  mapReader.load(casaScenario_.project3dPath().toStdString());
 
   const QVector<QString> wellNames = wellData.wellNames();
   for (const QString& wellName : wellNames)
@@ -74,30 +70,8 @@ void CalibrationTargetCreator::createFromExcel(const QString& excelFileName)
 
       }
       nTotalTargets += nTargetsPerVariable[iVariable];
-    }
-    setWellHasDataInLayer(wellIndex, mapReader);
+    }    
   }  
-}
-
-void CalibrationTargetCreator::setWellHasDataInLayer(const int wellIndex, const CMBMapReader& mapReader)
-{
-  QVector<bool> hasDataInLayer;
-  auto& well = calibrationTargetManager_.well(wellIndex);
-  for (const QString& layer : casaScenario_.projectReader().layerNames())
-  {
-    bool hasDataInCurrentLayer = false;
-    for (const CalibrationTarget* target : well.calibrationTargets())
-    {
-      if (mapReader.checkIfPointIsInLayer(well.x(), well.y(), target->z(), layer.toStdString()))
-      {
-        hasDataInCurrentLayer = true;
-        break;
-      }
-    }
-    hasDataInLayer.push_back(hasDataInCurrentLayer);
-  }
-
-  calibrationTargetManager_.setHasDataInLayer(wellIndex, hasDataInLayer);
 }
 
 } // namespace casaWizard

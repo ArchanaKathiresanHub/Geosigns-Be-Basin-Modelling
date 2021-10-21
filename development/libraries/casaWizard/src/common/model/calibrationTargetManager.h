@@ -35,8 +35,7 @@ public:
   const Well& well(const int wellIndex) const;
   void setWellIsActive(bool active, int wellIndex);
   void setWellIsExcluded(bool excluded, int wellIndex);
-  int addWell(const QString& wellName, double x, double y);
-  void setHasDataInLayer(const int wellIndex, QVector<bool> hasDataInLayer);  
+  int addWell(const QString& wellName, double x, double y);  
   void removeCalibrationTargetsWithUnknownPropertyUserName();
 
   int amountOfActiveCalibrationTargets() const;
@@ -57,6 +56,7 @@ public:
   QVector<const CalibrationTarget*> activeCalibrationTargets() const;
   QStringList activePropertyUserNames() const;
   void disableInvalidWells(const std::string& projectFileName, const std::string& depthGridName);
+  void setWellHasDataInLayer(const std::string& projectFileName, const QStringList& layerNames);
 
   QStringList getPropertyUserNamesForWell(const int wellIndex) const;
 
@@ -75,7 +75,7 @@ private:
   CalibrationTargetManager(const CalibrationTargetManager&) = delete;
   CalibrationTargetManager& operator=(CalibrationTargetManager) = delete;
   int addWell(Well well);
-  double getShiftToAvoidOverlap(const QString& wellName, const double x, const double y);
+  double getShiftToAvoidOverlap(const QString& wellName, const double x, const double y);  
 
   QMap<QString, QString> userNameToCauldronNameMapping_;
   QVector<Well> wells_;

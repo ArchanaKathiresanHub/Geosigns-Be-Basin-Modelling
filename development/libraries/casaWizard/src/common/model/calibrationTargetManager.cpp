@@ -150,11 +150,6 @@ double CalibrationTargetManager::getShiftToAvoidOverlap(const QString& wellName,
   return xShift;
 }
 
-void CalibrationTargetManager::setHasDataInLayer(const int wellIndex, QVector<bool> hasDataInLayer)
-{
-  wells_[wellIndex].setHasDataInLayer(hasDataInLayer);
-}
-
 void CalibrationTargetManager::setWellMetaData(const int wellIndex, const QString& metaData)
 {
   wells_[wellIndex].setMetaData(metaData);
@@ -486,7 +481,34 @@ void CalibrationTargetManager::disableInvalidWells(const std::string& projectFil
         break;
       case WellState::valid:
         break;
+    }    
+  }
+}
+
+void CalibrationTargetManager::setWellHasDataInLayer(const std::string& projectFileName, const QStringList& layerNames)
+{
+  CMBMapReader mapReader;
+  mapReader.load(projectFileName);
+
+  for (Well& well : wells_)
+  {
+    QVector<bool> hasDataInLayer;
+
+    for (const QString& layer : layerNames)
+    {
+      bool hasDataInCurrentLayer = false;
+      for (const CalibrationTarget* target : well.calibrationTargets())
+      {
+        if (mapReader.checkIfPointIsInLayer(well.x(), well.y(), target->z(), layer.toStdString()))
+        {
+          hasDataInCurrentLayer = true;
+          break;
+        }
+      }
+      hasDataInLayer.push_back(hasDataInCurrentLayer);
     }
+
+    well.setHasDataInLayer(hasDataInLayer);
   }
 }
 

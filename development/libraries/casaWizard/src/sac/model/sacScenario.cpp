@@ -293,6 +293,16 @@ void SACScenario::updateT2zLastSurface()
   t2zLastSurface_ = projectReader().lowestSurfaceWithTWTData();
 }
 
+void SACScenario::wellPrepToSAC()
+{
+  calibrationTargetManager().appendFrom(calibrationTargetManagerWellPrep());
+  calibrationTargetManager().disableInvalidWells(project3dPath().toStdString(), projectReader().getDepthGridName(0).toStdString());
+  calibrationTargetManager().setWellHasDataInLayer(project3dPath().toStdString(), projectReader().layerNames());
+
+  updateObjectiveFunctionFromTargets();
+  wellTrajectoryManager_.updateWellTrajectories(calibrationTargetManager());
+}
+
 } // namespace sac
 
 } // namespace casaWizard
