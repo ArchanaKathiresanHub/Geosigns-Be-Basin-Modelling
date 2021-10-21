@@ -36,6 +36,17 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2021-10-21  Erik.vandenBoogaard  <Erik.vandenBoogaard@shell.com>
+
+	fix: Fix data in layer bug.
+	* Fix data in layer bug
+
+	* Related work items: #417582
+
+	================== COMMIT-END ========================
+	Commit-ID:<81be60c7942251508e6069b66c26c6563f8e847a>	  (refs/heads/master)
+
+++
 2021-10-18  Erik.vandenBoogaard  <Erik.vandenBoogaard@shell.com>
 
 	fix: Select DT_FROM_VP in case there is no sonicslowness.
