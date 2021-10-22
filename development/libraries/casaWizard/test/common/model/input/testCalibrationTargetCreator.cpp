@@ -1,5 +1,7 @@
 #include "model/input/calibrationTargetCreator.h"
 
+#include "model/input/extractWellDataXlsx.h"
+
 #include "model/casaScenario.h"
 #include "model/calibrationTarget.h"
 #include "model/well.h"
@@ -14,8 +16,10 @@ TEST( CalibrationTargetCreatorTest, testCreateFromExcel )
   casaWizard::StubCasaScenario scenario{};
   casaWizard::CalibrationTargetManager& manager{scenario.calibrationTargetManager()};
 
-  casaWizard::CalibrationTargetCreator targetCreator(scenario, scenario.calibrationTargetManager());
-  targetCreator.createFromExcel(excelFilename);
+  casaWizard::ExtractWellDataXlsx extractor(excelFilename);
+  casaWizard::CalibrationTargetCreator targetCreator(scenario, scenario.calibrationTargetManager(), extractor);
+  targetCreator.readMetaDataFromFile();
+  targetCreator.createFromFile();
 
   const QVector<const casaWizard::Well*> wellsActual = manager.wells();
   const QVector<const casaWizard::CalibrationTarget*> targetsActual = manager.calibrationTargets();
@@ -67,8 +71,10 @@ TEST( CalibrationTargetCreator, testCreateFromExcelWithDeletes )
   casaWizard::StubCasaScenario scenario{};
   casaWizard::CalibrationTargetManager& manager{scenario.calibrationTargetManager()};
 
-  casaWizard::CalibrationTargetCreator targetCreator(scenario, scenario.calibrationTargetManager());
-  targetCreator.createFromExcel(excelFilename);
+  casaWizard::ExtractWellDataXlsx extractor(excelFilename);
+  casaWizard::CalibrationTargetCreator targetCreator(scenario, scenario.calibrationTargetManager(), extractor);
+  targetCreator.readMetaDataFromFile();
+  targetCreator.createFromFile();
 
   const QVector<const casaWizard::CalibrationTarget*> targetsActual = manager.calibrationTargets();
   const int nActualTargets{targetsActual.size()};
@@ -76,3 +82,6 @@ TEST( CalibrationTargetCreator, testCreateFromExcelWithDeletes )
 
   EXPECT_EQ(nActualTargets, nExpectedTargets);
 }
+
+
+

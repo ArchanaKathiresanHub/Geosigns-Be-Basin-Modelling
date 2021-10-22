@@ -1,6 +1,16 @@
+//
+// Copyright (C) 2021 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #include "calibrationTargetCreator.h"
 
+#include "extractWellDataLAS.h"
 #include "extractWellDataXlsx.h"
+
 #include "model/casaScenario.h"
 
 #include <QString>
@@ -8,40 +18,49 @@
 namespace casaWizard
 {
 
-CalibrationTargetCreator::CalibrationTargetCreator(CasaScenario& casaScenario, CalibrationTargetManager& calibrationTargetManager) :
+CalibrationTargetCreator::CalibrationTargetCreator(CasaScenario& casaScenario,
+                                                   CalibrationTargetManager& calibrationTargetManager,
+                                                   ExtractWellData& extractWellData) :
   calibrationTargetManager_{calibrationTargetManager},
-  casaScenario_{casaScenario}
+  casaScenario_{casaScenario},
+  extractWellData_{extractWellData}
 {
 }
 
-void CalibrationTargetCreator::createFromExcel(const QString& excelFileName)
+CalibrationTargetCreator::~CalibrationTargetCreator()
 {
-  ExtractWellDataXlsx wellData{excelFileName};
+}
 
-  const QVector<QString> wellNames = wellData.wellNames();
-  for (const QString& wellName : wellNames)
+void CalibrationTargetCreator::createFromFile()
+{
+  AddWellDataToCalibrationTargetManager();
+}
+
+void CalibrationTargetCreator::readMetaDataFromFile()
+{
+  AddWellMetaDataToCalibrationTargetManager();
+}
+
+void CalibrationTargetCreator::AddWellDataToCalibrationTargetManager()
+{
+  extractWellData_.resetExtractor();
+  while (extractWellData_.hasNextWell())
   {
-    wellData.extractWellData(wellName);
-    const int wellIndex = calibrationTargetManager_.addWell(wellName, wellData.xCoord(), wellData.yCoord());
+    extractWellData_.extractDataNextWell();
+    const int wellIndex = calibrationTargetManager_.addWell(extractWellData_.wellName(), extractWellData_.xCoord(), extractWellData_.yCoord());
 
-    const QVector<QString> variableUserNames = wellData.calibrationTargetVarsUserName();
-    const QVector<QString> variableCauldronNames = wellData.calibrationTargetVarsCauldronName();
+    const QVector<QString> variableUserNames = extractWellData_.calibrationTargetVarsUserName();
 
-    for (int i = 0; i < variableUserNames.size(); i++)
-    {
-      calibrationTargetManager_.addToMapping(variableUserNames[i], variableCauldronNames[i]);
-    }
+    calibrationTargetManager_.setWellMetaData(wellIndex, extractWellData_.metaData());
 
-    calibrationTargetManager_.setWellMetaData(wellIndex, wellData.metaData());
-
-    const QVector<unsigned int> nTargetsPerVariable = wellData.nDataPerTargetVar();
+    const QVector<unsigned int> nTargetsPerVariable = extractWellData_.nDataPerTargetVar();
 
     unsigned int nTotalTargets = 0;
     for (int iVariable = 0; iVariable < variableUserNames.size(); ++iVariable)
     {
-      const QVector<double> z = wellData.depth();
-      const QVector<double> value = wellData.calibrationTargetValues();
-      const QVector<double> stdDeviations = wellData.calibrationTargetStdDeviation();
+      const QVector<double> z = extractWellData_.depth();
+      const QVector<double> value = extractWellData_.calibrationTargetValues();
+      const QVector<double> stdDeviations = extractWellData_.calibrationTargetStdDeviation();
 
       const int nZ = z.size();
       const int nValue = value.size();
@@ -57,21 +76,43 @@ void CalibrationTargetCreator::createFromExcel(const QString& excelFileName)
       {
         // If two way time is defined at the sea surface, this value should be skipped, since the domain starts
         // at the mudline.
-        if (variableCauldronNames[iVariable] == "TwoWayTime" && z[iTarget] == 0.0 && value[iTarget] == 0.0)
+        if (calibrationTargetManager_.getCauldronPropertyName(variableUserNames[iVariable]) == "TwoWayTime" && z[iTarget] == 0.0 && value[iTarget] == 0.0)
         {
           continue;
         }
-        const QString targetName(variableCauldronNames[iVariable] + "(" +
-                                 QString::number(wellData.xCoord(),'f',1) + "," +
-                                 QString::number(wellData.yCoord(),'f',1) + "," +
+        if (calibrationTargetManager_.getCauldronPropertyName(variableUserNames[iVariable]) == "Unknown")
+        {
+          continue;
+        }
+
+        const QString targetName(calibrationTargetManager_.getCauldronPropertyName(variableUserNames[iVariable]) + "(" +
+                                 QString::number(extractWellData_.xCoord(),'f',1) + "," +
+                                 QString::number(extractWellData_.yCoord(),'f',1) + "," +
                                  QString::number(z[iTarget],'f',1) + ")");
         calibrationTargetManager_.addCalibrationTarget(targetName, variableUserNames[iVariable],
                                                       wellIndex, z[iTarget], value[iTarget], stdDeviations[iTarget]);
 
       }
       nTotalTargets += nTargetsPerVariable[iVariable];
-    }    
-  }  
+    }
+  }
+}
+
+void CalibrationTargetCreator::AddWellMetaDataToCalibrationTargetManager()
+{
+  while (extractWellData_.hasNextWell())
+  {
+    extractWellData_.extractMetaDataNextWell();
+
+    const QVector<QString> variableUserNames = extractWellData_.calibrationTargetVarsUserName();
+    const QVector<QString> variableCauldronNames = extractWellData_.calibrationTargetVarsCauldronName();
+
+    for (int i = 0; i < variableUserNames.size(); i++)
+    {
+      calibrationTargetManager_.addToMapping(variableUserNames[i], variableCauldronNames[i]);
+      calibrationTargetManager_.addUnits(variableUserNames[i], extractWellData_.units()[i]);
+    }
+  }
 }
 
 } // namespace casaWizard

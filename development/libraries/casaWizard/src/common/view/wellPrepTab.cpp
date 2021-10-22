@@ -42,8 +42,7 @@ WellPrepTab::WellPrepTab(QWidget* parent) :
   buttonToSAC_{new QPushButton("Save selection for SAC", this)},
   buttonDeleteSelection_{new QPushButton("Delete selection",this)},
   buttonSelectAll_{new QPushButton("Select all",this)},
-  buttonDeselectAll_{new QPushButton("Deselect all",this)},
-  importWellPopup_{new ImportWellPopup()}
+  buttonDeselectAll_{new QPushButton("Deselect all",this)}
 {  
   QVBoxLayout* optionsLayout = new QVBoxLayout();
 
@@ -215,11 +214,6 @@ const QPushButton* WellPrepTab::buttonSelectAll() const
 const QPushButton* WellPrepTab::buttonDeselectAll() const
 {
   return buttonDeselectAll_;
-}
-
-ImportWellPopup* WellPrepTab::importWellPopup() const
-{
-  return importWellPopup_;
 }
 
 } // namespace casaWizard

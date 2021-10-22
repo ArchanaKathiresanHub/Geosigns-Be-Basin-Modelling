@@ -2,8 +2,10 @@
 
 #include "control/calibrationTargetController.h"
 #include "control/depthTargetController.h"
+#include "control/importWellPopupController.h"
 #include "control/objectiveFunctionController.h"
 #include "control/surfaceTargetController.h"
+#include "model/input/extractWellDataXlsx.h"
 #include "model/input/calibrationTargetCreator.h"
 #include "model/logger.h"
 #include "model/uaScenario.h"
@@ -81,8 +83,8 @@ void TargetController::slotLineEditCalibrationTextChanged(const QString& calibra
 {
   scenario_.clearWellsAndCalibrationTargets();
 
-  CalibrationTargetCreator targetCreator(scenario_, scenario_.calibrationTargetManager());
-  targetCreator.createFromExcel(calibrationTargetsFilename);
+  ExtractWellDataXlsx extractor(calibrationTargetsFilename);
+  CalibrationTargetCreator targetCreator(scenario_, scenario_.calibrationTargetManager(), extractor);
   scenario_.updateObjectiveFunctionFromTargets();
 
   emit signalRefreshChildWidgets();

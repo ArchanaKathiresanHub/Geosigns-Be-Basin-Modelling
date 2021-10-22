@@ -49,8 +49,6 @@ public:
   const QPushButton* buttonSelectAll() const;
   const QPushButton* buttonDeselectAll() const;
 
-  ImportWellPopup* importWellPopup() const;
-
 private:
   CalibrationTargetTable* calibrationTargetWellPrepTable_;
 
@@ -74,8 +72,6 @@ private:
   QPushButton* buttonDeleteSelection_;
   QPushButton* buttonSelectAll_;
   QPushButton* buttonDeselectAll_;
-
-  ImportWellPopup* importWellPopup_;
 };
 
 } // namespace casaWizard

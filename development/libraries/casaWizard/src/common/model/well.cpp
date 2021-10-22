@@ -227,15 +227,21 @@ void Well::renameUserPropertyName(const QString& oldName, const QString& newName
 
 bool Well::removeCalibrationTargetsWithPropertyUserName(const QString& propertyUserName)
 {
+  QVector<CalibrationTarget> targets;
   bool removedTargets = false;
   for (int i = calibrationTargets_.size() - 1; i >= 0  ; i--)
   {
-    if (calibrationTargets_[i].propertyUserName() == propertyUserName)
+    if (calibrationTargets_[i].propertyUserName() != propertyUserName)
     {
-      calibrationTargets_.remove(i);
+      targets.push_back(calibrationTargets_[i]);
+    }
+    else
+    {
       removedTargets = true;
     }
   }
+
+  calibrationTargets_ = targets;
   return removedTargets;
 }
 

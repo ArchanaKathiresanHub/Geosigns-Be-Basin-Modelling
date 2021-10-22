@@ -11,19 +11,21 @@
 #include "scriptRunController.h"
 #include "calibrationTargetWellPrepController.h"
 
-#include "control/importWellPopupController.h"
+#include "control/importWellPopupLASController.h"
+#include "control/importWellPopupXlsxController.h"
 #include "control/loadTargetsThread.h"
 #include "control/saveTargetsThread.h"
 #include "model/casaScenario.h"
+#include "model/input/calibrationTargetCreator.h"
 #include "model/input/cmbMapReader.h"
 #include "model/logger.h"
 #include "model/wellValidator.h"
 
-#include "view/wellPrepTab.h"
 #include "view/calibrationTargetTable.h"
 #include "view/components/emphasisbutton.h"
 #include "view/userPropertyChoiceCutOffPopup.h"
 #include "view/userPropertyChoicePopup.h"
+#include "view/wellPrepTab.h"
 
 #include <QFileDialog>
 #include <QPushButton>
@@ -42,7 +44,7 @@ WellPrepController::WellPrepController(WellPrepTab* wellPrepTab,
   casaScenario_{casaScenario},
   scriptRunController_{scriptRunController},
   calibrationTargetController_{new CalibrationTargetWellPrepController(wellPrepTab->calibrationTargetTable(), casaScenario, this)},
-  importWellPopupController_{new ImportWellPopupController(wellPrepTab->importWellPopup(), this)},
+  importWellPopupController_{},
   userPropertyChoicePopup_{new UserPropertyChoicePopup(wellPrepTab_)},
   userPropertyChoiceCutOffPopup_{new UserPropertyChoiceCutOffPopup(wellPrepTab_)},
   waitingDialog_{},
@@ -227,42 +229,54 @@ void WellPrepController::slotPushSelectCalibrationClicked()
   QString fileName = QFileDialog::getOpenFileName(wellPrepTab_,
                                                   "Select calibration targets",
                                                   "",
-                                                  "Spreadsheet (*.xlsx)");
+                                                  "Well-data files (*.xlsx *.las)");
   if (fileName == "")
   {
     return;
   }
 
-  CalibrationTargetManager& temporaryImportCalibrationTargetManager = importWellPopupController_->importCalibrationTargetManager();
-  temporaryImportCalibrationTargetManager.clear();
+  delete importWellPopupController_;
+  const int dotPosition = fileName.lastIndexOf('.');
+  const QString extension = fileName.mid(dotPosition + 1);
 
-  importOnSeparateThread(temporaryImportCalibrationTargetManager, fileName);
-  waitingDialog_.setWindowTitle("Importing");
-  waitingDialog_.setText("Please wait while the wells are imported and validated.");
-  if (waitingDialogNeeded_) waitingDialog_.exec();
-  if (waitingDialogNeeded_) waitingDialog_.done(0);
-
-  CalibrationTargetManager& ctManager = casaScenario_.calibrationTargetManagerWellPrep();
-  temporaryImportCalibrationTargetManager.copyMappingFrom(ctManager);
-
-  if (importWellPopupController_->executeImportWellPopup() != QDialog::Accepted)
+  if (extension.toLower() == "xlsx")
   {
-    return;
+    importWellPopupController_ = new ImportWellPopupXlsxController(this, casaScenario_);
+  }
+  else if (extension.toLower() == "las")
+  {
+    importWellPopupController_ = new ImportWellPopupLASController(this, casaScenario_);
   }
 
-  ctManager.appendFrom(temporaryImportCalibrationTargetManager);    
+  try
+  {
+    importWellPopupController_->importWells(fileName);
+  }
+  catch (std::runtime_error e)
+  {
+    QString message = e.what();
+
+    reportImportError(message);
+    return;
+  }
+  catch (...)
+  {
+    reportImportError("Unknown error occurred during import");
+    return;
+  }
 
   refreshGUI();
 }
 
-void WellPrepController::importOnSeparateThread(CalibrationTargetManager& calibrationTargetManager, const QString& fileName)
+void WellPrepController::reportImportError(QString message)
 {
-  waitingDialogNeeded_ = true;
-  LoadTargetsThread* loadTargetsThread = new LoadTargetsThread(casaScenario_, calibrationTargetManager, fileName, this);
-  connect (loadTargetsThread, &LoadTargetsThread::finished, this, &WellPrepController::slotCloseWaitingDialog);
-  connect (loadTargetsThread, &LoadTargetsThread::finished, loadTargetsThread, &QObject::deleteLater);
-  loadTargetsThread->start();
+  if (message == "") message = "Unknown error occurred";
+  QMessageBox box(QMessageBox::Critical, "Import Error",
+                  message,
+                  QMessageBox::Ok);
+  box.exec();
 }
+
 
 void WellPrepController::slotPushSaveDataClicked()
 {

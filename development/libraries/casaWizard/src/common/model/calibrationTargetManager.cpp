@@ -22,6 +22,7 @@ namespace casaWizard
 
 CalibrationTargetManager::CalibrationTargetManager() :  
   userNameToCauldronNameMapping_{},
+  userNameUnits_{},
   wells_{}
 {  
 }
@@ -307,12 +308,9 @@ void CalibrationTargetManager::applyCutOff(const QMap<QString, QPair<double, dou
   }
 }
 
-void CalibrationTargetManager::removeCalibrationTargetsWithUnknownPropertyUserName()
+QMap<QString, QString> CalibrationTargetManager::userNameUnits() const
 {
-  for (Well& well: wells_)
-  {
-    well.removeCalibrationTargetsWithPropertyUserName("Unknown");
-  }
+  return userNameUnits_;
 }
 
 const QVector<const Well*> CalibrationTargetManager::wells() const
@@ -671,9 +669,19 @@ void CalibrationTargetManager::addToMapping(const QString& userName, const QStri
   userNameToCauldronNameMapping_[userName] = cauldronName;
 }
 
+void CalibrationTargetManager::addUnits(const QString& userName, const QString& unit)
+{
+  userNameUnits_[userName] = unit;
+}
+
 QString CalibrationTargetManager::getCauldronPropertyName(const QString& userPropertyName) const
 {
   return userNameToCauldronNameMapping_.value(userPropertyName, "Unknown");
+}
+
+QString CalibrationTargetManager::getUnit(const QString& userPropertyName)
+{
+  return userNameUnits_[userPropertyName];
 }
 
 void CalibrationTargetManager::removeDataOutsideModelDepths(const std::vector<double>& basementDepthsAtActiveWellLocations, const std::vector<double>& mudlineDepthsAtActiveWellLocations)

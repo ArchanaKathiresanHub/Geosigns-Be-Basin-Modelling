@@ -14,18 +14,17 @@ TEST( ExtractWellDataXlsxTest, testWellDataConsistency )
 
   const QString inputFileName{"./testWellData.xlsx"};
   casaWizard::ExtractWellDataXlsx wellDataExtract{inputFileName};
-  extractedWellNames_ = wellDataExtract.wellNames();
 
   extractedWell_ = {};
   extractedWellTargetVariables_ = {};
   extractedWellData_ = {};
 
-  for (const QString& wellName : wellDataExtract.wellNames())
+  while (wellDataExtract.hasNextWell())
   {
-    wellDataExtract.extractWellData(wellName);
+    wellDataExtract.extractDataNextWell();
 
     Well well;
-    well.wellName_ = wellName;
+    well.wellName_ = wellDataExtract.wellName();
     well.xCoord_ = wellDataExtract.xCoord();
     well.yCoord_ = wellDataExtract.yCoord();
     well.nTargetVariables = wellDataExtract.nCalibrationTargetVars();

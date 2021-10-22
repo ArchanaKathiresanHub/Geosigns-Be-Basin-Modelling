@@ -8,72 +8,91 @@
 
 #include "importWellPopupController.h"
 
+#include "loadTargetsThread.h"
 #include "model/calibrationTarget.h"
 #include "model/casaScenario.h"
+#include "model/input/calibrationTargetCreator.h"
 #include "view/importWellPopup.h"
-#include "view/importWellPropertyTable.h"
 
 #include <QMessageBox>
 #include <QSet>
 #include <QString>
+#include <QTableWidget>
 
 namespace casaWizard
 {
 
-ImportWellPopupController::ImportWellPopupController(ImportWellPopup* importwellPopup, QObject* parent):
+ImportWellPopupController::ImportWellPopupController(QObject* parent, CasaScenario& casaScenario):
   QObject(parent),
   importCalibrationTargetManager_{},
-  importWellPopup_{importwellPopup},
-  targetVariableUserNames_{}
+  casaScenario_{casaScenario},
+  waitingDialog_{},
+  waitingDialogNeeded_{true}
 {
-  connect(importWellPopup_,                         SIGNAL(acceptedClicked()),
-          this,                                     SLOT(slotAcceptedClicked()));
+  waitingDialog_.setIcon(QMessageBox::Icon::Information);
+  waitingDialog_.setStandardButtons(nullptr);
 }
 
-int ImportWellPopupController::executeImportWellPopup()
+void ImportWellPopupController::addNewMapping()
 {
-  for (const CalibrationTarget* const target : importCalibrationTargetManager_.calibrationTargets())
-  {
-    targetVariableUserNames_.insert(target->propertyUserName());
-  }
-
-  QStringList defaultCauldronNames;
-  for (const QString& userName : targetVariableUserNames_)
-  {
-    defaultCauldronNames.push_back(importCalibrationTargetManager_.getCauldronPropertyName(userName));
-  }
-
-  importWellPopup_->updateTable(targetVariableUserNames_.toList(), defaultCauldronNames,
-                                {"TWT_FROM_DT","TwoWayTime", "GammaRay", "BulkDensity", "SonicSlowness", "DT_FROM_VP",
-                                 "Pressure", "Temperature", "VRe", "Velocity", "Unknown"});
-  return importWellPopup_->exec();
-}
-
-void ImportWellPopupController::slotAcceptedClicked()
-{
-  const QMap<QString,QString> newMapping = importWellPopup_->propertyMappingTable()->getCurrentMapping();
-
+  const QMap<QString, QString> newMapping = importWellPopup()->getCurrentMapping();
   for (const QString& key : newMapping.keys())
-  {    
-    QString cauldronName = newMapping[key];
-    // User name is the Cauldron name, or "TWT_FROM_DT" or "DT_FROM_VP"
-    importCalibrationTargetManager_.renameUserPropertyNameInWells(key, cauldronName);
-
-    // Real Cauldron property name, so remove the fake ones
-    if (cauldronName == "TWT_FROM_DT") cauldronName="TwoWayTime";
-    if (cauldronName == "DT_FROM_VP")  cauldronName="SonicSlowness";
-    importCalibrationTargetManager_.addToMapping(newMapping[key], cauldronName);
+  {
+    if (newMapping[key] != "Depth")
+    {
+      importCalibrationTargetManager_.addToMapping(key, newMapping[key]);
+    }
   }
-
-  importCalibrationTargetManager_.removeCalibrationTargetsWithUnknownPropertyUserName();
-
-  targetVariableUserNames_.clear();
-  importWellPopup_->accept();
 }
 
 CalibrationTargetManager& ImportWellPopupController::importCalibrationTargetManager()
 {
   return importCalibrationTargetManager_;
 }
+
+void ImportWellPopupController::importWells(const QString& fileName)
+{
+  importCalibrationTargetManager_.clear();
+
+  if (!importWellsToCalibrationTargetManager(fileName))
+  {
+    return;
+  }
+
+  const QMap<QString, QString>& mapping = importCalibrationTargetManager_.userNameToCauldronNameMapping();
+  for (const QString& key : mapping.keys())
+  {
+    QString cauldronName = mapping[key];
+    // User name is the Cauldron name, or "TWT_FROM_DT" or "DT_FROM_VP"
+    importCalibrationTargetManager_.renameUserPropertyNameInWells(key, cauldronName);
+
+    // Real Cauldron property name, so remove the fake ones
+    if (cauldronName == "TWT_FROM_DT") cauldronName="TwoWayTime";
+    if (cauldronName == "DT_FROM_VP")  cauldronName="SonicSlowness";
+    importCalibrationTargetManager_.addToMapping(mapping[key], cauldronName);
+  }
+
+  CalibrationTargetManager& ctManager = casaScenario_.calibrationTargetManagerWellPrep();
+  ctManager.appendFrom(importCalibrationTargetManager_);
+}
+
+void ImportWellPopupController::importOnSeparateThread(CalibrationTargetCreator& calibrationTargetCreator)
+{
+  waitingDialogNeeded_ = true;
+  LoadTargetsThread* loadTargetsThread = new LoadTargetsThread(calibrationTargetCreator, this);
+  connect (loadTargetsThread, &LoadTargetsThread::finished, this, &ImportWellPopupController::slotCloseWaitingDialog);
+  connect (loadTargetsThread, &LoadTargetsThread::finished, loadTargetsThread, &QObject::deleteLater);
+  loadTargetsThread->start();
+  waitingDialog_.setWindowTitle("Importing");
+  waitingDialog_.setText("Please wait while the wells are imported and validated.");
+  if (waitingDialogNeeded_) waitingDialog_.exec();
+}
+
+void ImportWellPopupController::slotCloseWaitingDialog()
+{
+  waitingDialogNeeded_ = false;
+  waitingDialog_.done(0);
+}
+
 
 } // namespace casaWizard

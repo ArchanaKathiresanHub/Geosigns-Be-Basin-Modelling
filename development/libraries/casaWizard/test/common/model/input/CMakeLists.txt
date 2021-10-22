@@ -21,3 +21,16 @@ add_casawizard_common_gtest( NAME MapReader
                              SOURCES testMapReader.cpp )
 configure_file( MapReaderTest.project3d MapReaderTest.project3d COPYONLY )
 configure_file( Inputs.HDF Inputs.HDF COPYONLY )
+
+add_casawizard_common_gtest( NAME LASReader
+                             SOURCES testLASReader.cpp )
+configure_file( Test1.las Test1.las COPYONLY )
+
+add_casawizard_common_gtest( NAME LASWellInfoSectionReader
+                             SOURCES testLASWellInfoSectionReader.cpp )
+configure_file( Test1.las Test1.las COPYONLY )
+
+add_casawizard_common_gtest( NAME LASDataSectionReader
+                             SOURCES testLASDataSectionReader.cpp )
+add_casawizard_common_gtest( NAME LASCurveInfoSectionReader
+                             SOURCES testLASCurveInfoSectionReader.cpp )

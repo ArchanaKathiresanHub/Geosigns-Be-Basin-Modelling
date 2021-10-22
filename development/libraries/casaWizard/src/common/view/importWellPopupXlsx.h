@@ -8,24 +8,16 @@
 
 #pragma once
 
-#include <QThread>
-
-class QString;
+#include "importWellPopup.h"
 
 namespace casaWizard
 {
-class CalibrationTargetCreator;
 
-class LoadTargetsThread : public QThread
+class ImportWellPopupXlsx : public ImportWellPopup
 {
   Q_OBJECT
 public:
-  LoadTargetsThread(CalibrationTargetCreator& targetCreator, QObject* parent = nullptr);
-  void run() override;
-
-private:
-  CalibrationTargetCreator& calibrationTargetCreator_;
+  explicit ImportWellPopupXlsx(QWidget *parent = nullptr);
 };
 
 } // namespace casaWizard
-

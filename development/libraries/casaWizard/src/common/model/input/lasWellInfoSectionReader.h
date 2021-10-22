@@ -8,23 +8,21 @@
 
 #pragma once
 
-#include <QThread>
+#include "lasSectionReader.h"
 
-class QString;
+#include <vector>
+#include <string>
 
 namespace casaWizard
 {
-class CalibrationTargetCreator;
 
-class LoadTargetsThread : public QThread
+class LASWellInfoSectionReader : public LASSectionReader
 {
-  Q_OBJECT
 public:
-  LoadTargetsThread(CalibrationTargetCreator& targetCreator, QObject* parent = nullptr);
-  void run() override;
+  explicit LASWellInfoSectionReader(const std::vector<std::string>& section, WellData& welldata, ImportOptions& importOptions);
+  void readSection() final;
 
 private:
-  CalibrationTargetCreator& calibrationTargetCreator_;
 };
 
 } // namespace casaWizard

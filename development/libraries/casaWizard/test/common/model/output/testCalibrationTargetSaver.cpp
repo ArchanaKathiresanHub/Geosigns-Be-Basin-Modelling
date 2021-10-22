@@ -8,6 +8,7 @@
 
 #include "model/output/calibrationTargetSaver.h"
 #include "model/input/calibrationTargetCreator.h"
+#include "model/input/extractWellDataXlsx.h"
 
 #include "stubCasaScenario.h"
 
@@ -23,16 +24,20 @@ TEST(CalibrationTargetSaverTest, testSave)
   const QString excelFilename2{"testWritingWells.xlsx"};
   casaWizard::StubCasaScenario scenarioWrite{};
 
-  casaWizard::CalibrationTargetCreator targetCreator(scenarioWrite, scenarioWrite.calibrationTargetManager());
-  targetCreator.createFromExcel(excelFilename);
+  casaWizard::ExtractWellDataXlsx extractor(excelFilename);
+  casaWizard::CalibrationTargetCreator targetCreator(scenarioWrite, scenarioWrite.calibrationTargetManager(), extractor);
+  targetCreator.readMetaDataFromFile();
+  targetCreator.createFromFile();
 
   CalibrationTargetSaver saver(scenarioWrite.calibrationTargetManager());
   saver.saveToExcel(excelFilename2);
 
   casaWizard::StubCasaScenario scenarioRead{};
 
-  casaWizard::CalibrationTargetCreator targetCreator2(scenarioRead, scenarioRead.calibrationTargetManager());
-  targetCreator2.createFromExcel(excelFilename2);
+  casaWizard::ExtractWellDataXlsx extractor2(excelFilename2);
+  casaWizard::CalibrationTargetCreator targetCreator2(scenarioRead, scenarioRead.calibrationTargetManager(), extractor2);
+  targetCreator2.readMetaDataFromFile();
+  targetCreator2.createFromFile();
 
   QVector<const CalibrationTarget*> calibrationTargetsRead = scenarioRead.calibrationTargetManager().calibrationTargets();
   QVector<const CalibrationTarget*> calibrationTargetsWrite = scenarioWrite.calibrationTargetManager().calibrationTargets();

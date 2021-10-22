@@ -35,8 +35,9 @@ public:
   const Well& well(const int wellIndex) const;
   void setWellIsActive(bool active, int wellIndex);
   void setWellIsExcluded(bool excluded, int wellIndex);
+
   int addWell(const QString& wellName, double x, double y);  
-  void removeCalibrationTargetsWithUnknownPropertyUserName();
+
 
   int amountOfActiveCalibrationTargets() const;
   QVector<QVector<const CalibrationTarget*>> extractWellTargets(QStringList& propertyUserNames, const QVector<int> wellIndices) const;
@@ -46,6 +47,7 @@ public:
 
   void addToMapping(const QString& userName, const QString& cauldronName);
   QString getCauldronPropertyName(const QString& userPropertyName) const;
+  QString getUnit(const QString& userPropertyName);
 
   void removeDataOutsideModelDepths(const std::vector<double>& basementDepthsAtActiveWellLocations, const std::vector<double>& mudlineDepthsAtActiveWellLocations);
   void removeWellsOutsideBasinOutline(const std::string& projectFileName, const std::string& depthGridName);
@@ -71,6 +73,9 @@ public:
   void subsampleData(const QStringList& selectedProperties, const double length);
   void applyCutOff(const QMap<QString,QPair<double,double>>& propertiesWithCutOfRanges);
 
+  QMap<QString, QString> userNameUnits() const;
+
+  void addUnits(const QString& userName, const QString& unit);
 private:
   CalibrationTargetManager(const CalibrationTargetManager&) = delete;
   CalibrationTargetManager& operator=(CalibrationTargetManager) = delete;
@@ -78,6 +83,7 @@ private:
   double getShiftToAvoidOverlap(const QString& wellName, const double x, const double y);  
 
   QMap<QString, QString> userNameToCauldronNameMapping_;
+  QMap<QString, QString> userNameUnits_;
   QVector<Well> wells_;
 };
 

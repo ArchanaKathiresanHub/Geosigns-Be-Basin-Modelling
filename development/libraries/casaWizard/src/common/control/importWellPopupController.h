@@ -9,33 +9,48 @@
 #pragma once
 
 #include "model/calibrationTargetManager.h"
+#include "model/input/importOptions.h"
 
+#include <QMessageBox>
 #include <QObject>
 #include <QSet>
+
+#include <memory>
 
 class QTableWidgetItem;
 
 namespace casaWizard
 {
 
+class CalibrationTargetCreator;
 class CasaScenario;
+class ExtractWellData;
 class ImportWellPopup;
 
-class ImportWellPopupController : QObject
+class ImportWellPopupController : public QObject
 {
   Q_OBJECT
 public:
-  ImportWellPopupController(ImportWellPopup* importwellPopup, QObject* parent);
-  int executeImportWellPopup();
+  explicit ImportWellPopupController(QObject* parent, CasaScenario& casaScenario);
   CalibrationTargetManager& importCalibrationTargetManager();
 
-private slots:
-  void slotAcceptedClicked();
+  void importWells(const QString& fileName);
 
-private:  
+  virtual ImportWellPopup* importWellPopup() const = 0;
+  virtual bool importWellsToCalibrationTargetManager(const QString& fileName) = 0;
+
+protected:
   CalibrationTargetManager importCalibrationTargetManager_;
-  ImportWellPopup* importWellPopup_;
-  QSet<QString> targetVariableUserNames_;
+  CasaScenario& casaScenario_;
+
+  void importOnSeparateThread(CalibrationTargetCreator& calibrationTargetCreator);
+  void addNewMapping();
+
+private slots:
+  void slotCloseWaitingDialog();
+private:
+  QMessageBox waitingDialog_;
+  bool waitingDialogNeeded_;
 };
 
 } // namespace casaWizard

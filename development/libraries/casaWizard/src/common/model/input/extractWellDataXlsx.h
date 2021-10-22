@@ -11,6 +11,7 @@
 #pragma once
 
 #include "xlsxdocument.h"
+#include "extractWellData.h"
 
 #include <QString>
 #include <QVector>
@@ -20,40 +21,25 @@
 namespace casaWizard
 {
 
-struct WellData;
-
-class ExtractWellDataXlsx
+class ExtractWellDataXlsx : public ExtractWellData
 {
 public:
   ExtractWellDataXlsx(const QString& xlsxFileName = "");
   ~ExtractWellDataXlsx();
 
-  void extractWellData(const QString& wellName);
-
-  void setWellNames();
-  const QVector<QString>& wellNames() const;
-  double xCoord() const;
-  double yCoord() const;
-  const QString& metaData() const;
-  QVector<double> depth() const;
-  unsigned int nCalibrationTargetVars() const;
-  QVector<QString> calibrationTargetVarsUserName() const;
-  QVector<QString> calibrationTargetVarsCauldronName() const;
-  QVector<unsigned int> nDataPerTargetVar() const;
-  QVector<double> calibrationTargetValues() const;
-  QVector<double> calibrationTargetStdDeviation() const;
-
-  QMap<QString, QString> calibrationTargetVariableMaps() const;
+  void extractDataNextWell() final;
+  void extractMetaDataNextWell() final;
+  bool hasNextWell() const final;
+  void resetExtractor() final;
 
 private:
-  void setCalibrationTargetVariableMaps();
-  void mapTargetVarNames();
-
-  QVector<QString> wellNames_;
   QXlsx::Document xlsx_;
   std::size_t nColsCalibrationTarget_;
-  QMap<QString, QString> calibrationTargetVariableMaps_;
-  std::unique_ptr<WellData> wellData_;
+  QVector<QString> wellNames_;
+  int nextWell_;
+  int numberOfWells_;
+  void readMetaData(QXlsx::Worksheet* sheet);
+  void readCalibrationData(QXlsx::Worksheet* sheet);
 };
 
 } // namespace casaWizard
