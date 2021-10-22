@@ -36,6 +36,18 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2021-10-22  Richard Faasse  <Richard.Faasse@shell.com>
+
+	new: First version of LAS reader in SAC wizard.
+	* This includes the functionality to read LAS files into the SAC (and later UA) workflow.
+	* The import includes choosing the appropriate Cauldron property and the unit conversions
+	* Error handling is done and the user is informed when the las file is invalid or is missing information
+	* Unwrapping of lasfiles is not included
+	* Related work items: #417581
+	================== COMMIT-END ========================
+	Commit-ID:<f3a5301946b078a0f508e1565e77c530967783a8>	  (refs/heads/master)
+
+++
 2021-10-21  Erik.vandenBoogaard  <Erik.vandenBoogaard@shell.com>
 
 	fix: Fix data in layer bug.
