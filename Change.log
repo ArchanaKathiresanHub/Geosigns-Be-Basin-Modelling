@@ -36,6 +36,14 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2021-10-27  Richard Faasse  <Richard.Faasse@shell.com>
+
+	chg: Added Unwrapping to the LAS reader in the WellPrep Workflow.
+	* Related work items: #417581
+	================== COMMIT-END ========================
+	Commit-ID:<c6cc4bd758ccd21526ed5f2a109965202c06cba5>	  (refs/heads/master)
+
+++
 2021-10-22  Richard Faasse  <Richard.Faasse@shell.com>
 
 	new: First version of LAS reader in SAC wizard.
