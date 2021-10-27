@@ -23,6 +23,9 @@ public:
   LoadTargetsThread(CalibrationTargetCreator& targetCreator, QObject* parent = nullptr);
   void run() override;
 
+signals:
+  void exceptionThrown(QString message);
+
 private:
   CalibrationTargetCreator& calibrationTargetCreator_;
 };

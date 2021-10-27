@@ -24,8 +24,8 @@ public:
   virtual void readSection() = 0;
 
 protected:
-  std::vector<std::string> splitLine(const std::string& line) const;
-  bool lineInvalid(const std::vector<std::string>& splittedLine) const;
+  std::vector<std::string> splitLASLine(const std::string& line) const;
+  bool lineInvalid(const std::vector<std::string>& splitLine) const;
   const std::vector<std::string>& section_;
   WellData& welldata_;
   ImportOptions& importOptions_;

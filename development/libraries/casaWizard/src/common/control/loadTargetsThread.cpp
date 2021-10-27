@@ -21,7 +21,14 @@ LoadTargetsThread::LoadTargetsThread(CalibrationTargetCreator& targetCreator, QO
 
 void LoadTargetsThread::run()
 {
-  calibrationTargetCreator_.createFromFile();
+  try
+  {
+    calibrationTargetCreator_.createFromFile();
+  }
+  catch (std::runtime_error e)
+  {
+    emit exceptionThrown(e.what());
+  }
 }
 
 } // namespace casaWizard

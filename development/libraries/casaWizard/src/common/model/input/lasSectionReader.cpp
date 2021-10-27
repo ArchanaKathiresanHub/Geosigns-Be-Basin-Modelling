@@ -20,11 +20,11 @@ LASSectionReader::LASSectionReader(const std::vector<std::string>& section, Well
 {
 }
 
-std::vector<std::string> LASSectionReader::splitLine(const std::string& line) const
+std::vector<std::string> LASSectionReader::splitLASLine(const std::string& line) const
 {
   // Format of every LAS line (except in the ~A section):
   // MNEM .UNIT      DATA                 :DESCRIPTION OF MNEMONIC
-  std::vector<std::string> splittedLine;
+  std::vector<std::string> splitLine;
 
   std::string todo = line;
   std::vector<char> delimiters = {'.', ' ', ':'};
@@ -36,23 +36,23 @@ std::vector<std::string> LASSectionReader::splitLine(const std::string& line) co
     }
 
     const std::string beforeDelimiter = todo.substr(0, todo.find(delimiter));
-    splittedLine.push_back(trim(beforeDelimiter));
+    splitLine.push_back(trim(beforeDelimiter));
     todo = todo.substr(todo.find(delimiter) + 1);
   }
 
-  splittedLine.push_back(trim(todo));
+  splitLine.push_back(trim(todo));
 
-  return splittedLine;
+  return splitLine;
 }
 
-bool LASSectionReader::lineInvalid(const std::vector<std::string>& splittedLine) const
+bool LASSectionReader::lineInvalid(const std::vector<std::string>& splitLine) const
 {
   //   0    1         2                               3
   // MNEM .UNIT      DATA                 :DESCRIPTION OF MNEMONIC
   //                  ^
-  //                 DATA part of the line is empty, so splittedLine[2].empty()
-  //                 or line does not have right size at all (splittedLine.size() != 4)
-  return (splittedLine.size() != 4 || splittedLine[2].empty());
+  //                 DATA part of the line is empty, so splitLine[2].empty()
+  //                 or line does not have right size at all (splitLine.size() != 4)
+  return (splitLine.size() != 4 || splitLine[2].empty());
 }
 
 std::string LASSectionReader::trim(const std::string& input) const

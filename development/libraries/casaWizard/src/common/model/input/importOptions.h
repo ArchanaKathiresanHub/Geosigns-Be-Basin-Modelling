@@ -23,6 +23,7 @@ struct ImportOptions
   QString elevationCorrectionUnit = "";
   int depthColumn = 0;
   double undefinedValue = -99999;
+  bool wrapped = false;
 };
 
 } // namespace casaWizard

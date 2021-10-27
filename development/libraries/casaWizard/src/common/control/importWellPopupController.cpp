@@ -80,6 +80,7 @@ void ImportWellPopupController::importOnSeparateThread(CalibrationTargetCreator&
 {
   waitingDialogNeeded_ = true;
   LoadTargetsThread* loadTargetsThread = new LoadTargetsThread(calibrationTargetCreator, this);
+  connect (loadTargetsThread, SIGNAL(exceptionThrown(QString)), this, SLOT(slotExceptionThrown(QString)));
   connect (loadTargetsThread, &LoadTargetsThread::finished, this, &ImportWellPopupController::slotCloseWaitingDialog);
   connect (loadTargetsThread, &LoadTargetsThread::finished, loadTargetsThread, &QObject::deleteLater);
   loadTargetsThread->start();
@@ -92,6 +93,11 @@ void ImportWellPopupController::slotCloseWaitingDialog()
 {
   waitingDialogNeeded_ = false;
   waitingDialog_.done(0);
+}
+
+void ImportWellPopupController::slotExceptionThrown(QString exception)
+{
+  throw std::runtime_error(exception.toStdString());
 }
 
 

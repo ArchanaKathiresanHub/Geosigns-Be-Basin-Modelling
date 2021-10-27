@@ -17,7 +17,8 @@ namespace casaWizard
 {
 
 LASDataSectionReader::LASDataSectionReader(const std::vector<std::string>& section, WellData& welldata, ImportOptions& importOptions) :
-  LASSectionReader{section, welldata, importOptions}
+  LASSectionReader{section, welldata, importOptions},
+  dataSection_{section}
 {
 
 }
@@ -26,7 +27,11 @@ void LASDataSectionReader::readSection()
 {
   initializeValuesAndDepths();
 
-  for (const std::string& line : section_)
+  if (importOptions_.wrapped)
+  {
+    unwrapSection();
+  }
+  for (const std::string& line : dataSection_)
   {
     readLine(line);
   }
@@ -46,25 +51,45 @@ void LASDataSectionReader::initializeValuesAndDepths()
   }
 }
 
+void LASDataSectionReader::unwrapSection()
+{
+  std::vector<std::string> unwrappedSection;
+  for (int i = 1; i < dataSection_.size(); i++)
+  {
+    const std::vector<std::string>& splitLine = splitDataLine(dataSection_[i]);
+    if (splitLine.size() == 1) // The index channel is on a separate line, so marks the start of a new 'unwrapped' line
+    {
+      unwrappedSection.push_back("");
+    }
+
+    for (const std::string& value : splitLine)
+    {
+      unwrappedSection.back() += " " + value;
+    }
+  }
+
+  dataSection_ = unwrappedSection;
+}
+
 void LASDataSectionReader::readLine(const std::string& line)
 {
-  const std::vector<std::string> splittedLine = splitDataLine(line);
+  const std::vector<std::string> splitLine = splitDataLine(line);
 
-  if (line.find("~") == 0 || splittedLine.empty())
+  if (line.find("~") == 0 || splitLine.empty())
   {
     return;
   }
-  if (splittedLine.size() != welldata_.calibrationTargetVarsUserName_.size() + 1)
+  if (splitLine.size() != welldata_.calibrationTargetVarsUserName_.size() + 1)
   {
     throw std::runtime_error("Invalid line in the LAS data section (~A)");
   }
 
   int counter = 0;
-  for (int column = 0; column < splittedLine.size(); column++)
+  for (int column = 0; column < splitLine.size(); column++)
   {
     if (column != importOptions_.depthColumn)
     {
-      readColumn(splittedLine, column, counter);
+      readColumn(splitLine, column, counter);
     }
   }
 }
@@ -84,21 +109,21 @@ void LASDataSectionReader::saveToWellData()
 
 std::vector<std::string> LASDataSectionReader::splitDataLine(const std::string& line) const
 {
-  std::vector<std::string> splittedLine;
+  std::vector<std::string> splitLine;
   std::stringstream ss(line);
-  std::string splittedString;
-  while (ss >> splittedString)
+  std::string splitString;
+  while (ss >> splitString)
   {
-    splittedLine.push_back(splittedString);
+    splitLine.push_back(splitString);
   }
 
-  return splittedLine;
+  return splitLine;
 }
 
-void LASDataSectionReader::readColumn(const std::vector<std::string>& splittedLine, const int column, int& counter)
+void LASDataSectionReader::readColumn(const std::vector<std::string>& splitLine, const int column, int& counter)
 {
-  const double value = std::stod(splittedLine[column]);
-  const double depth = std::stod(splittedLine[importOptions_.depthColumn]);
+  const double value = std::stod(splitLine[column]);
+  const double depth = std::stod(splitLine[importOptions_.depthColumn]);
 
   if (std::fabs(value - importOptions_.undefinedValue) < 1e-5 ||
       std::fabs(depth - importOptions_.undefinedValue) < 1e-5 )

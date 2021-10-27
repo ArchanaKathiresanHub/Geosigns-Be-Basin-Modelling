@@ -20,7 +20,7 @@ public:
 
   void readSection() final;
 private:
-  bool curveInfoLineInvalid(const std::vector<std::string>& splittedLine);
+  bool curveInfoLineInvalid(const std::vector<std::string>& splitLine);
   void validateSection();
 };
 

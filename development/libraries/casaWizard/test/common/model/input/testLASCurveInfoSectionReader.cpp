@@ -79,29 +79,6 @@ TEST(LasCurveInfoSectionReaderTest, testReadWithoutSpacesBetweenPropertyAndUnit)
   }
 }
 
-TEST(LasCurveInfoSectionReaderTest, testReadWithMissingUnitThrows)
-{
-  std::vector<std::string> section = {"~CURVE INFORMATION",
-                                        "DEPT.                              : 1      DEPTH",
-                                        "DEN.g/cm3                          : 2      Rho"
-                                      };
-  WellData wellData;
-  ImportOptions options;
-  LASCurveInfoSectionReader reader(section, wellData, options);
-
-  EXPECT_THROW(reader.readSection(), std::runtime_error);
-
-  try
-  {
-    reader.readSection();
-  }
-  catch (std::runtime_error e)
-  {
-    std::string message = e.what();
-    EXPECT_EQ(message, "Invalid line in the Curve Info Section (~C).");
-  }
-}
-
 TEST(LasCurveInfoSectionReaderTest, testReadWithMissingPropertyNameThrows)
 {
   std::vector<std::string> section = {"~CURVE INFORMATION",

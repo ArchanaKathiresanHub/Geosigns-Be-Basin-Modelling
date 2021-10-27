@@ -11,6 +11,7 @@
 #include "lasCurveInfoSectionReader.h"
 #include "lasDataSectionReader.h"
 #include "lasSectionReader.h"
+#include "lasVersionInfoSectionReader.h"
 #include "lasWellInfoSectionReader.h"
 
 #include <fstream>
@@ -145,6 +146,11 @@ bool ExtractWellDataLAS::createSectionReader(const Section& section)
   if (section[0].find("~C") == 0)
   {
     sectionReader_.reset(new LASCurveInfoSectionReader(section, *wellData_, importOptions_));
+    return true;
+  }
+  if (section[0].find("~V") == 0)
+  {
+    sectionReader_.reset(new LASVersionInfoSectionReader(section, *wellData_, importOptions_));
     return true;
   }
 

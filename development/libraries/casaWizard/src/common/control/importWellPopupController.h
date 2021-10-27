@@ -48,6 +48,7 @@ protected:
 
 private slots:
   void slotCloseWaitingDialog();
+  void slotExceptionThrown(QString message);
 private:
   QMessageBox waitingDialog_;
   bool waitingDialogNeeded_;

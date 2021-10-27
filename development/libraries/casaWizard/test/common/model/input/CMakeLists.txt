@@ -25,6 +25,7 @@ configure_file( Inputs.HDF Inputs.HDF COPYONLY )
 add_casawizard_common_gtest( NAME LASReader
                              SOURCES testLASReader.cpp )
 configure_file( Test1.las Test1.las COPYONLY )
+configure_file( testWrap.las testWrap.las COPYONLY )
 
 add_casawizard_common_gtest( NAME LASWellInfoSectionReader
                              SOURCES testLASWellInfoSectionReader.cpp )
@@ -34,3 +35,5 @@ add_casawizard_common_gtest( NAME LASDataSectionReader
                              SOURCES testLASDataSectionReader.cpp )
 add_casawizard_common_gtest( NAME LASCurveInfoSectionReader
                              SOURCES testLASCurveInfoSectionReader.cpp )
+add_casawizard_common_gtest( NAME LASVersionInfoSectionReader
+                             SOURCES testLASVersionInfoSectionReader.cpp )

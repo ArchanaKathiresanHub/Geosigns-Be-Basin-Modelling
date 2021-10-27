@@ -28,19 +28,19 @@ void LASCurveInfoSectionReader::readSection()
     // Line layout:
     // PropertyUserName          .UNIT    : description
     //        0                    1             2
-    std::vector<std::string> splittedLine = splitLine(section_[i]);
-    if (curveInfoLineInvalid(splittedLine))
+    std::vector<std::string> splitLine = splitLASLine(section_[i]);
+    if (curveInfoLineInvalid(splitLine))
     {
       throw std::runtime_error("Invalid line in the Curve Info Section (~C).");
     }
-    if (splittedLine[0] == importOptions_.depthUserPropertyName.toStdString())
+    if (splitLine[0] == importOptions_.depthUserPropertyName.toStdString())
     {
       importOptions_.depthColumn = i-1;
       continue;
     }
 
-    welldata_.calibrationTargetVarsUserName_.push_back(QString::fromStdString(splittedLine[0]));
-    welldata_.units_.push_back(QString::fromStdString(splittedLine[1]));
+    welldata_.calibrationTargetVarsUserName_.push_back(QString::fromStdString(splitLine[0]));
+    welldata_.units_.push_back(QString::fromStdString(splitLine[1]));
   }
 
   if (importOptions_.depthUserPropertyName == "")
@@ -61,9 +61,9 @@ void LASCurveInfoSectionReader::validateSection()
   }
 }
 
-bool LASCurveInfoSectionReader::curveInfoLineInvalid(const std::vector<std::string>& splittedLine)
+bool LASCurveInfoSectionReader::curveInfoLineInvalid(const std::vector<std::string>& splitLine)
 {
-  return (splittedLine.size() != 4 || splittedLine[0].empty() || splittedLine[1].empty());
+  return (splitLine.size() != 4 || splitLine[0].empty());
 }
 
 } // namespace casaWizard
