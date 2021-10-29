@@ -36,6 +36,17 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2021-10-29  Richard Faasse  <Richard.Faasse@shell.com>
+
+	chg: fix: Made changes and fixes in Well import (SAC workflow) based on user feedback
+	* Removed faulty map entry
+	* Forced usage of single instance of every cauldron property, instead of only depth
+	* Disabled scrolling in import comboboxes to avoid unwanted changes
+	* Related work items: #417581
+        ================== COMMIT-END ========================
+	Commit-ID:<2a3dbc708a58e45f5d477bafe53b1fa39a665da0>	  (refs/heads/master)
+
+++
 2021-10-27  Richard Faasse  <Richard.Faasse@shell.com>
 
 	chg: Added Unwrapping to the LAS reader in the WellPrep Workflow.
