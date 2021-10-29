@@ -9,8 +9,8 @@
 #include "importWellPopup.h"
 
 #include "view/components/customtitle.h"
+#include "view/components/customComboBox.h"
 
-#include <QComboBox>
 #include <QLabel>
 #include <QVBoxLayout>
 #include <QDialogButtonBox>
@@ -45,7 +45,7 @@ void ImportWellPopup::updateTable(const QStringList& propertyUserNames, const QS
     propertyMappingTable_->setRowCount(counter+1);
     propertyMappingTable_->setItem(counter, 0, new QTableWidgetItem(propertyUserName));
 
-    QComboBox* propertySelector = new QComboBox();
+    QComboBox* propertySelector = new CustomComboBox();
 
     propertySelector->addItems(availableCauldronNames);
     propertySelector->setCurrentText(defaultCauldronNames[counter]);

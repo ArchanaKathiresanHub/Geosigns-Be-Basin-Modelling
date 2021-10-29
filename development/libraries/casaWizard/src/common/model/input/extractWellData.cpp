@@ -123,7 +123,6 @@ void ExtractWellData::setCalibrationTargetVariableMaps()
   calibrationTargetVariableMaps_.insert("Dt", "SonicSlowness");
   calibrationTargetVariableMaps_.insert("DTL_00J", "SonicSlowness");
   calibrationTargetVariableMaps_.insert("GRfinal", "SonicSlowness");
-  calibrationTargetVariableMaps_.insert("SonicSlowness", "GammaRay");
   calibrationTargetVariableMaps_.insert("Somalia_VINT_Reg_model_v1_lkey_Vint_vo__Vint", "Velocity");
   calibrationTargetVariableMaps_.insert("SONI", "SonicSlowness");
   calibrationTargetVariableMaps_.insert("DT_GP", "SonicSlowness");

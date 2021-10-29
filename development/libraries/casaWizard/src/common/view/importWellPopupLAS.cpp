@@ -101,15 +101,13 @@ void ImportWellPopupLAS::setElevationInfo(const double elevationCorrection, cons
 void ImportWellPopupLAS::slotComboboxChanged(const QString& text, int row)
 {
   QSignalBlocker blocker(this);
-  if (text == "Depth")
+
+  for (int i = 0; i < propertyMappingTable_->rowCount(); i++)
   {
-    for (int i = 0; i < propertyMappingTable_->rowCount(); i++)
+    QComboBox* propertySelection = dynamic_cast<QComboBox*>(propertyMappingTable_->cellWidget(i,1));
+    if (i != row && propertySelection->currentText() == text)
     {
-      QComboBox* propertySelection = dynamic_cast<QComboBox*>(propertyMappingTable_->cellWidget(i,1));
-      if (i != row && propertySelection->currentText() == "Depth")
-      {
-        propertySelection->setCurrentText("Unknown");
-      }
+      propertySelection->setCurrentText("Unknown");
     }
   }
 }
