@@ -36,6 +36,13 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2021-11-02  Anjaneyulu.Lankadasu  <Anjaneyulu.Lankadasu@shell.com>
+
+	chg: dev: Fix for continuous properties relevant for sediment only are not available on the basement surface
+	Related work items: #439100
+	Commit-ID:<fd3abc4a5639f8083281e908693ff88ff3c95a7a>	  (refs/heads/master)
+
+++
 2021-10-29  Richard Faasse  <Richard.Faasse@shell.com>
 
 	chg: fix: Made changes and fixes in Well import (SAC workflow) based on user feedback
