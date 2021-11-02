@@ -272,14 +272,15 @@ OutputPropertyValuePtr  DerivedProperties::allocateOutputProperty (       Abstra
          if ( topSurface != 0 ) {
 
             printDebugMsg( "Allocating Top Surface", property, 0, topSurface, snapshot );
-
-            outputProperty.reset ( new SurfaceOutputPropertyValue ( propertyManager, property, snapshot, topSurface ));
+            if (!(topSurface->getBottomFormation()->kind() == BASEMENT_FORMATION and topSurface->getBottomFormation()->getName() == "Crust")) {
+                outputProperty.reset(new SurfaceOutputPropertyValue(propertyManager, property, snapshot, topSurface));
+            }
          } else if ( bottomSurface != 0 ) {
 
             // Allocate the bottom surface of the domain
-            if( bottomSurface->getName() == "Bottom of Lithospheric Mantle" or ( bottomSurface->getBottomFormation()->kind() == BASEMENT_FORMATION and not basementIncluded  )) {
+            if( bottomSurface->getName() == "Bottom of Lithospheric Mantle" or (bottomSurface->getBottomFormation()->kind() == BASEMENT_FORMATION and bottomSurface->getBottomFormation()->getName() == "Crust")) {
 
-               printDebugMsg( "Allocating Bottom Surface", property, 0, bottomSurface, snapshot );
+               printDebugMsg( "Allocating Bottom Surface", property, 0, bottomSurface, snapshot );               
                outputProperty.reset( new SurfaceOutputPropertyValue ( propertyManager, property, snapshot, bottomSurface ));
             }
          }
