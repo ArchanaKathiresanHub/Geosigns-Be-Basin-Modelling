@@ -74,11 +74,13 @@ std::unique_ptr<workloadmanagers::WorkLoadManager> workloadmanagers::WorkLoadMan
 		} 
 		if(!found)
 		{
-			if (access( "/usr/bin/srun", F_OK ) != -1 || (getenv("SLURM_INSTALL") && getenv("SLURM_INSTALL")[0]))
+#ifndef WIN32
+			if (access("/usr/bin/srun", 0) != -1 || (getenv("SLURM_INSTALL") && getenv("SLURM_INSTALL")[0]))
 			{
 				type = WorkLoadManagerType::SLURM;
 				found = true;
 			}
+#endif
 		}
 	}
 	

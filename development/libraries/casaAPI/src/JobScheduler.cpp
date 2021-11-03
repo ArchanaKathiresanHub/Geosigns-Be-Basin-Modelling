@@ -36,7 +36,11 @@ casa::JobScheduler * casa::JobScheduler::load( CasaDeserializer & dz, const char
          << ", but stream gave object with name: " << on;
    }
    if (      ot == "JobSchedulerLocal" ) { return new JobSchedulerLocal(  dz, vr ); }
+#ifndef WIN32
    else if ( ot == "JobSchedulerCluster" || ot == "JobSchedulerLSF" ) { return new JobSchedulerCluster( dz, vr ); }
+#else
+   else if (ot == "JobSchedulerCluster" || ot == "JobSchedulerLSF") { return new JobSchedulerLocal(); }
+#endif // !WIN32
    else
    {
       throw ErrorHandler::Exception( ErrorHandler::DeserializationError )

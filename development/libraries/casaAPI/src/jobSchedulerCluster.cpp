@@ -6,30 +6,27 @@
 // Do not distribute without written permission from Shell.
 //
 
+#ifndef _WIN32
+
 #include "jobSchedulerCluster.h"
 
 #include "SDUWorkLoadManager.h"
 
-#ifndef _WIN32
-#include <sys/stat.h>
-#endif
-
-
 #include <boost/property_tree/json_parser.hpp>
-#include <unistd.h>
-static void Wait( int sec ) { sleep( sec ); }
 
-namespace casa
-{
-#include <iostream>
-
+#include <array>
 #include <cstdio>
 #include <iostream>
 #include <memory>
 #include <stdexcept>
 #include <string>
-#include <array>
+#include <sys/stat.h>
+#include <unistd.h>
 
+static void Wait( int sec ) { sleep( sec ); }
+
+namespace casa
+{
 std::string exec(const char* cmd) {
     std::array<char, 128> buffer;
     std::string result;
@@ -147,3 +144,4 @@ std::string exec(const char* cmd) {
    return m_jobs[job].jobstate;
   }
 }
+#endif

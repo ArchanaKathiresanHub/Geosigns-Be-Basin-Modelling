@@ -7,6 +7,7 @@
 //
 
 #pragma once
+#ifndef _WIN32
 
 #include "JobScheduler.h"
 #include <memory>
@@ -69,3 +70,5 @@ namespace casa
   };
 
 }
+
+#endif
