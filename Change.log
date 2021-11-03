@@ -36,6 +36,13 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2021-11-03  Richard Faasse  <Richard.Faasse@shell.com>
+
+	fix: Fixed windows build due to lit slurm update.
+	================== COMMIT-END ========================
+	Commit-ID:<cf70d7c6fedcd11c8dbd25521baea333e17c549f>	  (refs/heads/master)
+
+++
 2021-11-02  Anjaneyulu.Lankadasu  <Anjaneyulu.Lankadasu@shell.com>
 
 	chg: dev: Fix for continuous properties relevant for sediment only are not available on the basement surface
