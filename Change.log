@@ -36,6 +36,14 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2021-11-04  Richard Faasse  <Richard.Faasse@shell.com>
+
+	chg: Bug fixes and workflow tweaks for the (las) import of wells.
+	* Related work items: #417581
+	================== COMMIT-END ========================
+	Commit-ID:<595dc95bb7ef89d3198a9a8c9d572309a94a3f22>	  (refs/heads/master)
+
+++
 2021-11-04  Subhra-Sankar.Kalita  <Subhra-Sankar.Kalita@shell.com>
 
 	chg: dev: HDF5 file-lock is enabled and Cauldron V2 is refactored to conform with it
