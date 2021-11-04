@@ -36,6 +36,17 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2021-11-04  Subhra-Sankar.Kalita  <Subhra-Sankar.Kalita@shell.com>
+
+	chg: dev: HDF5 file-lock is enabled and Cauldron V2 is refactored to conform with it
+	* The file-locking mechanism of HDF5 is enabled for Cauldron V2 by closing any previously opened (in READ mode) HDF files before performing append/write operation.
+
+	* Related work items: #439721
+
+	================== COMMIT-END ========================
+	Commit-ID:<894f5f8d0029773745ffcc2d69723ac6f50d3cc7>	  (refs/heads/master)
+
+++
 2021-11-03  Richard Faasse  <Richard.Faasse@shell.com>
 
 	fix: Fixed windows build due to lit slurm update.
