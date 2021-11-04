@@ -28,8 +28,7 @@ public:
                             const QStringList& availableCauldronNames, const QStringList& units,
                             const QVector<double>& conversionFactors);
   QMap<QString, double> getUnitConversions() const;
-  void setElevationInfo(const double elevationCorrection, const QString& elevationCorrectionUnit);
-
+  void setElevationInfo(const double elevationCorrection, const QString& elevationCorrectionUnit, const double referenceCorrection, const QString& referenceCorrectionUnit);
 
 signals:
   void propertySelectorChanged(const QString, int);

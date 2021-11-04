@@ -94,13 +94,13 @@ void ExtractWellData::setCalibrationTargetVariableMaps()
   calibrationTargetVariableMaps_.insert("TwoWayTime", "TwoWayTime");
   calibrationTargetVariableMaps_.insert("Two way time", "TwoWayTime");
   calibrationTargetVariableMaps_.insert("TWTT", "TwoWayTime");
-  calibrationTargetVariableMaps_.insert("SAC-TWTT_from_DT", "TwoWayTime");
-  calibrationTargetVariableMaps_.insert("SAC-TWTT_from_DT_from_VP", "TwoWayTime");
+  calibrationTargetVariableMaps_.insert("SAC-TWTT_from_DT", "TWT_FROM_DT");
+  calibrationTargetVariableMaps_.insert("SAC-TWTT_from_DT_from_VP", "TWT_FROM_DT");
   calibrationTargetVariableMaps_.insert("BulkDensity", "BulkDensity");
   calibrationTargetVariableMaps_.insert("Density", "BulkDensity");
   calibrationTargetVariableMaps_.insert("SonicSlowness", "SonicSlowness");
   calibrationTargetVariableMaps_.insert("DT", "SonicSlowness");
-  calibrationTargetVariableMaps_.insert("DTfromVP", "SonicSlowness");
+  calibrationTargetVariableMaps_.insert("DTfromVP", "DT_FROM_VP");
   calibrationTargetVariableMaps_.insert("Temperature", "Temperature");
   calibrationTargetVariableMaps_.insert("Vr", "VRe");
   calibrationTargetVariableMaps_.insert("Vre", "VRe");

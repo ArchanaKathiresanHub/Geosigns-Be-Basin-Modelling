@@ -23,6 +23,7 @@ public:
   void readSection() final;
 
 private:
+  int getCoordinatePriority(const std::string& coordinateName) const;
 };
 
 } // namespace casaWizard

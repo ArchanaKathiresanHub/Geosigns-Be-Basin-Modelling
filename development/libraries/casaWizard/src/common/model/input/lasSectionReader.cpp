@@ -30,7 +30,7 @@ std::vector<std::string> LASSectionReader::splitLASLine(const std::string& line)
   std::vector<char> delimiters = {'.', ' ', ':'};
   for (const char delimiter : delimiters)
   {
-    if (todo.find(delimiter) == std::string::npos)
+    if (todo.find(delimiter) == std::string::npos && delimiter != ':')
     {
       return {};
     }
@@ -52,7 +52,7 @@ bool LASSectionReader::lineInvalid(const std::vector<std::string>& splitLine) co
   //                  ^
   //                 DATA part of the line is empty, so splitLine[2].empty()
   //                 or line does not have right size at all (splitLine.size() != 4)
-  return (splitLine.size() != 4 || splitLine[2].empty());
+  return (splitLine.size() < 3 || splitLine[2].empty());
 }
 
 std::string LASSectionReader::trim(const std::string& input) const

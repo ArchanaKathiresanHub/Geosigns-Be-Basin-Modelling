@@ -21,9 +21,12 @@ struct ImportOptions
   bool correctForElevation = false;
   double elevationCorrection = 0.0;
   QString elevationCorrectionUnit = "";
+  double referenceCorrection = 0.0;
+  QString referenceCorrectionUnit = "";
   int depthColumn = 0;
   double undefinedValue = -99999;
   bool wrapped = false;
+  double lasVersion = -1.0;
 };
 
 } // namespace casaWizard

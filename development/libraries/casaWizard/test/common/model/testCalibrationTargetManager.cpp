@@ -515,3 +515,21 @@ TEST(CalibrationTargetManagerTest, testApplyCutOff)
   const QVector<const casaWizard::CalibrationTarget*> targets = manager.well(0).calibrationTargets();
   EXPECT_EQ(targets.size(), 4);
 }
+
+TEST(CalibrationTargetManagerTest, testRenamePropertiesAfterImport)
+{
+  casaWizard::CalibrationTargetManager manager;
+  manager.addToMapping("TWT", "TwoWayTime");
+  manager.addToMapping("SAC-TWT-from-DT", "TWT_FROM_DT");
+  manager.addWell("well_1", 184550, 608300);
+  manager.addCalibrationTarget("target_1", "TWT", 0, 100, 100);
+  manager.addCalibrationTarget("target_2", "SAC-TWT-from-DT", 0, 100, 100);
+
+  manager.renamePropertiesAfterImport();
+
+  EXPECT_EQ(manager.getCauldronPropertyName("TWT_FROM_DT"), "TwoWayTime");
+  EXPECT_EQ(manager.getCauldronPropertyName("TwoWayTime"), "TwoWayTime");
+
+  EXPECT_EQ(manager.calibrationTargets()[0]->propertyUserName(), "TwoWayTime");
+  EXPECT_EQ(manager.calibrationTargets()[1]->propertyUserName(), "TWT_FROM_DT");
+}

@@ -34,7 +34,7 @@ public:
   explicit ImportWellPopupController(QObject* parent, CasaScenario& casaScenario);
   CalibrationTargetManager& importCalibrationTargetManager();
 
-  void importWells(const QString& fileName);
+  void importWells(const QString& fileName, CalibrationTargetManager& calibrationTargetManager);
 
   virtual ImportWellPopup* importWellPopup() const = 0;
   virtual bool importWellsToCalibrationTargetManager(const QString& fileName) = 0;

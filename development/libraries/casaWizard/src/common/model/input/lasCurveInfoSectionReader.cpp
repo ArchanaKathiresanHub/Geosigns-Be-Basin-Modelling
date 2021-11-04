@@ -63,7 +63,7 @@ void LASCurveInfoSectionReader::validateSection()
 
 bool LASCurveInfoSectionReader::curveInfoLineInvalid(const std::vector<std::string>& splitLine)
 {
-  return (splitLine.size() != 4 || splitLine[0].empty());
+  return (splitLine.size() < 3 || splitLine[0].empty());
 }
 
 } // namespace casaWizard

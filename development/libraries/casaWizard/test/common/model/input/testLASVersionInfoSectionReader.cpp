@@ -27,6 +27,7 @@ TEST(LasVersionInfoSectionReaderTest, testRead)
   LASVersionInfoSectionReader reader(section, wellData, options);
   EXPECT_NO_THROW(reader.readSection());
   EXPECT_FALSE(options.wrapped);
+  EXPECT_DOUBLE_EQ(options.lasVersion, 2.0);
 }
 
 TEST(LasVersionInfoSectionReaderTest, testReadWithWrapping)
@@ -41,28 +42,6 @@ TEST(LasVersionInfoSectionReaderTest, testReadWithWrapping)
   LASVersionInfoSectionReader reader(section, wellData, options);
   EXPECT_NO_THROW(reader.readSection());
   EXPECT_TRUE(options.wrapped);
-}
-
-TEST(LasVersionInfoSectionReaderTest, testOtherVersionThan2Throws)
-{
-  std::vector<std::string> section = {"~VERSION INFORMATION",
-                                        "VERS.            3.0                  :CWLS LOG ASCII STANDARD -VERSION 3.0",
-                                        "WRAP.            YES                  :WRAPPING LINES AROUND 80 CHARACTERS",
-                                      };
-  WellData wellData;
-  ImportOptions options;
-  LASVersionInfoSectionReader reader(section, wellData, options);
-  EXPECT_THROW(reader.readSection(), std::runtime_error);
-
-  try
-  {
-    reader.readSection();
-  }
-  catch (std::runtime_error e)
-  {
-    std::string message = e.what();
-    EXPECT_EQ(message, "Wrong LAS version, only 2.0 is supported.");
-  }
 }
 
 TEST(LasVersionInfoSectionReaderTest, testNoVersionGivenThrows)
@@ -82,7 +61,7 @@ TEST(LasVersionInfoSectionReaderTest, testNoVersionGivenThrows)
   catch (std::runtime_error e)
   {
     std::string message = e.what();
-    EXPECT_EQ(message, "No LAS version detected, only version 2.0 is supported.");
+    EXPECT_EQ(message, "No LAS version detected.");
   }
 }
 
@@ -125,4 +104,39 @@ TEST(LasVersionInfoSectionReaderTest, testEmptySectionThrows)
     std::string message = e.what();
     EXPECT_EQ(message, "Empty Version Info Section (~V).");
   }
+}
+
+TEST(LasVersionInfoSectionReaderTest, testInvalidLineThrows)
+{
+  std::vector<std::string> section = {"~VERSION INFORMATION",
+                                        "VERS.",
+                                        "WRAP.            NO                   :ONE LINE PER DEPTH STEP",
+                                      };
+  WellData wellData;
+  ImportOptions options;
+  LASVersionInfoSectionReader reader(section, wellData, options);
+  EXPECT_THROW(reader.readSection(), std::runtime_error);
+
+  try
+  {
+    reader.readSection();
+  }
+  catch (std::runtime_error e)
+  {
+    std::string message = e.what();
+    EXPECT_EQ(message, "Invalid line in Version Info Section (~V).");
+  }
+}
+
+TEST(LasVersionInfoSectionReaderTest, testLineWithoutCommentDoesNotThrow)
+{
+  std::vector<std::string> section = {"~VERSION INFORMATION",
+                                        "VERS.            2.0",
+                                        "WRAP.            NO                   :ONE LINE PER DEPTH STEP",
+                                      };
+  WellData wellData;
+  ImportOptions options;
+  LASVersionInfoSectionReader reader(section, wellData, options);
+  EXPECT_NO_THROW(reader.readSection());
+  EXPECT_FALSE(options.wrapped);
 }

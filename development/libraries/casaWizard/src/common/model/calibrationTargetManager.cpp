@@ -115,6 +115,8 @@ int CalibrationTargetManager::addWell(Well well)
     if (well.name() == presentWell.name())
     {
       well.setId(index);
+      well.setX(presentWell.x());
+      well.setY(presentWell.y());
       wells_.replace(index, well);
       return index;
     }
@@ -136,7 +138,7 @@ double CalibrationTargetManager::getShiftToAvoidOverlap(const QString& wellName,
   double xShift = 0.0;
   while (i<wells_.size())
   {
-    if (std::fabs(wells_[i].x() + xShift - x) < 1.0 && std::fabs(wells_[i].y() -  y) < 1.0)
+    if (std::fabs(wells_[i].x() - xShift - x) < 1.0 && std::fabs(wells_[i].y() -  y) < 1.0)
     {
       Logger::log() << "Shifting well " << wellName << " by 1m in x to not overlap with well: " << wells_[i].name() << Logger::endl();
       xShift += 1.0; // Shift 1m so CASA will not see it as the same well
@@ -365,6 +367,21 @@ void CalibrationTargetManager::setWellIsExcluded(bool excluded, int wellIndex)
 {
   assert(wellIndex>=0 && wellIndex<wells_.size());
   wells_[wellIndex].setIsExcluded(excluded);
+}
+
+void CalibrationTargetManager::renamePropertiesAfterImport()
+{
+  for (const QString& key : userNameToCauldronNameMapping_.keys())
+  {
+    QString cauldronName = userNameToCauldronNameMapping_[key];
+    // User name is the Cauldron name, or "TWT_FROM_DT" or "DT_FROM_VP"
+    renameUserPropertyNameInWells(key, cauldronName);
+
+    // Real Cauldron property name, so remove the fake ones
+    if (cauldronName == "TWT_FROM_DT") cauldronName="TwoWayTime";
+    if (cauldronName == "DT_FROM_VP")  cauldronName="SonicSlowness";
+    addToMapping(userNameToCauldronNameMapping_[key], cauldronName);
+  }
 }
 
 int CalibrationTargetManager::amountOfActiveCalibrationTargets() const

@@ -35,6 +35,7 @@ public:
   const Well& well(const int wellIndex) const;
   void setWellIsActive(bool active, int wellIndex);
   void setWellIsExcluded(bool excluded, int wellIndex);
+  void renamePropertiesAfterImport();
 
   int addWell(const QString& wellName, double x, double y);  
 

@@ -5,7 +5,7 @@
 
 namespace casaWizard {
 
-QMap<QString, double> defaultUnitConversions =
+static const QMap<QString, double> defaultUnitConversions =
 {
     {"F", 0.3048},
     {"fT", 0.3048},

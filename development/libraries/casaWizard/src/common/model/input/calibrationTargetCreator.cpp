@@ -96,6 +96,8 @@ void CalibrationTargetCreator::AddWellDataToCalibrationTargetManager()
       nTotalTargets += nTargetsPerVariable[iVariable];
     }
   }
+
+  calibrationTargetManager_.renamePropertiesAfterImport();
 }
 
 void CalibrationTargetCreator::AddWellMetaDataToCalibrationTargetManager()

@@ -109,6 +109,16 @@ QString Well::name() const
   return name_;
 }
 
+void Well::setX(const double x)
+{
+  x_ = x;
+}
+
+void Well::setY(const double y)
+{
+  y_ = y;
+}
+
 double Well::x() const
 {
   return x_;

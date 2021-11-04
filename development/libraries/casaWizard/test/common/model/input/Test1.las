@@ -1,3 +1,4 @@
+
 #----------------------------------------------------------------------------
 ~VERSION INFORMATION
 VERS.            2.0                  :CWLS LOG ASCII STANDARD -VERSION 2.0
@@ -29,6 +30,7 @@ EDF   .          9.144018173217773    :DERRICK FLOOR ELEVATION
 DEPT        .m                              : 1      DEPTH
 DEN         .g/cm3                          : 2      Rho
 DENCOR      .g/cm3                          : 3      Rho
+
 DTC         .us/ft                          : 4      p_Sonic
 GR          .API                            : 5      GR
 #

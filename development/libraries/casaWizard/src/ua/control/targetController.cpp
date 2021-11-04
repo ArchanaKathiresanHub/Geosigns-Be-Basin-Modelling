@@ -2,7 +2,7 @@
 
 #include "control/calibrationTargetController.h"
 #include "control/depthTargetController.h"
-#include "control/importWellPopupController.h"
+#include "control/importWellPopupXlsxController.h"
 #include "control/objectiveFunctionController.h"
 #include "control/surfaceTargetController.h"
 #include "model/input/extractWellDataXlsx.h"
@@ -82,9 +82,9 @@ void TargetController::slotPushSelectCalibrationClicked()
 void TargetController::slotLineEditCalibrationTextChanged(const QString& calibrationTargetsFilename)
 {
   scenario_.clearWellsAndCalibrationTargets();
+  ImportWellPopupXlsxController controller(this, scenario_);
+  controller.importWells(calibrationTargetsFilename, scenario_.calibrationTargetManager());
 
-  ExtractWellDataXlsx extractor(calibrationTargetsFilename);
-  CalibrationTargetCreator targetCreator(scenario_, scenario_.calibrationTargetManager(), extractor);
   scenario_.updateObjectiveFunctionFromTargets();
 
   emit signalRefreshChildWidgets();

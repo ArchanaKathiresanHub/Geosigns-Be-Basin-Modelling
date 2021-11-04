@@ -39,6 +39,9 @@ public:
   QVector<const CalibrationTarget*> calibrationTargets() const;
   QVector<const CalibrationTarget*> calibrationTargetsWithPropertyUserName(const QString& propertyUserName) const;
   QString name() const;
+
+  void setX(const double x);
+  void setY(const double y);
   double x() const;
   double y() const;
 

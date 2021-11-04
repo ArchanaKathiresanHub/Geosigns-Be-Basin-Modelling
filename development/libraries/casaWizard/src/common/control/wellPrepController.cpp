@@ -250,7 +250,7 @@ void WellPrepController::slotPushSelectCalibrationClicked()
 
   try
   {
-    importWellPopupController_->importWells(fileName);
+    importWellPopupController_->importWells(fileName, casaScenario_.calibrationTargetManagerWellPrep());
   }
   catch (std::runtime_error e)
   {
@@ -264,6 +264,8 @@ void WellPrepController::slotPushSelectCalibrationClicked()
     reportImportError("Unknown error occurred during import");
     return;
   }
+
+  Logger::log() << "Done!" << Logger::endl();
 
   refreshGUI();
 }

@@ -21,8 +21,8 @@ LASWellInfoSectionReader::LASWellInfoSectionReader(const std::vector<std::string
 
 void LASWellInfoSectionReader::readSection()
 {
-  bool xCoordinateFound = false;
-  bool yCoordinateFound = false;
+  int xCoordinateHighestPriorityFound = INT_MAX;
+  int yCoordinateHighestPriorityFound = INT_MAX;
   bool wellNameFound = false;
 
   for (unsigned int i = 1; i < section_.size(); i++)
@@ -38,20 +38,31 @@ void LASWellInfoSectionReader::readSection()
       welldata_.wellName_ = QString::fromStdString(splitLine[2]);
       wellNameFound = true;
     }
-    if (splitLine[0].find("X") == 0)
+    if (splitLine[0] == "XCOORD" || splitLine[0] == "XWELL" || splitLine[0] == "X")
     {
-      welldata_.xCoord_ = std::stod(splitLine[2]) * importOptions_.userPropertyNameToUnitConversion.value(importOptions_.depthUserPropertyName, 1.0);
-      xCoordinateFound = true;
+      if (getCoordinatePriority(splitLine[0]) < xCoordinateHighestPriorityFound)
+      {
+        welldata_.xCoord_ = std::stod(splitLine[2]);
+        xCoordinateHighestPriorityFound = getCoordinatePriority(splitLine[0]);
+      }
     }
-    if (splitLine[0].find("Y") == 0)
+    if (splitLine[0] == "YCOORD" || splitLine[0] == "YWELL" || splitLine[0] == "Y")
     {
-      welldata_.yCoord_ = std::stod(splitLine[2]) * importOptions_.userPropertyNameToUnitConversion.value(importOptions_.depthUserPropertyName, 1.0);
-      yCoordinateFound = true;
+      if (getCoordinatePriority(splitLine[0]) < yCoordinateHighestPriorityFound)
+      {
+        welldata_.yCoord_ = std::stod(splitLine[2]);
+        yCoordinateHighestPriorityFound = getCoordinatePriority(splitLine[0]);
+      }
     }
-    if (splitLine[0] == "EREF" || splitLine[0] == "ELEV")
+    if (splitLine[0] == "ELEV")
     {
       importOptions_.elevationCorrection = std::stod(splitLine[2]);
       importOptions_.elevationCorrectionUnit = QString::fromStdString(splitLine[1]);
+    }
+    if (splitLine[0] == "EREF")
+    {
+      importOptions_.referenceCorrection = std::stod(splitLine[2]);
+      importOptions_.referenceCorrectionUnit = QString::fromStdString(splitLine[1]);
     }
     if (splitLine[0] == "NULL")
     {
@@ -63,13 +74,21 @@ void LASWellInfoSectionReader::readSection()
   {
     throw std::runtime_error("Invalid LAS-file: No well name is provided.");
   }
-  if (!xCoordinateFound)
+}
+
+int LASWellInfoSectionReader::getCoordinatePriority(const std::string& coordinateName) const
+{
+  if (coordinateName.find("COORD") != std::string::npos)
   {
-    throw std::runtime_error("Invalid LAS-file: No x coordinate is provided.");
+    return 1;
   }
-  if (!yCoordinateFound)
+  else if (coordinateName.find("WELL") != std::string::npos)
   {
-    throw std::runtime_error("Invalid LAS-file: No y coordinate is provided.");
+    return 2;
+  }
+  else
+  {
+    return 3;
   }
 }
 

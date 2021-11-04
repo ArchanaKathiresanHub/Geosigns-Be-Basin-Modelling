@@ -74,7 +74,7 @@ void ExtractWellDataLAS::createSections()
   while (fileStream)
   {
     std::getline(fileStream, line);
-    if (line.find("#") == 0)
+    if (line.find("#") == 0 || line.empty() || line == "\r")
     {
       continue;
     }
@@ -83,7 +83,11 @@ void ExtractWellDataLAS::createSections()
     {
       sections_.push_back(Section());
     }
-    sections_.back().push_back(line);
+
+    if (sections_.size() > 0) // ignore lines before all sections
+    {
+      sections_.back().push_back(line);
+    }
   }
 }
 
@@ -99,7 +103,7 @@ void ExtractWellDataLAS::createMetaDataSections()
   while (fileStream)
   {
     std::getline(fileStream, line);
-    if (line.find("#") == 0)
+    if (line.find("#") == 0 || line.empty() || line == "\r")
     {
       continue;
     }
@@ -113,7 +117,11 @@ void ExtractWellDataLAS::createMetaDataSections()
     {
       sections_.push_back(Section());
     }
-    sections_.back().push_back(line);
+
+    if (sections_.size() > 0)
+    {
+      sections_.back().push_back(line);
+    }
   }
 }
 

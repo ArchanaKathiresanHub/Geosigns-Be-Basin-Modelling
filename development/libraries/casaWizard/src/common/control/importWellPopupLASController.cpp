@@ -47,6 +47,18 @@ bool ImportWellPopupLASController::importWellsToCalibrationTargetManager(const Q
 
 int ImportWellPopupLASController::executeImportWellPopup()
 {
+  if (options_.lasVersion != 2.0)
+  {
+    QMessageBox removeFolder(QMessageBox::Icon::Warning,
+                             "Unsupported LAS version",
+                             "The detected LAS vesion of the input file is different from the supported 2.0 version. This might result in incorrect import data for this file. Continue anyway?",
+                             QMessageBox::Yes | QMessageBox::No );
+    if (removeFolder.exec() == QMessageBox::No)
+    {
+      return QDialog::Rejected;
+    }
+  }
+
   QStringList units;
   QStringList defaultCauldronNames;
   for (const auto& propertyName : importCalibrationTargetManager_.userNameToCauldronNameMapping().keys())
@@ -54,6 +66,10 @@ int ImportWellPopupLASController::executeImportWellPopup()
     if (propertyName == options_.depthUserPropertyName)
     {
       defaultCauldronNames.push_back("Depth");
+    }
+    else if (defaultCauldronNames.contains(importCalibrationTargetManager_.getCauldronPropertyName(propertyName)))
+    {
+      defaultCauldronNames.push_back("Unknown");
     }
     else
     {
@@ -65,8 +81,8 @@ int ImportWellPopupLASController::executeImportWellPopup()
 
   importWellPopup_->updatePropertyTableWithUnits(importCalibrationTargetManager_.userNameToCauldronNameMapping().keys(), defaultCauldronNames,
                                 {"TwoWayTime", "GammaRay", "BulkDensity", "SonicSlowness",
-                                 "Pressure", "Temperature", "VRe", "Velocity", "Depth", "Unknown"}, units, getUnitConversions(units));
-  importWellPopup_->setElevationInfo(options_.elevationCorrection, options_.elevationCorrectionUnit);
+                                 "Pressure", "Temperature", "VRe", "Velocity", "Depth",  "DT_FROM_VP", "TWT_FROM_DT", "Unknown"}, units, getUnitConversions(units));
+  importWellPopup_->setElevationInfo(options_.elevationCorrection, options_.elevationCorrectionUnit, options_.referenceCorrection, options_.referenceCorrectionUnit);
   return importWellPopup_->exec();
 }
 

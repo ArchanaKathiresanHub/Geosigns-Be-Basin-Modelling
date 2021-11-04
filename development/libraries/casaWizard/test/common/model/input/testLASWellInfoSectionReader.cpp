@@ -31,6 +31,7 @@ std::vector<std::string> getSection()
                                       "XCOORD .m          242118.815           :X POS",
                                       "YCOORD .m          1578898.128          :Y POS",
                                       "EREF   .          9.144018173217773    :DERRICK FLOOR ELEVATION",
+                                      "ELEV   .ft        5.0    :",
                                       };
 
   return section;
@@ -46,7 +47,9 @@ TEST(LasWellInfoSectionReaderTest, testRead)
   EXPECT_EQ(wellData.wellName_.toStdString(), "test 1");
   EXPECT_DOUBLE_EQ(wellData.xCoord_, 242118.815);
   EXPECT_DOUBLE_EQ(wellData.yCoord_, 1578898.128);
-  EXPECT_DOUBLE_EQ(options.elevationCorrection, 9.144018173217773);
+  EXPECT_DOUBLE_EQ(options.referenceCorrection, 9.144018173217773);
+  EXPECT_DOUBLE_EQ(options.elevationCorrection, 5.0);
+  EXPECT_EQ(options.elevationCorrectionUnit, "ft");
   EXPECT_DOUBLE_EQ(options.undefinedValue, -999.25);
 }
 
@@ -94,25 +97,16 @@ TEST(LasWellInfoSectionReaderTest, testReadWithInvalidWellNameLineThrows2)
   testSectionThrows(section, expectedMessage);
 }
 
-TEST(LasWellInfoSectionReaderTest, testReadWithoutXCoordinateThrows)
+TEST(LasWellInfoSectionReaderTest, testReadCoordinateOrder)
 {
   std::vector<std::string> section = getSection();
-  section.erase(section.begin() + 12);
-
-  const std::string expectedMessage = "Invalid LAS-file: No x coordinate is provided.";
-
-  testSectionThrows(section, expectedMessage);
+  section.push_back("XWELL. 15 :");
+  section.push_back("Y. 15 :");
+  WellData wellData;
+  ImportOptions options;
+  LASWellInfoSectionReader reader(section, wellData, options);
+  reader.readSection();
+  EXPECT_EQ(wellData.wellName_.toStdString(), "test 1");
+  EXPECT_DOUBLE_EQ(wellData.xCoord_, 242118.815);
+  EXPECT_DOUBLE_EQ(wellData.yCoord_, 1578898.128);
 }
-
-TEST(LasWellInfoSectionReaderTest, testReadWithoutYCoordinateThrows)
-{
-  std::vector<std::string> section = getSection();
-  section.erase(section.begin() + 13);
-
-  const std::string expectedMessage = "Invalid LAS-file: No y coordinate is provided.";
-
-  testSectionThrows(section, expectedMessage);
-}
-
-
-

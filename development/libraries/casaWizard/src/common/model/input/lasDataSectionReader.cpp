@@ -7,6 +7,8 @@
 //
 
 #include "lasDataSectionReader.h"
+
+#include "defaultUnitConversions.h"
 #include "model/input/importOptions.h"
 #include "model/wellData.h"
 
@@ -53,18 +55,21 @@ void LASDataSectionReader::initializeValuesAndDepths()
 
 void LASDataSectionReader::unwrapSection()
 {
-  std::vector<std::string> unwrappedSection;
+  std::vector<std::string> unwrappedSection = {""};
+  int propertyCounter = 0;
   for (int i = 1; i < dataSection_.size(); i++)
   {
     const std::vector<std::string>& splitLine = splitDataLine(dataSection_[i]);
-    if (splitLine.size() == 1) // The index channel is on a separate line, so marks the start of a new 'unwrapped' line
+    if (propertyCounter == welldata_.calibrationTargetVarsUserName_.size() + 1)
     {
+      propertyCounter = 0;
       unwrappedSection.push_back("");
     }
 
     for (const std::string& value : splitLine)
     {
       unwrappedSection.back() += " " + value;
+      propertyCounter++;
     }
   }
 
@@ -142,9 +147,12 @@ void LASDataSectionReader::readColumn(const std::vector<std::string>& splitLine,
 void LASDataSectionReader::addDepth(const double depth, const int counter)
 {
   const double depthUnitConversion = importOptions_.userPropertyNameToUnitConversion.value(importOptions_.depthUserPropertyName, 1.0);
+
   if (importOptions_.correctForElevation)
   {
-    depths_[counter].push_back((depth - importOptions_.elevationCorrection) * depthUnitConversion);
+    const double elevationUnitConversion = defaultUnitConversions.value(importOptions_.elevationCorrectionUnit, depthUnitConversion);
+    const double referenceUnitConversion = defaultUnitConversions.value(importOptions_.referenceCorrectionUnit, depthUnitConversion);
+    depths_[counter].push_back(depth * depthUnitConversion - importOptions_.elevationCorrection * elevationUnitConversion - importOptions_.referenceCorrection * referenceUnitConversion);
   }
   else
   {

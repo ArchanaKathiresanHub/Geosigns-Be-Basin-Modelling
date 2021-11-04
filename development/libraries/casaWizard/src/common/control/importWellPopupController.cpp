@@ -50,7 +50,7 @@ CalibrationTargetManager& ImportWellPopupController::importCalibrationTargetMana
   return importCalibrationTargetManager_;
 }
 
-void ImportWellPopupController::importWells(const QString& fileName)
+void ImportWellPopupController::importWells(const QString& fileName, CalibrationTargetManager& calibrationTargetManager)
 {
   importCalibrationTargetManager_.clear();
 
@@ -59,21 +59,7 @@ void ImportWellPopupController::importWells(const QString& fileName)
     return;
   }
 
-  const QMap<QString, QString>& mapping = importCalibrationTargetManager_.userNameToCauldronNameMapping();
-  for (const QString& key : mapping.keys())
-  {
-    QString cauldronName = mapping[key];
-    // User name is the Cauldron name, or "TWT_FROM_DT" or "DT_FROM_VP"
-    importCalibrationTargetManager_.renameUserPropertyNameInWells(key, cauldronName);
-
-    // Real Cauldron property name, so remove the fake ones
-    if (cauldronName == "TWT_FROM_DT") cauldronName="TwoWayTime";
-    if (cauldronName == "DT_FROM_VP")  cauldronName="SonicSlowness";
-    importCalibrationTargetManager_.addToMapping(mapping[key], cauldronName);
-  }
-
-  CalibrationTargetManager& ctManager = casaScenario_.calibrationTargetManagerWellPrep();
-  ctManager.appendFrom(importCalibrationTargetManager_);
+  calibrationTargetManager.appendFrom(importCalibrationTargetManager_);
 }
 
 void ImportWellPopupController::importOnSeparateThread(CalibrationTargetCreator& calibrationTargetCreator)

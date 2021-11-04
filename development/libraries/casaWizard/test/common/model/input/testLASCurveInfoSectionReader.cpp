@@ -19,7 +19,7 @@ TEST(LasCurveInfoSectionReaderTest, testRead)
 {
   std::vector<std::string> section = {"~CURVE INFORMATION",
                                         "DEPT        .m                              : 1      DEPTH",
-                                        "DEN         .g/cm3                          : 2      Rho",
+                                        "DEN         .g/cm3                          ",
                                         "DENCOR      .g/cm3                          : 3      Rho",
                                         "DTC         .us/ft                          : 4      p_Sonic",
                                         "GR          .API                            : 5      GR"
@@ -106,7 +106,7 @@ TEST(LasCurveInfoSectionReaderTest, testReadWithInvalidLineThrows)
 {
   std::vector<std::string> section = {"~CURVE INFORMATION",
                                         "DEPT.m                             : 1      DEPTH",
-                                        "DEN.g/cm3                 ",
+                                        "DEN.",
                                       };
   WellData wellData;
   ImportOptions options;

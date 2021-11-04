@@ -86,15 +86,33 @@ QMap<QString, double> ImportWellPopupLAS::getUnitConversions() const
   return mapping;
 }
 
-void ImportWellPopupLAS::setElevationInfo(const double elevationCorrection, const QString& elevationCorrectionUnit)
+void ImportWellPopupLAS::setElevationInfo(const double elevationCorrection, const QString& elevationCorrectionUnit, const double referenceCorrection, const QString& referenceCorrectionUnit)
 {
-  if (elevationCorrection == 0.0)
+  if (elevationCorrection == 0.0 && referenceCorrection == 0.0)
   {
     correctForElevation_->setDisabled(true);
   }
   else
   {
-    correctForElevation_->setText("Correct for Elevation: " + QString::number(elevationCorrection) + elevationCorrectionUnit);
+    if (elevationCorrectionUnit == referenceCorrectionUnit)
+    {
+      correctForElevation_->setText("Correct for Elevation: " + QString::number(referenceCorrection + elevationCorrection) + elevationCorrectionUnit);
+    }
+    else
+    {
+      if (elevationCorrection == 0.0)
+      {
+        correctForElevation_->setText("Correct for Elevation: " + QString::number(referenceCorrection) + referenceCorrectionUnit);
+      }
+      else if (referenceCorrection == 0.0)
+      {
+        correctForElevation_->setText("Correct for Elevation: " + QString::number(elevationCorrection) + elevationCorrectionUnit);
+      }
+      else
+      {
+        correctForElevation_->setText("Correct for Elevation: " + QString::number(elevationCorrection) + elevationCorrectionUnit + " + " + QString::number(referenceCorrection) + referenceCorrectionUnit);
+      }
+    }
   }
 }
 

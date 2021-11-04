@@ -27,19 +27,19 @@ void LASVersionInfoSectionReader::readSection()
   {
     throw std::runtime_error("Empty Version Info Section (~V).");
   }
-  bool versionFound = false;
   bool wrappingFound = false;
   for (int i = 1; i < section_.size(); i++)
   {
     const std::vector<std::string> splitLine = splitLASLine(section_[i]);
+
+    if (splitLine.empty())
+    {
+      throw std::runtime_error("Invalid line in Version Info Section (~V).");
+    }
+
     if (splitLine[0] == "VERS")
     {
-      versionFound = true;
-      double version = std::stod(splitLine[2]);
-      if (version != 2.0)
-      {
-        throw std::runtime_error("Wrong LAS version, only 2.0 is supported.");
-      }
+      importOptions_.lasVersion = std::stod(splitLine[2]);
     }
     if (splitLine[0] == "WRAP")
     {
@@ -48,9 +48,9 @@ void LASVersionInfoSectionReader::readSection()
     }
   }
 
-  if (!versionFound)
+  if (importOptions_.lasVersion < 0)
   {
-    throw std::runtime_error("No LAS version detected, only version 2.0 is supported.");
+    throw std::runtime_error("No LAS version detected.");
   }
   if (!wrappingFound)
   {

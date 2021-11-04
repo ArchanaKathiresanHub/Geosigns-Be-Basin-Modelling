@@ -33,13 +33,20 @@ int ImportWellPopupXlsxController::executeImportWellPopup()
   QStringList defaultCauldronNames;
   for (const auto& propertyName : importCalibrationTargetManager_.userNameToCauldronNameMapping().keys())
   {
-    defaultCauldronNames.push_back(importCalibrationTargetManager_.getCauldronPropertyName(propertyName));
+    if (defaultCauldronNames.contains(importCalibrationTargetManager_.getCauldronPropertyName(propertyName)))
+    {
+      defaultCauldronNames.push_back("Unknown");
+    }
+    else
+    {
+      defaultCauldronNames.push_back(importCalibrationTargetManager_.getCauldronPropertyName(propertyName));
+    }
     units.push_back(importCalibrationTargetManager_.getUnit(propertyName));
   }
 
   importWellPopup_->updateTable(importCalibrationTargetManager_.userNameToCauldronNameMapping().keys(), defaultCauldronNames,
                                 {"TwoWayTime", "GammaRay", "BulkDensity", "SonicSlowness",
-                                 "Pressure", "Temperature", "VRe", "Velocity", "Unknown"});
+                                 "Pressure", "Temperature", "VRe", "Velocity", "DT_FROM_VP", "TWT_FROM_DT", "Unknown"});
   return importWellPopup_->exec();
 }
 
