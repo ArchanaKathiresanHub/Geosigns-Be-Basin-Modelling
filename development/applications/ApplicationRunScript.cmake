@@ -35,10 +35,6 @@ DIR=\"$( cd \"$( dirname \"\${BASH_SOURCE\[0\]}\" )\" && pwd )\"
 # Sourcing environment variables script (if it exists)
 [[ -f \"$DIR/${targetName}Env.sh\" ]] && source $DIR/${targetName}Env.sh
 
-# HDF 1.10 onwards file-locking mechanisims is causing problem for us hence swithcing it off...
-## https://support.hdfgroup.org/HDF5/docNewFeatures/SWMR/Design-HDF5-FileLocking.pdf
-export HDF5_USE_FILE_LOCKING=FALSE
-
 # Running application forwarding all the script inputs
 $DIR/${targetName}.exe \"$@\"
 ")
@@ -119,7 +115,6 @@ endforeach()
 "
 # Setting runtime libraries directory
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$DIR
-export HDF5_USE_FILE_LOCKING=FALSE
 
 # In Shell network FLEXLM licens is requred and located in this file
 if [ -z \"$SIEPRTS_LICENSE_FILE\" ] && [ -e /apps/sss/etc/local/flexlmlicenses ]; then

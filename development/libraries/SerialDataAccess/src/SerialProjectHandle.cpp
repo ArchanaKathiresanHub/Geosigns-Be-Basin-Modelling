@@ -33,6 +33,7 @@ const double DefaultUndefinedValue = 99999;
 void ProjectHandle::mapFileCacheConstructor (void){ }
 
 void ProjectHandle::mapFileCacheDestructor  (void){ }
+void ProjectHandle::mapFileCacheCloseFiles  (void){ }
 
 void ProjectHandle::checkForValidPartitioning (const string & , int , int ) const {}
 

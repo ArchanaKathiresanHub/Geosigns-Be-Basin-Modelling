@@ -585,8 +585,9 @@ void InterfaceOutput::disableOutput( ProjectHandle * pHandle, const Interface::S
 }
 
 //------------------------------------------------------------//
-void InterfaceOutput::saveOutput( Interface::ProjectHandle * pHandle, bool isDebug, int outputOptions, const Snapshot * theSnapshot, bool merge ) {
-
+void InterfaceOutput::saveOutput( Interface::ProjectHandle * pHandle, bool isDebug, int outputOptions, const Snapshot * theSnapshot, bool merge ) 
+{
+   pHandle->mapFileCacheCloseFiles();
    bool success = true;
    LogHandler( LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_STEP ) << "save maps to local disk";
    if( isDebug ) {

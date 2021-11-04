@@ -562,6 +562,7 @@ bool ProjectHandle::restartActivity( void )
       ppath << fileName;
       string filePathName = ppath.path();
 
+      mapFileCacheCloseFiles();
       m_mapPropertyValuesWriter->close();
       m_mapPropertyValuesWriter->open( filePathName, false );
       m_mapPropertyValuesWriter->setChunking();
@@ -576,6 +577,8 @@ bool ProjectHandle::restartActivity( void )
 bool ProjectHandle::continueActivity( void )
 {
    if ( getActivityName() == "" || getActivityOutputGrid() == 0 ) return false;
+   
+   mapFileCacheCloseFiles();
 
    saveCreatedMapPropertyValues();      /// creates new TimeIoRecords
 

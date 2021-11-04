@@ -604,6 +604,7 @@ namespace DataAccess
          bool isPrimaryProperty( const std::string propertyName ) const;
 
          void mapFileCacheDestructor( void );
+         void mapFileCacheCloseFiles(void);
 
          database::ProjectFileHandlerPtr getProjectFileHandler () const;
 

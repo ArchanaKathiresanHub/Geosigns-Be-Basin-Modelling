@@ -79,6 +79,20 @@ void ProjectHandle::mapFileCacheDestructor (void)
    }
 }
 
+void ProjectHandle::mapFileCacheCloseFiles(void)
+{
+    if (m_mapFileCache != nullptr) {
+        for (int i = 0; i < 4; ++i)
+        {
+            if (static_cast<struct MapFileCache*> (m_mapFileCache)[i].fileName != "")
+            {
+                static_cast<struct MapFileCache*> (m_mapFileCache)[i].gridMapFile.close();
+                static_cast<struct MapFileCache*> (m_mapFileCache)[i].fileName = "";
+            }
+        }
+    }
+}
+
 void ProjectHandle::checkForValidPartitioning (const string & name, int M, int N) const
 {
    int m, n;
@@ -177,10 +191,26 @@ GridMap * ProjectHandle::loadGridMap (const Parent * parent, unsigned int childI
       H5_PropertyList propertyList;
       H5_PropertyList* propertyListPointer = H5_Parallel_PropertyList::isOneFilePerProcessEnabled() ? &parPropertyList : &propertyList;
 
+      int fileOpen = 0;
+      int globalFileOpen = 0;
+
       if (!gridMapFile.open (filePathName.c_str (), propertyListPointer))
       {
-         cerr << "ERROR in ProjectHandle::loadGridMap (): Could not open " << filePathName << endl;
-         return nullptr;
+          fileOpen = 1;
+      }
+
+      MPI_Allreduce(&fileOpen, &globalFileOpen, 1, MPI_INT, MPI_SUM, PETSC_COMM_WORLD);
+
+      if (globalFileOpen > 0)
+      {
+          gridMapFile.close();
+          propertyListPointer = &parPropertyList;
+
+          if (!gridMapFile.open(filePathName.c_str(), propertyListPointer))
+          {
+              cerr << "ERROR in ProjectHandle::loadGridMap (): Could not open " << filePathName << endl;
+              return nullptr;
+          }
       }
 
       mapFileCache.fileName = filePathName;
