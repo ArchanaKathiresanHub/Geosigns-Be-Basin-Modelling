@@ -16,6 +16,22 @@
 #include <iostream>
 #include <fstream>
 
+#ifndef WIN32
+std::string exec(const char* cmd) {
+    std::array<char, 128> buffer;
+    std::string result;
+    std::unique_ptr<FILE, decltype(&pclose)> pipe(popen(cmd, "r"), pclose);
+    if (!pipe) {
+        throw std::runtime_error("popen() failed!");
+    }
+    while (fgets(buffer.data(), buffer.size(), pipe.get()) != nullptr && result.size() < 200) {
+        result += buffer.data();
+    }
+    return result;
+}
+#endif
+
+
 workloadmanagers::WorkLoadManager::WorkLoadManager(const std::string& JobScriptName)
 {
 	if (!JobScriptName.empty()) {
@@ -64,23 +80,26 @@ std::unique_ptr<workloadmanagers::WorkLoadManager> workloadmanagers::WorkLoadMan
 			type = WorkLoadManagerType::LOCAL;
 			found = true;
 		}
-		if (!found)
-		{
-			if (getenv("LSF_INSTALL") && getenv("LSF_INSTALL")[0])// avoid an empty string literal
-			{
-				type = WorkLoadManagerType::IBM_LSF;
-				found = true;
-			}
-		} 
+#ifndef WIN32
 		if(!found)
 		{
-#ifndef WIN32
-			if (access("/usr/bin/srun", 0) != -1 || (getenv("SLURM_INSTALL") && getenv("SLURM_INSTALL")[0]))
+			std::string result = exec("which sbatch");
+			if (!result.empty()
+					|| access("/usr/bin/srun", 0) != -1
+					|| (getenv("SLURM_INSTALL") && !std::string(std::getenv("SLURM_INSTALL")).empty()))
 			{
 				type = WorkLoadManagerType::SLURM;
 				found = true;
 			}
+		}
 #endif
+		if (!found)
+		{
+			if (getenv("LSF_INSTALL") && !std::string(std::getenv("LSF_INSTALL")).empty())// avoid an empty string literal)// avoid an empty string literal
+			{
+				type = WorkLoadManagerType::IBM_LSF;
+				found = true;
+			}
 		}
 	}
 	
