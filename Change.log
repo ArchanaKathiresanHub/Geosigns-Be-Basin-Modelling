@@ -36,6 +36,14 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2021-11-09  Richard Faasse  <Richard.Faasse@shell.com>
+
+	chg: Added bulk-import for LAS files to the SAC wizard.
+	* Related work items: #417584
+	================== COMMIT-END ========================
+	Commit-ID:<9e118a248d6e3e1d0ff0140d3d24f8306c49f679>	  (refs/heads/master)
+
+++
 2021-11-09  Erik.vandenBoogaard  <Erik.vandenBoogaard@shell.com>
 
 	chg: VSet reader added to Well prep in SAC.
