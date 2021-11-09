@@ -36,6 +36,17 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2021-11-09  Erik.vandenBoogaard  <Erik.vandenBoogaard@shell.com>
+
+	chg: VSet reader added to Well prep in SAC.
+	* Well prep tool in SAC wizard can read VSET files
+
+	* Related work items: #417582
+
+	================== COMMIT-END ========================
+	Commit-ID:<d7ffb011809a045b66671465fea74ee34f52be8d>	  (refs/heads/master)
+
+++
 2021-11-04  Richard Faasse  <Richard.Faasse@shell.com>
 
 	chg: Bug fixes and workflow tweaks for the (las) import of wells.
