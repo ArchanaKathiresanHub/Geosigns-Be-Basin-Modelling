@@ -227,35 +227,66 @@ void WellPrepController::checkEnabledStateButtons() const
 
 void WellPrepController::slotPushSelectCalibrationClicked()
 {
-  QString fileName = QFileDialog::getOpenFileName(wellPrepTab_,
-                                                  "Select calibration targets",
-                                                  "",
-                                                  "Well-data files (*.xlsx *.las *.vs)");
-  if (fileName == "")
+  QFileDialog dialog(wellPrepTab_);
+  dialog.setFileMode(QFileDialog::ExistingFiles);
+  dialog.setNameFilter("Well-data files (*.xlsx *.las *.vs)");
+  QStringList fileNames;
+  if (dialog.exec())
+  {
+    fileNames = dialog.selectedFiles();
+  }
+  else
   {
     return;
   }
 
-  delete importWellPopupController_;
-  const int dotPosition = fileName.lastIndexOf('.');
-  const QString extension = fileName.mid(dotPosition + 1);
-
-  if (extension.toLower() == "xlsx")
+  if (importWellPopupController_)
   {
-    importWellPopupController_ = new ImportWellPopupXlsxController(this, casaScenario_);
+    delete importWellPopupController_;
+    importWellPopupController_ = nullptr;
   }
-  else if (extension.toLower() == "las")
+
+  if (fileNames.size() > 1)
   {
+    for (const QString& fileName : fileNames)
+    {
+      const int dotPosition = fileName.lastIndexOf('.');
+      const QString extension = fileName.mid(dotPosition + 1);
+
+      if (extension.toLower() != "las")
+      {
+        reportImportError("Bulk import is only supported for las files");
+        return;
+      }
+    }
     importWellPopupController_ = new ImportWellPopupLASController(this, casaScenario_);
   }
-  else if (extension.toLower() == "vs")
+  else if (fileNames.size() == 1)
   {
-    importWellPopupController_ = new ImportWellPopupVSETController(this, casaScenario_);
+    const int dotPosition = fileNames[0].lastIndexOf('.');
+    const QString extension = fileNames[0].mid(dotPosition + 1);
+
+    if (extension.toLower() == "xlsx")
+    {
+      importWellPopupController_ = new ImportWellPopupXlsxController(this, casaScenario_);
+    }
+    else if (extension.toLower() == "las")
+    {
+      importWellPopupController_ = new ImportWellPopupLASController(this, casaScenario_);
+    }
+    else if (extension.toLower() == "vs")
+    {
+      importWellPopupController_ = new ImportWellPopupVSETController(this, casaScenario_);
+    }
+  }
+  else
+  {
+    return;
   }
 
   try
   {
-    importWellPopupController_->importWellsToCalibrationTargetManager(fileName, casaScenario_.calibrationTargetManagerWellPrep());
+    importWellPopupController_->importWellsToCalibrationTargetManager(fileNames, casaScenario_.calibrationTargetManagerWellPrep());
   }
   catch (std::runtime_error e)
   {

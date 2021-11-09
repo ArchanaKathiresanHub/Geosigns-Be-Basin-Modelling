@@ -26,10 +26,10 @@ add_casawizard_common_gtest( NAME LASReader
                              SOURCES testLASReader.cpp )
 configure_file( Test1.las Test1.las COPYONLY )
 configure_file( testWrap.las testWrap.las COPYONLY )
+configure_file( Version3.las Version3.las COPYONLY )
 
 add_casawizard_common_gtest( NAME LASWellInfoSectionReader
                              SOURCES testLASWellInfoSectionReader.cpp )
-configure_file( Test1.las Test1.las COPYONLY )
 
 add_casawizard_common_gtest( NAME LASDataSectionReader
                              SOURCES testLASDataSectionReader.cpp )

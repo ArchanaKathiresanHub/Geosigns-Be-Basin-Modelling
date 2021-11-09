@@ -20,7 +20,7 @@ typedef std::vector<std::string> Section;
 class ExtractWellDataLAS : public ExtractWellData
 {
 public:
-  ExtractWellDataLAS(const QString& fileName, ImportOptionsLAS& importOptions);
+  ExtractWellDataLAS(const QStringList& fileNames, ImportOptionsLAS& importOptions);
   ~ExtractWellDataLAS() final;
   bool hasNextWell() const final;
   void extractDataNextWell() final;
@@ -32,11 +32,12 @@ private:
   void createMetaDataSections();
   void readSections();
   bool createSectionReader(const Section& section);
+  void resetImportOptionsWhichDifferPerFile();
 
   std::vector<Section> sections_;
   bool wrapping_;
-  bool hasNextWell_;
-  QString fileName_;
+  QStringList fileNames_;
+  int currentWell_;
   std::unique_ptr<LASSectionReader> sectionReader_;
   ImportOptionsLAS& importOptions_;
 };

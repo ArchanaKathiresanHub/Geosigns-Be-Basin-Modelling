@@ -86,9 +86,10 @@ QMap<QString, double> ImportWellPopupLAS::getUnitConversions() const
   return mapping;
 }
 
-void ImportWellPopupLAS::setElevationInfo(const double elevationCorrection, const QString& elevationCorrectionUnit, const double referenceCorrection, const QString& referenceCorrectionUnit)
+void ImportWellPopupLAS::setElevationInfo(const double elevationCorrection, const QString& elevationCorrectionUnit, const double referenceCorrection, const QString& referenceCorrectionUnit,
+                                          const bool allFilesHaveElevation)
 {
-  if (elevationCorrection == 0.0 && referenceCorrection == 0.0)
+  if (!allFilesHaveElevation || (elevationCorrection == 0.0 && referenceCorrection == 0.0))
   {
     correctForElevation_->setDisabled(true);
   }
@@ -113,6 +114,18 @@ void ImportWellPopupLAS::setElevationInfo(const double elevationCorrection, cons
         correctForElevation_->setText("Correct for Elevation: " + QString::number(elevationCorrection) + elevationCorrectionUnit + " + " + QString::number(referenceCorrection) + referenceCorrectionUnit);
       }
     }
+  }
+}
+
+void ImportWellPopupLAS::setElevationInfo(const bool allFilesHaveElevation)
+{
+  if (allFilesHaveElevation)
+  {
+    correctForElevation_->setText("Correct for Elevation");
+  }
+  else
+  {
+    correctForElevation_->setDisabled(true);
   }
 }
 

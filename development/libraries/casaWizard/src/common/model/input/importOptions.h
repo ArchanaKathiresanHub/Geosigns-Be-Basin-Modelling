@@ -18,8 +18,13 @@ namespace casaWizard
 
 struct ImportOptionsLAS
 {
+  // Properties for all files
   QString depthUserPropertyName = "";
   QMap<QString, double> userPropertyNameToUnitConversion = {};
+  bool allFilesHaveElevation = true;
+  bool singleFile = true;
+
+  // Properties which differ per file
   bool correctForElevation = false;
   double elevationCorrection = 0.0;
   QString elevationCorrectionUnit = "";

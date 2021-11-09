@@ -111,6 +111,7 @@ void CalibrationTargetCreator::addWellDataToCalibrationTargetManager()
 
 void CalibrationTargetCreator::addWellMetaDataToCalibrationTargetManager()
 {
+  extractWellData_.resetExtractor();
   while (extractWellData_.hasNextWell())
   {
     extractWellData_.extractMetaDataNextWell();

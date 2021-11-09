@@ -11,6 +11,8 @@
 #include <QMessageBox>
 #include <QObject>
 
+class QFileDialog;
+
 namespace casaWizard
 {
 
@@ -75,7 +77,7 @@ private:
   UserPropertyChoicePopup* userPropertyChoicePopup_;
   UserPropertyChoiceCutOffPopup* userPropertyChoiceCutOffPopup_;
   QMessageBox waitingDialog_;
-  bool waitingDialogNeeded_;  
+  bool waitingDialogNeeded_;
 };
 
 } // namespace casaWizard

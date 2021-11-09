@@ -38,6 +38,10 @@ void LASVersionInfoSectionReader::readSection()
 
     if (splitLine[0] == "VERS")
     {
+      if (importOptions_.lasVersion > 0 && importOptions_.lasVersion != std::stod(splitLine[2]))
+      {
+        throw std::runtime_error("The LAS versions are not the same for every file.");
+      }
       importOptions_.lasVersion = std::stod(splitLine[2]);
     }
     if (splitLine[0] == "WRAP")

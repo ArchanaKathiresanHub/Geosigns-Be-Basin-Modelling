@@ -84,7 +84,7 @@ void TargetController::slotLineEditCalibrationTextChanged(const QString& calibra
 {
   scenario_.clearWellsAndCalibrationTargets();
   ImportWellPopupXlsxController controller(this, scenario_);
-  controller.importWellsToCalibrationTargetManager(calibrationTargetsFilename, scenario_.calibrationTargetManager());
+  controller.importWellsToCalibrationTargetManager({calibrationTargetsFilename}, scenario_.calibrationTargetManager());
 
   scenario_.updateObjectiveFunctionFromTargets();
 

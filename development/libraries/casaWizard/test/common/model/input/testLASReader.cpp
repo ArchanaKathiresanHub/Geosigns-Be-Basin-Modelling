@@ -17,7 +17,7 @@ using namespace casaWizard;
 TEST(LASReaderTest, testReadFile)
 {
   ImportOptionsLAS options;
-  ExtractWellDataLAS reader("./Test1.las", options);
+  ExtractWellDataLAS reader({"./Test1.las"}, options);
   while (reader.hasNextWell())
   {
     reader.extractMetaDataNextWell();
@@ -30,5 +30,49 @@ TEST(LASReaderTest, testReadFile)
   {
     reader.extractDataNextWell();
     EXPECT_EQ(reader.wellName().toStdString(), "test1");
+  }
+}
+
+TEST(LASReaderTest, testReadMultipleFiles)
+{
+  ImportOptionsLAS options;
+  ExtractWellDataLAS reader({"./Test1.las", "./testWrap.las"}, options);
+  std::vector<std::string> expectedWellNames = {"test1", "ANY ET AL 12-34-12-34"};
+
+  int counter = 0;
+  while (reader.hasNextWell())
+  {
+    reader.extractMetaDataNextWell();
+    EXPECT_EQ(reader.wellName().toStdString(), expectedWellNames[counter]);
+    counter++;
+  }
+
+  reader.resetExtractor();
+
+  counter = 0;
+  while (reader.hasNextWell())
+  {
+    reader.extractDataNextWell();
+    EXPECT_EQ(reader.wellName().toStdString(), expectedWellNames[counter]);
+    counter++;
+  }
+}
+
+TEST(LASReaderTest, testReadMultipleFilesWithDifferentVersionsThrows)
+{
+  ImportOptionsLAS options;
+  ExtractWellDataLAS reader({"./Test1.las", "./Version3.las"}, options);
+
+  try
+  {
+    while (reader.hasNextWell())
+    {
+      reader.extractMetaDataNextWell();
+    }
+  }
+  catch (std::runtime_error e)
+  {
+    std::string message = e.what();
+    EXPECT_EQ(message, "The LAS versions are not the same for every file.");
   }
 }

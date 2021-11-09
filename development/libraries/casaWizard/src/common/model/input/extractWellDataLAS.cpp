@@ -19,14 +19,15 @@
 namespace casaWizard
 {
 
-ExtractWellDataLAS::ExtractWellDataLAS(const QString& fileName, ImportOptionsLAS& importOptions) :
+ExtractWellDataLAS::ExtractWellDataLAS(const QStringList& fileNames, ImportOptionsLAS& importOptions) :
   sections_{},
   wrapping_{false},
-  hasNextWell_{true},
-  fileName_{fileName},
+  fileNames_{fileNames},
+  currentWell_{0},
   sectionReader_{},
   importOptions_{importOptions}
 {
+  importOptions_.singleFile = fileNames_.size() == 1;
 }
 
 ExtractWellDataLAS::~ExtractWellDataLAS()
@@ -35,28 +36,50 @@ ExtractWellDataLAS::~ExtractWellDataLAS()
 
 bool ExtractWellDataLAS::hasNextWell() const
 {
-  return hasNextWell_;
+  return currentWell_ < fileNames_.size();
 }
 
 void ExtractWellDataLAS::extractDataNextWell()
 {
+  delete wellData_;
+  wellData_ = new WellData();
+  resetImportOptionsWhichDifferPerFile();
+
   createSections();
   readSections();
 
-  hasNextWell_ = false;
+  currentWell_++;
 }
 
 void ExtractWellDataLAS::extractMetaDataNextWell()
 {
+  delete wellData_;
+  wellData_ = new WellData();
+  resetImportOptionsWhichDifferPerFile();
+  importOptions_.depthUserPropertyName = "";
+
   createMetaDataSections();
   readSections();
 
-  hasNextWell_ = false;
+  currentWell_++;
+}
+
+void ExtractWellDataLAS::resetImportOptionsWhichDifferPerFile()
+{
+  importOptions_.correctForElevation = false;
+  importOptions_.elevationCorrection = 0.0;
+  importOptions_.elevationCorrectionUnit = "";
+  importOptions_.referenceCorrection = 0.0;
+  importOptions_.referenceCorrectionUnit = "";
+  importOptions_.depthColumn = 0;
+  importOptions_.undefinedValue = -99999;
+  importOptions_.wrapped = false;
+  importOptions_.lasVersion = -1.0;
 }
 
 void ExtractWellDataLAS::resetExtractor()
 {
-  hasNextWell_ = true;
+  currentWell_ = 0;
   delete wellData_;
   wellData_ = new WellData();
   sections_.clear();
@@ -64,7 +87,8 @@ void ExtractWellDataLAS::resetExtractor()
 
 void ExtractWellDataLAS::createSections()
 {
-  std::fstream fileStream(fileName_.toStdString());
+  sections_.clear();
+  std::fstream fileStream(fileNames_[currentWell_].toStdString());
   if (!fileStream.good())
   {
     throw std::runtime_error("The chosen file cannot be opened. Either the file does not exist, or the permissions are wrong") ;
@@ -93,7 +117,8 @@ void ExtractWellDataLAS::createSections()
 
 void ExtractWellDataLAS::createMetaDataSections()
 {
-  std::fstream fileStream(fileName_.toStdString());
+  sections_.clear();
+  std::fstream fileStream(fileNames_[currentWell_].toStdString());
   if (!fileStream.good())
   {
     throw std::runtime_error("The chosen file cannot be opened. Either the file does not exist, or the permissions are wrong") ;

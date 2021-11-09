@@ -24,7 +24,7 @@ public:
 
   int executeImportWellPopup(const QStringList& propertyUserNames, const QStringList& defaultCauldronNames);
   ImportWellPopup* importWellPopup() const final;
-  void importWellsToCalibrationTargetManager(const QString &fileName, CalibrationTargetManager& calibrationTargetManager) final;
+  void importWellsToCalibrationTargetManager(const QStringList& fileNames, CalibrationTargetManager& calibrationTargetManager) final;
 
 private slots:
   void slotAcceptedClicked();

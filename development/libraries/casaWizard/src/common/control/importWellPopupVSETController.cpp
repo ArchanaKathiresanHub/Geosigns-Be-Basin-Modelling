@@ -44,9 +44,9 @@ ImportWellPopup* ImportWellPopupVSETController::importWellPopup() const
   return importWellPopup_;
 }
 
-void ImportWellPopupVSETController::importWellsToCalibrationTargetManager(const QString& fileName, CalibrationTargetManager& calibrationTargetManager)
+void ImportWellPopupVSETController::importWellsToCalibrationTargetManager(const QStringList& fileNames, CalibrationTargetManager& calibrationTargetManager)
 {  
-  ExtractWellDataVSET extractor(fileName);
+  ExtractWellDataVSET extractor(fileNames[0]);
   CalibrationTargetCreator targetCreator(casaScenario_, calibrationTargetManager, extractor);
   targetCreator.readMetaDataFromFile();
   options_ = extractor.getImportOptions();

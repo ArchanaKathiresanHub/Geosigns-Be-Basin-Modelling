@@ -30,9 +30,9 @@ ImportWellPopupLASController::~ImportWellPopupLASController()
   importWellPopup_ = nullptr;
 }
 
-void ImportWellPopupLASController::importWellsToCalibrationTargetManager(const QString& fileName, CalibrationTargetManager& calibrationTargetManager)
+void ImportWellPopupLASController::importWellsToCalibrationTargetManager(const QStringList& fileNames, CalibrationTargetManager& calibrationTargetManager)
 {
-  ExtractWellDataLAS extractor(fileName, options_);
+  ExtractWellDataLAS extractor(fileNames, options_);
   CalibrationTargetCreator targetCreator(casaScenario_, calibrationTargetManager, extractor);
   targetCreator.readMetaDataFromFile();
 
@@ -67,7 +67,14 @@ int ImportWellPopupLASController::executeImportWellPopup(const QStringList& prop
   importWellPopup_->updatePropertyTableWithUnits(propertyUserNames, defaultCauldronNames,
                                 {"TwoWayTime", "GammaRay", "BulkDensity", "SonicSlowness",
                                  "Pressure", "Temperature", "VRe", "Velocity", "Depth",  "DT_FROM_VP", "TWT_FROM_DT", "Unknown"}, units, getUnitConversions(units));
-  importWellPopup_->setElevationInfo(options_.elevationCorrection, options_.elevationCorrectionUnit, options_.referenceCorrection, options_.referenceCorrectionUnit);
+  if (options_.singleFile)
+  {
+    importWellPopup_->setElevationInfo(options_.elevationCorrection, options_.elevationCorrectionUnit, options_.referenceCorrection, options_.referenceCorrectionUnit, options_.allFilesHaveElevation);
+  }
+  else
+  {
+    importWellPopup_->setElevationInfo(options_.allFilesHaveElevation);
+  }
   return importWellPopup_->exec();
 }
 

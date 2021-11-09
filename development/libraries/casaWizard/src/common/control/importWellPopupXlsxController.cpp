@@ -40,9 +40,9 @@ ImportWellPopup*ImportWellPopupXlsxController::importWellPopup() const
   return importWellPopup_;
 }
 
-void ImportWellPopupXlsxController::importWellsToCalibrationTargetManager(const QString& fileName, CalibrationTargetManager& calibrationTargetManager)
+void ImportWellPopupXlsxController::importWellsToCalibrationTargetManager(const QStringList& fileNames, CalibrationTargetManager& calibrationTargetManager)
 {  
-  ExtractWellDataXlsx extractor(fileName);
+  ExtractWellDataXlsx extractor(fileNames[0]);
   CalibrationTargetCreator targetCreator(casaScenario_, calibrationTargetManager, extractor);
   targetCreator.readMetaDataFromFile();
 

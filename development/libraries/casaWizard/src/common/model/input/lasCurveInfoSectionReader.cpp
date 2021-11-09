@@ -22,7 +22,7 @@ LASCurveInfoSectionReader::LASCurveInfoSectionReader(const std::vector<std::stri
 void LASCurveInfoSectionReader::readSection()
 {
   validateSection();
-
+  bool depthFound = false;
   for (unsigned int i = 1; i < section_.size(); i++)
   {
     // Line layout:
@@ -36,6 +36,7 @@ void LASCurveInfoSectionReader::readSection()
     if (splitLine[0] == importOptions_.depthUserPropertyName.toStdString())
     {
       importOptions_.depthColumn = i-1;
+      depthFound = true;
       continue;
     }
 
@@ -46,6 +47,11 @@ void LASCurveInfoSectionReader::readSection()
   if (importOptions_.depthUserPropertyName == "")
   {
     importOptions_.depthUserPropertyName = welldata_.calibrationTargetVarsUserName_[0];
+    depthFound = true;
+  }
+  if (!depthFound)
+  {
+    throw std::runtime_error("At least one las file does not contain the depth property " + importOptions_.depthUserPropertyName.toStdString());
   }
 
   welldata_.nCalibrationTargetVars_ = welldata_.calibrationTargetVarsUserName_.size();
