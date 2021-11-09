@@ -13,7 +13,7 @@
 namespace casaWizard
 {
 
-LASSectionReader::LASSectionReader(const std::vector<std::string>& section, WellData& welldata, ImportOptions& importOptions) :
+LASSectionReader::LASSectionReader(const std::vector<std::string>& section, WellData& welldata, ImportOptionsLAS& importOptions) :
   section_{section},
   welldata_{welldata},
   importOptions_{importOptions}

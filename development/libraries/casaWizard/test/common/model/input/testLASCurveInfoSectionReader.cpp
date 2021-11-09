@@ -25,7 +25,7 @@ TEST(LasCurveInfoSectionReaderTest, testRead)
                                         "GR          .API                            : 5      GR"
                                       };
   WellData wellData;
-  ImportOptions options;
+  ImportOptionsLAS options;
   options.depthUserPropertyName = "DEPT";
 
   LASCurveInfoSectionReader reader(section, wellData, options);
@@ -57,7 +57,7 @@ TEST(LasCurveInfoSectionReaderTest, testReadWithoutSpacesBetweenPropertyAndUnit)
                                         "GR.API                            : 6      GR"
                                       };
   WellData wellData;
-  ImportOptions options;
+  ImportOptionsLAS options;
   options.depthUserPropertyName = "TVD";
   LASCurveInfoSectionReader reader(section, wellData, options);
   reader.readSection();
@@ -86,7 +86,7 @@ TEST(LasCurveInfoSectionReaderTest, testReadWithMissingPropertyNameThrows)
                                         ".g/cm3                          : 2      Rho",
                                       };
   WellData wellData;
-  ImportOptions options;
+  ImportOptionsLAS options;
 
   LASCurveInfoSectionReader reader(section, wellData, options);
   EXPECT_THROW(reader.readSection(), std::runtime_error);
@@ -109,7 +109,7 @@ TEST(LasCurveInfoSectionReaderTest, testReadWithInvalidLineThrows)
                                         "DEN.",
                                       };
   WellData wellData;
-  ImportOptions options;
+  ImportOptionsLAS options;
   LASCurveInfoSectionReader reader(section, wellData, options);
   EXPECT_THROW(reader.readSection(), std::runtime_error);
 
@@ -129,7 +129,7 @@ TEST(LasCurveInfoSectionReaderTest, testReadWithoutCurveInfoThrows)
   std::vector<std::string> section = {"~CURVE INFORMATION"
                                       };
   WellData wellData;
-  ImportOptions options;
+  ImportOptionsLAS options;
   LASCurveInfoSectionReader reader(section, wellData, options);
   EXPECT_THROW(reader.readSection(), std::runtime_error);
 

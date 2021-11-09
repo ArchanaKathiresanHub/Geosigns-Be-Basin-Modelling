@@ -37,3 +37,7 @@ add_casawizard_common_gtest( NAME LASCurveInfoSectionReader
                              SOURCES testLASCurveInfoSectionReader.cpp )
 add_casawizard_common_gtest( NAME LASVersionInfoSectionReader
                              SOURCES testLASVersionInfoSectionReader.cpp )
+
+add_casawizard_common_gtest( NAME VSETReader
+                             SOURCES testVSETReader.cpp )
+configure_file( VSETdata.vs VSETdata.vs COPYONLY )

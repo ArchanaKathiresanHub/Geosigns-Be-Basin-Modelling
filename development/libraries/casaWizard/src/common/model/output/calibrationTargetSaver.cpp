@@ -26,7 +26,7 @@ CalibrationTargetSaver::CalibrationTargetSaver(const CalibrationTargetManager& c
 {
 }
 
-void CalibrationTargetSaver::saveToExcel(const QString& excelFileName)
+void CalibrationTargetSaver::saveToExcel(const QString& excelFileName) const
 {  
   QFile file(excelFileName);
   if (file.open(QFile::ReadWrite))
@@ -81,6 +81,26 @@ void CalibrationTargetSaver::saveToExcel(const QString& excelFileName)
   {
     Logger::log() << "Failed to save data to " << excelFileName << Logger::endl();
   }
+}
+
+bool CalibrationTargetSaver::saveXYtoASCII(const QString& filename) const
+{
+  QFile file(filename);
+  if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
+  {
+    Logger::log() << "Can not open file " << filename << " for writing." << Logger::endl();
+    return false;
+  }
+
+  Logger::log() << "Writing X-Y data to " << filename << Logger::endl();
+  QByteArray data;
+  for ( const Well* well : calibrationTargetManager_.activeWells())
+  {
+    data += QString::number(well->x()) + " " + QString::number(well->y()) + "\n";
+  }
+  file.write(data);
+  file.close();
+  return true;
 }
 
 } // namespace casaWizard

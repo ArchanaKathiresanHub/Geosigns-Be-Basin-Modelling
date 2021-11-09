@@ -14,6 +14,9 @@
 #include <QMessageBox>
 #include <QObject>
 #include <QSet>
+#include <QMessageBox>
+
+#include <memory>
 
 #include <memory>
 
@@ -31,20 +34,15 @@ class ImportWellPopupController : public QObject
 {
   Q_OBJECT
 public:
-  explicit ImportWellPopupController(QObject* parent, CasaScenario& casaScenario);
-  CalibrationTargetManager& importCalibrationTargetManager();
-
-  void importWells(const QString& fileName, CalibrationTargetManager& calibrationTargetManager);
+  explicit ImportWellPopupController(QObject* parent, CasaScenario& casaScenario);  
 
   virtual ImportWellPopup* importWellPopup() const = 0;
-  virtual bool importWellsToCalibrationTargetManager(const QString& fileName) = 0;
+  virtual void importWellsToCalibrationTargetManager(const QString& fileName, CalibrationTargetManager& calibrationTargetManager) = 0;
 
-protected:
-  CalibrationTargetManager importCalibrationTargetManager_;
+protected:  
   CasaScenario& casaScenario_;
 
-  void importOnSeparateThread(CalibrationTargetCreator& calibrationTargetCreator);
-  void addNewMapping();
+  void importOnSeparateThread(CalibrationTargetCreator& calibrationTargetCreator);  
 
 private slots:
   void slotCloseWaitingDialog();

@@ -10,6 +10,7 @@
 
 #include "extractWellDataLAS.h"
 #include "extractWellDataXlsx.h"
+#include "extractWellDataVSET.h"
 
 #include "model/casaScenario.h"
 
@@ -21,6 +22,7 @@ namespace casaWizard
 CalibrationTargetCreator::CalibrationTargetCreator(CasaScenario& casaScenario,
                                                    CalibrationTargetManager& calibrationTargetManager,
                                                    ExtractWellData& extractWellData) :
+  importCalibrationTargetManager_{},
   calibrationTargetManager_{calibrationTargetManager},
   casaScenario_{casaScenario},
   extractWellData_{extractWellData}
@@ -33,25 +35,32 @@ CalibrationTargetCreator::~CalibrationTargetCreator()
 
 void CalibrationTargetCreator::createFromFile()
 {
-  AddWellDataToCalibrationTargetManager();
+  addWellDataToCalibrationTargetManager();
+
+  calibrationTargetManager_.appendFrom(importCalibrationTargetManager_);
 }
 
 void CalibrationTargetCreator::readMetaDataFromFile()
 {
-  AddWellMetaDataToCalibrationTargetManager();
+  addWellMetaDataToCalibrationTargetManager();
 }
 
-void CalibrationTargetCreator::AddWellDataToCalibrationTargetManager()
+void CalibrationTargetCreator::addWellDataToCalibrationTargetManager()
 {
   extractWellData_.resetExtractor();
+
   while (extractWellData_.hasNextWell())
   {
     extractWellData_.extractDataNextWell();
-    const int wellIndex = calibrationTargetManager_.addWell(extractWellData_.wellName(), extractWellData_.xCoord(), extractWellData_.yCoord());
+    if (extractWellData_.wellName().isEmpty())
+    {
+      continue;
+    }
+    const int wellIndex = importCalibrationTargetManager_.addWell(extractWellData_.wellName(), extractWellData_.xCoord(), extractWellData_.yCoord());
 
     const QVector<QString> variableUserNames = extractWellData_.calibrationTargetVarsUserName();
 
-    calibrationTargetManager_.setWellMetaData(wellIndex, extractWellData_.metaData());
+    importCalibrationTargetManager_.setWellMetaData(wellIndex, extractWellData_.metaData());
 
     const QVector<unsigned int> nTargetsPerVariable = extractWellData_.nDataPerTargetVar();
 
@@ -76,20 +85,20 @@ void CalibrationTargetCreator::AddWellDataToCalibrationTargetManager()
       {
         // If two way time is defined at the sea surface, this value should be skipped, since the domain starts
         // at the mudline.
-        if (calibrationTargetManager_.getCauldronPropertyName(variableUserNames[iVariable]) == "TwoWayTime" && z[iTarget] == 0.0 && value[iTarget] == 0.0)
+        if (importCalibrationTargetManager_.getCauldronPropertyName(variableUserNames[iVariable]) == "TwoWayTime" && z[iTarget] == 0.0 && value[iTarget] == 0.0)
         {
           continue;
         }
-        if (calibrationTargetManager_.getCauldronPropertyName(variableUserNames[iVariable]) == "Unknown")
+        if (importCalibrationTargetManager_.getCauldronPropertyName(variableUserNames[iVariable]) == "Unknown")
         {
           continue;
         }
 
-        const QString targetName(calibrationTargetManager_.getCauldronPropertyName(variableUserNames[iVariable]) + "(" +
+        const QString targetName(importCalibrationTargetManager_.getCauldronPropertyName(variableUserNames[iVariable]) + "(" +
                                  QString::number(extractWellData_.xCoord(),'f',1) + "," +
                                  QString::number(extractWellData_.yCoord(),'f',1) + "," +
                                  QString::number(z[iTarget],'f',1) + ")");
-        calibrationTargetManager_.addCalibrationTarget(targetName, variableUserNames[iVariable],
+        importCalibrationTargetManager_.addCalibrationTarget(targetName, variableUserNames[iVariable],
                                                       wellIndex, z[iTarget], value[iTarget], stdDeviations[iTarget]);
 
       }
@@ -97,10 +106,10 @@ void CalibrationTargetCreator::AddWellDataToCalibrationTargetManager()
     }
   }
 
-  calibrationTargetManager_.renamePropertiesAfterImport();
+  importCalibrationTargetManager_.renamePropertiesAfterImport();
 }
 
-void CalibrationTargetCreator::AddWellMetaDataToCalibrationTargetManager()
+void CalibrationTargetCreator::addWellMetaDataToCalibrationTargetManager()
 {
   while (extractWellData_.hasNextWell())
   {
@@ -111,9 +120,43 @@ void CalibrationTargetCreator::AddWellMetaDataToCalibrationTargetManager()
 
     for (int i = 0; i < variableUserNames.size(); i++)
     {
-      calibrationTargetManager_.addToMapping(variableUserNames[i], variableCauldronNames[i]);
-      calibrationTargetManager_.addUnits(variableUserNames[i], extractWellData_.units()[i]);
+      importCalibrationTargetManager_.addToMapping(variableUserNames[i], variableCauldronNames[i]);
+      importCalibrationTargetManager_.addUnits(variableUserNames[i], extractWellData_.units()[i]);
     }
+  }
+}
+
+void CalibrationTargetCreator::addNewMapping(const QMap<QString, QString> newMapping)
+{
+  for (const QString& key : newMapping.keys())
+  {
+    if (newMapping[key] != "Depth")
+    {
+      importCalibrationTargetManager_.addToMapping(key, newMapping[key]);
+    }
+  }
+}
+
+void CalibrationTargetCreator::getNamesAndUnits(const QString& depthUserPropertyName, QStringList& propertyUserNames, QStringList& defaultCauldronNames, QStringList& units)
+{
+  propertyUserNames = importCalibrationTargetManager_.userNameToCauldronNameMapping().keys();
+
+  for (const auto& propertyName : propertyUserNames)
+  {
+    if (propertyName == depthUserPropertyName)
+    {
+      defaultCauldronNames.push_back("Depth");
+    }
+    else if (defaultCauldronNames.contains(importCalibrationTargetManager_.getCauldronPropertyName(propertyName)))
+    {
+      defaultCauldronNames.push_back("Unknown");
+    }
+    else
+    {
+      defaultCauldronNames.push_back(importCalibrationTargetManager_.getCauldronPropertyName(propertyName));
+    }
+
+    units.push_back(importCalibrationTargetManager_.getUnit(propertyName));
   }
 }
 

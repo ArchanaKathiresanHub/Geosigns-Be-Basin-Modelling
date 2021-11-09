@@ -11,12 +11,9 @@
 
 #include <memory>
 
-class QTextStream;
-
 namespace casaWizard
 {
 
-class ExtractWellDataXlsx;
 class ProjectWriter;
 
 class CasaScenario : public Writable

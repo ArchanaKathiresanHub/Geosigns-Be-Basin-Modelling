@@ -16,9 +16,10 @@ namespace casaWizard
 class LASCurveInfoSectionReader : public LASSectionReader
 {
 public:
-  LASCurveInfoSectionReader(const std::vector<std::string>& section, WellData& welldata, ImportOptions& importOptions);
+  LASCurveInfoSectionReader(const std::vector<std::string>& section, WellData& welldata, ImportOptionsLAS& importOptions);
 
   void readSection() final;
+
 private:
   bool curveInfoLineInvalid(const std::vector<std::string>& splitLine);
   void validateSection();

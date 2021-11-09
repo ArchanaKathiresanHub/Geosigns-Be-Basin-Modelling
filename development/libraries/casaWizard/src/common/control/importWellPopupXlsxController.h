@@ -22,9 +22,9 @@ public:
   ImportWellPopupXlsxController(QObject* parent, CasaScenario& casaScenario);
   ~ImportWellPopupXlsxController() final;
 
-  int executeImportWellPopup();
+  int executeImportWellPopup(const QStringList& propertyUserNames, const QStringList& defaultCauldronNames);
   ImportWellPopup* importWellPopup() const final;
-  bool importWellsToCalibrationTargetManager(const QString &fileName) final;
+  void importWellsToCalibrationTargetManager(const QString &fileName, CalibrationTargetManager& calibrationTargetManager) final;
 
 private slots:
   void slotAcceptedClicked();

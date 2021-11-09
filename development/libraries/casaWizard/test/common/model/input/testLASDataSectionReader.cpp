@@ -26,7 +26,7 @@ TEST(LASDataSectionReaderTest, testRead)
   wellData.nCalibrationTargetVars_ = wellData.calibrationTargetVarsUserName_.size();
   wellData.nDataPerTargetVar_.resize(wellData.nCalibrationTargetVars_);
   std::fill(wellData.nDataPerTargetVar_.begin(), wellData.nDataPerTargetVar_.end(), 0);
-  ImportOptions options;
+  ImportOptionsLAS options;
   options.undefinedValue = -999.25;
   options.depthColumn = 0;
 
@@ -58,7 +58,7 @@ TEST(LASDataSectionReaderTest, testReadDepthWithCorrection)
   wellData.nCalibrationTargetVars_ = wellData.calibrationTargetVarsUserName_.size();
   wellData.nDataPerTargetVar_.resize(wellData.nCalibrationTargetVars_);
   std::fill(wellData.nDataPerTargetVar_.begin(), wellData.nDataPerTargetVar_.end(), 0);
-  ImportOptions options;
+  ImportOptionsLAS options;
   options.undefinedValue = -999.25;
   options.depthColumn = 0;
   options.correctForElevation = true;
@@ -90,7 +90,7 @@ TEST(LASDataSectionReaderTest, testReadWithDifferentDepthColumn)
   wellData.nCalibrationTargetVars_ = wellData.calibrationTargetVarsUserName_.size();
   wellData.nDataPerTargetVar_.resize(wellData.nCalibrationTargetVars_);
   std::fill(wellData.nDataPerTargetVar_.begin(), wellData.nDataPerTargetVar_.end(), 0);
-  ImportOptions options;
+  ImportOptionsLAS options;
   options.undefinedValue = -999.25;
   options.depthColumn = 1;
 
@@ -124,7 +124,7 @@ TEST(LASDataSectionReaderTest, testReadWithoutColumnNames)
   wellData.nCalibrationTargetVars_ = wellData.calibrationTargetVarsUserName_.size();
   wellData.nDataPerTargetVar_.resize(wellData.nCalibrationTargetVars_);
   std::fill(wellData.nDataPerTargetVar_.begin(), wellData.nDataPerTargetVar_.end(), 0);
-  ImportOptions options;
+  ImportOptionsLAS options;
   options.undefinedValue = -999.25;
   options.depthColumn = 0;
 
@@ -157,7 +157,7 @@ TEST(LASDataSectionReaderTest, testReadWithInvalidLine)
   wellData.nCalibrationTargetVars_ = wellData.calibrationTargetVarsUserName_.size();
   wellData.nDataPerTargetVar_.resize(wellData.nCalibrationTargetVars_);
   std::fill(wellData.nDataPerTargetVar_.begin(), wellData.nDataPerTargetVar_.end(), 0);
-  ImportOptions options;
+  ImportOptionsLAS options;
   options.undefinedValue = -999.25;
   options.depthColumn = 1;
 
@@ -186,7 +186,7 @@ TEST(LASDataSectionReaderTest, testReadWithUnitConversions)
   wellData.nCalibrationTargetVars_ = wellData.calibrationTargetVarsUserName_.size();
   wellData.nDataPerTargetVar_.resize(wellData.nCalibrationTargetVars_);
   std::fill(wellData.nDataPerTargetVar_.begin(), wellData.nDataPerTargetVar_.end(), 0);
-  ImportOptions options;
+  ImportOptionsLAS options;
   options.depthUserPropertyName = "DEPTH";
   options.userPropertyNameToUnitConversion = {{"DEN", 1000}, {"DENCOR", 1000}, {"DTC", 3.28083989501}, {"DEPTH", 3}};
   options.undefinedValue = -999.25;
@@ -251,7 +251,7 @@ TEST(LASDataSectionReaderTest, testReadWrappedData)
   wellData.nCalibrationTargetVars_ = wellData.calibrationTargetVarsUserName_.size();
   wellData.nDataPerTargetVar_.resize(wellData.nCalibrationTargetVars_);
   std::fill(wellData.nDataPerTargetVar_.begin(), wellData.nDataPerTargetVar_.end(), 0);
-  ImportOptions options;
+  ImportOptionsLAS options;
   options.depthUserPropertyName = "DEPTH";
   options.undefinedValue = -999.25;
   options.depthColumn = 0;
@@ -332,7 +332,7 @@ TEST(LASDataSectionReaderTest, testReadWrappedDataWithOnePropertyOnLastWrappedLi
   wellData.nCalibrationTargetVars_ = wellData.calibrationTargetVarsUserName_.size();
   wellData.nDataPerTargetVar_.resize(wellData.nCalibrationTargetVars_);
   std::fill(wellData.nDataPerTargetVar_.begin(), wellData.nDataPerTargetVar_.end(), 0);
-  ImportOptions options;
+  ImportOptionsLAS options;
   options.depthUserPropertyName = "DEPTH";
   options.undefinedValue = -999.25;
   options.depthColumn = 0;

@@ -9,19 +9,22 @@
 #pragma once
 
 #include "importWellPopupController.h"
-#include "model/input/extractWellDataLAS.h"
+
+#include "model/input/importOptions.h"
 
 namespace casaWizard
 {
 
-class ImportWellPopupLAS;
+class ImportWellPopupVSET;
 
-class ImportWellPopupLASController : public ImportWellPopupController
+class ImportWellPopupVSETController : public ImportWellPopupController
 {
   Q_OBJECT
 public:
-  explicit ImportWellPopupLASController(QObject* parent, CasaScenario& casaScenario);
-  ~ImportWellPopupLASController() final;
+  explicit ImportWellPopupVSETController(QObject* parent, CasaScenario& casaScenario);
+  ~ImportWellPopupVSETController() final;
+
+  int executeImportWellPopup();
   ImportWellPopup* importWellPopup() const final;
   void importWellsToCalibrationTargetManager(const QString& fileName, CalibrationTargetManager& calibrationTargetManager) final;
 
@@ -29,12 +32,8 @@ private slots:
   void slotAcceptedClicked();
 
 private:
-  QVector<double> getUnitConversions(const QStringList& units);
-
-  ImportOptionsLAS options_;
-  int executeImportWellPopup(const QStringList& propertyUserNames, const QStringList& defaultCauldronNames, const QStringList& units);
-
-  ImportWellPopupLAS* importWellPopup_;
+  ImportOptionsVSET options_;
+  ImportWellPopupVSET* importWellPopup_;
 };
 
 } // namespace casaWizard

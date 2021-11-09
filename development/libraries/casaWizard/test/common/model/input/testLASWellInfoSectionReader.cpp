@@ -41,7 +41,7 @@ TEST(LasWellInfoSectionReaderTest, testRead)
 {
   std::vector<std::string> section = getSection();
   WellData wellData;
-  ImportOptions options;
+  ImportOptionsLAS options;
   LASWellInfoSectionReader reader(section, wellData, options);
   reader.readSection();
   EXPECT_EQ(wellData.wellName_.toStdString(), "test 1");
@@ -56,7 +56,7 @@ TEST(LasWellInfoSectionReaderTest, testRead)
 void testSectionThrows(const std::vector<std::string>& section, const std::string& expectedMessage)
 {
   WellData wellData;
-  ImportOptions options;
+  ImportOptionsLAS options;
   LASWellInfoSectionReader reader(section, wellData, options);
   EXPECT_THROW(reader.readSection(), std::runtime_error);
 
@@ -103,7 +103,7 @@ TEST(LasWellInfoSectionReaderTest, testReadCoordinateOrder)
   section.push_back("XWELL. 15 :");
   section.push_back("Y. 15 :");
   WellData wellData;
-  ImportOptions options;
+  ImportOptionsLAS options;
   LASWellInfoSectionReader reader(section, wellData, options);
   reader.readSection();
   EXPECT_EQ(wellData.wellName_.toStdString(), "test 1");

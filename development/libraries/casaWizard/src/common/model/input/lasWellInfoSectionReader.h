@@ -19,7 +19,7 @@ namespace casaWizard
 class LASWellInfoSectionReader : public LASSectionReader
 {
 public:
-  explicit LASWellInfoSectionReader(const std::vector<std::string>& section, WellData& welldata, ImportOptions& importOptions);
+  explicit LASWellInfoSectionReader(const std::vector<std::string>& section, WellData& welldata, ImportOptionsLAS& importOptions);
   void readSection() final;
 
 private:

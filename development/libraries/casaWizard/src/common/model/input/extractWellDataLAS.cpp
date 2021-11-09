@@ -19,7 +19,7 @@
 namespace casaWizard
 {
 
-ExtractWellDataLAS::ExtractWellDataLAS(const QString& fileName, ImportOptions& importOptions) :
+ExtractWellDataLAS::ExtractWellDataLAS(const QString& fileName, ImportOptionsLAS& importOptions) :
   sections_{},
   wrapping_{false},
   hasNextWell_{true},

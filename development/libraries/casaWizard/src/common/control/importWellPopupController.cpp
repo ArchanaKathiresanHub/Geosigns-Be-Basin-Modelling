@@ -24,42 +24,12 @@ namespace casaWizard
 
 ImportWellPopupController::ImportWellPopupController(QObject* parent, CasaScenario& casaScenario):
   QObject(parent),
-  importCalibrationTargetManager_{},
   casaScenario_{casaScenario},
   waitingDialog_{},
   waitingDialogNeeded_{true}
 {
   waitingDialog_.setIcon(QMessageBox::Icon::Information);
   waitingDialog_.setStandardButtons(nullptr);
-}
-
-void ImportWellPopupController::addNewMapping()
-{
-  const QMap<QString, QString> newMapping = importWellPopup()->getCurrentMapping();
-  for (const QString& key : newMapping.keys())
-  {
-    if (newMapping[key] != "Depth")
-    {
-      importCalibrationTargetManager_.addToMapping(key, newMapping[key]);
-    }
-  }
-}
-
-CalibrationTargetManager& ImportWellPopupController::importCalibrationTargetManager()
-{
-  return importCalibrationTargetManager_;
-}
-
-void ImportWellPopupController::importWells(const QString& fileName, CalibrationTargetManager& calibrationTargetManager)
-{
-  importCalibrationTargetManager_.clear();
-
-  if (!importWellsToCalibrationTargetManager(fileName))
-  {
-    return;
-  }
-
-  calibrationTargetManager.appendFrom(importCalibrationTargetManager_);
 }
 
 void ImportWellPopupController::importOnSeparateThread(CalibrationTargetCreator& calibrationTargetCreator)

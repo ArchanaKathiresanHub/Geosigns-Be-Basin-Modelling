@@ -8,18 +8,19 @@
 
 #pragma once
 
+#include "importOptions.h"
+#include "model/calibrationTargetManager.h"
+
+#include <QMap>
+
 #include <memory>
 
-#include "importOptions.h"
-
 class QString;
-
 
 namespace casaWizard
 {
 
 class CasaScenario;
-class CalibrationTargetManager;
 class ExtractWellData;
 
 class CalibrationTargetCreator
@@ -32,11 +33,14 @@ public:
 
   void createFromFile();
   void readMetaDataFromFile();
+  void addNewMapping(const QMap<QString, QString> newMapping);
+  void getNamesAndUnits(const QString& depthUserPropertyName, QStringList& propertyNames, QStringList& defaultCauldronNames, QStringList& units);
 
 private:
-  void AddWellDataToCalibrationTargetManager();
-  void AddWellMetaDataToCalibrationTargetManager();
+  void addWellDataToCalibrationTargetManager();
+  void addWellMetaDataToCalibrationTargetManager();  
 
+  CalibrationTargetManager importCalibrationTargetManager_;
   CalibrationTargetManager& calibrationTargetManager_;
   CasaScenario& casaScenario_;
   ExtractWellData& extractWellData_;

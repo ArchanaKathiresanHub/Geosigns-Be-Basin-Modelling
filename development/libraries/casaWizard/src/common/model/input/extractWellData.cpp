@@ -39,7 +39,7 @@ const QString& ExtractWellData::metaData() const
   return wellData_->metaData_;
 }
 
-const QString&ExtractWellData::wellName() const
+const QString& ExtractWellData::wellName() const
 {
   return wellData_->wellName_;
 }

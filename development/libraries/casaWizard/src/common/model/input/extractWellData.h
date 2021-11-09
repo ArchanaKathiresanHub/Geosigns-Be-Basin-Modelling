@@ -18,7 +18,6 @@ namespace casaWizard
 {
 
 struct WellData;
-struct ImportOptions;
 
 class ExtractWellData
 {

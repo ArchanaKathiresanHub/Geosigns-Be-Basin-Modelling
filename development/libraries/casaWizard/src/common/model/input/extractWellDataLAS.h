@@ -20,7 +20,7 @@ typedef std::vector<std::string> Section;
 class ExtractWellDataLAS : public ExtractWellData
 {
 public:
-  ExtractWellDataLAS(const QString& fileName, ImportOptions& importOptions);
+  ExtractWellDataLAS(const QString& fileName, ImportOptionsLAS& importOptions);
   ~ExtractWellDataLAS() final;
   bool hasNextWell() const final;
   void extractDataNextWell() final;
@@ -38,7 +38,7 @@ private:
   bool hasNextWell_;
   QString fileName_;
   std::unique_ptr<LASSectionReader> sectionReader_;
-  ImportOptions& importOptions_;
+  ImportOptionsLAS& importOptions_;
 };
 
 } // namespace casaWizard

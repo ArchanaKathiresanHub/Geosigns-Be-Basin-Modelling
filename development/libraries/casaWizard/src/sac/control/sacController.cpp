@@ -146,7 +146,7 @@ void SACcontroller::slotPushButtonSACrunCasaClicked()
     {
       QDir(calibrationDir).removeRecursively();
       calDir.mkpath(".");
-    }
+    }    
   }
   else
   {

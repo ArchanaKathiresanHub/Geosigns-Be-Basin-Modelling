@@ -20,7 +20,8 @@ class CalibrationTargetSaver
 {
 public:
   CalibrationTargetSaver(const CalibrationTargetManager& calibrationTargetManager);
-  void saveToExcel(const QString& excelFilename);
+  void saveToExcel(const QString& excelFilename) const;
+  bool saveXYtoASCII(const QString& filename) const;
 
 private:  
 

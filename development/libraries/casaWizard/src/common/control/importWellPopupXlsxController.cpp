@@ -27,24 +27,9 @@ ImportWellPopupXlsxController::~ImportWellPopupXlsxController()
   importWellPopup_ = nullptr;
 }
 
-int ImportWellPopupXlsxController::executeImportWellPopup()
-{
-  QStringList units;
-  QStringList defaultCauldronNames;
-  for (const auto& propertyName : importCalibrationTargetManager_.userNameToCauldronNameMapping().keys())
-  {
-    if (defaultCauldronNames.contains(importCalibrationTargetManager_.getCauldronPropertyName(propertyName)))
-    {
-      defaultCauldronNames.push_back("Unknown");
-    }
-    else
-    {
-      defaultCauldronNames.push_back(importCalibrationTargetManager_.getCauldronPropertyName(propertyName));
-    }
-    units.push_back(importCalibrationTargetManager_.getUnit(propertyName));
-  }
-
-  importWellPopup_->updateTable(importCalibrationTargetManager_.userNameToCauldronNameMapping().keys(), defaultCauldronNames,
+int ImportWellPopupXlsxController::executeImportWellPopup(const QStringList& propertyUserNames, const QStringList& defaultCauldronNames)
+{  
+  importWellPopup_->updateTable(propertyUserNames, defaultCauldronNames,
                                 {"TwoWayTime", "GammaRay", "BulkDensity", "SonicSlowness",
                                  "Pressure", "Temperature", "VRe", "Velocity", "DT_FROM_VP", "TWT_FROM_DT", "Unknown"});
   return importWellPopup_->exec();
@@ -55,24 +40,28 @@ ImportWellPopup*ImportWellPopupXlsxController::importWellPopup() const
   return importWellPopup_;
 }
 
-bool ImportWellPopupXlsxController::importWellsToCalibrationTargetManager(const QString& fileName)
-{
+void ImportWellPopupXlsxController::importWellsToCalibrationTargetManager(const QString& fileName, CalibrationTargetManager& calibrationTargetManager)
+{  
   ExtractWellDataXlsx extractor(fileName);
-  CalibrationTargetCreator targetCreator(casaScenario_, importCalibrationTargetManager_, extractor);
+  CalibrationTargetCreator targetCreator(casaScenario_, calibrationTargetManager, extractor);
   targetCreator.readMetaDataFromFile();
 
-  if (executeImportWellPopup() != QDialog::Accepted)
+  QStringList propertyUserNames;
+  QStringList defaultCauldronNames;
+  QStringList units;
+  targetCreator.getNamesAndUnits("", propertyUserNames, defaultCauldronNames, units);
+
+  if (executeImportWellPopup(propertyUserNames, defaultCauldronNames) != QDialog::Accepted)
   {
-    return false;
+    return;
   }
 
-  importOnSeparateThread(targetCreator);
-  return true;
+  targetCreator.addNewMapping(importWellPopup_->getCurrentMapping());
+  importOnSeparateThread(targetCreator);  
 }
 
 void ImportWellPopupXlsxController::slotAcceptedClicked()
-{
-  addNewMapping();
+{  
   importWellPopup_->accept();
 }
 

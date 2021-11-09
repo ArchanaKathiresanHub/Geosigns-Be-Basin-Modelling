@@ -30,22 +30,27 @@ ImportWellPopupLASController::~ImportWellPopupLASController()
   importWellPopup_ = nullptr;
 }
 
-bool ImportWellPopupLASController::importWellsToCalibrationTargetManager(const QString& fileName)
+void ImportWellPopupLASController::importWellsToCalibrationTargetManager(const QString& fileName, CalibrationTargetManager& calibrationTargetManager)
 {
   ExtractWellDataLAS extractor(fileName, options_);
-  CalibrationTargetCreator targetCreator(casaScenario_, importCalibrationTargetManager_, extractor);
+  CalibrationTargetCreator targetCreator(casaScenario_, calibrationTargetManager, extractor);
   targetCreator.readMetaDataFromFile();
 
-  if (executeImportWellPopup() != QDialog::Accepted)
+  QStringList propertyUserNames;
+  QStringList defaultCauldronNames;
+  QStringList units;
+  targetCreator.getNamesAndUnits(options_.depthUserPropertyName, propertyUserNames, defaultCauldronNames, units);
+
+  if (executeImportWellPopup(propertyUserNames, defaultCauldronNames, units) != QDialog::Accepted)
   {
-    return false;
+    return;
   }
 
+  targetCreator.addNewMapping(importWellPopup_->getCurrentMapping());
   importOnSeparateThread(targetCreator);
-  return true;
 }
 
-int ImportWellPopupLASController::executeImportWellPopup()
+int ImportWellPopupLASController::executeImportWellPopup(const QStringList& propertyUserNames, const QStringList& defaultCauldronNames, const QStringList& units)
 {
   if (options_.lasVersion != 2.0)
   {
@@ -59,27 +64,7 @@ int ImportWellPopupLASController::executeImportWellPopup()
     }
   }
 
-  QStringList units;
-  QStringList defaultCauldronNames;
-  for (const auto& propertyName : importCalibrationTargetManager_.userNameToCauldronNameMapping().keys())
-  {
-    if (propertyName == options_.depthUserPropertyName)
-    {
-      defaultCauldronNames.push_back("Depth");
-    }
-    else if (defaultCauldronNames.contains(importCalibrationTargetManager_.getCauldronPropertyName(propertyName)))
-    {
-      defaultCauldronNames.push_back("Unknown");
-    }
-    else
-    {
-      defaultCauldronNames.push_back(importCalibrationTargetManager_.getCauldronPropertyName(propertyName));
-    }
-
-    units.push_back(importCalibrationTargetManager_.getUnit(propertyName));
-  }
-
-  importWellPopup_->updatePropertyTableWithUnits(importCalibrationTargetManager_.userNameToCauldronNameMapping().keys(), defaultCauldronNames,
+  importWellPopup_->updatePropertyTableWithUnits(propertyUserNames, defaultCauldronNames,
                                 {"TwoWayTime", "GammaRay", "BulkDensity", "SonicSlowness",
                                  "Pressure", "Temperature", "VRe", "Velocity", "Depth",  "DT_FROM_VP", "TWT_FROM_DT", "Unknown"}, units, getUnitConversions(units));
   importWellPopup_->setElevationInfo(options_.elevationCorrection, options_.elevationCorrectionUnit, options_.referenceCorrection, options_.referenceCorrectionUnit);
@@ -103,8 +88,7 @@ ImportWellPopup* ImportWellPopupLASController::importWellPopup() const
 }
 
 void ImportWellPopupLASController::slotAcceptedClicked()
-{
-  addNewMapping();
+{  
   options_.correctForElevation = importWellPopup_->correctForElevation();
   options_.userPropertyNameToUnitConversion = importWellPopup_->getUnitConversions();
   const QMap<QString, QString>& mapping = importWellPopup_->getCurrentMapping();

@@ -15,7 +15,6 @@
 
 #include <QPushButton>
 #include <QTableWidgetItem>
-#include <QMessageBox>
 
 namespace casaWizard
 {

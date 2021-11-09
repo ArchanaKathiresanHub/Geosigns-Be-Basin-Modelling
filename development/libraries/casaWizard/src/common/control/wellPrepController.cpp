@@ -12,6 +12,7 @@
 #include "calibrationTargetWellPrepController.h"
 
 #include "control/importWellPopupLASController.h"
+#include "control/importWellPopupVSETController.h"
 #include "control/importWellPopupXlsxController.h"
 #include "control/loadTargetsThread.h"
 #include "control/saveTargetsThread.h"
@@ -19,6 +20,7 @@
 #include "model/input/calibrationTargetCreator.h"
 #include "model/input/cmbMapReader.h"
 #include "model/logger.h"
+#include "model/output/calibrationTargetSaver.h"
 #include "model/wellValidator.h"
 
 #include "view/calibrationTargetTable.h"
@@ -30,8 +32,6 @@
 #include <QFileDialog>
 #include <QPushButton>
 
-#include <unistd.h>
-#include "model/logger.h"
 namespace casaWizard
 {
 
@@ -56,6 +56,7 @@ WellPrepController::WellPrepController(WellPrepTab* wellPrepTab,
   connect(wellPrepTab->buttonSelectAll(), SIGNAL(clicked()), calibrationTargetController_, SLOT(slotSelectAllWells()));
   connect(wellPrepTab->buttonDeselectAll(), SIGNAL(clicked()), calibrationTargetController_, SLOT(slotClearWellSelection()));
   connect(wellPrepTab->buttonDeleteSelection(), SIGNAL(clicked()), calibrationTargetController_, SLOT(slotDeleteSelectedWells()));
+  connect(wellPrepTab->buttonExportXYascii(), SIGNAL(clicked()), this, SLOT(slotExportXYasciiClicked()));
   connect(wellPrepTab->buttonExport(), SIGNAL(clicked()), this, SLOT(slotPushSaveDataClicked()));
   connect(wellPrepTab->buttonDTtoTWT(), SIGNAL(clicked()), this, SLOT(slotConvertDTtoTWT()));
   connect(wellPrepTab->buttonVPtoDT(), SIGNAL(clicked()), this, SLOT(slotConvertVPToDT()));
@@ -229,7 +230,7 @@ void WellPrepController::slotPushSelectCalibrationClicked()
   QString fileName = QFileDialog::getOpenFileName(wellPrepTab_,
                                                   "Select calibration targets",
                                                   "",
-                                                  "Well-data files (*.xlsx *.las)");
+                                                  "Well-data files (*.xlsx *.las *.vs)");
   if (fileName == "")
   {
     return;
@@ -247,10 +248,14 @@ void WellPrepController::slotPushSelectCalibrationClicked()
   {
     importWellPopupController_ = new ImportWellPopupLASController(this, casaScenario_);
   }
+  else if (extension.toLower() == "vs")
+  {
+    importWellPopupController_ = new ImportWellPopupVSETController(this, casaScenario_);
+  }
 
   try
   {
-    importWellPopupController_->importWells(fileName, casaScenario_.calibrationTargetManagerWellPrep());
+    importWellPopupController_->importWellsToCalibrationTargetManager(fileName, casaScenario_.calibrationTargetManagerWellPrep());
   }
   catch (std::runtime_error e)
   {
@@ -279,6 +284,26 @@ void WellPrepController::reportImportError(QString message)
   box.exec();
 }
 
+void WellPrepController::slotExportXYasciiClicked()
+{
+  if (casaScenario_.calibrationTargetManagerWellPrep().activeWells().empty())
+  {
+    Logger::log() << "No wells selected for saving." << Logger::endl();
+    return;
+  }
+
+  const QString fileName = QFileDialog::getSaveFileName(wellPrepTab_, "Save as", "", "All files (*.*)");
+  if (fileName == "")
+  {
+    return;
+  }
+
+  CalibrationTargetSaver saver(casaScenario_.calibrationTargetManagerWellPrep());
+  if (saver.saveXYtoASCII(fileName))
+  {
+    Logger::log() << "Done!" << Logger::endl();
+  }
+}
 
 void WellPrepController::slotPushSaveDataClicked()
 {
@@ -288,10 +313,7 @@ void WellPrepController::slotPushSaveDataClicked()
     return;
   }
 
-  QString fileName = QFileDialog::getSaveFileName(wellPrepTab_,
-                                                  "Save as",
-                                                  "",
-                                                  "Spreadsheet (*.xlsx)");
+  QString fileName = QFileDialog::getSaveFileName(wellPrepTab_, "Save as", "", "Spreadsheet (*.xlsx)");
   if (fileName == "")
   {
     return;

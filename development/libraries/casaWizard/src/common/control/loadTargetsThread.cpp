@@ -8,6 +8,7 @@
 
 #include "loadTargetsThread.h"
 
+#include "control/importWellPopupController.h"
 #include "model/input/calibrationTargetCreator.h"
 
 namespace casaWizard

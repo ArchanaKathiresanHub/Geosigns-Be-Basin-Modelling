@@ -8,8 +8,8 @@
 
 #pragma once
 
-#include <QObject>
 #include <QMessageBox>
+#include <QObject>
 
 namespace casaWizard
 {
@@ -19,8 +19,8 @@ class CalibrationTargetWellPrepController;
 class CasaScenario;
 class ImportWellPopupController;
 class ScriptRunController;
-class UserPropertyChoicePopup;
 class UserPropertyChoiceCutOffPopup;
+class UserPropertyChoicePopup;
 class WellPrepTab;
 
 class WellPrepController : public QObject
@@ -44,6 +44,7 @@ public slots:
   void slotUpdateTabGUI(int tabID);
 
 private slots:
+  void slotExportXYasciiClicked();
   void slotPushSaveDataClicked();
   void slotCloseWaitingDialog();
   void slotConvertDTtoTWT();
@@ -74,7 +75,7 @@ private:
   UserPropertyChoicePopup* userPropertyChoicePopup_;
   UserPropertyChoiceCutOffPopup* userPropertyChoiceCutOffPopup_;
   QMessageBox waitingDialog_;
-  bool waitingDialogNeeded_;
+  bool waitingDialogNeeded_;  
 };
 
 } // namespace casaWizard

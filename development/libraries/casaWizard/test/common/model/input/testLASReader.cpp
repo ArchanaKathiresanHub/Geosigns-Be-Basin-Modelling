@@ -16,7 +16,7 @@ using namespace casaWizard;
 
 TEST(LASReaderTest, testReadFile)
 {
-  ImportOptions options;
+  ImportOptionsLAS options;
   ExtractWellDataLAS reader("./Test1.las", options);
   while (reader.hasNextWell())
   {

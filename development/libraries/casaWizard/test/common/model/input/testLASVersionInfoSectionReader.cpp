@@ -22,7 +22,7 @@ TEST(LasVersionInfoSectionReaderTest, testRead)
                                         "WRAP.            NO                   :ONE LINE PER DEPTH STEP",
                                       };
   WellData wellData;
-  ImportOptions options;
+  ImportOptionsLAS options;
 
   LASVersionInfoSectionReader reader(section, wellData, options);
   EXPECT_NO_THROW(reader.readSection());
@@ -37,7 +37,7 @@ TEST(LasVersionInfoSectionReaderTest, testReadWithWrapping)
                                         "WRAP.            YES                  :WRAPPING LINES AROUND 80 CHARACTERS",
                                       };
   WellData wellData;
-  ImportOptions options;
+  ImportOptionsLAS options;
 
   LASVersionInfoSectionReader reader(section, wellData, options);
   EXPECT_NO_THROW(reader.readSection());
@@ -50,7 +50,7 @@ TEST(LasVersionInfoSectionReaderTest, testNoVersionGivenThrows)
                                         "WRAP.            YES                  :WRAPPING LINES AROUND 80 CHARACTERS",
                                       };
   WellData wellData;
-  ImportOptions options;
+  ImportOptionsLAS options;
   LASVersionInfoSectionReader reader(section, wellData, options);
   EXPECT_THROW(reader.readSection(), std::runtime_error);
 
@@ -71,7 +71,7 @@ TEST(LasVersionInfoSectionReaderTest, testNoWrappingSpecificationGivenThrows)
                                         "VERS.            2.0                  :CWLS LOG ASCII STANDARD -VERSION 3.0",
                                       };
   WellData wellData;
-  ImportOptions options;
+  ImportOptionsLAS options;
   LASVersionInfoSectionReader reader(section, wellData, options);
   EXPECT_THROW(reader.readSection(), std::runtime_error);
 
@@ -91,7 +91,7 @@ TEST(LasVersionInfoSectionReaderTest, testEmptySectionThrows)
   std::vector<std::string> section = {"~VERSION INFORMATION",
                                       };
   WellData wellData;
-  ImportOptions options;
+  ImportOptionsLAS options;
   LASVersionInfoSectionReader reader(section, wellData, options);
   EXPECT_THROW(reader.readSection(), std::runtime_error);
 
@@ -113,7 +113,7 @@ TEST(LasVersionInfoSectionReaderTest, testInvalidLineThrows)
                                         "WRAP.            NO                   :ONE LINE PER DEPTH STEP",
                                       };
   WellData wellData;
-  ImportOptions options;
+  ImportOptionsLAS options;
   LASVersionInfoSectionReader reader(section, wellData, options);
   EXPECT_THROW(reader.readSection(), std::runtime_error);
 
@@ -135,7 +135,7 @@ TEST(LasVersionInfoSectionReaderTest, testLineWithoutCommentDoesNotThrow)
                                         "WRAP.            NO                   :ONE LINE PER DEPTH STEP",
                                       };
   WellData wellData;
-  ImportOptions options;
+  ImportOptionsLAS options;
   LASVersionInfoSectionReader reader(section, wellData, options);
   EXPECT_NO_THROW(reader.readSection());
   EXPECT_FALSE(options.wrapped);

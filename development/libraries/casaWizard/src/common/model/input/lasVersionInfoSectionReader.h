@@ -16,7 +16,7 @@ namespace casaWizard
 class LASVersionInfoSectionReader : public LASSectionReader
 {
 public:
-  LASVersionInfoSectionReader(const std::vector<std::string>& section, WellData& welldata, ImportOptions& importOptions);
+  LASVersionInfoSectionReader(const std::vector<std::string>& section, WellData& welldata, ImportOptionsLAS& importOptions);
 
   void readSection() final;
 };

@@ -38,6 +38,7 @@ WellPrepTab::WellPrepTab(QWidget* parent) :
   buttonDTtoTWT_{new QPushButton("Convert DT log to TWT log", this)},
   buttonCropOutline_{new QPushButton("Remove locations outside basin outline", this)},
   buttonCropBasement_{new QPushButton("Remove data below basement and above mudline", this)},
+  buttonXYascii_{new QPushButton("Export X-Y locations to ASCII", this)},
   buttonExport_{new QPushButton("Export selected wells", this)},
   buttonToSAC_{new QPushButton("Save selection for SAC", this)},
   buttonDeleteSelection_{new QPushButton("Delete selection",this)},
@@ -112,6 +113,7 @@ WellPrepTab::WellPrepTab(QWidget* parent) :
   optionsLayout->addSpacing(50);
   optionsLayout->addWidget(new QWidget(this), 1);
 
+  optionsLayout->addWidget(buttonXYascii_);
   optionsLayout->addWidget(buttonExport_);
   optionsLayout->addWidget(buttonToSAC_);
 
@@ -189,6 +191,11 @@ QPushButton* WellPrepTab::buttonCropOutline() const
 QPushButton* WellPrepTab::buttonCropBasement() const
 {
   return buttonCropBasement_;
+}
+
+const QPushButton* WellPrepTab::buttonExportXYascii() const
+{
+  return buttonXYascii_;
 }
 
 const QPushButton* WellPrepTab::buttonExport() const

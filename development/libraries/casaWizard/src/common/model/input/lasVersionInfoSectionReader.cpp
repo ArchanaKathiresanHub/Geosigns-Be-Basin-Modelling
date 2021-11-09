@@ -15,10 +15,9 @@
 namespace casaWizard
 {
 
-LASVersionInfoSectionReader::LASVersionInfoSectionReader(const std::vector<std::string>& section, WellData& welldata, ImportOptions& importOptions) :
+LASVersionInfoSectionReader::LASVersionInfoSectionReader(const std::vector<std::string>& section, WellData& welldata, ImportOptionsLAS& importOptions) :
   LASSectionReader{section, welldata, importOptions}
 {
-
 }
 
 void LASVersionInfoSectionReader::readSection()
@@ -56,7 +55,6 @@ void LASVersionInfoSectionReader::readSection()
   {
     throw std::runtime_error("No wrapping specification detected.");
   }
-
 }
 
 } // namespace casaWizard

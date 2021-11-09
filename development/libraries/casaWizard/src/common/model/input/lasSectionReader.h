@@ -15,12 +15,13 @@ namespace casaWizard
 {
 
 struct WellData;
-struct ImportOptions;
+struct ImportOptionsLAS;
 
 class LASSectionReader
 {
 public:
-  LASSectionReader(const std::vector<std::string>& section, WellData& welldata, ImportOptions& importOptions);
+  LASSectionReader(const std::vector<std::string>& section, WellData& welldata, ImportOptionsLAS& importOptions);
+  virtual ~LASSectionReader() = default;
   virtual void readSection() = 0;
 
 protected:
@@ -28,7 +29,7 @@ protected:
   bool lineInvalid(const std::vector<std::string>& splitLine) const;
   const std::vector<std::string>& section_;
   WellData& welldata_;
-  ImportOptions& importOptions_;
+  ImportOptionsLAS& importOptions_;
 
 private:
   std::vector<std::string> splitDataLine(const std::string& line) const;

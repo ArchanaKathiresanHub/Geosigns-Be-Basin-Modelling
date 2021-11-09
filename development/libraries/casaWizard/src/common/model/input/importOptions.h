@@ -8,13 +8,15 @@
 
 #pragma once
 
-#include <QString>
 #include <QMap>
+#include <QPair>
+#include <QString>
+#include <QVector>
 
 namespace casaWizard
 {
 
-struct ImportOptions
+struct ImportOptionsLAS
 {
   QString depthUserPropertyName = "";
   QMap<QString, double> userPropertyNameToUnitConversion = {};
@@ -27,6 +29,16 @@ struct ImportOptions
   double undefinedValue = -99999;
   bool wrapped = false;
   double lasVersion = -1.0;
+};
+
+struct ImportOptionsVSET
+{  
+  QString wellIdentifierName = "XXX";
+  int distance = 1e4;
+  QVector<QPair<double,double>> xyPairs = {};
+  int interval = 1e2;
+  double undefinedValue = -99999;
+  bool depthNotTWT = true;  
 };
 
 } // namespace casaWizard

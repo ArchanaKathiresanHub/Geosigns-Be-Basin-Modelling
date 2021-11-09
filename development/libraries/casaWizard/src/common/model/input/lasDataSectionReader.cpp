@@ -18,7 +18,7 @@
 namespace casaWizard
 {
 
-LASDataSectionReader::LASDataSectionReader(const std::vector<std::string>& section, WellData& welldata, ImportOptions& importOptions) :
+LASDataSectionReader::LASDataSectionReader(const std::vector<std::string>& section, WellData& welldata, ImportOptionsLAS& importOptions) :
   LASSectionReader{section, welldata, importOptions},
   dataSection_{section}
 {
@@ -165,13 +165,6 @@ void LASDataSectionReader::addValue(const double value, const int counter)
   const double unitConversion = importOptions_.userPropertyNameToUnitConversion.value(welldata_.calibrationTargetVarsUserName_[counter], 1.0);
   values_[counter].push_back(value * unitConversion);
 }
-
-
-
-
-
-
-
 
 } // namespace casaWizard
 
