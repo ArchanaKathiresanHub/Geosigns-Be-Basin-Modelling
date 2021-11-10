@@ -38,7 +38,7 @@ struct ImportOptionsLAS
 
 struct ImportOptionsVSET
 {  
-  QString wellIdentifierName = "XXX";
+  QString wellIdentifierName = "VSET";
   int distance = 1e4;
   QVector<QPair<double,double>> xyPairs = {};
   int interval = 1e2;

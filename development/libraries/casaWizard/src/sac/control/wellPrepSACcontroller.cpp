@@ -46,7 +46,23 @@ void WellPrepSACcontroller::slotToSAC()
     return;
   }
 
-  Logger::log() << "Importing selected wells to the SAC workflow..." << Logger::endl();
+  Logger::log() << "Importing selected wells to the SAC workflow..." << Logger::endl();  
+
+  if (!scenario_.calibrationTargetManager().wells().empty())
+  {
+    QMessageBox overwriteData(QMessageBox::Icon::Information,
+                              "SAC already has wells",
+                              "Would you like to overwrite or append the new wells?");
+    QPushButton* appendButton = overwriteData.addButton("Append", QMessageBox::RejectRole);
+    QPushButton* overwriteButton =overwriteData.addButton("Overwrite", QMessageBox::AcceptRole);
+    connect(appendButton, SIGNAL(clicked()), &overwriteData, SLOT(reject()));
+    connect(overwriteButton, SIGNAL(clicked()), &overwriteData, SLOT(accept()));
+
+    if (overwriteData.exec() == QDialog::Accepted)
+    {
+      scenario_.calibrationTargetManager().clear();
+    }
+  }
 
   scenario_.wellPrepToSAC();
 

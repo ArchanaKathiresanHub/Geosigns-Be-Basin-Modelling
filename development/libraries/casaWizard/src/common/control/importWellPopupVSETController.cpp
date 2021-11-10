@@ -65,6 +65,12 @@ void ImportWellPopupVSETController::slotAcceptedClicked()
   const bool depthNotTWTfromfile = options_.depthNotTWT;
   options_ = importWellPopup_->getImportOptions();
 
+  if (depthNotTWTfromfile == options_.depthNotTWT)
+  {
+    importWellPopup_->accept();
+    return;
+  }
+
   QMessageBox notMatchingProperty(QMessageBox::Icon::Question,
                                   "Property selection verification",
                                   "The property read from file is " + QString(depthNotTWTfromfile?"Depth":"TwoWayTime") +

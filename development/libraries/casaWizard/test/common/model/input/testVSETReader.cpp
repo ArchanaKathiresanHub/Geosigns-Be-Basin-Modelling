@@ -35,7 +35,7 @@ TEST(VSETReaderTest, testReadFile)
   const std::vector<double> expectedX{293316, 293183};
   const std::vector<double> expectedY{1782381, 1782169};
   const std::vector<int> expectedDepthSize{192, 193};
-  const std::vector<std::string> expectedWellNames{"PSW_XXX_1", "PSW_XXX_2"};
+  const std::vector<std::string> expectedWellNames{"PSW_VSET_1", "PSW_VSET_2"};
 
   for (int i = 0; i < 2; ++i)
   {
@@ -70,7 +70,7 @@ TEST(VSETReaderTest, testReadFileUsingInterval)
   const double expectedX{293183};
   const double expectedY{1782169};
   const int expectedDepthSize{193};
-  const std::string expectedWellName{"PSW_XXX_1"};
+  const std::string expectedWellName{"PSW_VSET_1"};
 
   ASSERT_TRUE(reader.hasNextWell());
   reader.extractDataNextWell();
@@ -104,7 +104,7 @@ TEST(VSETReaderTest, testReadFileUsingDistance)
   const double expectedX{293316};
   const double expectedY{1782381};
   const int expectedDepthSize{192};
-  const std::string expectedWellName{"PSW_XXX_1"};
+  const std::string expectedWellName{"PSW_VSET_1"};
 
   ASSERT_TRUE(reader.hasNextWell());
   reader.extractDataNextWell();
@@ -139,7 +139,7 @@ TEST(VSETReaderTest, testReadFileUsingXYvalues)
   const double expectedX{293316};
   const double expectedY{1782381};
   const int expectedDepthSize{192};
-  const std::string expectedWellName{"PSW_XXX_1"};
+  const std::string expectedWellName{"PSW_VSET_1"};
 
   ASSERT_TRUE(reader.hasNextWell());
   reader.extractDataNextWell();
