@@ -36,6 +36,14 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2021-11-10  Richard Faasse  <Richard.Faasse@shell.com>
+
+	chg: Added pop-up when wells do not have xy coordinates in the file or when las version is different
+	* Related work items: #417584
+	================== COMMIT-END ========================
+	Commit-ID:<6a043e0c2b5f1942e6b2677228b4ac7eb1e009b0>	  (refs/heads/master)
+
+++
 2021-11-10  Erik.vandenBoogaard  <Erik.vandenBoogaard@shell.com>
 
 	fix: Review fixes.
