@@ -74,12 +74,12 @@ void ExtractWellDataLAS::resetImportOptionsWhichDifferPerFile()
   importOptions_.depthColumn = 0;
   importOptions_.undefinedValue = -99999;
   importOptions_.wrapped = false;
-  importOptions_.lasVersion = -1.0;
 }
 
 void ExtractWellDataLAS::resetExtractor()
 {
   currentWell_ = 0;
+  importOptions_.wellNamesWithoutXYCoordinates.clear();
   delete wellData_;
   wellData_ = new WellData();
   sections_.clear();

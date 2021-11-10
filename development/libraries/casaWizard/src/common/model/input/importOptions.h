@@ -23,6 +23,8 @@ struct ImportOptionsLAS
   QMap<QString, double> userPropertyNameToUnitConversion = {};
   bool allFilesHaveElevation = true;
   bool singleFile = true;
+  QStringList wellNamesWithoutXYCoordinates = {};
+  bool allLasFilesAreTheCorrectVersion = true;
 
   // Properties which differ per file
   bool correctForElevation = false;
@@ -33,7 +35,6 @@ struct ImportOptionsLAS
   int depthColumn = 0;
   double undefinedValue = -99999;
   bool wrapped = false;
-  double lasVersion = -1.0;
 };
 
 struct ImportOptionsVSET

@@ -56,23 +56,20 @@ TEST(LASReaderTest, testReadMultipleFiles)
     EXPECT_EQ(reader.wellName().toStdString(), expectedWellNames[counter]);
     counter++;
   }
+
+  EXPECT_EQ(options.wellNamesWithoutXYCoordinates.size(), 1);
+  EXPECT_EQ(options.wellNamesWithoutXYCoordinates[0], "ANY ET AL 12-34-12-34");
+  EXPECT_TRUE(options.allLasFilesAreTheCorrectVersion);
 }
 
-TEST(LASReaderTest, testReadMultipleFilesWithDifferentVersionsThrows)
+TEST(LASReaderTest, testReadMultipleFilesWithDifferentVersionsResultsInCorrectBoolean)
 {
   ImportOptionsLAS options;
   ExtractWellDataLAS reader({"./Test1.las", "./Version3.las"}, options);
 
-  try
+  while (reader.hasNextWell())
   {
-    while (reader.hasNextWell())
-    {
-      reader.extractMetaDataNextWell();
-    }
+    reader.extractMetaDataNextWell();
   }
-  catch (std::runtime_error e)
-  {
-    std::string message = e.what();
-    EXPECT_EQ(message, "The LAS versions are not the same for every file.");
-  }
+  EXPECT_FALSE(options.allLasFilesAreTheCorrectVersion);
 }

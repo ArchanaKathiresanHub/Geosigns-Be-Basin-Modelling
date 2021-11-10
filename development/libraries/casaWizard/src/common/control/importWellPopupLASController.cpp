@@ -52,13 +52,33 @@ void ImportWellPopupLASController::importWellsToCalibrationTargetManager(const Q
 
 int ImportWellPopupLASController::executeImportWellPopup(const QStringList& propertyUserNames, const QStringList& defaultCauldronNames, const QStringList& units)
 {
-  if (options_.lasVersion != 2.0)
+  if (!options_.allLasFilesAreTheCorrectVersion)
   {
-    QMessageBox removeFolder(QMessageBox::Icon::Warning,
+    QMessageBox unsupportedLasVersion(QMessageBox::Icon::Warning,
                              "Unsupported LAS version",
-                             "The detected LAS vesion of the input file is different from the supported 2.0 version. This might result in incorrect import data for this file. Continue anyway?",
+                             "The detected LAS vesion of (at least one of) the input file(s) is different from the supported 2.0 version. This might result in incorrect import data. Continue anyway?",
                              QMessageBox::Yes | QMessageBox::No );
-    if (removeFolder.exec() == QMessageBox::No)
+    if (unsupportedLasVersion.exec() == QMessageBox::No)
+    {
+      return QDialog::Rejected;
+    }
+  }
+
+  if (options_.wellNamesWithoutXYCoordinates.size() > 0)
+  {
+    QString wellNameString = options_.wellNamesWithoutXYCoordinates[0];
+    if (options_.wellNamesWithoutXYCoordinates.size() > 1)
+    {
+      for (int i = 1; i < options_.wellNamesWithoutXYCoordinates.size(); i++)
+      {
+        wellNameString += ", " + options_.wellNamesWithoutXYCoordinates[i];
+      }
+    }
+    QMessageBox noXYCoordinatesFound(QMessageBox::Icon::Warning,
+                             "Missing Coordinates",
+                             "X/Y coordinates are missing for the following well(s): " + wellNameString + ". The coordinates of these wells will be set to (0,0). Continue anyway?",
+                             QMessageBox::Yes | QMessageBox::No );
+    if (noXYCoordinatesFound.exec() == QMessageBox::No)
     {
       return QDialog::Rejected;
     }

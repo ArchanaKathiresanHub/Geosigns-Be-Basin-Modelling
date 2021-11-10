@@ -27,7 +27,22 @@ TEST(LasVersionInfoSectionReaderTest, testRead)
   LASVersionInfoSectionReader reader(section, wellData, options);
   EXPECT_NO_THROW(reader.readSection());
   EXPECT_FALSE(options.wrapped);
-  EXPECT_DOUBLE_EQ(options.lasVersion, 2.0);
+  EXPECT_TRUE(options.allLasFilesAreTheCorrectVersion);
+}
+
+TEST(LasVersionInfoSectionReaderTest, testReadDifferentVersion)
+{
+  std::vector<std::string> section = {"~VERSION INFORMATION",
+                                        "VERS.            1.2                  :CWLS LOG ASCII STANDARD -VERSION 1.2",
+                                        "WRAP.            NO                   :ONE LINE PER DEPTH STEP",
+                                      };
+  WellData wellData;
+  ImportOptionsLAS options;
+
+  LASVersionInfoSectionReader reader(section, wellData, options);
+  EXPECT_NO_THROW(reader.readSection());
+  EXPECT_FALSE(options.wrapped);
+  EXPECT_FALSE(options.allLasFilesAreTheCorrectVersion);
 }
 
 TEST(LasVersionInfoSectionReaderTest, testReadWithWrapping)

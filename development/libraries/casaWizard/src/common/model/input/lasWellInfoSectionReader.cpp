@@ -25,6 +25,7 @@ void LASWellInfoSectionReader::readSection()
   int yCoordinateHighestPriorityFound = INT_MAX;
   bool wellNameFound = false;
   bool elevationFound = false;
+  bool coordinateFound = false;
 
   for (unsigned int i = 1; i < section_.size(); i++)
   {
@@ -43,6 +44,7 @@ void LASWellInfoSectionReader::readSection()
     {
       if (getCoordinatePriority(splitLine[0]) < xCoordinateHighestPriorityFound)
       {
+        coordinateFound = true;
         welldata_.xCoord_ = std::stod(splitLine[2]);
         xCoordinateHighestPriorityFound = getCoordinatePriority(splitLine[0]);
       }
@@ -51,6 +53,7 @@ void LASWellInfoSectionReader::readSection()
     {
       if (getCoordinatePriority(splitLine[0]) < yCoordinateHighestPriorityFound)
       {
+        coordinateFound = true;
         welldata_.yCoord_ = std::stod(splitLine[2]);
         yCoordinateHighestPriorityFound = getCoordinatePriority(splitLine[0]);
       }
@@ -77,7 +80,9 @@ void LASWellInfoSectionReader::readSection()
   {
     throw std::runtime_error("Invalid LAS-file: No well name is provided.");
   }
+
   if (!elevationFound) importOptions_.allFilesHaveElevation = false;
+  if (!coordinateFound) importOptions_.wellNamesWithoutXYCoordinates.push_back(welldata_.wellName_);
 }
 
 int LASWellInfoSectionReader::getCoordinatePriority(const std::string& coordinateName) const
