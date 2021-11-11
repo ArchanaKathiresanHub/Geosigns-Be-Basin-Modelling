@@ -129,13 +129,19 @@ QWidget* ImportWellPopupVSET::createWellsFileWidget()
 
 void ImportWellPopupVSET::slotSelectWellsFile()
 {
-  QString fileName = QFileDialog::getOpenFileName(this,
+  const QString fileName = QFileDialog::getOpenFileName(this,
                                                   "Select well location file",
                                                   "",
                                                   "Well-location files (*.*)");
+
+  if (fileName.isEmpty())
+  {
+    return;
+  }
   std::fstream fileStream(fileName.toStdString());
   if (!fileStream.good())
   {
+    reject();
     throw std::runtime_error("The chosen file cannot be opened. Either the file does not exist, or the permissions are wrong") ;
   }
 

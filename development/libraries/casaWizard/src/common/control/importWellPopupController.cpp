@@ -25,8 +25,7 @@ namespace casaWizard
 ImportWellPopupController::ImportWellPopupController(QObject* parent, CasaScenario& casaScenario):
   QObject(parent),
   casaScenario_{casaScenario},
-  waitingDialog_{},
-  waitingDialogNeeded_{true}
+  waitingDialog_{}
 {
   waitingDialog_.setIcon(QMessageBox::Icon::Information);
   waitingDialog_.setStandardButtons(nullptr);
@@ -34,20 +33,19 @@ ImportWellPopupController::ImportWellPopupController(QObject* parent, CasaScenar
 
 void ImportWellPopupController::importOnSeparateThread(CalibrationTargetCreator& calibrationTargetCreator)
 {
-  waitingDialogNeeded_ = true;
   LoadTargetsThread* loadTargetsThread = new LoadTargetsThread(calibrationTargetCreator, this);
   connect (loadTargetsThread, SIGNAL(exceptionThrown(QString)), this, SLOT(slotExceptionThrown(QString)));
   connect (loadTargetsThread, &LoadTargetsThread::finished, this, &ImportWellPopupController::slotCloseWaitingDialog);
   connect (loadTargetsThread, &LoadTargetsThread::finished, loadTargetsThread, &QObject::deleteLater);
   loadTargetsThread->start();
+  loadTargetsThread->msleep(100); // Make sure the waiting dialog starts before the thread has finished
   waitingDialog_.setWindowTitle("Importing");
   waitingDialog_.setText("Please wait while the wells are imported and validated.");
-  if (waitingDialogNeeded_) waitingDialog_.exec();
+  waitingDialog_.exec();
 }
 
 void ImportWellPopupController::slotCloseWaitingDialog()
 {
-  waitingDialogNeeded_ = false;
   waitingDialog_.done(0);
 }
 

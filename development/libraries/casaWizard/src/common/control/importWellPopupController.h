@@ -49,7 +49,6 @@ private slots:
   void slotExceptionThrown(QString message);
 private:
   QMessageBox waitingDialog_;
-  bool waitingDialogNeeded_;
 };
 
 } // namespace casaWizard

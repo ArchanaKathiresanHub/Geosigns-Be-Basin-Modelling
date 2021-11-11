@@ -47,8 +47,7 @@ WellPrepController::WellPrepController(WellPrepTab* wellPrepTab,
   importWellPopupController_{},
   userPropertyChoicePopup_{new UserPropertyChoicePopup(wellPrepTab_)},
   userPropertyChoiceCutOffPopup_{new UserPropertyChoiceCutOffPopup(wellPrepTab_)},
-  waitingDialog_{},
-  waitingDialogNeeded_{true}
+  waitingDialog_{}
 {
   waitingDialog_.setIcon(QMessageBox::Icon::Information);
   waitingDialog_.setStandardButtons(nullptr);
@@ -358,22 +357,21 @@ void WellPrepController::slotPushSaveDataClicked()
   waitingDialog_.setWindowTitle("Exporting");
   waitingDialog_.setText("Please wait while the wells are exported to the xlsx file.");
   exportOnSeparateThread(casaScenario_.calibrationTargetManagerWellPrep(), fileName);
-  if (waitingDialogNeeded_) waitingDialog_.exec();
-  if (waitingDialogNeeded_) waitingDialog_.done(0);
 }
 
 void WellPrepController::exportOnSeparateThread(const CalibrationTargetManager& calibrationTargetManager, const QString& fileName)
 {
-  waitingDialogNeeded_ = true;
   SaveTargetsThread* saveTargetsThread = new SaveTargetsThread(calibrationTargetManager, fileName, this);
   connect (saveTargetsThread, &SaveTargetsThread::finished, this, &WellPrepController::slotCloseWaitingDialog);
   connect (saveTargetsThread, &SaveTargetsThread::finished, saveTargetsThread, &QObject::deleteLater);
   saveTargetsThread->start();
+  saveTargetsThread->msleep(100); // Make sure the waiting dialog starts before the thread has finished
+  waitingDialog_.exec();
+
 }
 
 void WellPrepController::slotCloseWaitingDialog()
 {
-  waitingDialogNeeded_ = false;
   waitingDialog_.done(0);
 }
 
