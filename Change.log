@@ -38,6 +38,13 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 +
 2021-11-11  Richard Faasse  <Richard.Faasse@shell.com>
 
+	fix: Fix crash in SAC wizard.
+	================== COMMIT-END ========================
+	Commit-ID:<d07dd4a13ee1b9f4d9eaef6cc541f5a5dceda38c>	  (refs/heads/master)
+
+++
+2021-11-11  Richard Faasse  <Richard.Faasse@shell.com>
+
 	fix: Fixed typo in SAC wizard message !minor.
         ================== COMMIT-END ========================
 	Commit-ID:<bb462d08865011bb33852fd47d7bc5231a09f5d5>	  (refs/heads/master)
