@@ -36,6 +36,13 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2021-11-11  Richard Faasse  <Richard.Faasse@shell.com>
+
+	fix: Fixed typo in SAC wizard message !minor.
+        ================== COMMIT-END ========================
+	Commit-ID:<bb462d08865011bb33852fd47d7bc5231a09f5d5>	  (refs/heads/master)
+
+++
 2021-11-10  Richard Faasse  <Richard.Faasse@shell.com>
 
 	chg: Added pop-up when wells do not have xy coordinates in the file or when las version is different
