@@ -56,7 +56,7 @@ int ImportWellPopupLASController::executeImportWellPopup(const QStringList& prop
   {
     QMessageBox unsupportedLasVersion(QMessageBox::Icon::Warning,
                              "Unsupported LAS version",
-                             "The detected LAS vesion of (at least one of) the input file(s) is different from the supported 2.0 version. This might result in incorrect import data. Continue anyway?",
+                             "The detected LAS version of (at least one of) the input file(s) is different from the supported 2.0 version. This might result in incorrect import data. Continue anyway?",
                              QMessageBox::Yes | QMessageBox::No );
     if (unsupportedLasVersion.exec() == QMessageBox::No)
     {
