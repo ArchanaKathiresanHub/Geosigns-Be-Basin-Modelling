@@ -81,7 +81,6 @@ void GenexSourceRock::setPropertyManager ( AbstractDerivedProperties::AbstractPr
 void GenexSourceRock::clear()
 {
   clearBase();
-  clearSimulatorBase();
   clearSourceRockNodes();
 
   m_theSnapShotOutputMaps.clear();

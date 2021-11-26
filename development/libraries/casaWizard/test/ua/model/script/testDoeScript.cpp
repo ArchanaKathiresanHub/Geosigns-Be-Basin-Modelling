@@ -14,7 +14,7 @@ class DoeScriptTest : public SetupTestCasaScript
 TEST_F(DoeScriptTest, testWriteScript)
 {
   const std::string expectedFile{"DoEScriptExpected.casa"};
-  const std::string actualFile{"uaScript.casa"};
+  const std::string actualFile{"doeScript.casa"};
 
   casaWizard::ua::DoEScript script(scenario);
 

@@ -12,14 +12,14 @@ class AddCasesScriptTest : public SetupTestCasaScript
 };
 
 TEST_F(AddCasesScriptTest, testWriteScript)
-{  
+{
   casaWizard::ua::ManualDesignPointManager& manager = scenario.manualDesignPointManager();
   manager.completeAll();
   manager.addDesignPoint({1.4});
 
 
   const std::string expectedFile{"AddCasesScriptExpected.casa"};
-  const std::string actualFile{"uaScript.casa"};
+  const std::string actualFile{"addCasesScript.casa"};
 
   casaWizard::ua::AddCasesScript script(scenario);
 

@@ -122,30 +122,13 @@ double GenexBaseSourceRock::convertHItoHC( double aHI ) {
 void GenexBaseSourceRock::clearBaseAll()
 {
   clearBase();
-  clearSimulatorBase();
 }
 
 void GenexBaseSourceRock::clearBase()
 {
    clearSnapshotIntervals();
    clearSourceRockNodeAdsorptionHistory ();
-
-   if (m_theChemicalModel)
-   {
-     m_theChemicalModel = nullptr;
-   }
-
-   m_theChemicalModel2 = nullptr;
-   m_theChemicalModel = nullptr;
-
-   if ( m_adsorptionSimulator != nullptr ) {
-     delete m_adsorptionSimulator;
-     m_adsorptionSimulator = nullptr;
-   }
-   if ( m_adsorptionSimulator2 != nullptr ) {
-     delete m_adsorptionSimulator2;
-     m_adsorptionSimulator2 = nullptr;
-   }
+   clearSimulatorBase();
 }
 
 void GenexBaseSourceRock::clearSimulatorBase()
@@ -159,6 +142,10 @@ void GenexBaseSourceRock::clearSimulatorBase()
   if (m_theChemicalModel1)
   {
     m_theChemicalModel1 = nullptr;
+  }
+  if (m_theChemicalModel2)
+  {
+    m_theChemicalModel2 = nullptr;
   }
 
   if ( m_adsorptionSimulator != nullptr ) {
@@ -437,7 +424,7 @@ void GenexBaseSourceRock::initializeSimulator(bool printInitialisationDetails)
 
   assert ( m_theSimulator != nullptr );
   m_theSimulator->setChemicalModel( m_theChemicalModel1 );
-  m_theChemicalModel =  m_theChemicalModel1;
+  m_theChemicalModel = m_theChemicalModel1;
 }
 
 
@@ -459,7 +446,6 @@ void GenexBaseSourceRock::initializeAdsorptionModel(bool printInitialisationDeta
                                                                                               adsorptionSimulatorName,
                                                                                               computeOTGC,
                                                                                               false );
-
   status = status && adsorptionFunction->isValid ();
 
   if ( not adsorptionFunction->isValid () && printInitialisationDetails ) {

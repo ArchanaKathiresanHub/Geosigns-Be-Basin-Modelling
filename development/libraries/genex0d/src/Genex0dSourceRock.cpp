@@ -155,7 +155,6 @@ void Genex0dSourceRock::setSourceRockPropertiesFromInput(const Genex0dInputData&
 
     m_sourceRock2.reset(new Genex0dSourceRock(m_projectHandle, srProperties, inData));
   }
-
 }
 
 std::string Genex0dSourceRock::extractTypeID(const std::string& sourceRockType) const

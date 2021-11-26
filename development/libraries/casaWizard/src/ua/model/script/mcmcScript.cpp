@@ -17,6 +17,11 @@ McmcScript::McmcScript(const UAScenario& scenario) :
 {
 }
 
+QString McmcScript::scriptFilename() const
+{
+  return QString("mcmcScript.casa");
+}
+
 void McmcScript::writeScriptContents(QFile& file) const
 {
   QTextStream out(&file);

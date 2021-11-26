@@ -23,6 +23,11 @@ bool DoEScript::validateScenario() const
   return true;
 }
 
+QString DoEScript::scriptFilename() const
+{
+  return QString("doeScript.casa");
+}
+
 void DoEScript::writeScriptContents(QFile& file) const
 {
   QTextStream out(&file);

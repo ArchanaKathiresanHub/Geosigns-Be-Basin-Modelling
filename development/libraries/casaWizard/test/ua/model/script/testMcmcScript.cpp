@@ -20,7 +20,7 @@ public:
 TEST_F(McmcScriptTest, testWriteScript)
 {
   const std::string expectedFile{"McmcScriptExpected.casa"};
-  const std::string actualFile{"uaScript.casa"};
+  const std::string actualFile{"mcmcScript.casa"};
 
   casaWizard::ua::McmcScript script(scenario);
   script.writeScript();

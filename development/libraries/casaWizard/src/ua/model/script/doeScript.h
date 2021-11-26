@@ -23,6 +23,7 @@ public:
 private:
   void writeScriptContents(QFile& file) const override;
   bool validateScenario() const override;
+  QString scriptFilename() const override;
 
   QString writeInfluentialParameter(const InfluentialParameter* influentialParameterSelected) const;
   QString writeDOE(const QVector<DoeOption*>& doeOptions) const;

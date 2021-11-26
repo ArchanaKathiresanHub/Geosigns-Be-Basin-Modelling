@@ -17,9 +17,10 @@ class QCScript : public UAScript
 {
 public:
   explicit QCScript(const UAScenario& scenario);
+  QString scriptFilename() const final;
 
 private:
-  void writeScriptContents(QFile& file) const override;
+  void writeScriptContents(QFile& file) const final;
 };
 
 } // namespace ua

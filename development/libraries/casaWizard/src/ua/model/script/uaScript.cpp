@@ -32,11 +32,6 @@ UAScript::UAScript(const UAScenario& scenario) :
 {
 }
 
-QString UAScript::scriptFilename() const
-{
-  return QString("uaScript.casa");
-}
-
 QString UAScript::workingDirectory() const
 {
   return QString(scenario_.workingDirectory());

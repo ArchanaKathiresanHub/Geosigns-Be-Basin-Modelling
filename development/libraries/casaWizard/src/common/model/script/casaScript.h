@@ -14,7 +14,7 @@ class CasaScript : public RunScript
 {
 public:
   CasaScript(const QString& baseDirectory);
-  virtual ~CasaScript() = default;
+  virtual ~CasaScript() override = default;
 
   virtual const CasaScenario& scenario() const = 0;
   virtual QString scriptFilename() const = 0;

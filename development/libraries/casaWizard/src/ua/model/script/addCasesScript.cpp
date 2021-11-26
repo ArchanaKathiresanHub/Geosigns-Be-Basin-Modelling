@@ -40,6 +40,11 @@ void AddCasesScript::writeScriptContents(QFile& file) const
   out << writeSaveState(stateFileNameDoE);
 }
 
+QString AddCasesScript::scriptFilename() const
+{
+  return QString("addCasesScript.casa");
+}
+
 } // namespace ua
 
 } // namespace casaWizard

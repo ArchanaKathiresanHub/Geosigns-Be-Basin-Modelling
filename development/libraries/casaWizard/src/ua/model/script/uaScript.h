@@ -26,7 +26,6 @@ class UAScript : public CasaScript
 public:
   explicit UAScript(const UAScenario& scenario);
   const CasaScenario& scenario() const override;
-  QString scriptFilename() const override;
   QString workingDirectory() const override;
 
 protected:

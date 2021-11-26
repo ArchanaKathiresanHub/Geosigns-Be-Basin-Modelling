@@ -53,6 +53,7 @@ public:
     }
     createFile.close();
   }
+
   void TearDown() override
   {
     std::remove(stateFile_.c_str());

@@ -19,7 +19,7 @@ public:
 TEST_F(QCScriptTest, testWriteScript)
 {
   const std::string expectedFile{"QCScriptExpected.casa"};
-  const std::string actualFile{"uaScript.casa"};
+  const std::string actualFile{"qcScript.casa"};
 
   casaWizard::ua::QCScript script(scenario);
   EXPECT_TRUE(script.writeScript());

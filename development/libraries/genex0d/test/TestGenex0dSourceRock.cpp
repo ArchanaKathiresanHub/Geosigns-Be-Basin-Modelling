@@ -12,14 +12,14 @@ protected:
   void SetUp() final
   {
     objectFactory = new DataAccess::Interface::ObjectFactory();
-    projectHandle = DataAccess::Interface::OpenCauldronProject("AcquiferScale1.project3d", objectFactory);
+    projectHandle = DataAccess::Interface::OpenCauldronProject("AcquiferScale1_Genex0dSourceRock.project3d", objectFactory);
 
   }
 
   void TearDown() final
   {
-    delete projectHandle;
-    delete objectFactory;
+    if (projectHandle) delete projectHandle;
+    if (objectFactory) delete objectFactory;
   }
 
   DataAccess::Interface::ObjectFactory* objectFactory;
@@ -34,7 +34,7 @@ Genex0d::Genex0dInputData setInputs()
   input.HCVRe05 = 1.25;
   input.SCVRe05 = 0.0;
   input.formationName = "TestFormation";
-  input.projectFilename = "AcquiferScale1.project3d";
+  input.projectFilename = "AcquiferScale1_Genex0dSourceRock.project3d";
   input.activationEnergy = 210;
   input.resinDiffusionEnergy = 80;
   input.C15AroDiffusionEnergy = 81;
@@ -65,10 +65,10 @@ Genex0d::Genex0dInputData setInputsWithSecondSourceRock()
   input.C15SatDiffusionEnergySR2 = 84;
   input.asphalteneDiffusionEnergySR2 = 85;
   input.sourceRockTypeSR2 = "Type_II_Paleozoic_Marine_Shale_kin_s";
+  input.mixingHI = 471;
 
   return input;
 }
-
 
 TEST_F( TestGenex0dSourceRock, TestInputs )
 {

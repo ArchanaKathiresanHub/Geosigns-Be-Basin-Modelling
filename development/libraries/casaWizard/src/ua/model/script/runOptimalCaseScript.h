@@ -20,13 +20,13 @@ class RunOptimalCaseScript : public DoEScript
 public:
   explicit RunOptimalCaseScript(const UAScenario& scenario);
 
-  QString scriptFilename() const override;
-  QString workingDirectory() const override;
-  QString relativeDirectory() const override;
+  QString scriptFilename() const final;
+  QString workingDirectory() const final;
+  QString relativeDirectory() const final;
   QString absoluteDirectory() const;
 
 private:
-  void writeScriptContents(QFile& file) const override;
+  void writeScriptContents(QFile& file) const final;
 
   const UAScenario& scenario_;
   QString projectFile_;

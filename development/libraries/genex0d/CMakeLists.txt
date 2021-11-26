@@ -44,12 +44,18 @@ endif(BM_USE_FLEXLM)
 set(CFGFLS "${PROJECT_SOURCE_DIR}/geocase/misc")
 
 copy_test_file(AcquiferScale1.project3d)
+copy_test_file(AcquiferScale1_Genex0dSourceRock.project3d)
+copy_test_file(AcquiferScale1_Genex0dFormation.project3d)
+
 copy_test_file(Acquifer.HDF)
+copy_test_file(Acquifer_Genex0dFormation.HDF)
+copy_test_file(Acquifer_Genex0dSourceRock.HDF)
+
 copy_test_file(AcquiferScale1_CauldronOutputDir/HydrostaticTemperature_Results.HDF)
+copy_test_file(AcquiferScale1_Genex0dFormation_CauldronOutputDir/HydrostaticTemperature_Results.HDF)
+copy_test_file(AcquiferScale1_Genex0dSourceRock_CauldronOutputDir/HydrostaticTemperature_Results.HDF)
 
 copy_test_file(TestGenex0dSimulator.project3d)
-
-
 
 add_gtest( NAME "Genex0dInputManager"
     SOURCES src/Genex0dInputManager.cpp test/TestGenex0dInputManager.cpp
@@ -69,14 +75,15 @@ add_gtest( NAME "Genex0dProjectManager"
     FOLDER "${BASE_FOLDER}/${GENEX0D_LIB_NAME}"
 )
 
+add_gtest( NAME "Genex0dSourceRock"
+    SOURCES src/Genex0dSourceRock.cpp test/TestGenex0dSourceRock.cpp
+    LIBRARIES ${GENEX0D_LIB_NAME} utilities cmbapi DataAccess SerialDataAccess TableIO ${HDF5_LIBRARIES} FileSystem
+    ENV_VARS EOSPACKDIR=${CFGFLS}/eospack GENEX5DIR=${CFGFLS}/genex50 CTCDIR=${CFGFLS}/
+    FOLDER "${BASE_FOLDER}/${GENEX0D_LIB_NAME}"
+)
+
 add_gtest( NAME "Genex0dSimulator"
     SOURCES src/Genex0dSimulator.cpp test/TestGenex0dSimulator.cpp
     LIBRARIES ${GENEX0D_LIB_NAME} utilities cmbapi DataAccess SerialDataAccess TableIO ${HDF5_LIBRARIES} FileSystem
     FOLDER "${BASE_FOLDER}/${GENEX0D_LIB_NAME}"
 )
-
-#add_gtest( NAME "Genex0dSourceRock"
-#    SOURCES src/Genex0dSourceRock.cpp test/TestGenex0dSourceRock.cpp
-#    LIBRARIES ${GENEX0D_LIB_NAME} utilities cmbapi DataAccess SerialDataAccess TableIO ${HDF5_LIBRARIES} FileSystem
-#    FOLDER "${BASE_FOLDER}/${GENEX0D_LIB_NAME}"
-#)

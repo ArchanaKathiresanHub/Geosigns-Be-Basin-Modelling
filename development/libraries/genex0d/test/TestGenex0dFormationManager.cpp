@@ -28,9 +28,9 @@ protected:
 
   void TearDown() final
   {
-    delete genex0dFormationMgr;
-    delete projectHandle;
-    delete objectFactory;
+    if (genex0dFormationMgr) delete genex0dFormationMgr;
+    if (projectHandle) delete projectHandle;
+    if (objectFactory) delete objectFactory;
   }
 
   static const std::string projectFileName;
@@ -38,7 +38,7 @@ protected:
   DataAccess::Interface::ProjectHandle * projectHandle;
   Genex0d::Genex0dFormationManager * genex0dFormationMgr;
 };
-const std::string TestGenex0dFormationManager::projectFileName = "AcquiferScale1.project3d";
+const std::string TestGenex0dFormationManager::projectFileName = "AcquiferScale1_Genex0dFormation.project3d";
 
 TEST_F( TestGenex0dFormationManager, TestFunctionalities )
 {

@@ -29,9 +29,9 @@ protected:
 
   void TearDown() final
   {
-    delete genex0dProjectMgr;
-    delete projectHandle;
-    delete objectFactory;
+    if (genex0dProjectMgr) delete genex0dProjectMgr;
+    if (projectHandle) delete projectHandle;
+    if (objectFactory) delete objectFactory;
   }
 
   static const std::string projectFileName;

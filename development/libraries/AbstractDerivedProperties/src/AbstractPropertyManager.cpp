@@ -404,7 +404,7 @@ AbstractDerivedProperties::FormationPropertyPtr AbstractDerivedProperties::Abstr
 
          if ( calculator )
          {
-            calculator->calculate ( *this, snapshot, formation, calculatedProperties );
+             calculator->calculate ( *this, snapshot, formation, calculatedProperties );
 
             for ( FormationPropertyPtr calculatedProperty : calculatedProperties )
             {

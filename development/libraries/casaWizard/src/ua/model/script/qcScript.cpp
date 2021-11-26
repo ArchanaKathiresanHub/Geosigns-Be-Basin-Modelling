@@ -18,6 +18,11 @@ QCScript::QCScript(const UAScenario& scenario) :
 {
 }
 
+QString QCScript::scriptFilename() const
+{
+  return QString("qcScript.casa");
+}
+
 void QCScript::writeScriptContents(QFile& file) const
 {
   QTextStream out(&file);
