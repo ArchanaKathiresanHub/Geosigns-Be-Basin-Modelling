@@ -36,6 +36,14 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2021-11-26  Richard Faasse  <Richard.Faasse@shell.com>
+
+	fix: Fixed running unit tests in parallel and fixed the jenkins issue with one of the genex0d unit-tests
+	* Related work items: #395998
+	================== COMMIT-END ========================
+	Commit-ID:<a9f6966f59a1237e4fc1a8e2f63894b4034b4a26>	  (refs/heads/master)
+
+++
 2021-11-11  Richard Faasse  <Richard.Faasse@shell.com>
 
 	fix: Fix crash in SAC wizard.
