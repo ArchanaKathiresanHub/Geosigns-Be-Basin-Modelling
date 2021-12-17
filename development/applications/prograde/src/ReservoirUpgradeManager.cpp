@@ -48,13 +48,13 @@ Prograde::ReservoirUpgradeManager::ReservoirUpgradeManager(Model& model) :
 
 void Prograde::ReservoirUpgradeManager::upgrade()
 {
-   double minTrapCapa = 5e5; // Minimum trap capacity
+   double minTrapCapa = std::numeric_limits<double>::max(); // Minimum trap capacity
    int globalBioDegradInd = 0;
-   int globalOilToGasCrackingInd = 1;
+   int globalOilToGasCrackingInd = 0;
    int globalDiffusionInd = 0;
    double globalMinOilColumnHeight = 1.0;
    double globalMinGasColumnHeight = 1.0;
-   int globalBlockingInd = 0;
+   int globalBlockingInd = 1;
    double globalBlockingPermeability = 1e-9;
    double globalBlockingPorosity = 0;
    auto reservoirs = m_model.reservoirManager().getReservoirsID();

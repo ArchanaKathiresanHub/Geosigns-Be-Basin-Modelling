@@ -16,10 +16,11 @@
 #include "../src/ReservoirManager.h"
 
 // Globle trap capacity value is the minimum of all the layer-wise values
-TEST(ReservoirConverter, trapCapacity)
+TEST(ReservoirConverter, trapCapacity1)
 {
    Prograde::ReservoirConverter resConverter;
-   double globalTrapCapacity = 1.0e10;
+   // globalTrapCapacity should be initialized with the largest possible value so that it does not influence the minumum value
+   double globalTrapCapacity = std::numeric_limits<double>::max();
    double trapCapa = 500000.0;
    resConverter.trapCapacityLogic(trapCapa, globalTrapCapacity);
    trapCapa = 300000.0;
@@ -28,6 +29,30 @@ TEST(ReservoirConverter, trapCapacity)
    resConverter.trapCapacityLogic(trapCapa, globalTrapCapacity);
 
    EXPECT_NEAR(globalTrapCapacity, 300000.0, 1e-6);
+}
+TEST(ReservoirConverter, trapCapacity2)
+{
+	Prograde::ReservoirConverter resConverter;
+	double globalTrapCapacity = std::numeric_limits<double>::max();
+	double trapCapa = 500000.0;
+	resConverter.trapCapacityLogic(trapCapa, globalTrapCapacity);
+
+	EXPECT_NEAR(globalTrapCapacity, 500000.0, 1e-6);
+}
+TEST(ReservoirConverter, trapCapacity3)
+{
+	// Negative test case
+	Prograde::ReservoirConverter resConverter;
+	// Initializing globalTrapCapacity with a small value such that it influences the minimum value
+	double globalTrapCapacity = 200000.0;
+	double trapCapa = 500000.0;
+	resConverter.trapCapacityLogic(trapCapa, globalTrapCapacity);
+	trapCapa = 300000.0;
+	resConverter.trapCapacityLogic(trapCapa, globalTrapCapacity);
+	trapCapa = 400000.0;
+	resConverter.trapCapacityLogic(trapCapa, globalTrapCapacity);
+
+	EXPECT_NEAR(globalTrapCapacity, 200000.0, 1e-6);
 }
 //If BlockingPermeability is on and all layer-wise values are equal it will be taken as global value, else default (1e-9).
 //This test checks BlockingPermeability is same in all layers  
