@@ -36,6 +36,18 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2021-12-17  Sumant.Kalra  <Sumant.Kalra@shell.com>
+
+	fix: usr: Prograde Fixes in ReservoirOptionsIoTbl.
+	 1. TrapCapacity - Scenarios that were impacted - Least Reservoir Capacity out of all the active Reservoirs > 5e5
+	 2. OilToGasCrackingInd - Scenarios with - OTGC off for all the active reservoirs
+	 3. BlockingInd - Scenarios with - On for all the active reservoirs
+
+	Related work items: #427773
+	================== COMMIT-END ========================
+	Commit-ID:<23a379da989f8f0156a63a350c217777b861e4b8>	  (HEAD -> Developers/sumant.kalra/changeLogUpdate, origin/master, origin/Developers/sumant.kalra/changeLogUpdate, master)
+
+++
 2021-11-26  Richard Faasse  <Richard.Faasse@shell.com>
 
 	fix: Fixed running unit tests in parallel and fixed the jenkins issue with one of the genex0d unit-tests
