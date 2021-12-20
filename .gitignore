@@ -6,10 +6,15 @@
 /obj*
 *.vcxproj*
 *.log
-last-cl-gen
-CreateChangeLog.sh
-perlSrForChangelog
-VERSION
+
+
+## ignoring the files from the visual studio CMake auto compile feature
+/development/.vs/*
+## ignoring the CMakeSettings.json for remote linux development feature in VS2019
+*.json
+
+#ignore any doxygen related tempfiles
+*.doxytag
 
 #ignore linux backup files
 *~

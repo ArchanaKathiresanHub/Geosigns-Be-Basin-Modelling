@@ -14,7 +14,14 @@ include(cmake/AddPackage.cmake)
 
 set(DOXYGEN_EXECUTABLE "DOXYGEN_EXECUTABLE-NOTFOUND" CACHE PATH "Path to doxygen executable")
 
-find_package(Doxygen)
+if (WIN32)
+	message(WARNING "this is the DOXY_ROOT ${DOXYGEN_EXECUTABLE}")
+	find_package(Doxygen QUIET)
+endif()
+
+if (UNIX)
+	find_package(Doxygen)
+endif()
 
 if(DOXYGEN_FOUND)
    add_custom_target(doc COMMENT "Generating Doxygen documentation")

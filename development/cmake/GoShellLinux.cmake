@@ -44,5 +44,10 @@ set(BLA_VENDOR "MKL")
 # Flexlm setup
 set(FLEXLM_ROOT "/apps/3rdparty/EPTFlexLm/v9.2" CACHE PATH "Path to FlexLM directory" )
 set(FLEXLM_LIBRARY "${FLEXLM_ROOT}/LinuxRHEL_i686_30WS/lib64/EPTFlexLm.o" CACHE FILEPATH "Path of FlexLM libraries" )
+execute_process(
+    COMMAND bash "-c" "which doxygen" 
+    OUTPUT_VARIABLE DOXYGEN_EXECUTABLE
+)
 
-set(DOXYGEN_EXECUTABLE "/glb/data/hpcrnd/easybuild/PRODUCTION/software/rhel/6/Doxygen/1.8.10/bin/doxygen" CACHE PATH "Path to doxygen executable")
+message(STATUS "This is the doxy exe ${DOXYGEN_EXECUTABLE}")
+##set(DOXYGEN_EXECUTABLE "/glb/data/hpcrnd/easybuild/PRODUCTION/software/rhel/6/Doxygen/1.8.10/bin/doxygen" CACHE PATH "Path to doxygen executable")

@@ -128,4 +128,4 @@ endif(BM_PARALLEL)
 ########################### DOXYGEN ############################
 ################################################################
 
-generate_dox(src/fastcauldron.cfg)
+#generate_dox(src/fastcauldron.cfg)

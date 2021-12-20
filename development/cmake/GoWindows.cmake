@@ -123,3 +123,8 @@ if (IS_DIRECTORY "${BM_EXTERNAL_COMPONENTS_DIR}/HYPRE/lib" )
 	set(HYPRE_ROOT "${BM_EXTERNAL_COMPONENTS_DIR}/HYPRE" CACHE PATH "Installation directory of HYPRE")
 	mark_as_advanced(HYPRE_LIBRARIES)
 endif()
+
+if(BM_BUILD_DOCS)
+   set(DOXYGEN_EXECUTABLE "${CBM_HOME}/3rdparty/doxygen-1.9.2.windows.x64.bin/doxygen.exe")
+endif()
+
