@@ -2,9 +2,6 @@
 #define _TEMPERATURESOLVER_H_
 
 #include "propinterface.h"
-#include "SmectiteIlliteCalculator.h"
-#include "BiomarkersCalculator.h"
-#include "FissionTrackCalculator.h"
 #include "VitriniteReflectance.h"
 
 #include "BoundaryConditions.h"
@@ -56,47 +53,6 @@ public:
    /// It applies the cut-off for temperature oscillations that can occur
    /// when there is a basalt emplacement.
    void correctTemperatureSolution ( const double Current_Time );
-
-  ///
-  /// Update the Smectite-Illite calculation state,
-  ///
-  void computeSmectiteIlliteIncrement ( const double Previous_Time, const double Current_Time );
-
-  ///
-  /// Compute the SmectiteIllite fraction at the snapshot time
-  ///
-  void computeSnapShotSmectiteIllite ( const double Current_Time,
-                                       const Boolean2DArray& validNeedle );
-  void deleteSmectiteIlliteVector ();
-
-  ///
-  /// Update the Biomarkers calculation state,
-  ///
-  void computeBiomarkersIncrement ( const double Previous_Time, const double Current_Time );
-
-  ///
-  /// Collect data to be used for fission track analysis
-  ///
-  void collectFissionTrackSampleData(const double time);
-
-  ///
-  /// Perform fission track analysis
-  ///
-  void computeFissionTracks(void);
-
-  ///
-  /// Clear the input history for fission track calculator
-  ///
-  void resetFissionTrackCalculator(void);
-
-
-  ///
-  /// Compute the Biomarkers  at the snapshot time
-  ///
-  void computeSnapShotBiomarkers ( const double Current_Time, const Boolean2DArray& validNeedle );
-  void deleteBiomarkersVectors ( );
-  void resetSmectiteIlliteStateVectors( );
-  void resetBiomarkerStateVectors();
 
   ///
   /// Set the surface temperature for the temperature vector in the topmost layer.
@@ -152,8 +108,6 @@ public:
   static void setDepthQuadratureDegree ( const int optimisationLevel,
 					 const int newDegree );
 
-
-  void writeFissionTrackResultsToDatabase(void);
 private:
 
   Temperature_Solver( const Temperature_Solver & ); // prohibit copying
@@ -214,12 +168,7 @@ private:
 
   AppCtx*        Basin_Model;
 
-  SmectiteIlliteCalculator m_SmectiteIlliteCalculator;
-  BiomarkersCalculator m_BiomarkersCalculator;
-  FissionTrackCalculator m_FissionTrackCalculator;
-
   Vec            Crust_Heat_Production;
-
 };
 
 #endif /* _TEMPERATURESOLVER_H_ */

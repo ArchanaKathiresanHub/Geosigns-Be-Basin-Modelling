@@ -1284,9 +1284,8 @@ TEST_F(CompareTest, CompareData1)
    cout << "Starting import from XML" << endl;
    std::shared_ptr<CauldronIO::Project> projectXml = CauldronIO::ImportFromXML::importFromXML(newFilePathXml.string());
    cout << "Comparing data" << endl;
-   //Comparing Project information
-   EXPECT_EQ(projectP3d->getModellingMode(), projectXml->getModelingMode());
 
+   //Comparing Project information
    compareSnapshots(projectXml, projectP3d);
    compareFormations(projectXml, projectP3d);
    compareReservoirs(projectXml, projectP3d);
@@ -1296,10 +1295,9 @@ TEST_F(CompareTest, CompareData1)
    compare3dContinuousPropertyValues(projectXml, projectP3d);
    compareTrappers(projectXml, projectP3d);
    compareTraps(projectXml, projectP3d);
-        compareGenexHistory(projectXml, projectP3d);
-        compareMassBalance(projectXml, projectP3d);
-
-        compareDataDriller(projectXml, projectP3d);
+   compareGenexHistory(projectXml, projectP3d);
+   compareMassBalance(projectXml, projectP3d);
+   compareDataDriller(projectXml, projectP3d);
 
    newFilePathP3d = testDataPath;
 

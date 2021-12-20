@@ -33,8 +33,7 @@ set(allheaders
    ${CMAKE_CURRENT_BINARY_DIR}/TableContCrustalThicknessIoTbl.h
    ${CMAKE_CURRENT_BINARY_DIR}/TableOceaCrustalThicknessIoTbl.h
    ${CMAKE_CURRENT_BINARY_DIR}/TableBasaltThicknessIoTbl.h
-   ${CMAKE_CURRENT_BINARY_DIR}/TableBasementIoTbl.h
-   ${CMAKE_CURRENT_BINARY_DIR}/TableDisplayContourIoTbl.h
+   ${CMAKE_CURRENT_BINARY_DIR}/TableBasementIoTbl.h   
    ${CMAKE_CURRENT_BINARY_DIR}/TableSurfaceTempIoTbl.h
    ${CMAKE_CURRENT_BINARY_DIR}/TablePermafrostIoTbl.h
    ${CMAKE_CURRENT_BINARY_DIR}/TableGeologicalBoundaryIoTbl.h
@@ -42,8 +41,6 @@ set(allheaders
    ${CMAKE_CURRENT_BINARY_DIR}/TableBoundaryValuesIoTbl.h
    ${CMAKE_CURRENT_BINARY_DIR}/TableSurfaceDepthIoTbl.h
    ${CMAKE_CURRENT_BINARY_DIR}/TableMntlHeatFlowIoTbl.h
-   ${CMAKE_CURRENT_BINARY_DIR}/TableBiomarkerKinIoTbl.h
-   ${CMAKE_CURRENT_BINARY_DIR}/TableSmectiteIlliteKinIoTbl.h
    ${CMAKE_CURRENT_BINARY_DIR}/TableReservoirIoTbl.h
    ${CMAKE_CURRENT_BINARY_DIR}/TableReservoirOptionsIoTbl.h
    ${CMAKE_CURRENT_BINARY_DIR}/TableBioDegradIoTbl.h
@@ -56,12 +53,6 @@ set(allheaders
    ${CMAKE_CURRENT_BINARY_DIR}/TableMigrationIoTbl.h
    ${CMAKE_CURRENT_BINARY_DIR}/TableTrapperIoTbl.h
    ${CMAKE_CURRENT_BINARY_DIR}/TableDataMiningIoTbl.h
-   ${CMAKE_CURRENT_BINARY_DIR}/TableFtGrainIoTbl.h
-   ${CMAKE_CURRENT_BINARY_DIR}/TableFtLengthIoTbl.h
-   ${CMAKE_CURRENT_BINARY_DIR}/TableFtSampleIoTbl.h
-   ${CMAKE_CURRENT_BINARY_DIR}/TableFtPredLengthCountsHistIoTbl.h
-   ${CMAKE_CURRENT_BINARY_DIR}/TableFtPredLengthCountsHistDataIoTbl.h
-   ${CMAKE_CURRENT_BINARY_DIR}/TableFtClWeightPercBinsIoTbl.h
    ${CMAKE_CURRENT_BINARY_DIR}/TableLithotypeIoTbl.h
    ${CMAKE_CURRENT_BINARY_DIR}/TableLitThCondIoTbl.h
    ${CMAKE_CURRENT_BINARY_DIR}/TableLitHeatCapIoTbl.h
@@ -71,9 +62,6 @@ set(allheaders
    ${CMAKE_CURRENT_BINARY_DIR}/TableFilterTimeIoTbl.h
    ${CMAKE_CURRENT_BINARY_DIR}/TableTimeIoTbl.h
    ${CMAKE_CURRENT_BINARY_DIR}/Table3DTimeIoTbl.h
-   ${CMAKE_CURRENT_BINARY_DIR}/Table1DTimeIoTbl.h
-   ${CMAKE_CURRENT_BINARY_DIR}/TableTemperatureIsoIoTbl.h
-   ${CMAKE_CURRENT_BINARY_DIR}/TableVrIsoIoTbl.h
    ${CMAKE_CURRENT_BINARY_DIR}/TableTwoWayTimeIoTbl.h
    ${CMAKE_CURRENT_BINARY_DIR}/TableGenexHistoryLocationIoTbl.h
    ${CMAKE_CURRENT_BINARY_DIR}/TableCTCIoTbl.h
@@ -109,8 +97,7 @@ set(allsources
    ${CMAKE_CURRENT_BINARY_DIR}/TableContCrustalThicknessIoTbl.cpp
    ${CMAKE_CURRENT_BINARY_DIR}/TableOceaCrustalThicknessIoTbl.cpp
    ${CMAKE_CURRENT_BINARY_DIR}/TableBasaltThicknessIoTbl.cpp
-   ${CMAKE_CURRENT_BINARY_DIR}/TableBasementIoTbl.cpp
-   ${CMAKE_CURRENT_BINARY_DIR}/TableDisplayContourIoTbl.cpp
+   ${CMAKE_CURRENT_BINARY_DIR}/TableBasementIoTbl.cpp   
    ${CMAKE_CURRENT_BINARY_DIR}/TableSurfaceTempIoTbl.cpp
    ${CMAKE_CURRENT_BINARY_DIR}/TablePermafrostIoTbl.cpp
    ${CMAKE_CURRENT_BINARY_DIR}/TableGeologicalBoundaryIoTbl.cpp
@@ -118,8 +105,6 @@ set(allsources
    ${CMAKE_CURRENT_BINARY_DIR}/TableBoundaryValuesIoTbl.cpp
    ${CMAKE_CURRENT_BINARY_DIR}/TableSurfaceDepthIoTbl.cpp
    ${CMAKE_CURRENT_BINARY_DIR}/TableMntlHeatFlowIoTbl.cpp
-   ${CMAKE_CURRENT_BINARY_DIR}/TableBiomarkerKinIoTbl.cpp
-   ${CMAKE_CURRENT_BINARY_DIR}/TableSmectiteIlliteKinIoTbl.cpp
    ${CMAKE_CURRENT_BINARY_DIR}/TableReservoirIoTbl.cpp
    ${CMAKE_CURRENT_BINARY_DIR}/TableReservoirOptionsIoTbl.cpp
    ${CMAKE_CURRENT_BINARY_DIR}/TableBioDegradIoTbl.cpp
@@ -132,12 +117,6 @@ set(allsources
    ${CMAKE_CURRENT_BINARY_DIR}/TableMigrationIoTbl.cpp
    ${CMAKE_CURRENT_BINARY_DIR}/TableTrapperIoTbl.cpp
    ${CMAKE_CURRENT_BINARY_DIR}/TableDataMiningIoTbl.cpp
-   ${CMAKE_CURRENT_BINARY_DIR}/TableFtGrainIoTbl.cpp
-   ${CMAKE_CURRENT_BINARY_DIR}/TableFtLengthIoTbl.cpp
-   ${CMAKE_CURRENT_BINARY_DIR}/TableFtSampleIoTbl.cpp
-   ${CMAKE_CURRENT_BINARY_DIR}/TableFtPredLengthCountsHistIoTbl.cpp
-   ${CMAKE_CURRENT_BINARY_DIR}/TableFtPredLengthCountsHistDataIoTbl.cpp
-   ${CMAKE_CURRENT_BINARY_DIR}/TableFtClWeightPercBinsIoTbl.cpp
    ${CMAKE_CURRENT_BINARY_DIR}/TableLithotypeIoTbl.cpp
    ${CMAKE_CURRENT_BINARY_DIR}/TableLitThCondIoTbl.cpp
    ${CMAKE_CURRENT_BINARY_DIR}/TableLitHeatCapIoTbl.cpp
@@ -147,9 +126,6 @@ set(allsources
    ${CMAKE_CURRENT_BINARY_DIR}/TableFilterTimeIoTbl.cpp
    ${CMAKE_CURRENT_BINARY_DIR}/TableTimeIoTbl.cpp
    ${CMAKE_CURRENT_BINARY_DIR}/Table3DTimeIoTbl.cpp
-   ${CMAKE_CURRENT_BINARY_DIR}/Table1DTimeIoTbl.cpp
-   ${CMAKE_CURRENT_BINARY_DIR}/TableTemperatureIsoIoTbl.cpp
-   ${CMAKE_CURRENT_BINARY_DIR}/TableVrIsoIoTbl.cpp
    ${CMAKE_CURRENT_BINARY_DIR}/TableTwoWayTimeIoTbl.cpp
    ${CMAKE_CURRENT_BINARY_DIR}/TableGenexHistoryLocationIoTbl.cpp
    ${CMAKE_CURRENT_BINARY_DIR}/TableCTCIoTbl.cpp

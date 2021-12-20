@@ -204,9 +204,9 @@ OutputProperty * ObjectFactory::produceOutputProperty (ProjectHandle& projectHan
    return new OutputProperty ( projectHandle, record );
 }
 
-OutputProperty * ObjectFactory::produceOutputProperty (ProjectHandle& projectHandle, const ModellingMode mode, const PropertyOutputOption option, const std::string& name ) const
+OutputProperty * ObjectFactory::produceOutputProperty (ProjectHandle& projectHandle, const PropertyOutputOption option, const std::string& name ) const
 {
-   return new OutputProperty ( projectHandle, mode, option, name );
+   return new OutputProperty ( projectHandle, option, name );
 }
 
 LithologyHeatCapacitySample * ObjectFactory::produceLithologyHeatCapacitySample (ProjectHandle& projectHandle, database::Record * record) const

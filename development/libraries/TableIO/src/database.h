@@ -311,6 +311,8 @@ namespace database
 
    private:
 
+      static const int s_versionNumStart = 100;
+
       friend class Database;
       friend class Record;
 
@@ -435,7 +437,7 @@ namespace database
 
       static int s_maxFieldsPerLine;
       static int s_fieldWidth;
-      static int s_precision;
+      static int s_precision;      
 
       std::map<std::string,bool> m_tablesInFile; // tables list in file: true for loaded, false for skipped
 

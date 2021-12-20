@@ -77,13 +77,10 @@ namespace DataAccess
          virtual bool toBeSaved () const;
 
          /// create a TimeIoRecord for this newly created and not yet saved PropertyValue
-         virtual database::Record* createTimeIoRecord (database::Table * timeIoTbl, ModellingMode theMode);
-
-         /// create a 1DTimeIoRecord for this newly created and not yet saved PropertyValue
-         virtual database::Record* create1DTimeIoRecord (database::Table * timeIoTbl, ModellingMode theMode);
+         virtual database::Record* createTimeIoRecord (database::Table * timeIoTbl);
 
          /// create a 3DTimeIoRecord for this newly created and not yet saved PropertyValue
-         virtual database::Record* create3DTimeIoRecord (database::Table * timeIoTbl, ModellingMode theMode);
+         virtual database::Record* create3DTimeIoRecord (database::Table * timeIoTbl);
 
          /// Link to a SnapshotIoRecord for this newly created and not yet saved PropertyValue
          bool linkToSnapshotIoRecord (void);
@@ -114,8 +111,6 @@ namespace DataAccess
          /// Return true if the property is a primary property
          bool isPrimary() const;
       protected:
-
-         double getMode1DResult() const;
 
          static const unsigned int ValueMap = 0;
 

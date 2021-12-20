@@ -53,59 +53,33 @@ ErrorHandler::ReturnCode PropertyManagerImpl::requestPropertyInSnapshots( const 
    // if table does not exist - report error
    if ( !m_fltTimeTable ) throw Exception( UndefinedValue ) << "FilterTimeIoTbl table could not be found in project";
 
-   database::Record * record3d = NULL;
-   database::Record * record1d = NULL;
+   database::Record * record = NULL;
 
    for ( database::Table::iterator it = m_fltTimeTable->begin(); it != m_fltTimeTable->end(); ++it )
    {
       if ( database::getPropertyName( *it ) == propName )
       {
-         if ( database::getModellingMode( *it ) == "3d" )
-         {
-            record3d = *it;
-         }
-         else if ( database::getModellingMode( *it ) == "1d" )
-         {
-            record1d = *it;
-         }
+         record = *it;
       }
-      if ( record1d && record3d ) break; // do not to scan all records
+      if ( record ) break; // do not to scan all records
    }
 
    const std::string & oo = outputPropOption.empty() ? outputOptionForProperty( propName ) : outputPropOption; // get output option for the property
 
-   if ( record3d )
+   if ( record )
    {
-      if ( database::getOutputOption( record3d ) == "None" ) // if save was not requested
-      {
-         if ( record1d && database::getOutputOption( record1d ) != "None" ) // special case if 1d is set and 3d isn't
-         {
-            database::setOutputOption( record3d, database::getOutputOption( record1d ) ); // copy from 1d
-         }
-         else
-         {
-            database::setOutputOption( record3d, oo ); // for implemented properties provide outputOption
-            if ( record1d ) database::setOutputOption( record1d, oo );
-         }
+      if ( database::getOutputOption( record ) == "None" ) // if save was not requested
+      {     
+            database::setOutputOption( record, oo ); // for implemented properties provide outputOption
       }
    }
    else // can't find
    {
-      record3d = m_fltTimeTable->createRecord();
-      record1d = m_fltTimeTable->createRecord();
+      record = m_fltTimeTable->createRecord();
 
-      database::setPropertyName( record3d, propName );
-      database::setPropertyName( record1d, propName );
-
-      database::setModellingMode( record3d, "3d" );
-      database::setModellingMode( record1d, "1d" );
-
-
-      database::setOutputOption( record3d, oo );
-      database::setOutputOption( record1d, oo );
-
-      database::setResultOption( record3d, "Simple" );
-      database::setResultOption( record1d, "Simple" );
+      database::setPropertyName( record, propName );
+      database::setOutputOption( record, oo );
+      database::setResultOption( record, "Simple" );
    }
    return NoError;
 }

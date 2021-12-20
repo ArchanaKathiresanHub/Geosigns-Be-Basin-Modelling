@@ -464,24 +464,14 @@ bool GenexSourceRock::preprocess ( const DataAccess::Interface::GridMap* validit
      unsigned int depthTOC = TOCmap->getDepth ();
      unsigned int depthHc = ( HImap ? HImap->getDepth () : 0 );
 
-     DataAccess::Interface::ModellingMode theMode = getProjectHandle().getModellingMode ();
-
      unsigned int endMapI = 0;
      unsigned int endMapJ = 0;
 
-     if (DataAccess::Interface::MODE3D == theMode)
-     {
-        endMapI = validityMap->lastI ();
-        endMapJ = validityMap->lastJ ();
-     }
-     else if (DataAccess::Interface::MODE1D == theMode)
-     {
-        endMapI = validityMap->firstI ();
-        endMapJ = validityMap->firstJ ();
-     }
-
-	 int count = 0; // the no. of instances of occurance of the HC map raster validation fails
-	 double maxValue = 0; // the highest deviation among all HC map raster values from the range of min/max
+     endMapI = validityMap->lastI ();
+     endMapJ = validityMap->lastJ ();
+    
+     int count = 0; // the no. of instances of occurance of the HC map raster validation fails
+     double maxValue = 0; // the highest deviation among all HC map raster values from the range of min/max
 
      for (lowResI = validityMap->firstI (); lowResI <= endMapI; ++lowResI)
      {
@@ -571,15 +561,6 @@ bool GenexSourceRock::preprocess ( const DataAccess::Interface::GridMap* validit
      }
 	 if(count)
 		 LogHandler(LogHandler::WARNING_SEVERITY) << count<<" target H/C map raster values are outside the valid H/C range and maximum deviation is "<<maxValue<<". All the out of range target H/C map raster values are clipped to the closest valid value";
-#ifdef OBSOLETE
-     if (DataAccess::Interface::MODE1D == theMode) {
-        if (m_theNodes.empty ()) {
-           // This is a perfectly legitimate situation!!!
-           status = false;
-           LogHandler( LogHandler::WARNING_SEVERITY ) << "No valid Source Rock Nodes. Terminating preprocessing...";
-        }
-     }
-#endif
 
      //restore local map data
      validityMap->restoreData ();
@@ -654,8 +635,8 @@ bool GenexSourceRock::addHistoryToNodes () {
     const double x = history->getX ();
     const double y = history->getY ();
 
-    if ( getProjectHandle().getModellingMode () == DataAccess::Interface::MODE1D ||
-         (NumericFunctions::inRange ( x, originX, northEastCornerX ) && NumericFunctions::inRange ( y, originY, northEastCornerY )) ){
+    if (NumericFunctions::inRange ( x, originX, northEastCornerX ) && NumericFunctions::inRange ( y, originY, northEastCornerY ))
+    {
 
       for( Genex6::SourceRockNode* node : m_theNodes) // and not historyAssociatedWithNode
       {
@@ -664,8 +645,8 @@ bool GenexSourceRock::addHistoryToNodes () {
         int i = int ( floor (( x - originX ) / deltaX + 0.5 ));
         int j = int ( floor (( y - originY ) / deltaY + 0.5 ));
 
-        if ( getProjectHandle().getModellingMode () == DataAccess::Interface::MODE1D ||
-             (i == (int)(node->GetI ()) && j == (int)(node->GetJ ()))) {
+        if ( i == (int)(node->GetI ()) && j == (int)(node->GetJ ()))
+        {
 
           if ( doOutputAdsorptionProperties ()) {
             SourceRockAdsorptionHistory* sourceRockHistory = new SourceRockAdsorptionHistory ( getProjectHandle(), *history );

@@ -100,6 +100,10 @@ TEST_F(mbapiModelTest, ModelLoadSaveProjectRoundTrip)
    // Save a first copy
    ASSERT_EQ(ErrorHandler::NoError, modelBase->saveModelToProjectFile("Project_case1.project3d"));
 
+   // Load and resave to include version upgrades
+   ASSERT_EQ(ErrorHandler::NoError, modelBase->loadModelFromProjectFile("Project_case1.project3d"));
+   ASSERT_EQ(ErrorHandler::NoError, modelBase->saveModelToProjectFile("Project_case1.project3d"));
+
    std::unique_ptr<mbapi::Model> modelCase2;
    modelCase2.reset(new mbapi::Model());
    // load first copy
@@ -2074,7 +2078,7 @@ TEST_F(mbapiModelTest, ProjectDataManager)
 
    double delta_x, delta_y;
    int nodes_x, nodes_y;
-   std::string modellingMode, description;
+   std::string description;
 
    // load test project
    ASSERT_EQ(ErrorHandler::NoError, testModel.loadModelFromProjectFile(m_CtcTestProject));
@@ -2108,13 +2112,6 @@ TEST_F(mbapiModelTest, ProjectDataManager)
    ProjectMan.setDeltaY(111.0);
    ProjectMan.getDeltaY(delta_y);
    EXPECT_EQ(111.0, delta_y);
-
-   //check whether modelling mode of ProjectIoTbl can be read and modified correctly
-   ProjectMan.getModellingMode(modellingMode);
-   EXPECT_EQ("3d", modellingMode);
-   ProjectMan.setModellingMode("both");
-   ProjectMan.getModellingMode(modellingMode);
-   EXPECT_EQ("both", modellingMode);
 
    //check whether project description of ProjectIoTbl can be read and modified correctly
    ProjectMan.getProjectDescription(description);

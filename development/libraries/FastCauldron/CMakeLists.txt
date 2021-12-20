@@ -80,7 +80,6 @@ target_link_libraries(${FASTCAULDRONAPP_TARGET_NAME}
     genex6_kernel
     GeoPhysics
     FileSystem
-    calibration_kernel
     OTGC_kernel6
     ${HDF5_LIBRARIES}
     ${PETSC_LIBRARIES}
@@ -256,7 +255,7 @@ set(CFGFLS "${PROJECT_SOURCE_DIR}/geocase/misc")
 
 add_gtest( NAME "MeshUnitTesterFull"
            SOURCES test/MeshUnitTester test/MeshUnitTesterFull
-           LIBRARIES  ${FASTCAULDRONAPP_TARGET_NAME} DataAccess DistributedDataAccess utilities Utilities_Petsc Serial_Hdf5 Parallel_Hdf5 EosPack TableIO LinearAlgebra Interpolation FiniteElements CBMGenerics genex6_kernel GeoPhysics FileSystem calibration_kernel OTGC_kernel6 ${HDF5_LIBRARIES} ${PETSC_LIBRARIES} ${MPI_LIBRARIES} ${Boost_LIBRARIES}
+           LIBRARIES  ${FASTCAULDRONAPP_TARGET_NAME} DataAccess DistributedDataAccess utilities Utilities_Petsc Serial_Hdf5 Parallel_Hdf5 EosPack TableIO LinearAlgebra Interpolation FiniteElements CBMGenerics genex6_kernel GeoPhysics FileSystem OTGC_kernel6 ${HDF5_LIBRARIES} ${PETSC_LIBRARIES} ${MPI_LIBRARIES} ${Boost_LIBRARIES}
            LINK_FLAGS "${PETSC_LINK_FLAGS}"
            ENV_VARS EOSPACKDIR=${CFGFLS}/eospack GENEX5DIR=${CFGFLS}/genex50
            FOLDER "${BASE_FOLDER}/${FASTCAULDRON_TARGET_NAME}"
@@ -264,7 +263,7 @@ add_gtest( NAME "MeshUnitTesterFull"
 
 add_gtest( NAME "MeshUnitTesterSediments"
            SOURCES test/MeshUnitTester test/MeshUnitTesterSediments
-           LIBRARIES  ${FASTCAULDRONAPP_TARGET_NAME} DataAccess DistributedDataAccess utilities Utilities_Petsc Serial_Hdf5 Parallel_Hdf5 EosPack TableIO LinearAlgebra Interpolation FiniteElements CBMGenerics genex6_kernel GeoPhysics calibration_kernel OTGC_kernel6 ${HDF5_LIBRARIES} ${PETSC_LIBRARIES} ${MPI_LIBRARIES} ${Boost_LIBRARIES}
+           LIBRARIES  ${FASTCAULDRONAPP_TARGET_NAME} DataAccess DistributedDataAccess utilities Utilities_Petsc Serial_Hdf5 Parallel_Hdf5 EosPack TableIO LinearAlgebra Interpolation FiniteElements CBMGenerics genex6_kernel GeoPhysics OTGC_kernel6 ${HDF5_LIBRARIES} ${PETSC_LIBRARIES} ${MPI_LIBRARIES} ${Boost_LIBRARIES}
            LINK_FLAGS "${PETSC_LINK_FLAGS}"
            ENV_VARS EOSPACKDIR=${CFGFLS}/eospack GENEX5DIR=${CFGFLS}/genex50
            FOLDER "${BASE_FOLDER}/${FASTCAULDRON_TARGET_NAME}"
@@ -272,7 +271,7 @@ add_gtest( NAME "MeshUnitTesterSediments"
 
 add_gtest( NAME "MeshUnitTesterHoles01"
            SOURCES test/MeshUnitTester test/MeshUnitTesterHoles01
-           LIBRARIES  ${FASTCAULDRONAPP_TARGET_NAME} DataAccess DistributedDataAccess utilities Utilities_Petsc Serial_Hdf5 Parallel_Hdf5 EosPack TableIO LinearAlgebra Interpolation FiniteElements CBMGenerics genex6_kernel GeoPhysics calibration_kernel OTGC_kernel6 ${HDF5_LIBRARIES} ${PETSC_LIBRARIES} ${MPI_LIBRARIES} ${Boost_LIBRARIES}
+           LIBRARIES  ${FASTCAULDRONAPP_TARGET_NAME} DataAccess DistributedDataAccess utilities Utilities_Petsc Serial_Hdf5 Parallel_Hdf5 EosPack TableIO LinearAlgebra Interpolation FiniteElements CBMGenerics genex6_kernel GeoPhysics OTGC_kernel6 ${HDF5_LIBRARIES} ${PETSC_LIBRARIES} ${MPI_LIBRARIES} ${Boost_LIBRARIES}
            LINK_FLAGS "${PETSC_LINK_FLAGS}"
            ENV_VARS EOSPACKDIR=${CFGFLS}/eospack GENEX5DIR=${CFGFLS}/genex50
            FOLDER "${BASE_FOLDER}/${FASTCAULDRON_TARGET_NAME}"
@@ -280,7 +279,7 @@ add_gtest( NAME "MeshUnitTesterHoles01"
 
 add_gtest( NAME "MeshUnitTesterHoles02"
            SOURCES test/MeshUnitTester test/MeshUnitTesterHoles02
-           LIBRARIES  ${FASTCAULDRONAPP_TARGET_NAME} DataAccess DistributedDataAccess utilities Utilities_Petsc Serial_Hdf5 Parallel_Hdf5 EosPack TableIO LinearAlgebra Interpolation FiniteElements CBMGenerics genex6_kernel GeoPhysics calibration_kernel OTGC_kernel6 ${HDF5_LIBRARIES} ${PETSC_LIBRARIES} ${MPI_LIBRARIES} ${Boost_LIBRARIES}
+           LIBRARIES  ${FASTCAULDRONAPP_TARGET_NAME} DataAccess DistributedDataAccess utilities Utilities_Petsc Serial_Hdf5 Parallel_Hdf5 EosPack TableIO LinearAlgebra Interpolation FiniteElements CBMGenerics genex6_kernel GeoPhysics OTGC_kernel6 ${HDF5_LIBRARIES} ${PETSC_LIBRARIES} ${MPI_LIBRARIES} ${Boost_LIBRARIES}
            LINK_FLAGS "${PETSC_LINK_FLAGS}"
            ENV_VARS EOSPACKDIR=${CFGFLS}/eospack GENEX5DIR=${CFGFLS}/genex50
            FOLDER "${BASE_FOLDER}/${FASTCAULDRON_TARGET_NAME}"
@@ -288,7 +287,7 @@ add_gtest( NAME "MeshUnitTesterHoles02"
 
 add_gtest( NAME "MeshUnitTesterMixedHoles"
            SOURCES test/MeshUnitTester test/MeshUnitTesterMixedHoles
-           LIBRARIES  ${FASTCAULDRONAPP_TARGET_NAME} DataAccess DistributedDataAccess utilities Utilities_Petsc Serial_Hdf5 Parallel_Hdf5 EosPack TableIO LinearAlgebra Interpolation FiniteElements CBMGenerics genex6_kernel GeoPhysics calibration_kernel OTGC_kernel6 ${HDF5_LIBRARIES} ${PETSC_LIBRARIES} ${MPI_LIBRARIES} ${Boost_LIBRARIES}
+           LIBRARIES  ${FASTCAULDRONAPP_TARGET_NAME} DataAccess DistributedDataAccess utilities Utilities_Petsc Serial_Hdf5 Parallel_Hdf5 EosPack TableIO LinearAlgebra Interpolation FiniteElements CBMGenerics genex6_kernel GeoPhysics OTGC_kernel6 ${HDF5_LIBRARIES} ${PETSC_LIBRARIES} ${MPI_LIBRARIES} ${Boost_LIBRARIES}
            LINK_FLAGS "${PETSC_LINK_FLAGS}"
            ENV_VARS EOSPACKDIR=${CFGFLS}/eospack GENEX5DIR=${CFGFLS}/genex50
            FOLDER "${BASE_FOLDER}/${FASTCAULDRON_TARGET_NAME}"

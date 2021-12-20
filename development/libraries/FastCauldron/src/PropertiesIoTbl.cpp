@@ -185,16 +185,7 @@ bool FilterTimeIoTbl::writeToContext( AppCtx* Basin_Model )
 
          for ( propertyIter = outputProperties->begin (); propertyIter != outputProperties->end (); ++propertyIter ) {
 
-#if 0
-            cout << " output property: " << (*propertyIter)->getMode () << "  " 
-                 << (*propertyIter)->getName () << "  " << (*propertyIter)->getOption () << endl;
-#endif
-
-            if (((*propertyIter)->getMode () == Interface::MODE3D and Basin_Model->isModellingMode3D ()) or
-                ((*propertyIter)->getMode () == Interface::MODE1D and Basin_Model->isModellingMode1D ())) {
-               Basin_Model->timefilter.setFilter ( (*propertyIter)->getName (), (*propertyIter)->getOption ());
-            }
-
+            Basin_Model->timefilter.setFilter ( (*propertyIter)->getName (), (*propertyIter)->getOption ());
          }
 
          delete outputProperties;

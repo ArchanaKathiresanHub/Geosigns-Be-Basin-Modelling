@@ -28,16 +28,13 @@ TEST(Project, Create)
 	const string projectName("project");
 	const string description("descript");
 	const string version("version");
-	ModellingMode mode = MODE1D;
 	int xmlVersionMjr = 2;
 	int xmlVersionMnr = 1;
-
-	std::shared_ptr<Project> project(new Project(projectName, description, version, mode, xmlVersionMjr, xmlVersionMnr));
+	std::shared_ptr<Project> project(new Project(projectName, description, version, xmlVersionMjr, xmlVersionMnr));
 
 	EXPECT_STREQ(project->getName().c_str(), projectName.c_str());
 	EXPECT_STREQ(project->getDescription().c_str(), description.c_str());
 	EXPECT_STREQ(project->getProgramVersion().c_str(), version.c_str());
-	EXPECT_EQ(project->getModelingMode(), mode);
 	EXPECT_EQ(project->getXmlVersionMajor(), xmlVersionMjr);
 	EXPECT_EQ(project->getXmlVersionMinor(), xmlVersionMnr);
 }
@@ -78,9 +75,8 @@ TEST(Project, AddSnapShot)
 	const string projectName("project");
 	const string description("descript");
 	const string version("version");
-	ModellingMode mode = MODE1D;
 
-	std::shared_ptr<Project> project(new Project(projectName, description, version, mode, 2,1));
+	std::shared_ptr<Project> project(new Project(projectName, description, version, 2,1));
 	std::shared_ptr<SnapShot> snapShot(new SnapShot(0, SYSTEM, false));
 
 	const SnapShotList& snapShotList = project->getSnapShots();
@@ -94,9 +90,8 @@ TEST(Project, AddSnapShot_HandleEmptySnapShot)
 	const string projectName("project");
 	const string description("descript");
 	const string version("version");
-	ModellingMode mode = MODE1D;
 	
-	std::shared_ptr<Project> project(new Project(projectName, description, version, mode, 2, 1));
+	std::shared_ptr<Project> project(new Project(projectName, description, version, 2, 1));
 	std::shared_ptr<SnapShot> snapShot;
 
 	const SnapShotList& snapShotList = project->getSnapShots();
@@ -121,8 +116,6 @@ TEST(Project, AddProperty)
 	const string projectName("project");
 	const string description("descript");
 	const string version("version");
-	ModellingMode mode = MODE1D;
-	
 	const string name = "Depth";
 	const string cauldronName = "cDepth";
 	const string userName = "uDepth";
@@ -131,7 +124,7 @@ TEST(Project, AddProperty)
 	PropertyAttribute attrib = Continuous3DProperty;
 
 	std::shared_ptr<const Property> prop(new Property(name, userName, cauldronName, unit, type, attrib));
-	std::shared_ptr<Project> project(new Project(projectName, description, version, mode, 2, 1));
+	std::shared_ptr<Project> project(new Project(projectName, description, version, 2, 1));
 	const PropertyList& propertyList = project->getProperties();
 	EXPECT_EQ(propertyList.size(), 0);
 	project->addProperty(prop);
@@ -143,8 +136,6 @@ TEST(Project, FindProperty)
 	const string projectName("project");
 	const string description("descript");
 	const string version("version");
-	ModellingMode mode = MODE1D;
-	
 	const string name = "Depth";
 	const string cauldronName = "cDepth";
 	const string userName = "uDepth";
@@ -153,7 +144,7 @@ TEST(Project, FindProperty)
 	PropertyAttribute attrib = Continuous3DProperty;
 
 	std::shared_ptr<const Property> prop(new Property(name, userName, cauldronName, unit, type, attrib));
-	std::shared_ptr<Project> project(new Project(projectName, description, version, mode, 2, 1));
+	std::shared_ptr<Project> project(new Project(projectName, description, version, 2, 1));
 	const PropertyList& propertyList = project->getProperties();
 
 	project->addProperty(prop);
@@ -166,14 +157,13 @@ TEST(Project, AddFormation)
 	const string projectName("project");
 	const string description("descript");
 	const string version("version");
-	ModellingMode mode = MODE1D;
 	
 	int kStart = 1;
 	int kEnd = 2;
 	const string formationName("formation");
 
 	std::shared_ptr<Formation> formation(new Formation(kStart, kEnd, formationName));
-	std::shared_ptr<Project> project(new Project(projectName, description, version, mode, 2, 1));
+	std::shared_ptr<Project> project(new Project(projectName, description, version, 2, 1));
 	const FormationList& formationList = project->getFormations();
 	EXPECT_EQ(formationList.size(), 0);
 	project->addFormation(formation);
@@ -185,14 +175,13 @@ TEST(Project, AddFormation_HandleEmptyFormation)
 	const string projectName("project");
 	const string description("descript");
 	const string version("version");
-	ModellingMode mode = MODE1D;
 	
 	int kStart = 1;
 	int kEnd = 2;
 	const string formationName("formation");
 
 	std::shared_ptr<Formation> formation;
-	std::shared_ptr<Project> project(new Project(projectName, description, version, mode, 2, 1));
+	std::shared_ptr<Project> project(new Project(projectName, description, version, 2, 1));
 	const FormationList& formationList = project->getFormations();
 
 	try{
@@ -215,14 +204,13 @@ TEST(Project, FindFormation)
 	const string projectName("project");
 	const string description("descript");
 	const string version("version");
-	ModellingMode mode = MODE1D;
 	
 	int kStart = 1;
 	int kEnd = 2;
 	const string formationName("formation");
 
 	std::shared_ptr<Formation> formation(new Formation(kStart, kEnd, formationName));
-	std::shared_ptr<Project> project(new Project(projectName, description, version, mode, 2, 1));
+	std::shared_ptr<Project> project(new Project(projectName, description, version, 2, 1));
 	project->addFormation(formation);
 
 	std::shared_ptr<const Formation> newFormation = project->findFormation(formationName);
@@ -234,7 +222,6 @@ TEST(Project, AddReservoir)
 	const string projectName("project");
 	const string description("descript");
 	const string version("version");
-	ModellingMode mode = MODE1D;
 	
 	int kStart = 1;
 	int kEnd = 2;
@@ -243,7 +230,7 @@ TEST(Project, AddReservoir)
 
 	std::shared_ptr<Formation> formation(new Formation(kStart, kEnd, formationName));
 	std::shared_ptr<const Reservoir> reservoir(new Reservoir(reservoirName, formation));
-	std::shared_ptr<Project> project(new Project(projectName, description, version, mode, 2, 1));
+	std::shared_ptr<Project> project(new Project(projectName, description, version, 2, 1));
 	const ReservoirList& reservoirList = project->getReservoirs();
 	EXPECT_EQ(reservoirList.size(), 0);
 	project->addReservoir(reservoir);
@@ -255,12 +242,11 @@ TEST(Project, AddReservoir_HandleEmptyReservoir)
 	const string projectName("project");
 	const string description("descript");
 	const string version("version");
-	ModellingMode mode = MODE1D;
-	
 	const string reservoirName("reservoir");
+
 	std::shared_ptr<const Formation> formation;
 	std::shared_ptr<const Reservoir> reservoir;
-	std::shared_ptr<Project> project(new Project(projectName, description, version, mode, 2, 1));
+	std::shared_ptr<Project> project(new Project(projectName, description, version, 2, 1));
 	const ReservoirList& reservoirList = project->getReservoirs();
 
 	try{
@@ -283,7 +269,6 @@ TEST(Project, FindReservoir)
 	const string projectName("project");
 	const string description("descript");
 	const string version("version");
-	ModellingMode mode = MODE1D;
 	
 	int kStart = 1;
 	int kEnd = 2;
@@ -292,7 +277,7 @@ TEST(Project, FindReservoir)
 
 	std::shared_ptr<const Formation> formation(new Formation(kStart, kEnd, formationName));
 	std::shared_ptr<const Reservoir> reservoir(new Reservoir(reservoirName, formation));
-	std::shared_ptr<Project> project(new Project(projectName, description, version, mode, 2, 1));
+	std::shared_ptr<Project> project(new Project(projectName, description, version, 2, 1));
 	project->addReservoir(reservoir);
 
 	std::shared_ptr<const Reservoir> newReservoir = project->findReservoir(reservoirName);
@@ -803,8 +788,7 @@ TEST(MigrationEvent, Properties)
     const string projectName("project");
     const string description("descript");
     const string version("version");
-    ModellingMode mode = MODE1D;
-    std::shared_ptr<Project> project(new Project(projectName, description, version, mode, 2, 1));
+    std::shared_ptr<Project> project(new Project(projectName, description, version, 2, 1));
     std::shared_ptr<CauldronIO::MigrationEvent> event(new CauldronIO::MigrationEvent());
 
     const string process("Expulsion");
@@ -979,8 +963,7 @@ TEST(FileReferences, Create)
     const string projectName("project");
     const string description("descript");
     const string version("version");
-    ModellingMode mode = MODE3D;
-    std::shared_ptr<Project> project(new Project(projectName, description, version, mode, 2, 1));
+    std::shared_ptr<Project> project(new Project(projectName, description, version, 2, 1));
 
     // test for genex history records
     EXPECT_EQ( 0, (project->getGenexHistoryList()).size() );
@@ -1001,159 +984,5 @@ TEST(FileReferences, Create)
     EXPECT_EQ( 1, bhFiles.size() );
     EXPECT_STREQ( "Well.BHF", (*bhFiles.begin()).c_str() );
  
-}
-
-TEST(Tables1D, Create)
-{
-   // DisplayContour
-   std::shared_ptr<CauldronIO::DisplayContour> entry(new CauldronIO::DisplayContour());
-
-   EXPECT_STREQ("", entry->getPropertyName().c_str());
-
-   const string propertyName("Temperature");
-   entry->setPropertyName(propertyName);
-   EXPECT_STREQ(propertyName.c_str(), entry->getPropertyName().c_str());
-
-   const float contourValue = 122.0f;
-   entry->setContourValue(contourValue);
-   EXPECT_FLOAT_EQ(contourValue, entry->getContourValue());
-
-   const string contourColour("oranje");
-   entry->setContourColour(contourColour);
-   EXPECT_STREQ(contourColour.c_str(), entry->getContourColour().c_str());
-
-   // TemperatureIso or VrIso
-   std::shared_ptr<CauldronIO::IsoEntry> tempiso(new CauldronIO::IsoEntry());
-   
-   tempiso->setContourValue(contourValue);
-   EXPECT_FLOAT_EQ(contourValue, tempiso->getContourValue());
-   
-   tempiso->setAge(50.0f);
-   EXPECT_FLOAT_EQ(50.0f, tempiso->getAge());
-   tempiso->setNP(35);
-   EXPECT_EQ(35, tempiso->getNP());
-   tempiso->setSum(6789.01);
-   EXPECT_DOUBLE_EQ(6789.01, tempiso->getSum());
-
-   // Biomarkerm table
-   std::shared_ptr<CauldronIO::Biomarkerm> biom(new CauldronIO::Biomarkerm());
-   biom->setDepthIndex(345.0f);
-   EXPECT_FLOAT_EQ(345.0f, biom->getDepthIndex());
-   biom->setHopaneIsomerisation(0.26f);
-   EXPECT_FLOAT_EQ(0.26f, biom->getHopaneIsomerisation());
-   biom->setSteraneIsomerisation(0.47f);
-   EXPECT_FLOAT_EQ(0.47f, biom->getSteraneIsomerisation());
-   biom->setSteraneAromatisation(0.81f);
-   EXPECT_FLOAT_EQ(0.81f, biom->getSteraneAromatisation());
-   biom->setOptimization(true);
-   EXPECT_TRUE(biom->getOptimization());
-
-   // FtSample
-   std::shared_ptr<CauldronIO::FtSample> fiss(new CauldronIO::FtSample());
-   
-   EXPECT_STREQ("", fiss->getFtSampleId().c_str());
-   const string sampleId("sampleID");
-   
-   fiss->setFtSampleId(sampleId);
-   EXPECT_STREQ(sampleId.c_str(), fiss->getFtSampleId().c_str());
-   
-   fiss->setFtMeanRatio(0.54f);
-   EXPECT_FLOAT_EQ(0.54f, fiss->getFtMeanRatio());
-   
-   // FtGrain
-   std::shared_ptr<CauldronIO::FtGrain> fgrain(new CauldronIO::FtGrain());
-   
-   EXPECT_STREQ("", fgrain->getFtSampleId().c_str());
-   fgrain->setFtSampleId(sampleId);
-   EXPECT_STREQ(sampleId.c_str(), fgrain->getFtSampleId().c_str());
-   
-   fgrain->setFtInducedTrackNo(23);
-   EXPECT_EQ(23, fgrain->getFtInducedTrackNo());
-   
-   // FtPredLengthCountsHist
-   std::shared_ptr<CauldronIO::FtPredLengthCountsHist> fpred(new CauldronIO::FtPredLengthCountsHist());
-   
-   EXPECT_STREQ("", fpred->getFtSampleId().c_str());
-   fpred->setFtSampleId(sampleId);
-   EXPECT_STREQ(sampleId.c_str(), fpred->getFtSampleId().c_str());
-   
-   EXPECT_EQ(0, fpred->getFtPredLengthHistId());
-   fpred->setFtPredLengthHistId(21);
-   EXPECT_EQ(21, fpred->getFtPredLengthHistId());
-   
-   fpred->setFtPredLengthBinWidth(45.0f);
-   EXPECT_FLOAT_EQ(45.0f, fpred->getFtPredLengthBinWidth());
-   
-   // FtPredLengthCountsHistData
-   std::shared_ptr<CauldronIO::FtPredLengthCountsHistData> fdata(new CauldronIO::FtPredLengthCountsHistData());
-   
-   EXPECT_FLOAT_EQ(0.0f, fdata->getFtPredLengthBinCount());
-   fdata->setFtPredLengthBinCount(222.0f);
-   EXPECT_FLOAT_EQ(222.0f, fdata->getFtPredLengthBinCount());
-   
-   fdata->setFtPredLengthBinIndex(3);
-   EXPECT_EQ(3, fdata->getFtPredLengthBinIndex());
-   
-   fdata->setFtPredLengthHistId(-1);
-   EXPECT_EQ(-1, fdata->getFtPredLengthHistId());
-   
-   // FtClWeightPercBins
-   std::shared_ptr<CauldronIO::FtClWeightPercBins> ftcl(new CauldronIO::FtClWeightPercBins());
-   
-   ftcl->setFtClWeightBinStart(45.5768);
-   EXPECT_DOUBLE_EQ(45.5768, ftcl->getFtClWeightBinStart());
-   ftcl->setFtClWeightBinWidth(0.9456976);
-   EXPECT_DOUBLE_EQ(0.9456976, ftcl->getFtClWeightBinWidth());
-   
-   //SmectiteIllite
-   std::shared_ptr<CauldronIO::SmectiteIllite> smect(new CauldronIO::SmectiteIllite());
-   
-   EXPECT_STREQ("", smect->getLabel().c_str());
-   smect->setLabel(sampleId);
-   EXPECT_STREQ(sampleId.c_str(), smect->getLabel().c_str());
-   
-   smect->setDepthIndex(356.078f);
-   EXPECT_FLOAT_EQ(356.078f, smect->getDepthIndex());
-   
-   EXPECT_FALSE(smect->getOptimization());
-   smect->setOptimization(true);
-   EXPECT_TRUE(smect->getOptimization());
-   
-   // DepthIo
-   std::shared_ptr<CauldronIO::DepthIo> depth(new CauldronIO::DepthIo());
-   
-   EXPECT_STREQ("", depth->getPropertyName().c_str());
-   depth->setPropertyName(propertyName);
-   EXPECT_STREQ(propertyName.c_str(), depth->getPropertyName().c_str());
-   
-   depth->setMinimum(0.00000123f);
-   EXPECT_FLOAT_EQ(0.00000123f, depth->getMinimum());
-   
-   EXPECT_FLOAT_EQ(0.0f, depth->getMaximum());
-   
-   depth->setP85(345.098f);
-   EXPECT_FLOAT_EQ(345.098f, depth->getP85());
-   
-   depth->setNP(34);
-   EXPECT_EQ(34, depth->getNP());
-   
-   depth->setKurtosis(0.5f);
-   EXPECT_FLOAT_EQ(0.5f, depth->getKurtosis());
-   
-   // 1DTimeIo
-   std::shared_ptr<CauldronIO::TimeIo1D> time1d(new CauldronIO::TimeIo1D());
-   
-   const std::string name("Surface");
-
-   time1d->setSurfaceName(name);
-   EXPECT_STREQ(name.c_str(), time1d->getSurfaceName().c_str());
-   
-   EXPECT_STREQ("", time1d->getPropertyName().c_str());
-   time1d->setPropertyName(propertyName);
-   EXPECT_STREQ(propertyName.c_str(), time1d->getPropertyName().c_str());
-   
-   time1d->setValue(123.04f);
-   EXPECT_FLOAT_EQ(123.04f, time1d->getValue());
-   
 }
 

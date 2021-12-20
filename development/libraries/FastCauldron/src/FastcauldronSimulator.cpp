@@ -247,13 +247,6 @@ void FastcauldronSimulator::setFormationElementHeightScalingFactors () {
 
 }
 
-void FastcauldronSimulator::clear1DTimeIoTbl () {
-   database::Table * timeIoTbl = getTable ("1DTimeIoTbl");
-   PETSC_ASSERT (timeIoTbl);
-   timeIoTbl->clear ();
-}
-
-
 //------------------------------------------------------------//
 
 void FastcauldronSimulator::initialiseFastcauldronLayers () {
@@ -278,7 +271,7 @@ void FastcauldronSimulator::initialiseFastcauldronLayers () {
       LayerProps* layerAbove = const_cast<LayerProps*>(dynamic_cast <const LayerProps*>( surface->getTopFormation ()));
       LayerProps* layerBelow = const_cast<LayerProps*>(dynamic_cast <const LayerProps*>( surface->getBottomFormation ()));
 
-      if ( layerBelow != 0 and layerAbove != 0 ) {
+      if ( layerBelow != 0 && layerAbove != 0 ) {
          layerBelow->connectElements ( layerAbove );
       }
 
@@ -329,15 +322,15 @@ void FastcauldronSimulator::initialiseElementGrid ( bool& hasActiveElements ) {
 
          // A element is active only if all its corner nodes are active.
          isActive = getNodeIsValid ( i, j );
-         isActive = isActive and getNodeIsValid ( i + 1, j );
-         isActive = isActive and getNodeIsValid ( i + 1, j + 1 );
-         isActive = isActive and getNodeIsValid ( i, j + 1 );
+         isActive = isActive && getNodeIsValid ( i + 1, j );
+         isActive = isActive && getNodeIsValid ( i + 1, j + 1 );
+         isActive = isActive && getNodeIsValid ( i, j + 1 );
 
 #if 0
          isActive = nodeIsDefined ( i, j );
-         isActive = isActive and nodeIsDefined ( i + 1, j );
-         isActive = isActive and nodeIsDefined ( i + 1, j + 1 );
-         isActive = isActive and nodeIsDefined ( i, j + 1 );
+         isActive = isActive && nodeIsDefined ( i + 1, j );
+         isActive = isActive && nodeIsDefined ( i + 1, j + 1 );
+         isActive = isActive && nodeIsDefined ( i, j + 1 );
 #endif
 
          activeElements ( j, i ) = ( isActive ? 1.0 : 0.0 );
@@ -369,21 +362,21 @@ void FastcauldronSimulator::initialiseElementGrid ( bool& hasActiveElements ) {
       onLeftBoundary = ( i == m_elementGrid.firstI ());
       onRightBoundary = ( i == m_elementGrid.lastI ());
 
-      isLeftGhost = ( m_elementGrid.firstI ( true ) != m_elementGrid.firstI ( false ) and i == m_elementGrid.firstI ( true ));
-      isRightGhost = ( m_elementGrid.lastI ( true ) != m_elementGrid.lastI ( false ) and i == m_elementGrid.lastI ( true ));
+      isLeftGhost = ( m_elementGrid.firstI ( true ) != m_elementGrid.firstI ( false ) && i == m_elementGrid.firstI ( true ));
+      isRightGhost = ( m_elementGrid.lastI ( true ) != m_elementGrid.lastI ( false ) && i == m_elementGrid.lastI ( true ));
 
       for ( j = m_elementGrid.firstJ ( true ); j <= m_elementGrid.lastJ ( true ); ++j ) {
 
          onFrontBoundary = ( j == m_elementGrid.firstJ ());
          onBackBoundary = ( j == m_elementGrid.lastJ ());
 
-         isFrontGhost = ( m_elementGrid.firstJ ( true ) != m_elementGrid.firstJ ( false ) and j == m_elementGrid.firstJ ( true ));
-         isBackGhost = ( m_elementGrid.lastJ ( true ) != m_elementGrid.lastJ ( false ) and j == m_elementGrid.lastJ ( true ));
+         isFrontGhost = ( m_elementGrid.firstJ ( true ) != m_elementGrid.firstJ ( false ) && j == m_elementGrid.firstJ ( true ));
+         isBackGhost = ( m_elementGrid.lastJ ( true ) != m_elementGrid.lastJ ( false ) && j == m_elementGrid.lastJ ( true ));
 
-         isBackLeft = isLeftGhost and isBackGhost;
-         isBackRight = isRightGhost and isBackGhost;
-         isFrontLeft = isLeftGhost and isFrontGhost;
-         isFrontRight = isRightGhost and isFrontGhost;
+         isBackLeft = isLeftGhost && isBackGhost;
+         isBackRight = isRightGhost && isBackGhost;
+         isFrontLeft = isLeftGhost && isFrontGhost;
+         isFrontRight = isRightGhost && isFrontGhost;
 
          if ( isBackLeft or isBackRight or isFrontLeft or isFrontRight ) {
             isActive = false;
@@ -420,12 +413,12 @@ void FastcauldronSimulator::initialiseElementGrid ( bool& hasActiveElements ) {
    //
    // The on-X-boundary variable are for the domain boundary in this section
    for ( i = m_elementGrid.firstI (); i <= m_elementGrid.lastI (); ++i ) {
-      onLeftBoundary = ( m_elementGrid.firstI ( true ) == m_elementGrid.firstI ( false ) and i == m_elementGrid.firstI ());
-      onRightBoundary = ( m_elementGrid.lastI ( true ) == m_elementGrid.lastI ( false )  and i == m_elementGrid.lastI ());
+      onLeftBoundary = ( m_elementGrid.firstI ( true ) == m_elementGrid.firstI ( false ) && i == m_elementGrid.firstI ());
+      onRightBoundary = ( m_elementGrid.lastI ( true ) == m_elementGrid.lastI ( false )  && i == m_elementGrid.lastI ());
 
       for ( j = m_elementGrid.firstJ (); j <= m_elementGrid.lastJ (); ++j ) {
-         onFrontBoundary = ( m_elementGrid.firstJ ( true ) == m_elementGrid.firstJ ( false ) and j == m_elementGrid.firstJ ());
-         onBackBoundary = ( m_elementGrid.lastJ ( true ) == m_elementGrid.lastJ ( false ) and j == m_elementGrid.lastJ ());
+         onFrontBoundary = ( m_elementGrid.firstJ ( true ) == m_elementGrid.firstJ ( false ) && j == m_elementGrid.firstJ ());
+         onBackBoundary = ( m_elementGrid.lastJ ( true ) == m_elementGrid.lastJ ( false ) && j == m_elementGrid.lastJ ());
 
          m_mapElements ( i, j ).setIsOnDomainBoundary ( MapElement::Front, onFrontBoundary or not m_mapElements ( i, j - 1 ).isValid ());
          m_mapElements ( i, j ).setIsOnDomainBoundary ( MapElement::Right, onRightBoundary or not m_mapElements ( i + 1, j ).isValid ());
@@ -498,7 +491,7 @@ void FastcauldronSimulator::printElementValidityMap(const std::string & fileName
               ( m_mapElements ( i, j ).isOnDomainBoundary ( MapElement::Front ) or m_mapElements ( i, j ).isOnDomainBoundary ( MapElement::Right ) or
                 m_mapElements ( i, j ).isOnDomainBoundary ( MapElement::Back  ) or m_mapElements ( i, j ).isOnDomainBoundary ( MapElement::Left ))) {
             line.at ( i ) = '#';
-         } else if (( not m_mapElements ( i, j ).isValid ()) and m_mapElements ( i, j ).isOnProcessor ()) {
+         } else if (( not m_mapElements ( i, j ).isValid ()) && m_mapElements ( i, j ).isOnProcessor ()) {
             line.at ( i ) = chars [ m_mapElements ( i, j ).isOnProcessorBoundary ( MapElement::Front )]
                                   [ m_mapElements ( i, j ).isOnProcessorBoundary ( MapElement::Right )]
                                   [ m_mapElements ( i, j ).isOnProcessorBoundary ( MapElement::Back  )]
@@ -601,9 +594,9 @@ bool FastcauldronSimulator::setCalculationMode ( const CalculationMode mode, con
    setToConstantDensity ();
 
    // now that we have the calculation mode, we can initialise the property-constraints.
-   m_propertyConstraints.initialise ( getCalculationMode (), getModellingMode ());
+   m_propertyConstraints.initialise ( getCalculationMode () );
 
-   started = started and GeoPhysics::ProjectHandle::initialise ( getCalculationMode () == OVERPRESSURED_TEMPERATURE_MODE or
+   started = started && GeoPhysics::ProjectHandle::initialise ( getCalculationMode () == OVERPRESSURED_TEMPERATURE_MODE or
                                                                  getCalculationMode () == COUPLED_HIGH_RES_DECOMPACTION_MODE,
                                                                  true );
 
@@ -630,7 +623,7 @@ bool FastcauldronSimulator::setCalculationMode ( const CalculationMode mode, con
       PetscPrintf ( PETSC_COMM_WORLD, " Basin_Error: there are no active elements in the mesh.\n");
    }
 
-   return started and gridHasActiveElements;
+   return started && gridHasActiveElements;
 }
 
 //------------------------------------------------------------//
@@ -807,8 +800,8 @@ bool FastcauldronSimulator::nodeIsDefined ( const int i, const int j ) const {
 //------------------------------------------------------------//
 bool FastcauldronSimulator::mergeOutputFiles ( ) {
 
-   if( ( ! H5_Parallel_PropertyList::isOneFilePerProcessEnabled() and ! H5_Parallel_PropertyList::isPrimaryPodEnabled () )
-       or getModellingMode () == Interface::MODE1D ) {
+   if( ! H5_Parallel_PropertyList::isOneFilePerProcessEnabled() && ! H5_Parallel_PropertyList::isPrimaryPodEnabled () )
+   {
 
       return true;
    }
@@ -895,8 +888,8 @@ bool FastcauldronSimulator::mergeOutputFiles ( ) {
 //------------------------------------------------------------//
 bool FastcauldronSimulator::mergeSharedOutputFiles ( ) {
 
-   if( ( not H5_Parallel_PropertyList::isPrimaryPodEnabled () and not isPrimaryDouble() ) or getModellingMode () == Interface::MODE1D ) {
-
+   if(  not H5_Parallel_PropertyList::isPrimaryPodEnabled () && !isPrimaryDouble() )
+   {
       return true;
    }
 
@@ -973,7 +966,7 @@ bool FastcauldronSimulator::mergeSharedOutputFiles ( ) {
                      } else {
                         status = H5_Parallel_PropertyList::copyMergedFile( filePathName.path(), false );
                      }
-                     if ( status and not noFileRemove ) {
+                     if ( status && !noFileRemove ) {
                         H5_Parallel_PropertyList::removeOutputFile ( filePathName.cpath () );
                      }
                   }
@@ -986,7 +979,7 @@ bool FastcauldronSimulator::mergeSharedOutputFiles ( ) {
                   status = H5_Parallel_PropertyList::copyMergedFile( filePathName.path(), false );
 
                   // delete the file in the shared scratch
-                  if( status and not noFileRemove ) {
+                  if( status && !noFileRemove ) {
                      H5_Parallel_PropertyList::removeOutputFile ( filePathName.cpath () );
                   }
                }
@@ -1004,7 +997,7 @@ bool FastcauldronSimulator::mergeSharedOutputFiles ( ) {
       }
       status = H5_Parallel_PropertyList::copyMergedFile( filePathName.path(), false );
       // remove the file from the shared scratch
-      if( status and not noFileRemove ) {
+      if( status && !noFileRemove ) {
          H5_Parallel_PropertyList::removeOutputFile ( filePathName.cpath () );
 
          // remove the output directory from the shared scratch
@@ -1045,15 +1038,11 @@ void FastcauldronSimulator::finalise ( const bool saveResults ) {
 
       m_fastcauldronSimulator->finishActivity ( saveResults );
 
-      if ( saveResults and m_fastcauldronSimulator->getRank () == 0 and m_fastcauldronSimulator->getCalculationMode () != NO_CALCULATION_MODE ) {
+      if ( saveResults && m_fastcauldronSimulator->getRank () == 0 && m_fastcauldronSimulator->getCalculationMode () != NO_CALCULATION_MODE )
+      {
          m_fastcauldronSimulator->setSimulationDetails ( "fastcauldron",
                                                          getSimulationModeString ( m_fastcauldronSimulator->getCalculationMode ()),
                                                          m_fastcauldronSimulator->m_commandLine );
-
-         if ( m_fastcauldronSimulator->getModellingMode () == Interface::MODE1D )
-         {
-            m_fastcauldronSimulator->m_cauldron->writeIsoLinesToDatabase();
-         }
 
          m_fastcauldronSimulator->saveToFile ( m_fastcauldronSimulator->m_cauldron->getFastCauldronProjectFileName ());
       }
@@ -1093,11 +1082,11 @@ void FastcauldronSimulator::correctPermeabilityTimeFilter () {
       maxPermeabilityOption = permeability->getOption ();
    }
 
-   if ( horizontalPermeability != nullptr and horizontalPermeability->getOption () > maxPermeabilityOption ) {
+   if ( horizontalPermeability != nullptr && horizontalPermeability->getOption () > maxPermeabilityOption ) {
       maxPermeabilityOption = horizontalPermeability->getOption ();
    }
 
-   if ( permeabilityHVec != nullptr and permeabilityHVec->getOption () > maxPermeabilityOption ) {
+   if ( permeabilityHVec != nullptr && permeabilityHVec->getOption () > maxPermeabilityOption ) {
       maxPermeabilityOption = permeabilityHVec->getOption ();
    }
 
@@ -1106,19 +1095,19 @@ void FastcauldronSimulator::correctPermeabilityTimeFilter () {
    if ( permeability != nullptr ) {
       permeability->setOption ( maxPermeabilityOption );
    } else {
-      m_timeOutputProperties.push_back ( getFactory ()->produceOutputProperty ( *this, getModellingMode (), maxPermeabilityOption, "PermeabilityVec" ));
+      m_timeOutputProperties.push_back ( getFactory ()->produceOutputProperty ( *this,  maxPermeabilityOption, "PermeabilityVec" ));
    }
 
    if ( horizontalPermeability != nullptr  ) {
       horizontalPermeability->setOption ( maxPermeabilityOption );
    } else {
-      m_timeOutputProperties.push_back ( getFactory ()->produceOutputProperty ( *this, getModellingMode (), maxPermeabilityOption, "HorizontalPermeability" ));
+      m_timeOutputProperties.push_back ( getFactory ()->produceOutputProperty ( *this,  maxPermeabilityOption, "HorizontalPermeability" ));
    }
 
    if ( permeabilityHVec != nullptr ) {
       permeabilityHVec->setOption ( maxPermeabilityOption );
    } else {
-      m_timeOutputProperties.push_back ( getFactory ()->produceOutputProperty ( *this, getModellingMode (), maxPermeabilityOption, "PermeabilityHVec" ));
+      m_timeOutputProperties.push_back ( getFactory ()->produceOutputProperty ( *this,  maxPermeabilityOption, "PermeabilityHVec" ));
    }
 
 }
@@ -1145,17 +1134,10 @@ void FastcauldronSimulator::correctTimeFilterDefaults3D () {
    bool containsFCTCorrection = false;
    bool containsThicknessError = false;
    bool containsChemicalCompaction = false;
-   bool containsLithologyId = false;
-   bool containsBiomarkers = false;
-   bool basementOutputRequested = false;
+   bool containsLithologyId = false;   
    bool basement3DOutputRequested = false;
    bool outputALC = false;
    int  i;
-
-   // Initialised to stop compiler from complaining. The initialisation is legitimate
-   // because the variable is only assigned-to if containsBiomarkers is true, when this
-   // variable will be updated to the biomarkers output option value.
-   Interface::PropertyOutputOption biomarkersOption = Interface::NO_OUTPUT;
 
    Interface::OutputProperty* newProperty;
    Interface::MutableOutputPropertyList::iterator propertyIter;
@@ -1175,15 +1157,6 @@ void FastcauldronSimulator::correctTimeFilterDefaults3D () {
       if ( isOp ) {
          int var;
          var = 1;
-      }
-
-      if ( getModellingMode () == Interface::MODE1D and property->getOption () == Interface::SEDIMENTS_AND_BASEMENT_OUTPUT ) {
-         basementOutputRequested = true;
-      }
-
-      if ( name == "Biomarkers" ) {
-         containsBiomarkers = true;
-         biomarkersOption = property->getOption ();
       }
 
       if ( getCalculationMode () == HYDROSTATIC_DECOMPACTION_MODE and
@@ -1290,38 +1263,24 @@ void FastcauldronSimulator::correctTimeFilterDefaults3D () {
       }
 
       if ( name == "FaultElements" ) {
-
          if ( getBasinHasActiveFaults ()) {
             property->setOption ( Interface::SEDIMENTS_ONLY_OUTPUT );
          } else {
             property->setOption ( Interface::NO_OUTPUT );
          }
-
       }
 
       const PropertyIdentifier propertyListValue = getPropertyList ( name );
       Interface::PropertyOutputOption option = property->getOption ();
 
-      if ( propertyListValue >= 0 and propertyListValue < ENDPROPERTYLIST and getModellingMode () == property->getMode ()) {
+      if ( propertyListValue >= 0 && propertyListValue < ENDPROPERTYLIST ) {
          m_propertyConstraints.constrain ( propertyListValue, option );
          property->setOption ( option );
       }
 
    }
 
-   if ( basementOutputRequested ) { // and not depthOutputIncludesBasement
-      /// Must now enable depth output for basement, if it is not already on.
-
-      for ( propertyIter = m_timeOutputProperties.begin (); propertyIter != m_timeOutputProperties.end (); ++propertyIter ) {
-         Interface::OutputProperty* property = *propertyIter;
-
-         if ( property->getName () == "Depth" ) {
-            // only need to set the depth if it is not set already.
-            property->setOption ( Interface::SEDIMENTS_AND_BASEMENT_OUTPUT );
-            break;
-         }
-      }
-   } else if ( basement3DOutputRequested ) { // for derived properties calculation
+   if ( basement3DOutputRequested ) {// for derived properties calculation
       bool propertySet = false;
       for ( propertyIter = m_timeOutputProperties.begin (); propertyIter != m_timeOutputProperties.end (); ++propertyIter ) {
          Interface::OutputProperty* property = *propertyIter;
@@ -1345,57 +1304,57 @@ void FastcauldronSimulator::correctTimeFilterDefaults3D () {
       }
 
    }
-   if( not outputALC and isALC() ) {
-      Interface::OutputProperty* property = getFactory ()->produceOutputProperty ( *this, getModellingMode (), Interface::SEDIMENTS_AND_BASEMENT_OUTPUT, "ALCStepTopBasaltDepth" );
+   if( not outputALC && isALC() ) {
+      Interface::OutputProperty* property = getFactory ()->produceOutputProperty ( *this, Interface::SEDIMENTS_AND_BASEMENT_OUTPUT, "ALCStepTopBasaltDepth" );
       property->setOption ( Interface::SEDIMENTS_AND_BASEMENT_OUTPUT );
       m_timeOutputProperties.push_back ( property );
 
-      property = getFactory ()->produceOutputProperty ( *this, getModellingMode (), Interface::SEDIMENTS_AND_BASEMENT_OUTPUT, "ALCStepMohoDepth" );
+      property = getFactory ()->produceOutputProperty ( *this, Interface::SEDIMENTS_AND_BASEMENT_OUTPUT, "ALCStepMohoDepth" );
       property->setOption ( Interface::SEDIMENTS_AND_BASEMENT_OUTPUT );
       m_timeOutputProperties.push_back (property );
    }
 
    // Properties that were not found in the original list must be added, since they
    // are either output or used in other derived properties that are output.
-   if ( not containsAllochthonous and getModellingMode () == Interface::MODE3D ) {
-      m_timeOutputProperties.push_back ( getFactory ()->produceOutputProperty ( *this, getModellingMode (), Interface::SEDIMENTS_ONLY_OUTPUT, "AllochthonousLithology" ));
+   if ( not containsAllochthonous ) {
+      m_timeOutputProperties.push_back ( getFactory ()->produceOutputProperty ( *this, Interface::SEDIMENTS_ONLY_OUTPUT, "AllochthonousLithology" ));
    }
 
    if ( not containsErosionFactor ) {
-      m_timeOutputProperties.push_back ( getFactory ()->produceOutputProperty ( *this, getModellingMode (), Interface::SEDIMENTS_ONLY_OUTPUT, "ErosionFactor" ));
+      m_timeOutputProperties.push_back ( getFactory ()->produceOutputProperty ( *this, Interface::SEDIMENTS_ONLY_OUTPUT, "ErosionFactor" ));
    }
 
    if ( not containsFCTCorrection ) {
-      m_timeOutputProperties.push_back ( getFactory ()->produceOutputProperty ( *this, getModellingMode (), Interface::SEDIMENTS_ONLY_OUTPUT, "FCTCorrection" ));
+      m_timeOutputProperties.push_back ( getFactory ()->produceOutputProperty ( *this, Interface::SEDIMENTS_ONLY_OUTPUT, "FCTCorrection" ));
    }
 
    for ( i = 0; i < NumberOfPVTComponents; ++i ) {
-      newProperty = getFactory ()->produceOutputProperty (*this, getModellingMode (), Interface::SEDIMENTS_ONLY_OUTPUT,
+      newProperty = getFactory ()->produceOutputProperty (*this, Interface::SEDIMENTS_ONLY_OUTPUT,
                                                           CBMGenerics::ComponentManager::getInstance ().getSpeciesName ( i ) + "Concentration" );
       newProperty->setOption ( Interface::SEDIMENTS_ONLY_OUTPUT );
       m_timeOutputProperties.push_back ( newProperty );
    }
 
 
-   newProperty = getFactory ()->produceOutputProperty ( *this, getModellingMode (),
+   newProperty = getFactory ()->produceOutputProperty ( *this,
                                                         Interface::SEDIMENTS_ONLY_OUTPUT,
                                                         "BrineSaturation" );
    newProperty->setOption ( Interface::SEDIMENTS_ONLY_OUTPUT );
    m_timeOutputProperties.push_back ( newProperty );
 
-   newProperty = getFactory ()->produceOutputProperty ( *this, getModellingMode (),
+   newProperty = getFactory ()->produceOutputProperty ( *this,
                                                         Interface::SEDIMENTS_ONLY_OUTPUT,
                                                         "HcLiquidSaturation" );
    newProperty->setOption ( Interface::SEDIMENTS_ONLY_OUTPUT );
    m_timeOutputProperties.push_back ( newProperty );
 
-   newProperty = getFactory ()->produceOutputProperty ( *this, getModellingMode (),
+   newProperty = getFactory ()->produceOutputProperty ( *this,
                                                         Interface::SEDIMENTS_ONLY_OUTPUT,
                                                         "HcVapourSaturation" );
    newProperty->setOption ( Interface::SEDIMENTS_ONLY_OUTPUT );
    m_timeOutputProperties.push_back ( newProperty );
 
-   newProperty = getFactory ()->produceOutputProperty ( *this, getModellingMode (),
+   newProperty = getFactory ()->produceOutputProperty ( *this,
                                                         Interface::SEDIMENTS_ONLY_OUTPUT,
                                                         "ImmobileSaturation" );
    newProperty->setOption ( Interface::SEDIMENTS_ONLY_OUTPUT );
@@ -1403,131 +1362,131 @@ void FastcauldronSimulator::correctTimeFilterDefaults3D () {
 
 
 
-   newProperty = getFactory ()->produceOutputProperty ( *this, getModellingMode (),
+   newProperty = getFactory ()->produceOutputProperty ( *this,
                                                         Interface::SEDIMENTS_ONLY_OUTPUT,
                                                         "AverageBrineSaturation" );
    newProperty->setOption ( Interface::SEDIMENTS_ONLY_OUTPUT );
    m_timeOutputProperties.push_back ( newProperty );
 
-   newProperty = getFactory ()->produceOutputProperty ( *this, getModellingMode (),
+   newProperty = getFactory ()->produceOutputProperty ( *this,
                                                         Interface::SEDIMENTS_ONLY_OUTPUT,
                                                         "AverageHcLiquidSaturation" );
    newProperty->setOption ( Interface::SEDIMENTS_ONLY_OUTPUT );
    m_timeOutputProperties.push_back ( newProperty );
 
-   newProperty = getFactory ()->produceOutputProperty ( *this, getModellingMode (),
+   newProperty = getFactory ()->produceOutputProperty ( *this,
                                                         Interface::SEDIMENTS_ONLY_OUTPUT,
                                                         "AverageHcVapourSaturation" );
    newProperty->setOption ( Interface::SEDIMENTS_ONLY_OUTPUT );
    m_timeOutputProperties.push_back ( newProperty );
 
-   newProperty = getFactory ()->produceOutputProperty ( *this, getModellingMode (),
+   newProperty = getFactory ()->produceOutputProperty ( *this,
                                                         Interface::SEDIMENTS_ONLY_OUTPUT,
                                                         "AverageImmobileSaturation" );
    newProperty->setOption ( Interface::SEDIMENTS_ONLY_OUTPUT );
    m_timeOutputProperties.push_back ( newProperty );
 
 
-   newProperty = getFactory ()->produceOutputProperty ( *this, getModellingMode (),
+   newProperty = getFactory ()->produceOutputProperty ( *this,
                                                         Interface::SEDIMENTS_ONLY_OUTPUT,
                                                         "HcLiquidBrineCapillaryPressure" );
    newProperty->setOption ( Interface::SEDIMENTS_ONLY_OUTPUT );
    m_timeOutputProperties.push_back ( newProperty );
 
 
-   newProperty = getFactory ()->produceOutputProperty ( *this, getModellingMode (),
+   newProperty = getFactory ()->produceOutputProperty ( *this,
                                                         Interface::SEDIMENTS_ONLY_OUTPUT,
                                                         "HcVapourBrineCapillaryPressure" );
    newProperty->setOption ( Interface::SEDIMENTS_ONLY_OUTPUT );
    m_timeOutputProperties.push_back ( newProperty );
 
-   newProperty = getFactory ()->produceOutputProperty ( *this, getModellingMode (),
+   newProperty = getFactory ()->produceOutputProperty ( *this,
                                                         Interface::SEDIMENTS_ONLY_OUTPUT,
                                                         "GOR" );
    newProperty->setOption ( Interface::SEDIMENTS_ONLY_OUTPUT );
    m_timeOutputProperties.push_back ( newProperty );
 
-   newProperty = getFactory ()->produceOutputProperty ( *this, getModellingMode (),
+   newProperty = getFactory ()->produceOutputProperty ( *this,
                                                         Interface::SEDIMENTS_ONLY_OUTPUT,
                                                         "CGR" );
    newProperty->setOption ( Interface::SEDIMENTS_ONLY_OUTPUT );
    m_timeOutputProperties.push_back ( newProperty );
 
-   newProperty = getFactory ()->produceOutputProperty ( *this, getModellingMode (),
+   newProperty = getFactory ()->produceOutputProperty ( *this,
                                                         Interface::SEDIMENTS_ONLY_OUTPUT,
                                                         "OilAPI" );
    newProperty->setOption ( Interface::SEDIMENTS_ONLY_OUTPUT );
    m_timeOutputProperties.push_back ( newProperty );
 
-   newProperty = getFactory ()->produceOutputProperty ( *this, getModellingMode (),
+   newProperty = getFactory ()->produceOutputProperty ( *this,
                                                         Interface::SEDIMENTS_ONLY_OUTPUT,
                                                         "CondensateAPI" );
    newProperty->setOption ( Interface::SEDIMENTS_ONLY_OUTPUT );
    m_timeOutputProperties.push_back ( newProperty );
 
-   newProperty = getFactory ()->produceOutputProperty ( *this, getModellingMode (),
+   newProperty = getFactory ()->produceOutputProperty ( *this,
                                                         Interface::SEDIMENTS_ONLY_OUTPUT,
                                                         "BrineDensity" );
    newProperty->setOption ( Interface::SEDIMENTS_ONLY_OUTPUT );
    m_timeOutputProperties.push_back ( newProperty );
 
-   newProperty = getFactory ()->produceOutputProperty ( *this, getModellingMode (),
+   newProperty = getFactory ()->produceOutputProperty ( *this,
                                                         Interface::SEDIMENTS_ONLY_OUTPUT,
                                                         "BrineViscosity" );
    newProperty->setOption ( Interface::SEDIMENTS_ONLY_OUTPUT );
    m_timeOutputProperties.push_back ( newProperty );
 
-   newProperty = getFactory ()->produceOutputProperty ( *this, getModellingMode (),
+   newProperty = getFactory ()->produceOutputProperty ( *this,
                                                         Interface::SEDIMENTS_ONLY_OUTPUT,
                                                         "TimeOfInvasion" );
    newProperty->setOption ( Interface::SEDIMENTS_ONLY_OUTPUT );
    m_timeOutputProperties.push_back ( newProperty );
 
 
-   newProperty = getFactory ()->produceOutputProperty ( *this, getModellingMode (),
+   newProperty = getFactory ()->produceOutputProperty ( *this,
                                                         Interface::SEDIMENTS_ONLY_OUTPUT,
                                                         "HcVapourDensity" );
    newProperty->setOption ( Interface::SEDIMENTS_ONLY_OUTPUT );
    m_timeOutputProperties.push_back ( newProperty );
 
-   newProperty = getFactory ()->produceOutputProperty ( *this, getModellingMode (),
+   newProperty = getFactory ()->produceOutputProperty ( *this,
                                                         Interface::SEDIMENTS_ONLY_OUTPUT,
                                                         "HcLiquidDensity" );
    newProperty->setOption ( Interface::SEDIMENTS_ONLY_OUTPUT );
    m_timeOutputProperties.push_back ( newProperty );
 
 
-   newProperty = getFactory ()->produceOutputProperty ( *this, getModellingMode (),
+   newProperty = getFactory ()->produceOutputProperty ( *this,
                                                         Interface::SEDIMENTS_ONLY_OUTPUT,
                                                         "HcVapourViscosity" );
    newProperty->setOption ( Interface::SEDIMENTS_ONLY_OUTPUT );
    m_timeOutputProperties.push_back ( newProperty );
 
-   newProperty = getFactory ()->produceOutputProperty ( *this, getModellingMode (),
+   newProperty = getFactory ()->produceOutputProperty ( *this,
                                                         Interface::SEDIMENTS_ONLY_OUTPUT,
                                                         "HcLiquidViscosity" );
    newProperty->setOption ( Interface::SEDIMENTS_ONLY_OUTPUT );
    m_timeOutputProperties.push_back ( newProperty );
 
-   newProperty = getFactory ()->produceOutputProperty ( *this, getModellingMode (),
+   newProperty = getFactory ()->produceOutputProperty ( *this,
                                                         Interface::SEDIMENTS_ONLY_OUTPUT,
                                                         "HcVapourVolume" );
    newProperty->setOption ( Interface::SEDIMENTS_ONLY_OUTPUT );
    m_timeOutputProperties.push_back ( newProperty );
 
-   newProperty = getFactory ()->produceOutputProperty ( *this, getModellingMode (),
+   newProperty = getFactory ()->produceOutputProperty ( *this,
                                                         Interface::SEDIMENTS_ONLY_OUTPUT,
                                                         "HcLiquidVolume" );
    newProperty->setOption ( Interface::SEDIMENTS_ONLY_OUTPUT );
    m_timeOutputProperties.push_back ( newProperty );
 
-   newProperty = getFactory ()->produceOutputProperty ( *this, getModellingMode (),
+   newProperty = getFactory ()->produceOutputProperty ( *this,
                                                         Interface::SEDIMENTS_ONLY_OUTPUT,
                                                         "ElementVolume" );
    newProperty->setOption ( Interface::SEDIMENTS_ONLY_OUTPUT );
    m_timeOutputProperties.push_back ( newProperty );
 
-   newProperty = getFactory ()->produceOutputProperty ( *this, getModellingMode (),
+   newProperty = getFactory ()->produceOutputProperty ( *this,
                                                         Interface::SEDIMENTS_ONLY_OUTPUT,
                                                         "ElementPoreVolume" );
    newProperty->setOption ( Interface::SEDIMENTS_ONLY_OUTPUT );
@@ -1535,75 +1494,75 @@ void FastcauldronSimulator::correctTimeFilterDefaults3D () {
 
 
    // Add the property name for the mass that is transported over the snapshot interval
-   newProperty = getFactory ()->produceOutputProperty ( *this, getModellingMode (),
+   newProperty = getFactory ()->produceOutputProperty ( *this,
                                                         Interface::SEDIMENTS_ONLY_OUTPUT,
                                                         "TransportedMass" );
    newProperty->setOption ( Interface::SEDIMENTS_ONLY_OUTPUT );
    m_timeOutputProperties.push_back ( newProperty );
 
-   newProperty = getFactory ()->produceOutputProperty ( *this, getModellingMode (),
+   newProperty = getFactory ()->produceOutputProperty ( *this,
                                                         Interface::SEDIMENTS_ONLY_OUTPUT,
                                                         "BrineRelativePermeability" );
    newProperty->setOption ( Interface::SEDIMENTS_ONLY_OUTPUT );
    m_timeOutputProperties.push_back ( newProperty );
 
-   newProperty = getFactory ()->produceOutputProperty ( *this, getModellingMode (),
+   newProperty = getFactory ()->produceOutputProperty ( *this,
                                                         Interface::SEDIMENTS_ONLY_OUTPUT,
                                                         "HcLiquidRelativePermeability" );
    newProperty->setOption ( Interface::SEDIMENTS_ONLY_OUTPUT );
    m_timeOutputProperties.push_back ( newProperty );
 
-   newProperty = getFactory ()->produceOutputProperty ( *this, getModellingMode (),
+   newProperty = getFactory ()->produceOutputProperty ( *this,
                                                         Interface::SEDIMENTS_ONLY_OUTPUT,
                                                         "HcVapourRelativePermeability" );
    newProperty->setOption ( Interface::SEDIMENTS_ONLY_OUTPUT );
    m_timeOutputProperties.push_back ( newProperty );
 
 
-   newProperty = getFactory ()->produceOutputProperty ( *this, getModellingMode (),
+   newProperty = getFactory ()->produceOutputProperty ( *this,
                                                         Interface::SEDIMENTS_ONLY_OUTPUT,
                                                         "HcVapourVelocityX" );
    newProperty->setOption ( Interface::SEDIMENTS_ONLY_OUTPUT );
    m_timeOutputProperties.push_back ( newProperty );
 
-   newProperty = getFactory ()->produceOutputProperty ( *this, getModellingMode (),
+   newProperty = getFactory ()->produceOutputProperty ( *this,
                                                         Interface::SEDIMENTS_ONLY_OUTPUT,
                                                         "HcVapourVelocityY" );
    newProperty->setOption ( Interface::SEDIMENTS_ONLY_OUTPUT );
    m_timeOutputProperties.push_back ( newProperty );
 
-   newProperty = getFactory ()->produceOutputProperty ( *this, getModellingMode (),
+   newProperty = getFactory ()->produceOutputProperty ( *this,
                                                         Interface::SEDIMENTS_ONLY_OUTPUT,
                                                         "HcVapourVelocityZ" );
    newProperty->setOption ( Interface::SEDIMENTS_ONLY_OUTPUT );
    m_timeOutputProperties.push_back ( newProperty );
 
-   newProperty = getFactory ()->produceOutputProperty ( *this, getModellingMode (),
+   newProperty = getFactory ()->produceOutputProperty ( *this,
                                                         Interface::SEDIMENTS_ONLY_OUTPUT,
                                                         "HcVapourVelocityMagnitude" );
    newProperty->setOption ( Interface::SEDIMENTS_ONLY_OUTPUT );
    m_timeOutputProperties.push_back ( newProperty );
 
 
-   newProperty = getFactory ()->produceOutputProperty ( *this, getModellingMode (),
+   newProperty = getFactory ()->produceOutputProperty ( *this,
                                                         Interface::SEDIMENTS_ONLY_OUTPUT,
                                                         "HcLiquidVelocityX" );
    newProperty->setOption ( Interface::SEDIMENTS_ONLY_OUTPUT );
    m_timeOutputProperties.push_back ( newProperty );
 
-   newProperty = getFactory ()->produceOutputProperty ( *this, getModellingMode (),
+   newProperty = getFactory ()->produceOutputProperty ( *this,
                                                         Interface::SEDIMENTS_ONLY_OUTPUT,
                                                         "HcLiquidVelocityY" );
    newProperty->setOption ( Interface::SEDIMENTS_ONLY_OUTPUT );
    m_timeOutputProperties.push_back ( newProperty );
 
-   newProperty = getFactory ()->produceOutputProperty ( *this, getModellingMode (),
+   newProperty = getFactory ()->produceOutputProperty ( *this,
                                                         Interface::SEDIMENTS_ONLY_OUTPUT,
                                                         "HcLiquidVelocityZ" );
    newProperty->setOption ( Interface::SEDIMENTS_ONLY_OUTPUT );
    m_timeOutputProperties.push_back ( newProperty );
 
-   newProperty = getFactory ()->produceOutputProperty ( *this, getModellingMode (),
+   newProperty = getFactory ()->produceOutputProperty ( *this,
                                                         Interface::SEDIMENTS_ONLY_OUTPUT,
                                                         "HcLiquidVelocityMagnitude" );
    newProperty->setOption ( Interface::SEDIMENTS_ONLY_OUTPUT );
@@ -1612,26 +1571,26 @@ void FastcauldronSimulator::correctTimeFilterDefaults3D () {
 
    if ( not containsChemicalCompaction ) {
       if ( getRunParameters ()->getChemicalCompaction () ) {
-         m_timeOutputProperties.push_back ( getFactory ()->produceOutputProperty ( *this, getModellingMode (), Interface::SEDIMENTS_ONLY_OUTPUT, "ChemicalCompaction" ));
+         m_timeOutputProperties.push_back ( getFactory ()->produceOutputProperty ( *this, Interface::SEDIMENTS_ONLY_OUTPUT, "ChemicalCompaction" ));
       } else {
-         m_timeOutputProperties.push_back ( getFactory ()->produceOutputProperty ( *this, getModellingMode (), Interface::NO_OUTPUT, "ChemicalCompaction" ));
+         m_timeOutputProperties.push_back ( getFactory ()->produceOutputProperty ( *this, Interface::NO_OUTPUT, "ChemicalCompaction" ));
       }
    }
 
    if ( not containsThicknessError ) {
-      m_timeOutputProperties.push_back ( getFactory ()->produceOutputProperty ( *this, getModellingMode (), Interface::SEDIMENTS_ONLY_OUTPUT, "ThicknessError" ));
+      m_timeOutputProperties.push_back ( getFactory ()->produceOutputProperty ( *this, Interface::SEDIMENTS_ONLY_OUTPUT, "ThicknessError" ));
    }
 
-   if ( not containsLithologyId and getModellingMode () == Interface::MODE3D ) {
-      m_timeOutputProperties.push_back ( getFactory ()->produceOutputProperty ( *this, getModellingMode (), Interface::SEDIMENTS_ONLY_OUTPUT, "Lithology" ));
+   if ( not containsLithologyId ) {
+      m_timeOutputProperties.push_back ( getFactory ()->produceOutputProperty ( *this, Interface::SEDIMENTS_ONLY_OUTPUT, "Lithology" ));
    }
 
-   if ( !containsDepth ) m_timeOutputProperties.push_back ( getFactory ()->produceOutputProperty ( *this, getModellingMode (), Interface::SEDIMENTS_AND_BASEMENT_OUTPUT, "Depth" ));
-   if ( !containsMaxVes ) m_timeOutputProperties.push_back ( getFactory ()->produceOutputProperty ( *this, getModellingMode (), Interface::SEDIMENTS_ONLY_OUTPUT, "MaxVesVec" ));
-   if ( !containsPressure ) m_timeOutputProperties.push_back ( getFactory ()->produceOutputProperty ( *this, getModellingMode (), Interface::SEDIMENTS_AND_BASEMENT_OUTPUT, "Pressure" ));
-   if ( !containsTemperature ) m_timeOutputProperties.push_back ( getFactory ()->produceOutputProperty ( *this, getModellingMode (), Interface::SEDIMENTS_AND_BASEMENT_OUTPUT, "Temperature" ));
-   if ( !containsVes ) m_timeOutputProperties.push_back ( getFactory ()->produceOutputProperty ( *this, getModellingMode (), Interface::SEDIMENTS_ONLY_OUTPUT, "Ves" ));
-   if ( !containsVr ) m_timeOutputProperties.push_back ( getFactory ()->produceOutputProperty ( *this, getModellingMode (), Interface::SEDIMENTS_ONLY_OUTPUT, "VrVec" ));
+   if ( !containsDepth ) m_timeOutputProperties.push_back ( getFactory ()->produceOutputProperty ( *this, Interface::SEDIMENTS_AND_BASEMENT_OUTPUT, "Depth" ));
+   if ( !containsMaxVes ) m_timeOutputProperties.push_back ( getFactory ()->produceOutputProperty ( *this, Interface::SEDIMENTS_ONLY_OUTPUT, "MaxVesVec" ));
+   if ( !containsPressure ) m_timeOutputProperties.push_back ( getFactory ()->produceOutputProperty ( *this, Interface::SEDIMENTS_AND_BASEMENT_OUTPUT, "Pressure" ));
+   if ( !containsTemperature ) m_timeOutputProperties.push_back ( getFactory ()->produceOutputProperty ( *this, Interface::SEDIMENTS_AND_BASEMENT_OUTPUT, "Temperature" ));
+   if ( !containsVes ) m_timeOutputProperties.push_back ( getFactory ()->produceOutputProperty ( *this, Interface::SEDIMENTS_ONLY_OUTPUT, "Ves" ));
+   if ( !containsVr ) m_timeOutputProperties.push_back ( getFactory ()->produceOutputProperty ( *this, Interface::SEDIMENTS_ONLY_OUTPUT, "VrVec" ));
 
    using namespace CBMGenerics;
    ComponentManager & theComponentManager = ComponentManager::getInstance();
@@ -1641,8 +1600,7 @@ void FastcauldronSimulator::correctTimeFilterDefaults3D () {
    // So create them here.
    for (i = 0; i < ComponentManager::NUMBER_OF_SPECIES; ++i)
    {
-      m_timeOutputProperties.push_back (getFactory ()->produceOutputProperty ( *this,
-                                                                               getModellingMode (),
+      m_timeOutputProperties.push_back (getFactory ()->produceOutputProperty ( *this,                                                                               
                                                                                Interface::SOURCE_ROCK_ONLY_OUTPUT,
                                                                                theComponentManager.getSpeciesOutputPropertyName( i )));
    }
@@ -2103,34 +2061,26 @@ void FastcauldronSimulator::readCommandLineParametersEarlyStage( const int argc,
    // Read the command line options setting up the simulation mode, etc.
    m_cauldron->getCommandLineOptions ();
 
-   if( getModellingMode () == Interface::MODE1D )
+   PetscBool onlyPrimaryDouble = PETSC_FALSE;
+   PetscBool allProperties     = PETSC_FALSE;
+   // output the primary properties in double precision
+   PetscOptionsHasName(PETSC_IGNORE, PETSC_IGNORE, "-primaryDouble", &onlyPrimaryDouble );
+   // output all properties
+   PetscOptionsHasName(PETSC_IGNORE, PETSC_IGNORE, "-allproperties", &allProperties );
+
+   const bool onlyPrimaryFloat = !( onlyPrimaryDouble || allProperties );
+
+   setPrimaryDouble( onlyPrimaryDouble );
+
+   const bool doPrimary = onlyPrimaryFloat || onlyPrimaryDouble;
+   m_cauldron->setOnlyPrimaryOutput( doPrimary );
+   m_cauldron->setNo2Doutput( doPrimary );
+
+   H5_Parallel_PropertyList::setOneFilePerProcessOption ();
+
+   if( onlyPrimaryDouble && !H5_Parallel_PropertyList::isPrimaryPodEnabled() )
    {
-     m_cauldron->setOnlyPrimaryOutput( false );
-     m_cauldron->setNo2Doutput( false );
-   }
-   else
-   {
-     PetscBool onlyPrimaryDouble = PETSC_FALSE;
-     PetscBool allProperties     = PETSC_FALSE;
-     // output the primary properties in double precision
-     PetscOptionsHasName(PETSC_IGNORE, PETSC_IGNORE, "-primaryDouble", &onlyPrimaryDouble );
-     // output all properties
-     PetscOptionsHasName(PETSC_IGNORE, PETSC_IGNORE, "-allproperties", &allProperties );
-
-     const bool onlyPrimaryFloat = !( onlyPrimaryDouble || allProperties );
-
-     setPrimaryDouble( onlyPrimaryDouble );
-
-     const bool doPrimary = onlyPrimaryFloat || onlyPrimaryDouble;
-     m_cauldron->setOnlyPrimaryOutput( doPrimary );
-     m_cauldron->setNo2Doutput( doPrimary );
-
-     H5_Parallel_PropertyList::setOneFilePerProcessOption ();
-
-     if( onlyPrimaryDouble && !H5_Parallel_PropertyList::isPrimaryPodEnabled() )
-     {
-       H5_Parallel_PropertyList::setOneFilePerProcess( false );
-     }
+     H5_Parallel_PropertyList::setOneFilePerProcess( false );
    }
 
    double    fctScaling;
@@ -2248,7 +2198,7 @@ void FastcauldronSimulator::readCommandLineWells () {
 
 void FastcauldronSimulator::printCommandLine ( const int argc, char **argv ) {
 
-   if ( m_printCommandLine and getRank () == 0 ) {
+   if ( m_printCommandLine && getRank () == 0 ) {
       int i;
 
       PetscPrintf ( PETSC_COMM_WORLD, "\n\n The command line:\n");
@@ -2356,7 +2306,7 @@ bool FastcauldronSimulator::checkMobileLayerThicknesses () const {
    for ( i = 0; i < m_cauldron->layers.size (); ++i ) {
       LayerProps* layer = m_cauldron->layers [ i ];
 
-			if ( layer->isMobile () and layer->getMinimumThickness () < -0.01 ) {
+			if ( layer->isMobile () && layer->getMinimumThickness () < -0.01 ) {
 	 if (getRank () == 0)
 	 {
 			cerr << "Basin_Error: mobile layer " << layer->layername << " has (too large) negative thicknesses" << endl;

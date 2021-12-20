@@ -46,15 +46,10 @@ void Genex6::SourceRockAdsorptionHistory::save ()
                 << m_projectHandle.getProjectName ()
                 << "_"
                 << (m_adsorptionHistory != 0 ? "shalegas" : "genex")
-                << "_" << m_historyRecord.getMangledFormationName ();
+                << "_" << m_historyRecord.getMangledFormationName ()
+                << "_" << m_historyRecord.getX ()
+                << "_" << m_historyRecord.getY ();
 
-         if (m_projectHandle.getModellingMode () == DataAccess::Interface::MODE3D)
-         {
-            buffer << "_"
-                   << m_historyRecord.getX ()
-                   << "_"
-                   << m_historyRecord.getY ();
-         }
          buffer << ".dat";
 
          fileName = buffer.str ();
@@ -74,15 +69,11 @@ void Genex6::SourceRockAdsorptionHistory::save ()
       std::ofstream historyFile (filePath.cpath (), std::ios::out);
 
       if( m_adsorptionHistory != 0 ) {
-         historyFile << m_historyRecord.getFormationName ();
+         historyFile << m_historyRecord.getFormationName ()
+         << "  " << m_historyRecord.getX ()
+         << "  " << m_historyRecord.getY ()
+         << std::endl;
 
-         if (m_projectHandle.getModellingMode () == DataAccess::Interface::MODE3D )
-         {
-            historyFile << "  "
-                        << m_historyRecord.getX ()
-                        << "  " << m_historyRecord.getY ()
-                        << std::endl;
-         }
          m_adsorptionHistory->write (historyFile);
       } else {
          m_genexHistory->write ( historyFile );

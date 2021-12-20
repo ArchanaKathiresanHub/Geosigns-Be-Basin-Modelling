@@ -411,11 +411,6 @@ namespace Basin_Modelling {
   ///
   void deleteErosionFactorMaps ( AppCtx* basinModel );
 
-
-  void collectAndSaveIsoValues(const double Current_Time, AppCtx *basinModel );
-  void updateSedimentBottomSurfaceCurves(const double Current_Time, AppCtx *basinModel);
-
-
   void computeBasementLithostaticPressure ( AppCtx* basinModel,
 					    const double    age );
 

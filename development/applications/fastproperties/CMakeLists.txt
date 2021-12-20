@@ -63,7 +63,6 @@ target_link_libraries(${APP_NAME}
    FastcauldronApplication
    AbstractDerivedProperties
    DerivedProperties
-   calibration_kernel
    GeoPhysics
    DataAccess
    DistributedDataAccess

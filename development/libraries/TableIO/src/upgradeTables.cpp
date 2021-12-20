@@ -22,8 +22,8 @@ namespace database
 {
    void upgradeReservoirOptionsIoTblTableVer100to101( Database * db, Table * tbl )
    {
-      // check that this table was lodaed from file and does not created by default
-      bool loaded = db->getTablesInFile().count( "ReservoirOptionsIoTbl" ) > 0 ? true : false;
+      // check that this table was loaded from file and was not created by default
+      bool loaded = db->getTablesInFile().count( "ReservoirOptionsIoTbl" ) > 0;
 
       if ( loaded && tbl->version() > 100 ) return; // version is correct, nothing to do
 
@@ -61,18 +61,18 @@ namespace database
       Table * oldTbl = db->getTable( "DetectedReservoirIoTbl" );
       tbl = db->getTable( "ReservoirOptionsIoTbl" );
 
+      if ( nullptr == oldTbl || oldTbl->size() == 0 )
+      {  // empty table nothing to upgrade
+         db->deleteTable( "DetectedReservoirIoTbl" );
+         return;
+      }
+
       // check condition for upgrading
-      if ( nullptr == oldTbl || nullptr == tbl || tbl->size() != 0 || oldTbl->size() > 1 )
+      if ( nullptr == tbl || tbl->size() != 0 || oldTbl->size() > 1 )
       {
          LogHandler( LogHandler::FATAL_SEVERITY ) << R"(Can't upgrade table "DetectedReservoirIoTbl")";
          throw ProjectUpgradeException() << R"(Table "DetectedReservoirIoTbl" upgrade error)";
-      }
-
-      if ( oldTbl->size() == 0 )
-      {  // empty table nothing to upgrade
-         db->deleteTable( "DetectedReservoirIoTbl" );
-         return; 
-      }
+      }      
 
       // copying the same columns from old to new one;
       Record * newRec = tbl->createRecord();
@@ -101,6 +101,58 @@ namespace database
       }
       // now we can delete old table and table definition from db
       db->deleteTable( "DetectedReservoirIoTbl" );
+   }
+
+   void upgradeFilterTimeIoTblTableVer100to101( Database * db, Table * tbl )
+   {
+     // check that this table was loaded from file and was not created by default
+     bool loaded = db->getTablesInFile().count( "FilterTimeIoTbl" ) > 0 ;
+
+     if ( loaded && tbl->version() > 100 ) return; // version is correct, nothing to do
+
+     if (tbl->size() == 0) return;
+
+     // Save latest version of table definition
+     TableDefinition* newVersionTableDefinition = db->getTable("FilterTimeIoTbl")->getTableDefinition().deepCopy();
+
+     // Delete updated table and table definition from db
+     db->deleteTable( "FilterTimeIoTbl" );
+
+     TableDefinition * tableDefinition = new TableDefinition( "FilterTimeIoTbl", "FilterTimeIoTbl", 100 );
+     // the old verion of the table is in the file, we need to recreate table definition and reload project
+     if ( db->addTableDefinition( tableDefinition ) )
+     {
+        tableDefinition->addFieldDefinition(  "PropertyName",          datatype::String,              "",              "",               0 );
+        tableDefinition->addFieldDefinition(  "ModellingMode",         datatype::String,              "",              "",               1 );
+        tableDefinition->addFieldDefinition(  "OutputOption",          datatype::String,              "",              "",               2 );
+        tableDefinition->addFieldDefinition(  "ResultOption",          datatype::String,              "",              "",               3 );
+     }
+     db->reload("FilterTimeIoTbl");
+     tbl = db->getTable("FilterTimeIoTbl");
+
+     std::vector<int> deleteIndices;
+     for (int i = tbl->size() - 1; i>=0; --i)
+     {
+        Record* rec = tbl->getRecord(i);
+        if ("1d" == rec->getValue<std::string>("ModellingMode"))
+        {
+          deleteIndices.push_back(i);
+        }
+     }
+     db->deleteTable( "FilterTimeIoTbl" );
+
+     db->addTableDefinition(newVersionTableDefinition);
+     db->reload("FilterTimeIoTbl");
+     tbl = db->getTable("FilterTimeIoTbl");
+     for (int i : deleteIndices)
+     {
+       tbl->deleteRecord(tbl->getRecord(i));
+     }
+   }  
+
+   void upgradeProjectIoTblTableVer100to101( Database * /*db*/, Table * /*tbl*/ )
+   {
+     // ModellingMode is removed, no further action required
    }
 }
 

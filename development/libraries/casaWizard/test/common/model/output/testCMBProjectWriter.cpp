@@ -141,7 +141,6 @@ TEST( CMBProjectWriterTest, testGenerateOutputProject )
   EXPECT_EQ(cmbModel.tableSize("OutputTablesIoTbl"), 0);
   EXPECT_EQ(cmbModel.tableSize("TimeIoTbl"), 0);
   EXPECT_EQ(cmbModel.tableSize("3DTimeIoTbl"), 0);
-  EXPECT_EQ(cmbModel.tableSize("1DTimeIoTbl"), 0);
   EXPECT_EQ(cmbModel.tableSize("SimulationDetailsIoTbl"), 0);
 }
 

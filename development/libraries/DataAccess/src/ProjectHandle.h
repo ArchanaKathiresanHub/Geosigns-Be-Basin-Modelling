@@ -537,8 +537,6 @@ namespace DataAccess
          double getTopAsthenosphericTemperature() const;
          int getMaximumNumberOfMantleElements() const;
 
-         virtual ModellingMode getModellingMode() const;
-
          virtual PointAdsorptionHistoryList* getPointAdsorptionHistoryList( const std::string& sourceRockFormationName = "" ) const;
 
          virtual LangmuirAdsorptionIsothermSampleList* getLangmuirAdsorptionIsothermSampleList( const std::string& functionName ) const;
@@ -632,10 +630,6 @@ namespace DataAccess
          static bool isEqualTime( double t1, double t2 );
 
       protected:
-
-         //1DComponent
-         bool loadModellingMode( void );
-         ModellingMode m_modellingMode;
 
          /// the full path of the project
          const std::string m_name;
@@ -845,15 +839,7 @@ namespace DataAccess
 
          bool saveCreatedMapPropertyValues( void );
 
-         bool saveCreatedMapPropertyValuesMode1D( void );
-
-         bool saveCreatedMapPropertyValuesMode3D( void );
-
          bool saveCreatedVolumePropertyValues( void );
-
-         bool saveCreatedVolumePropertyValuesMode1D( void );
-
-         bool saveCreatedVolumePropertyValuesMode3D( void );
 
          /// connect Surfaces to Formations
          bool connectSurfaces( void );

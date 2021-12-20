@@ -51,8 +51,6 @@
 
 #include "petscvector_readwrite.h"
 
-#include "milestones.h"
-
 // Data access library.
 #include "GridMap.h"
 #include "RelatedProject.h"
@@ -97,8 +95,6 @@ class Related_Project {
 typedef Related_Project* Related_Project_Ptr;
 typedef vector<Related_Project_Ptr> Related_Project_List;
 typedef std::map <const LayerProps*, double> LayerPreferredTimeStepSizeMap;
-
-class FissionTrackCalculator;
 
 class AppCtx {
 
@@ -202,17 +198,9 @@ public:
 
    string Get_Project_Filename_Base ();
 
-
-   void setModellingMode ( const Interface::ModellingMode modellingMode );
-
-   bool isModellingMode1D () const;
-
-   bool isModellingMode3D () const;
-
    void Display_Grid_Description();
 
    void Locate_Related_Project ();
-
 
    void print ();
    void printFCT ();
@@ -289,8 +277,6 @@ public:
    // no longer used.
    double initialPressureTimeStep () const;
 
-   bool openProject ();
-
    bool setRelatedProject ( const Interface::RelatedProject* relatedProject );
 
    /// \brief Add pseudo-well location at position i,j
@@ -317,27 +303,6 @@ public:
   void initialiseTimeIOTable ( const string& currentOperation );
 
    typedef std::vector<double> DoubleVector;
-
-
-   enum ContourType {ISOVRE, ISOTEMPERATURE, NUMBEROFCONTOURTYPES};
-
-   IsoLineTable m_theTables[NUMBEROFCONTOURTYPES];
-   DoubleVector m_theMilestones[NUMBEROFCONTOURTYPES];
-
-   const IsoLineTable & getContourValueTable(enum ContourType theType) const;
-   const DoubleVector & getContourMilestones(enum ContourType theType) const;
-   void addIsolinePoint(ContourType theType, IsolinePoint *thePoint);
-   void setMilestones(void);
-   void writeIsoLinesToDatabase(void);
-   void deleteIsoValues(void);
-   void addBottomSedimentSurfaceIsoPointsToIsolines(void);
-
-   Polyfunction m_bottomSedimentSurfaceAgeTemperatureCurve;
-   Polyfunction m_bottomSedimentSurfaceAgeDepthCurve;
-   Polyfunction m_bottomSedimentSurfaceAgeVreCurve;
-
-   //FT stuff
-   void writeFissionTrackResultsToDatabase(const FissionTrackCalculator &theFTCalculator);
 
    LayerList layers;
 

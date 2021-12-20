@@ -111,10 +111,6 @@ void TimeFilter::setFilter(const string & propertyName, const string & outputOpt
   PropertyOutputOption [ FLUID_VELOCITY_Y ] = PropertyOutputOption [ FLUID_VELOCITY ];
   PropertyOutputOption [ FLUID_VELOCITY_Z ] = PropertyOutputOption [ FLUID_VELOCITY ];
 
-  PropertyOutputOption[STERANEAROMATISATION] = PropertyOutputOption[BIOMARKERS];
-  PropertyOutputOption[STERANEISOMERISATION] = PropertyOutputOption[BIOMARKERS];
-  PropertyOutputOption[HOPANEISOMERISATION] = PropertyOutputOption[BIOMARKERS];
-
   PropertyOutputOption [ CHEMICAL_COMPACTION ] = NOOUTPUT;
 }
 

@@ -27,8 +27,8 @@ bool loadLine( istream & infile, string & line, bool checkForHeaders )
       // check for CRLF EOL
       if ( !line.empty() && line[ line.size() - 1 ] == '\r' ) { line.erase( line.size() - 1 ); }
 
-      if ( checkForHeaders && line.find( ";! " ) == 0 ) { return true; }
-      if ( checkForHeaders && line.find( ";v " ) == 0 ) { return true; }
+      if ( checkForHeaders && line.find( ";!" ) == 0 ) { return true; }
+      if ( checkForHeaders && line.find( ";v" ) == 0 ) { return true; }
 
 
       size_t firstNonSpace = line.find_first_not_of( separators, 0 );

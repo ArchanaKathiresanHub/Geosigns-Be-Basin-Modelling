@@ -106,7 +106,7 @@ namespace DataAccess
 
          virtual OutputProperty * produceOutputProperty (ProjectHandle& projectHandle, database::Record * record) const;
 
-         virtual OutputProperty * produceOutputProperty (ProjectHandle& projectHandle, const ModellingMode mode, const PropertyOutputOption option, const std::string& name ) const;
+         virtual OutputProperty * produceOutputProperty (ProjectHandle& projectHandle, const PropertyOutputOption option, const std::string& name ) const;
 
          virtual LithologyHeatCapacitySample * produceLithologyHeatCapacitySample (ProjectHandle& projectHandle, database::Record * record) const;
 

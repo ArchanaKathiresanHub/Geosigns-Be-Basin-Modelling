@@ -54,10 +54,8 @@ PropertyManager::PropertyManager():
   m_propertyName2OutputName [ "HeatFlow" ]               = "HeatFlow";
   m_propertyName2OutputName [ "HeatFlowX" ]              = "HeatFlow";
   m_propertyName2OutputName [ "HeatFlowY" ]              = "HeatFlow";
-  m_propertyName2OutputName [ "HeatFlowZ" ]              = "HeatFlow";
-  m_propertyName2OutputName [ "HopaneIsomerisation" ]    = "Biomarkers";
-  m_propertyName2OutputName [ "HydroStaticPressure" ]    = "HydroStaticPressure";
-  m_propertyName2OutputName [ "IlliteFraction" ]         = "IlliteFraction";
+  m_propertyName2OutputName [ "HeatFlowZ" ]              = "HeatFlow";  
+  m_propertyName2OutputName [ "HydroStaticPressure" ]    = "HydroStaticPressure";  
   m_propertyName2OutputName [ "Lithology" ]              = "Lithology";
   m_propertyName2OutputName [ "LithoStaticPressure" ]    = "LithoStaticPressure";
   m_propertyName2OutputName [ "MassFlux" ]               = "MassFlux";
@@ -75,8 +73,6 @@ PropertyManager::PropertyManager():
   m_propertyName2OutputName [ "FracturePressure" ]       = "FracturePressure";
   m_propertyName2OutputName [ "Reflectivity" ]           = "ReflectivityVec";
   m_propertyName2OutputName [ "SonicSlowness" ]          = "SonicVec";
-  m_propertyName2OutputName [ "SteraneAromatisation" ]   = "Biomarkers";
-  m_propertyName2OutputName [ "SteraneIsomerisation" ]   = "Biomarkers";
   m_propertyName2OutputName [ "Temperature" ]            = "Temperature";
   m_propertyName2OutputName [ "ThCond" ]                 = "ThCondVec";
   m_propertyName2OutputName [ "ThicknessError" ]         = "ThicknessError";

@@ -229,40 +229,6 @@ int main (int argc, char ** argv)
       }
    }
 
-   // 1D project related stuff ////////////////////////////////////
-
-   string modellingMode = getModellingMode (projectIoRecord);
-
-   if (modellingMode == "1d")
-   {
-      database::Table * wellLocIoTbl = tables->getTable ("WellLocIoTbl");
-      if (!wellLocIoTbl)
-      {
-         if (!quiet)
-            cerr << "No WellLocIoTbl table was found in the project file" << endl;
-         return 2;
-      }
-
-      Record *wellLocIoRecord = wellLocIoTbl->getRecord (0);
-
-      if (getXCoord (wellLocIoRecord) == 0)
-         setXCoord (wellLocIoRecord, 0.01);
-      if (getYCoord (wellLocIoRecord) == 0)
-         setYCoord (wellLocIoRecord, 0.01);
-
-      // may be set to -1 sometimes
-      setWindowXMin (projectIoRecord, 0);
-      setWindowXMax (projectIoRecord, 1);
-      setWindowYMin (projectIoRecord, 0);
-      setWindowYMax (projectIoRecord, 1);
-
-   }
-
-   if (modellingMode == "Multiple 1d")
-   {
-      setModellingMode (projectIoRecord, "3d");
-   }
-
    // Update the source rocks /////////////////////////////////////
    database::Table * stratIoTbl = tables->getTable ("StratIoTbl");
    if (!stratIoTbl)

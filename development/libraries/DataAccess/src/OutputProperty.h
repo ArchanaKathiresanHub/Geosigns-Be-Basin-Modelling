@@ -24,15 +24,12 @@ namespace DataAccess
 
       OutputProperty (ProjectHandle& projectHandle, database::Record * record);
 
-      OutputProperty (ProjectHandle& projectHandle, const ModellingMode mode, const PropertyOutputOption option, const std::string& name );
+      OutputProperty (ProjectHandle& projectHandle, const PropertyOutputOption option, const std::string& name );
 
       virtual ~OutputProperty (void);
 
 			/// Return the name of this OutputProperty.
 			virtual const string & getName (void) const;
-
-      /// Return the modelling-mode of this OutputProperty.
-            virtual ModellingMode getMode (void) const;
 
 			/// Return the output option of this OutputProperty.
 			virtual PropertyOutputOption getOption (void) const;
@@ -49,9 +46,7 @@ namespace DataAccess
    protected:
 
             const std::string m_name;
-            ModellingMode        m_mode;
             PropertyOutputOption m_option;
-
       };
    }
 }

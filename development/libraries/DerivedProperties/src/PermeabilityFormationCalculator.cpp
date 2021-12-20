@@ -35,10 +35,7 @@ DerivedProperties::PermeabilityFormationCalculator::PermeabilityFormationCalcula
       m_projectHandle.getRunParameters()->getChemicalCompaction ();
 
    addPropertyName ( "Permeability" );
-   if ( m_projectHandle.getModellingMode() == DataAccess::Interface::MODE3D )
-   {
-     addPropertyName ( "HorizontalPermeability" );
-   }
+   addPropertyName ( "HorizontalPermeability" );
 
    addDependentPropertyName ( "Ves" );
    addDependentPropertyName ( "MaxVes" );
@@ -155,10 +152,7 @@ void DerivedProperties::PermeabilityFormationCalculator::calculate (       Abstr
       }
 
       derivedProperties.push_back ( verticalPermeability );
-      if ( m_projectHandle.getModellingMode() == DataAccess::Interface::MODE3D )
-      {
-        derivedProperties.push_back ( horizontalPermeability );
-      }
+      derivedProperties.push_back ( horizontalPermeability );
    }
 }
 

@@ -57,7 +57,7 @@ bool Anonymizer::run( const std::string & projectFolder )
             ++it;
             continue;
          }
-         else if( extension == ".project3d" || extension == ".project1d" ) projectFileList.push_back( fileName );
+         else if( extension == ".project3d" ) projectFileList.push_back( fileName );
          ++it;
       }
 
@@ -437,7 +437,6 @@ void Anonymizer::clearOutputTables()
 {
    clearTable("TimeIoTbl");
    clearTable("3DTimeIoTbl");
-   clearTable("1DTimeIoTbl");
    clearTable( "TrapIoTbl" );
    clearTable( "TrapperIoTbl" );
    clearTable( "MigrationIoTbl" );

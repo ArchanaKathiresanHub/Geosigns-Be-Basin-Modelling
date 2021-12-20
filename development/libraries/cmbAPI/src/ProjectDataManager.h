@@ -71,14 +71,6 @@ namespace mbapi {
       virtual ReturnCode setDeltaY(const double& deltaY) = 0;
 
       /// @{
-      /// @brief Get modelling mode specified in the ProjectIoTbl
-      virtual ReturnCode getModellingMode(std::string& modellingMode) = 0;
-
-      /// @{
-      /// @brief Set modelling mode in the ProjectIoTbl
-      virtual ReturnCode setModellingMode(const std::string& modellingMode) = 0;
-
-      /// @{
       /// @brief Get project description specified in the ProjectIoTbl
       virtual ReturnCode getProjectDescription(std::string& description) = 0;
 
@@ -86,7 +78,6 @@ namespace mbapi {
       /// @brief Set project description in the ProjectIoTbl
       virtual ReturnCode setProjectDescription(const std::string& description) = 0;
 
-      /// @}
    protected:
       /// @{
       /// Constructors/destructor

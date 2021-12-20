@@ -238,11 +238,6 @@ START-properties
     Unit of measurement :
     Type                : string
 
-    Identification      : ModellingMode
-    Description         : Allowed values: "1d", "3d" or "Multiple 1d"
-    Unit of measurement :
-    Type                : string
-
     Identification      : OutputOption
     Description         : Allowed values for the "TimeIoTbl":
                           "None", "SourceRockOnly", "SedimentsOnly" or
@@ -1689,266 +1684,6 @@ START-properties
     Unit of measurement : C (degCentigrade)
     Type                : double
 
-# Biomarker properties
-
-    Identification      : HopIsoActEnergy
-    Description         :
-    Unit of measurement : J/mol
-    Type                : float
-
-    Identification      : SteIsoActEnergy
-    Description         :
-    Unit of measurement : J/mol
-    Type                : float
-
-    Identification      : SteAroActEnergy
-    Description         :
-    Unit of measurement : J/mol
-    Type                : float
-
-    Identification      : HopIsoFreqFactor
-    Description         :
-    Unit of measurement : sec-1
-    Type                : float
-
-    Identification      : SteIsoFreqFactor
-    Description         :
-    Unit of measurement : sec-1
-    Type                : float
-
-    Identification      : SteAroFreqFactor
-    Description         :
-    Unit of measurement : sec-1
-    Type                : float
-
-    Identification      : HopIsoGamma
-    Description         :
-    Unit of measurement :
-    Type                : float
-
-    Identification      : SteIsoGamma
-    Description         :
-    Unit of measurement :
-    Type                : float
-
-# fission track properties
-
-    Identification      : FtGrainId
-    Description         : Fission track grain identifier in sample
-    Unit of measurement :
-    Type                : integer
-
-    Identification      : FtSpontTrackNo
-    Description         : Number of spontaneous tracks in grain
-    Unit of measurement :
-    Type                : integer
-
-    Identification      : FtInducedTrackNo
-    Description         : Number of induces tracks in grain
-    Unit of measurement :
-    Type                : integer
-
-    Identification      : FtLength
-    Description         : Fission track length
-    Unit of measurement : microns
-    Type                : float
-
-    Identification      : FtClWeightPerc
-    Description         : Chlorine weight percentage
-    Unit of measurement : %
-    Type                : float
-
-    Identification      : FtSampleId
-    Description         : Fission track sample identifier
-    Unit of measurement :
-    Type                : string
-
-    Identification      : FtZeta
-    Description         : Calibration factor used for fission track age calculation
-    Unit of measurement :
-    Type                : double
-
-    Identification      : FtUstglTrackDensity
-    Description         : Track density of uranium standard glass
-    Unit of measurement : cm-2
-    Type                : double
-
-    Identification      : FtGrainAge
-    Description         : Fission track age of a grain
-    Unit of measurement : Ma
-    Type                : float
-
-    Identification      : FtPooledAge
-    Description         : Fission track age of sample
-    Unit of measurement : Ma
-    Type                : float
-
-    Identification      : FtPooledAgeErr
-    Description         : error in fission track age of sample
-    Unit of measurement : Ma
-    Type                : float
-
-    Identification      : FtPredictedAge
-    Description         : Fission track age
-    Unit of measurement : Ma
-    Type                : float
-
-    Identification      : FtAgeChi2
-    Description         : ChiSquared of the grain fission track ages of a sample
-    Unit of measurement :
-    Type                : double
-
-    Identification      : FtDegreeOfFreedom
-    Description         : Degree of freedom in chi square calculation
-    Unit of measurement :
-    Type                : integer
-
-    Identification      : FtPAgeChi2
-    Description         : P(Chi Squared) of the grain fission track ages of a sample
-    Unit of measurement :
-    Type                : float
-
-    Identification      : FtCorrCoeff
-    Description         : Correlation coefficient Ns and Ni
-    Unit of measurement :
-    Type                : float
-
-    Identification      : FtVarianceSqrtNs
-    Description         : Variance of square root of Ns
-    Unit of measurement :
-    Type                : float
-
-    Identification      : FtVarianceSqrtNi
-    Description         : Variance of square root of Ni
-    Unit of measurement :
-    Type                : float
-
-    Identification      : FtNsDivNi
-    Description         : Ns divided by Ni
-    Unit of measurement :
-    Type                : float
-
-    Identification      : FtNsDivNiErr
-    Description         : Ns divided by Ni
-    Unit of measurement :
-    Type                : float
-
-    Identification      : FtMeanRatio
-    Description         : Mean ratio
-    Unit of measurement :
-    Type                : float
-
-    Identification      : FtMeanRatioErr
-    Description         : Error in mean ration
-    Unit of measurement :
-    Type                : float
-
-    Identification      : FtCentralAge
-    Description         : Central age
-    Unit of measurement :
-    Type                : float
-
-    Identification      : FtCentralAgeErr
-    Description         : Error in central age
-    Unit of measurement :
-    Type                : float
-
-    Identification      : FtMeanAge
-    Description         : Mean age
-    Unit of measurement :
-    Type                : float
-
-    Identification      : FtMeanAgeErr
-    Description         : Error in mean age
-    Unit of measurement :
-    Type                : float
-
-    Identification      : FtLengthChi2
-    Description         : ChiSquared of the fission track lengths distributions
-                          (calculated distribution and observed distribution)
-    Unit of measurement :
-    Type                : float
-
-    Identification      : FtApatiteYield
-    Description         : Fission track sample identifier
-    Unit of measurement :
-    Type                : string
-
-# Fission track new data entries for Cauldron/BPA integration
-
-    Identification      : FtPredLengthHistId
-    Description         : Histogram identifier
-    Unit of measurement :
-    Type                : integer
-
-    Identification      : FtPredLengthBinStart
-    Description         : Start length of first bin in this histograms
-    Unit of measurement :
-    Type                : double
-
-    Identification      : FtPredLengthBinWidth
-    Description         : Width of each historgram bin
-    Unit of measurement :
-    Type                : double
-
-    Identification      : FtPredLengthBinNum
-    Description         : Number of bins in histogram
-    Unit of measurement :
-    Type                : integer
-
-    Identification      : FtPredLengthBinIndex
-    Description         : Index of bin according to line layout defined in FtPredLengthCountsHistIoTbl
-    Unit of measurement :
-    Type                : integer
-
-    Identification      : FtPredLengthBinCount
-    Description         : Bin count (=number of predicted tracks). due to the prediction algorithm this might be a floating point number (instead of an integer)
-    Unit of measurement :
-    Type                : double
-
-    Identification      : FtClWeightBinStart
-    Description         : Start of first Cl weight percent bin
-    Unit of measurement :
-    Type                : double
-
-    Identification      : FtClWeightBinWidth
-    Description         : Width of  Cl weight percent bins
-    Unit of measurement :
-    Type                : double
-
-# smectite illite properties
-
-    Identification      : ActEnergy1
-    Description         : Phase 1 (growth of illite layers within flaky
-                          smectite particles) activation energy
-    Unit of measurement :
-    Type                : float
-
-    Identification      : FreqFactor1
-    Description         : Phase 1 (growth of illite layers within flaky
-                          smectite particles) frequency factor
-    Unit of measurement :
-    Type                : float
-
-    Identification      : ActEnergy2
-    Description         : Phase 2 (dissilution of smectite and the
-                          precipitation of illite-rich crystals) activation
-                          energy
-    Unit of measurement :
-    Type                : float
-
-    Identification      : FreqFactor2
-    Description         : Phase 2 (dissilution of smectite and the
-                          precipitation of illite-rich crystals) frequency
-                          factor
-    Unit of measurement :
-    Type                : float
-
-    Identification      : InitIlliteFraction
-    Description         : Initial Illite fraction in the sediments of the column
-    Unit of measurement :
-    Type                : float
-
 #### Run Options / Algorithm choice Properties -----------------------------
 
     Identification      : BottomBoundaryModel
@@ -2228,74 +1963,6 @@ START-properties
     Identification      : PropertyValue
     Description         : Assigned value on the boundary
     Type                : double
-    Unit of measurement :
-
-#### User Interface properties:-----------------------------------------------
-
-    Identification      : ContourColour
-    Description         : colour to contour a set of property values
-    Unit of measurement :
-    Type                : string
-
-    Identification      : ContourValue
-    Description         : Contour value (or milestones) for the property
-                          set in the DisplayContourIoTbl
-    Unit of measurement :
-    Type                : float
-
-    Identification      : UseDefault
-    Description         : Must default be used in Property Display
-    Type                : integer
-    Unit of measurement :
-
-    Identification      : LowerboundDefault
-    Description         : Default lowerbound value
-    Type                : float
-    Unit of measurement :
-
-    Identification      : LowerboundValue
-    Description         : Lowerbound value
-    Type                : float
-    Unit of measurement :
-
-    Identification      : RedLowerbound
-    Description         : Red component for lowerbound colour
-    Type                : float
-    Unit of measurement :
-
-    Identification      : GreenLowerbound
-    Description         : Green component for lowerbound colour
-    Type                : float
-    Unit of measurement :
-
-    Identification      : BlueLowerbound
-    Description         : Blue component for lowerbound colour
-    Type                : float
-    Unit of measurement :
-
-    Identification      : UpperboundDefault
-    Description         : Default upperbound value
-    Type                : float
-    Unit of measurement :
-
-    Identification      : UpperboundValue
-    Description         : Upperbound value
-    Type                : float
-    Unit of measurement :
-
-    Identification      : RedUpperbound
-    Description         : Red component for upperbound colour
-    Type                : float
-    Unit of measurement :
-
-    Identification      : GreenUpperbound
-    Description         : Green component for upperbound colour
-    Type                : float
-    Unit of measurement :
-
-    Identification      : BlueUpperbound
-    Description         : Blue component for upperbound colour
-    Type                : float
     Unit of measurement :
 
 #
@@ -4679,12 +4346,11 @@ START-property-tables
 
     Identification : ProjectIoTbl
     Description    : table with general project data
-    Version        : 100
+    Version        : 101
     Column         : ProjectName
     Column         : Description
     Column         : ProjectStartDate
     Column         : ProgramVersion
-    Column         : ModellingMode
     Column         : XCoord
     Column         : YCoord
     Column         : NumberX
@@ -4774,9 +4440,8 @@ START-property-tables
     Identification : FilterTimeIoTbl
     Description    : Determines which properties needs to be present
                      within the TimeIoTbl
-    Version        : 100
+    Version        : 101
     Column         : PropertyName
-    Column         : ModellingMode
     Column         : OutputOption
     Column         : ResultOption
     Header         : Run Options
@@ -5071,112 +4736,6 @@ START-property-tables
     Column         : EquilibriumOceanicLithosphereThickness
     Column         : MaxNumberMantleElements
     Header         : Basement
-
-
-#### Calibration / Thermal Indicator Data -----------------------------------
-
-# Biomarker  :
-
-    Identification : BiomarkerKinIoTbl
-    Description    :
-    Version        : 100
-    Column         : HopIsoActEnergy
-    Column         : SteIsoActEnergy
-    Column         : SteAroActEnergy
-    Column         : HopIsoFreqFactor
-    Column         : SteIsoFreqFactor
-    Column         : SteAroFreqFactor
-    Column         : HopIsoGamma
-    Column         : SteIsoGamma
-    Header         : Biomarker Kinetics
-
-# Smectite Illite  :
-
-    Identification : SmectiteIlliteKinIoTbl
-    Description    : 
-    Column         : ActEnergy1
-    Column         : FreqFactor1
-    Column         : ActEnergy2
-    Column         : FreqFactor2
-    Column         : InitIlliteFraction
-    Header         : Smectite Illite Kinetics
-
-# Fission track :
-
-    Identification : FtGrainIoTbl
-    Description    : Spontaneous and induced track count per grain
-    Version        : 100
-    Column         : FtSampleId
-    Column         : FtGrainId
-    Column         : FtSpontTrackNo
-    Column         : FtInducedTrackNo
-    Column         : FtClWeightPerc
-    Column         : FtGrainAge
-    Header         : Fission track counts
-
-    Identification : FtLengthIoTbl
-    Description    : Fission track length measurements
-    Version        : 100
-    Column         : FtSampleId
-    Column         : FtGrainId
-    Column         : FtLength
-    Header         : Fission track lengths
-
-    Identification : FtSampleIoTbl
-    Description    : Fission track sample data
-    Version        : 100
-    Column         : FtSampleId
-    Column         : DepthIndex
-    Column         : FtZeta
-    Column         : FtUstglTrackDensity
-    Column         : FtPredictedAge
-    Column         : FtPooledAge
-    Column         : FtPooledAgeErr
-    Column         : FtAgeChi2
-    Column         : FtDegreeOfFreedom
-    Column         : FtPAgeChi2
-    Column         : FtCorrCoeff
-    Column         : FtVarianceSqrtNs
-    Column         : FtVarianceSqrtNi
-    Column         : FtNsDivNi
-    Column         : FtNsDivNiErr
-    Column         : FtMeanRatio
-    Column         : FtMeanRatioErr
-    Column         : FtCentralAge
-    Column         : FtCentralAgeErr
-    Column         : FtMeanAge
-    Column         : FtMeanAgeErr
-    Column         : FtLengthChi2
-    Column         : FtApatiteYield
-    Header         : Fission track sample data
-
-    #Fission track new tables for Cauldron/BPA integration
-
-    Identification : FtPredLengthCountsHistIoTbl
-    Description    : Description of layout for the histograms containing the predicted fission track length counts
-    Version        : 100
-    Column         : FtPredLengthHistId
-    Column         : FtSampleId
-    Column         : FtClWeightPerc
-    Column         : FtPredLengthBinStart
-    Column         : FtPredLengthBinWidth
-    Column         : FtPredLengthBinNum
-    Header         : Layout of fission track predicted histograms
-
-    Identification : FtPredLengthCountsHistDataIoTbl
-    Description    : Histogram data (predicted counts per track length bin) of histograms defined in FtPredLengthCountsHistIoTbl
-    Version        : 100
-    Column         : FtPredLengthHistId
-    Column         : FtPredLengthBinIndex
-    Column         : FtPredLengthBinCount
-    Header         : Histogram data (predicted counts per track length bin) of histograms defined in FtPredLengthCountsHistIoTbl
-
-    Identification : FtClWeightPercBinsIoTbl
-    Description    : Layout of the Cl Weight Bins used in the fission track prediction algorithms
-    Version        : 100
-    Column         : FtClWeightBinStart
-    Column         : FtClWeightBinWidth
-    Header         : Layout of the Cl Weight Bins used in the fission track prediction algorithms
 
 # XMIG stuff
 
@@ -5700,15 +5259,6 @@ START-property-tables
 
 #### User Interface tables ------------------------------------------------
 
-    Identification : DisplayContourIoTbl
-    Description    : contour settings for any calculated property (e.g
-                     temperature isotherms, VRE milestones
-    Version        : 100
-    Column         : PropertyName
-    Column         : ContourValue
-    Column         : ContourColour
-    Header         : Countour settings
-
     # Changed by S. Mathijssen (ORIGIN) 14-11-1997
     # Increment 4.4
     # Added P15, P50 and P85
@@ -5753,43 +5303,6 @@ START-property-tables
     Column         : Sum2
     Column         : NP
     Header         : 3D output results
-
-    Identification : 1DTimeIoTbl
-    Description    : Table listing for 1D property values
-    Version        : 100
-    Column         : Time
-    Column         : PropertyName
-    Column         : FormationName
-    Column         : NodeIndex
-    Column         : SurfaceName
-    Column         : Value
-    Header         : 1D output results
-
-    Identification : TemperatureIsoIoTbl
-    Description    : Table to hold the temperature Iso depth that will be
-                     displayed in the burial graph. The depth is calculated
-                     and stored after each time step in the Sum. Number of Points
-                     is stored to accomodate MC runs.
-    Version        : 100
-    KEYS           : ContourValue + Age
-    Column         : Age
-    Column         : ContourValue
-    Column         : Sum
-    Column         : NP
-    Header         : Iso temperature data for burial graph
-
-    Identification : VrIsoIoTbl
-    Description    : Table to hold the vr Iso depth that will be
-                     displayed in the burial graph. The depth is calculated
-                     and stored after each time step in the Sum.  Number of Points
-                     is stored to accomodate MC runs.
-    Version        : 100
-    KEYS           : ContourValue + Age
-    Column         : Age
-    Column         : ContourValue
-    Column         : Sum
-    Column         : NP
-    Header         : Iso vr data for burial graph
 
     Identification : TwoWayTimeIoTbl
     Description    : Table to hold relationship between initial two way travel time and
@@ -5902,7 +5415,6 @@ START-application-class-properties
     Property : ContCrustalThicknessIoTbl
     Property : OceaCrustalThicknessIoTbl
     Property : BasementIoTbl
-    Property : DisplayContourIoTbl
     Property : SurfaceTempIoTbl
     Property : PermafrostIoTbl
     Property : GeologicalBoundaryIoTbl
@@ -5910,8 +5422,6 @@ START-application-class-properties
     Property : BoundaryValuesIoTbl
     Property : SurfaceDepthIoTbl
     Property : MntlHeatFlowIoTbl
-    Property : BiomarkerKinIoTbl
-    Property : SmectiteIlliteKinIoTbl
     Property : ReservoirIoTbl
     Property : ReservoirOptionsIoTbl
     Property : BioDegradIoTbl
@@ -5924,12 +5434,6 @@ START-application-class-properties
     Property : MigrationIoTbl
     Property : TrapperIoTbl
     Property : DataMiningIoTbl
-    Property : FtGrainIoTbl
-    Property : FtLengthIoTbl
-    Property : FtSampleIoTbl
-    Property : FtPredLengthCountsHistIoTbl
-    Property : FtPredLengthCountsHistDataIoTbl
-    Property : FtClWeightPercBinsIoTbl
     Property : LithotypeIoTbl
     Property : LitThCondIoTbl
     Property : LitHeatCapIoTbl
@@ -5939,9 +5443,6 @@ START-application-class-properties
     Property : FilterTimeIoTbl
     Property : TimeIoTbl
     Property : 3DTimeIoTbl
-    Property : 1DTimeIoTbl
-    Property : TemperatureIsoIoTbl
-    Property : VrIsoIoTbl
     Property : TwoWayTimeIoTbl
 # Genex History Location
     Property : GenexHistoryLocationIoTbl

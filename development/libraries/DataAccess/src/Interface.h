@@ -361,9 +361,6 @@ namespace DataAccess
          IMPROVED_LITHOSPHERE_CALCULATOR_LINEAR_ELEMENT_MODE ///< Initial lithosphere (mantle + crust) thickness, linear element mode
       };
 
-      /// Used to distinguish between 1D/3D functionality.
-      enum ModellingMode { MODE1D, MODE3D };
-
       /// Used to indicate the caldulation type of some property.
       ///
       /// E.g. The fluid density may be computed using all three types below.
@@ -690,9 +687,9 @@ namespace DataAccess
       ///
       /// These are the candidates for being moved to the output table file.
       static const std::vector<std::string> DefaultOutputTableNames =
-                            std::vector<std::string>({ "1DTimeIoTbl",    "3DTimeIoTbl",
-                                                       "MigrationIoTbl", "TimeIoTbl",
-                                                       "TrapIoTbl",      "TrapperIoTbl" });
+                            std::vector<std::string>({ "3DTimeIoTbl", "MigrationIoTbl",
+                                                       "TimeIoTbl", "TrapIoTbl",
+                                                       "TrapperIoTbl" });
 
       /// \var IgneousIntrusionEventDuration
       /// \brief The time interval over which an igneous intrusion can be inflated.

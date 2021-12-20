@@ -136,13 +136,6 @@ void Genex0dSimulator::setRequestedOutputProperties()
   setRequestedSpeciesOutputProperties();
   CBMGenerics::GenexResultManager & theResultManager = CBMGenerics::GenexResultManager::getInstance();
 
-  DataAccess::Interface::ModellingMode theMode = getModellingMode();
-  if (theMode != DataAccess::Interface::MODE3D)
-  {
-    throw Genex0dException() << "Can only run in 3d mode!";
-  }
-  const std::string theModellingMode = "3d";
-
   database::Table * timeIoTbl = getTable("FilterTimeIoTbl");
   database::Table::iterator tblIter;
 
@@ -150,12 +143,8 @@ void Genex0dSimulator::setRequestedOutputProperties()
   {
     database::Record * filterTimeIoRecord = *tblIter;
     const string & outPutOption = database::getOutputOption(filterTimeIoRecord);
-    const string & modellingMode = database::getModellingMode(filterTimeIoRecord);
     const string & propertyName = database::getPropertyName (filterTimeIoRecord);
-    if (modellingMode != theModellingMode)
-    {
-      continue;
-    }
+
     if (!isPropertyRegistered(propertyName))
     {
       continue;

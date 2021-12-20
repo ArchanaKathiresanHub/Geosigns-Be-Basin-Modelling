@@ -16,7 +16,6 @@
 
 #include "ConstantsFastcauldron.h"
 #include "element_contributions.h"
-#include "FissionTrackCalculator.h"
 #include "CrustFormation.h"
 #include "MantleFormation.h"
 #include "VitriniteReflectance.h"
@@ -61,19 +60,12 @@ double Temperature_Solver::s_linearSolverTolerances [ NumberOfOptimisationLevels
 //------------------------------------------------------------//
 
 Temperature_Solver::Temperature_Solver( AppCtx* appctx ) :
-   m_SmectiteIlliteCalculator( appctx ),
-   m_BiomarkersCalculator(appctx),
-   m_FissionTrackCalculator(appctx),
    Crust_Heat_Production(nullptr)
 {
-
   Basin_Model  = appctx;
-
 }
 
-
 //------------------------------------------------------------//
-
 
 Temperature_Solver::~Temperature_Solver()
 {
@@ -82,7 +74,6 @@ Temperature_Solver::~Temperature_Solver()
     Destroy_Petsc_Vector( Crust_Heat_Production );
   }
 }
-
 
 //------------------------------------------------------------//
 
@@ -705,216 +696,6 @@ PetscScalar Temperature_Solver::Maximum_Temperature_Difference_In_Source_Rocks (
 
 }
 
-
-//------------------------------------------------------------//
-
-
-void Temperature_Solver::resetBiomarkerStateVectors()
-{
-
-  if ( ! Basin_Model->filterwizard.IsBiomarkersCalculationNeeded()) {
-    return;
-  }
-
-  using namespace Basin_Modelling;
-
-  Layer_Iterator Layers;
-  Layers.Initialise_Iterator ( Basin_Model -> layers, Descending, Sediments_Only, Active_Layers_Only );
-
-  while ( ! Layers.Iteration_Is_Done () )
-  {
-    LayerProps_Ptr currentLayer = Layers.Current_Layer ();
-
-    currentLayer->resetBiomarkerStateVectors();
-
-    Layers++;
-  }
-}
-void Temperature_Solver::resetSmectiteIlliteStateVectors( )
-{
-
-  if ( ! Basin_Model->filterwizard.IsSmectiteIlliteCalculationNeeded()) {
-    return;
-  }
-
-  using namespace Basin_Modelling;
-
-  Layer_Iterator Layers;
-  Layers.Initialise_Iterator ( Basin_Model -> layers, Descending, Sediments_Only, Active_Layers_Only );
-
-  while ( ! Layers.Iteration_Is_Done () )
-  {
-    LayerProps_Ptr currentLayer = Layers.Current_Layer ();
-
-    currentLayer->resetSmectiteIlliteStateVectors();
-
-    Layers++;
-  }
-}
-//------------------------------------------------------------//
-
-#undef  __FUNCT__
-#define __FUNCT__ "Temperature_Solver::computeSmectiteIlliteIncrement"
-
-void Temperature_Solver::computeSmectiteIlliteIncrement ( const double Previous_Time, const double Current_Time )
-{
-
-   if ( false == Basin_Model -> filterwizard.IsSmectiteIlliteCalculationNeeded())
-   {
-      return;
-   }
-
-   MPI_Barrier(PETSC_COMM_WORLD);
-
-   m_SmectiteIlliteCalculator.computeSmectiteIlliteIncrement ( Current_Time, Previous_Time - Current_Time );
-
-}
-
-
-//------------------------------------------------------------//
-
-#undef  __FUNCT__
-#define __FUNCT__ "Temperature_Solver::computeSnapShotSmectiteIllite"
-
-void Temperature_Solver::computeSnapShotSmectiteIllite ( const double Current_Time, const Boolean2DArray& validNeedle )
-{
-   if ( false == Basin_Model -> filterwizard.IsSmectiteIlliteCalculationNeeded())
-   {
-      return;
-   }
-
-   m_SmectiteIlliteCalculator.computeSnapShotSmectiteIllite ( Current_Time, validNeedle );
-}
-//------------------------------------------------------------//
-#undef  __FUNCT__
-#define __FUNCT__ "Temperature_Solver::deleteSmectiteIlliteVector"
-void Temperature_Solver::deleteSmectiteIlliteVector ()
-{
-   if ( Basin_Model -> filterwizard.IsSmectiteIlliteCalculationNeeded())
-   {
-      return;
-   }
-
-   using namespace Basin_Modelling;
-
-   Layer_Iterator Layers;
-   PetscBool     validVector;
-
-   Layers.Initialise_Iterator ( Basin_Model -> layers, Descending, Sediments_Only, Active_Layers_Only );
-
-   while ( ! Layers.Iteration_Is_Done ())
-   {
-      VecValid ( Layers.Current_Layer () -> m_IlliteFraction, &validVector );
-
-      if ( validVector )
-      {
-         VecDestroy (&( Layers.Current_Layer () -> m_IlliteFraction ));
-         Layers.Current_Layer () -> m_IlliteFraction = Vec ( 0 );
-      }
-
-      Layers++;
-   }
-
-
-}
-//------------------------------------------------------------//
-#undef  __FUNCT__
-#define __FUNCT__ "Temperature_Solver::computeBiomarkersIncrement"
-
-void Temperature_Solver::computeBiomarkersIncrement ( const double Previous_Time, const double Current_Time )
-{
-
-   if ( false == Basin_Model -> filterwizard.IsBiomarkersCalculationNeeded())
-   {
-      return;
-   }
-
-   MPI_Barrier(PETSC_COMM_WORLD);
-
-   m_BiomarkersCalculator.computeBiomarkersIncrement ( Current_Time, Previous_Time - Current_Time );
-
-}
-#undef  __FUNCT__
-#define __FUNCT__ "Temperature_Solver::collectFissionTrackSampleData"
-void  Temperature_Solver::collectFissionTrackSampleData(const double time)
-{
-   m_FissionTrackCalculator.collectSampleTrackingData(time);
-}
-#undef  __FUNCT__
-#define __FUNCT__ "Temperature_Solver::computeFissionTracks(void)"
-void  Temperature_Solver::computeFissionTracks(void)
-{
-   m_FissionTrackCalculator.compute();
-}
-#undef  __FUNCT__
-#define __FUNCT__ "Temperature_Solver::computeFissionTracks(void)"
-void  Temperature_Solver:: resetFissionTrackCalculator(void)
-{
-   m_FissionTrackCalculator.clearSampleInputHistory();
-}
-
-//------------------------------------------------------------//
-
-#undef  __FUNCT__
-#define __FUNCT__ "Temperature_Solver::computeSnapShotBiomarkers"
-
-void Temperature_Solver::computeSnapShotBiomarkers ( const double Current_Time, const Boolean2DArray& validNeedle )
-{
-   if ( false == Basin_Model -> filterwizard.IsBiomarkersCalculationNeeded())
-   {
-      return;
-   }
-
-   m_BiomarkersCalculator.computeSnapShotBiomarkers ( Current_Time, validNeedle );
-}
-//------------------------------------------------------------//
-#undef  __FUNCT__
-#define __FUNCT__ "Temperature_Solver::deleteBiomarkersVectors"
-void Temperature_Solver::deleteBiomarkersVectors ( )
-{
-
-   if ( false == Basin_Model -> filterwizard.IsBiomarkersCalculationNeeded())
-   {
-      return;
-   }
-
-   using namespace Basin_Modelling;
-
-   Layer_Iterator Layers;
-   PetscBool     validVector;
-
-   Layers.Initialise_Iterator ( Basin_Model -> layers, Descending, Sediments_Only, Active_Layers_Only );
-
-   while ( ! Layers.Iteration_Is_Done ())
-   {
-      VecValid ( Layers.Current_Layer () -> m_HopaneIsomerisation, &validVector );
-
-      if ( validVector )
-      {
-         VecDestroy (&( Layers.Current_Layer () -> m_HopaneIsomerisation ));
-         Layers.Current_Layer () -> m_HopaneIsomerisation = Vec ( 0 );
-      }
-
-      VecValid ( Layers.Current_Layer () -> m_SteraneIsomerisation, &validVector );
-
-      if ( validVector )
-      {
-         VecDestroy (&( Layers.Current_Layer () -> m_SteraneIsomerisation ));
-         Layers.Current_Layer () -> m_SteraneIsomerisation = Vec ( 0 );
-      }
-
-      VecValid ( Layers.Current_Layer () -> m_SteraneAromatisation, &validVector );
-
-      if ( validVector )
-      {
-         VecDestroy (&( Layers.Current_Layer () -> m_SteraneAromatisation ));
-         Layers.Current_Layer () -> m_SteraneAromatisation = Vec ( 0 );
-      }
-
-      Layers++;
-   }
-}
-
 //------------------------------------------------------------//
 
 int Temperature_Solver::getPlaneQuadratureDegree ( const int optimisationLevel ) const {
@@ -978,15 +759,6 @@ void Temperature_Solver::setLinearSolverTolerance ( const int    optimisationLev
                                                     const double newTolerance ) {
    s_linearSolverTolerances [ optimisationLevel - 1 ] = newTolerance;
 }
-
-
-void Temperature_Solver::writeFissionTrackResultsToDatabase(void)
-{
-   Basin_Model->writeFissionTrackResultsToDatabase(m_FissionTrackCalculator);
-}
-
-
-
 
 //------------------------------------------------------------//
 

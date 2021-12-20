@@ -41,8 +41,7 @@ target_link_libraries(deviatedwell
    LinearAlgebra
    Interpolation
    FiniteElements
-   CBMGenerics
-   calibration_kernel
+   CBMGenerics   
    ${HDF5_LIBRARIES}
 )
 

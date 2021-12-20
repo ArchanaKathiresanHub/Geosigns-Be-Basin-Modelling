@@ -325,13 +325,6 @@ Basin_Modelling::FEM_Grid::FEM_Grid ( AppCtx* Application_Context )
     }
   }
 
-  // Set map properties for 1D simulation mode only
-  if (basinModel->isModellingMode1D())
-  {
-     mapOutputProperties.push_back( ILLITEFRACTION );
-     mapOutputProperties.push_back( BIOMARKERS );
-  }
-
   // If the pressure calculator is changed to solve for the pore-pressure (or Hubberts potential, see Annette)
   // then remove the if statement. Keep only the assignment of the fluid-velocities.
   if (basinModel->DoOverPressure or basinModel->Do_Iteratively_Coupled)  {
@@ -438,19 +431,6 @@ Basin_Modelling::FEM_Grid::FEM_Grid ( AppCtx* Application_Context )
   mapOutputProperties.push_back ( BRINEVISCOSITY );
 #endif
 
-#if DEBUG_1D_PROPERTIES
-  if (basinModel->isModellingMode1D() && basinModel->filterwizard.IsSmectiteIlliteCalculationNeeded())
-  {
-     mapOutputProperties.push_back ( ILLITEFRACTION );
-  }
-  if (basinModel->isModellingMode1D() && basinModel->filterwizard.IsBiomarkersCalculationNeeded())
-  {
-     mapOutputProperties.push_back ( STERANEAROMATISATION );
-     mapOutputProperties.push_back ( STERANEISOMERISATION );
-     mapOutputProperties.push_back ( HOPANEISOMERISATION  );
-  }
-#endif
-
 #if DEBUG_DARCY
   if (FastcauldronSimulator::getInstance().getMcfHandler().solveFlowEquations()) {
      if (true or FastcauldronSimulator::getInstance().getMcfHandler().outputDarcyMaps()) {
@@ -520,14 +500,6 @@ Basin_Modelling::FEM_Grid::FEM_Grid ( AppCtx* Application_Context )
   m_volumeOutputProperties.push_back( TEMPERATURE );
   m_volumeOutputProperties.push_back( VES );
   m_volumeOutputProperties.push_back( VR );
-
-  // Set primary volume properties for 1D simulation mode only
-  // Will they be derived properties?
-  if (basinModel->isModellingMode1D())
-  {
-     m_volumeOutputProperties.push_back( ILLITEFRACTION );
-     m_volumeOutputProperties.push_back( BIOMARKERS );
-  }
 
   // Set primary volume properties computed by Darcy flow equation
   if (FastcauldronSimulator::getInstance().getMcfHandler().solveFlowEquations()) {
@@ -737,14 +709,11 @@ void Basin_Modelling::FEM_Grid::solvePressure ( bool& solverHasConverged,
     FastcauldronSimulator::getInstance ().restartActivity ();
     m_surfaceNodeHistory.clearProperties ();
 
-     if ( basinModel->isModellingMode3D() ) {
-        database::Table* table = FastcauldronSimulator::getInstance ().getTable ("3DTimeIoTbl");
+    database::Table* table = FastcauldronSimulator::getInstance ().getTable ("3DTimeIoTbl");
 
-        if ( table != nullptr ) {
-           table->clear ();
-        }
-
-     }
+    if ( table != nullptr ) {
+       table->clear ();
+    }
 
     basinModel->deleteMinorSnapshotsFromTimeIOTable ( savedMinorSnapshotTimes, genexOutputProperties );
     basinModel->deleteMinorSnapshotsFromTimeIOTable ( savedMinorSnapshotTimes, shaleGasOutputProperties );
@@ -756,14 +725,6 @@ void Basin_Modelling::FEM_Grid::solvePressure ( bool& solverHasConverged,
     FastcauldronSimulator::getInstance ().deleteMinorSnapshotsFromSnapshotTable ();
 
     savedMinorSnapshotTimes.clear ();
-
-    if( basinModel->isModellingMode1D () )
-    {
-       Temperature_Calculator.resetBiomarkerStateVectors ( );
-       Temperature_Calculator.resetSmectiteIlliteStateVectors ( );
-       Temperature_Calculator.resetFissionTrackCalculator ( );
-       basinModel->deleteIsoValues();
-    }
 
     if ( basinModel->debug1 or basinModel->verbose ) {
       PetscPrintf ( PETSC_COMM_WORLD,
@@ -862,10 +823,6 @@ void Basin_Modelling::FEM_Grid::solveTemperature ( bool& solverHasConverged,
     basinModel->initialiseTimeIOTable ( OverpressuredTemperatureRunStatusStr );
   }
 
-  if ( FastcauldronSimulator::getInstance ().getModellingMode () == Interface::MODE1D ) {
-     FastcauldronSimulator::getInstance ().clear1DTimeIoTbl ();
-  }
-
   // Compute the temperature from basin-start-age to present day.
   Evolve_Temperature_Basin ( temperatureHasDiverged, errorInDarcy );
 
@@ -880,13 +837,6 @@ void Basin_Modelling::FEM_Grid::solveTemperature ( bool& solverHasConverged,
     displayTime(basinModel->debug1 or basinModel->verbose,"Temperature Calculation: ");
 
     m_surfaceNodeHistory.Output_Properties ();
-
-    //FTracks write to database
-    if(basinModel->isModellingMode1D ())
-    {
-       Temperature_Calculator.computeFissionTracks();
-       Temperature_Calculator.writeFissionTrackResultsToDatabase();
-    }
 
     // If the minor snapshot times were not prescribed (from a previous overpressure/coupled run)
     // then the times that are saved must be assigned to the
@@ -932,43 +882,24 @@ void Basin_Modelling::FEM_Grid::solveCoupled ( bool& solverHasConverged,
     // because we are at the start of a possible new overpressure run, with probably slightly different
     // time-steps. So the files will have different names!
 
-    if ( basinModel->isModellingMode3D() )
-    {
-       database::Table* table = FastcauldronSimulator::getInstance ().getTable ("3DTimeIoTbl");
+    database::Table* table = FastcauldronSimulator::getInstance ().getTable ("3DTimeIoTbl");
 
-       if ( table != nullptr ) {
-          table->clear ();
-       }
-
-       basinModel->deleteMinorSnapshotsFromTimeIOTable ( savedMinorSnapshotTimes, genexOutputProperties );
-       basinModel->deleteMinorSnapshotsFromTimeIOTable ( savedMinorSnapshotTimes, shaleGasOutputProperties );
-
-       //make sure that surfaceOutputPropterties is a superset of properties output in Output.cpp:savePropsOnSegmentNodes1D()
-       basinModel->deleteMinorSnapshotsFromTimeIOTable ( savedMinorSnapshotTimes, mapOutputProperties );
-
-       FastcauldronSimulator::getInstance ().deleteSnapshotProperties ();
-       FastcauldronSimulator::getInstance ().deleteMinorSnapshots ();
-       FastcauldronSimulator::getInstance ().deleteMinorSnapshotsFromSnapshotTable ();
-
-       // delete the propertyValues from the previous iteration
-       FastcauldronSimulator::getInstance ().deletePropertyValues();
-   }
-    else
-    {
-       database::Table* table = FastcauldronSimulator::getInstance ().getTable ("TimeIoTbl");
-
-       if ( table != nullptr ) {
-          table->clear ();
-       }
-
-       FastcauldronSimulator::getInstance ().deleteMinorSnapshotsFromSnapshotTable ();
-
-       Temperature_Calculator.resetBiomarkerStateVectors ( );
-       Temperature_Calculator.resetSmectiteIlliteStateVectors ( );
-       Temperature_Calculator.resetFissionTrackCalculator();
-       basinModel->deleteIsoValues();
-       FastcauldronSimulator::getInstance ().clear1DTimeIoTbl ();
+    if ( table != nullptr ) {
+       table->clear ();
     }
+
+    basinModel->deleteMinorSnapshotsFromTimeIOTable ( savedMinorSnapshotTimes, genexOutputProperties );
+    basinModel->deleteMinorSnapshotsFromTimeIOTable ( savedMinorSnapshotTimes, shaleGasOutputProperties );
+
+    //make sure that surfaceOutputPropterties is a superset of properties output in Output.cpp:savePropsOnSegmentNodes1D()
+    basinModel->deleteMinorSnapshotsFromTimeIOTable ( savedMinorSnapshotTimes, mapOutputProperties );
+
+    FastcauldronSimulator::getInstance ().deleteSnapshotProperties ();
+    FastcauldronSimulator::getInstance ().deleteMinorSnapshots ();
+    FastcauldronSimulator::getInstance ().deleteMinorSnapshotsFromSnapshotTable ();
+
+    // delete the propertyValues from the previous iteration
+    FastcauldronSimulator::getInstance ().deletePropertyValues();
 
     savedMinorSnapshotTimes.clear ();
 
@@ -1012,13 +943,6 @@ void Basin_Modelling::FEM_Grid::solveCoupled ( bool& solverHasConverged,
     displayTime(basinModel->debug1 or basinModel->verbose,"P/T Coupled Calculation: ");
 
     m_surfaceNodeHistory.Output_Properties ();
-    //FTracks write to database
-    if(basinModel->isModellingMode1D ())
-    {
-         Temperature_Calculator.computeFissionTracks();
-         Temperature_Calculator.writeFissionTrackResultsToDatabase();
-    }
-
 
     if ( ! basinModel->projectSnapshots.projectPrescribesMinorSnapshots ()) {
       basinModel->projectSnapshots.setActualMinorSnapshots ( savedMinorSnapshotTimes );
@@ -1286,16 +1210,8 @@ void Basin_Modelling::FEM_Grid::Evolve_Temperature_Basin ( bool& temperatureHasD
              )
           );
        m_vreOutputGrid.setPreviousTime (previousTime);
-       //
 
        FastcauldronSimulator::getInstance ().getMcfHandler ().solve ( previousTime, currentTime, errorInDarcy );
-
-       if(  basinModel->isModellingMode1D() )
-       {
-          Temperature_Calculator.computeSmectiteIlliteIncrement ( previousTime, currentTime );
-          Temperature_Calculator.computeBiomarkersIncrement ( previousTime, currentTime );
-          Temperature_Calculator.collectFissionTrackSampleData( currentTime );
-       }
 
        printRelatedProjects ( currentTime );
 
@@ -1472,15 +1388,8 @@ void Basin_Modelling::FEM_Grid::Evolve_Coupled_Basin ( const int   numberOfGeome
              )
           );
        m_vreOutputGrid.setPreviousTime (previousTime);
-       //
 
        FastcauldronSimulator::getInstance ().getMcfHandler ().solve ( previousTime, currentTime, errorInDarcy );
-
-       if ( basinModel->isModellingMode1D ()) {
-          Temperature_Calculator.computeSmectiteIlliteIncrement ( previousTime, currentTime );
-          Temperature_Calculator.computeBiomarkersIncrement ( previousTime, currentTime );
-          Temperature_Calculator.collectFissionTrackSampleData( currentTime );
-       }
 
        Determine_Next_Coupled_Time_Step ( currentTime, timeStep );
 
@@ -1540,22 +1449,14 @@ void Basin_Modelling::FEM_Grid::Save_Properties ( const double currentTime ) {
   PetscLogDouble End_Time;
 
   PetscTime(&Start_Time);
-  if ( ( currentTime == (*majorSnapshots)->time () ) ||
-       ( basinModel->isModellingMode1D() && basinModel->projectSnapshots.isMinorSnapshot ( currentTime, minorSnapshots ) ) ) // 1D model: save minor AND major timesteps
+  if ( currentTime == (*majorSnapshots)->time () )
   {
-
      const Interface::Snapshot* snapshot = FastcauldronSimulator::getInstance ().findOrCreateSnapshot ( currentTime );
      assert ( snapshot != 0 );
 
      // Compute the derived properties that are to be output.
      m_vreAlgorithm->getResults( m_vreOutputGrid );
      m_vreOutputGrid.exportToModel( basinModel->layers, basinModel->getValidNeedles(), currentTime );
-
-     if(  basinModel->isModellingMode1D() )
-     {
-        Temperature_Calculator.computeSnapShotSmectiteIllite ( currentTime, basinModel->getValidNeedles ());
-        Temperature_Calculator.computeSnapShotBiomarkers ( currentTime, basinModel->getValidNeedles () );
-     }
 
      if ( basinModel->isALC() ) {
         basinModel->calcBasementProperties( currentTime );
@@ -1583,26 +1484,8 @@ void Basin_Modelling::FEM_Grid::Save_Properties ( const double currentTime ) {
                                                                Interface::SEDIMENTS_AND_BASEMENT_OUTPUT );
      }
 
-     if( basinModel->isModellingMode1D() )
-     {
-        collectAndSaveIsoValues(currentTime, basinModel);
-     }
-
      // Collect surface node properties.
      m_surfaceNodeHistory.Add_Time ( currentTime );
-
-     // Delete the vectors for derived properties as they are no longer required.
-     if(  basinModel->isModellingMode1D() )
-     {
-        Temperature_Calculator.deleteSmectiteIlliteVector ();
-        Temperature_Calculator.deleteBiomarkersVectors ();
-     }
-
-     if (      basinModel->isModellingMode1D()
-          &&  currentTime != (*majorSnapshots)->time () ) // 1D model: save minor snapshot
-     {
-        savedMinorSnapshotTimes.insert ( currentTime );
-     }
 
   } else {
 

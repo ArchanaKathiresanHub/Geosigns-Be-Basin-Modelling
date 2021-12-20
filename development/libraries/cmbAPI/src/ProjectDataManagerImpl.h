@@ -74,14 +74,6 @@ namespace mbapi {
       virtual ReturnCode setDeltaY(const double& deltaY) ;
 
       /// @{
-      /// @brief Get modelling mode specified in the ProjectIoTbl
-      virtual ReturnCode getModellingMode(std::string& modellingMode) ;
-
-      /// @{
-      /// @brief Set modelling mode in the ProjectIoTbl
-      virtual ReturnCode setModellingMode(const std::string& modellingMode) ;
-
-      /// @{
       /// @brief Get project description specified in the ProjectIoTbl
       virtual ReturnCode getProjectDescription(std::string& description) ;
 
@@ -115,16 +107,14 @@ namespace mbapi {
       static const char* s_xNodesFieldName;  // column name for number of nodes in x direction
       static const char* s_yNodesFieldName;  // column name for number of nodes in y direction
       static const char* s_xGridSpecingFieldName;  // column name for grid specing in x direction
-      static const char* s_yGridSpecingFieldName;  // column name for grid specing in y direction
-      static const char* s_modellingModeFieldName;  // column name for moedlling mode for cauldron simulation 
+      static const char* s_yGridSpecingFieldName;  // column name for grid specing in y direction      
       static const char* s_projectDescriptionFieldName;  // column name for project description
-	  static const char* s_windowXMaxFieldName;  // column name for max window in x-direction
+      static const char* s_windowXMaxFieldName;  // column name for max window in x-direction
       static const char* s_windowXMinFieldName;  // column name for min window in x-direction
-	  static const char* s_windowYMaxFieldName;  // column name for max window in y-direction
+      static const char* s_windowYMaxFieldName;  // column name for max window in y-direction
       static const char* s_windowYMinFieldName;  // column name for min window in y-direction
       static const char* s_stepXFieldName;  // column name for subsampled size in x-direction
-      static const char* s_stepYFieldName;  // column name for subsampled size in y-direction
-      
+      static const char* s_stepYFieldName;  // column name for subsampled size in y-direction      
    };
 }
 

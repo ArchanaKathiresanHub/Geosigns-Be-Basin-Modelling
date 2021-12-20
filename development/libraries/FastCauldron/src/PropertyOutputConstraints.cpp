@@ -64,12 +64,7 @@ const ApplicableOutputRegion::ApplicableRegion PropertyOutputConstraints::s_prop
      ApplicableOutputRegion::SEDIMENTS_AND_BASEMENT,      /* LithoStaticPressure    */
      ApplicableOutputRegion::SEDIMENTS_ONLY,              /* OverPressure           */
      ApplicableOutputRegion::SEDIMENTS_ONLY,              /* FracturePressure       */
-     ApplicableOutputRegion::SEDIMENTS_ONLY,              /* Ves                    */
-     ApplicableOutputRegion::SEDIMENTS_ONLY,              /* Biomarkers             */
-     ApplicableOutputRegion::SEDIMENTS_ONLY,              /* SteraneAromatisation   */
-     ApplicableOutputRegion::SEDIMENTS_ONLY,              /* SteraneIsomerisation   */
-     ApplicableOutputRegion::SEDIMENTS_ONLY,              /* HopaneIsomerisation    */
-     ApplicableOutputRegion::SEDIMENTS_ONLY,              /* IlliteFraction         */
+     ApplicableOutputRegion::SEDIMENTS_ONLY,              /* Ves                    */     
      ApplicableOutputRegion::SEDIMENTS_ONLY,              /* AllochthonousLithology */
      ApplicableOutputRegion::SEDIMENTS_ONLY,              /* ErosionFactor          */
      ApplicableOutputRegion::SEDIMENTS_ONLY,              /* FaultElements          */
@@ -224,11 +219,6 @@ const bool PropertyOutputConstraints::s_outputPermitted [ PropertyListSize ][ Nu
    { false, false,  true,  true, false, false,  true,  true,  true, false },  /* OverPressure           */
    { false, false, false,  true, false, false,  true, false,  true, false },  /* FracturePressure       */
    {  true,  true,  true,  true, false,  true,  true,  true,  true, false },  /* Ves                    */
-   { false, false,  true,  true,  true, false,  true,  true,  true, false },  /* Biomarkers             */
-   { false, false,  true,  true,  true, false,  true,  true,  true, false },  /* SteraneAromatisation   */
-   { false, false,  true,  true,  true, false,  true,  true,  true, false },  /* SteraneIsomerisation   */
-   { false, false,  true,  true,  true, false,  true,  true,  true, false },  /* HopaneIsomerisation    */
-   { false, false,  true,  true,  true, false,  true,  true,  true, false },  /* IlliteFraction         */
    { false, false, false,  true, false, false,  true, false,  true, false },  /* AllochthonousLithology */
    { false, false,  true,  true,  true, false,  true,  true,  true, false },  /* ErosionFactor          */
    { false, false,  true,  true, false, false,  true, false,  true, false },  /* FaultElements          */
@@ -368,11 +358,6 @@ const bool PropertyOutputConstraints::s_outputRequired [ PropertyListSize ][ Num
    { false, false,  true,  true, false, false,  true,  true,  true, false },  /* OverPressure                              */
    { false, false, false, false, false, false, false, false, false, false },  /* FracturePressure                          */
    {  true,  true,  true,  true, false,  true,  true,  true,  true, false },  /* Ves                                       */
-   { false, false, false, false, false, false, false, false, false, false },  /* Biomarkers                                */
-   { false, false, false, false, false, false, false, false, false, false },  /* SteraneAromatisation                      */
-   { false, false, false, false, false, false, false, false, false, false },  /* SteraneIsomerisation                      */
-   { false, false, false, false, false, false, false, false, false, false },  /* HopaneIsomerisation                       */
-   { false, false, false, false, false, false, false, false, false, false },  /* IlliteFraction                            */
    { false, false, false,  true, false, false,  true, false,  true, false },  /* AllochthonousLithology                    */
    { false, false,  true,  true, false, false,  true,  true,  true, false },  /* ErosionFactor                             */
    { false, false, false,  true, false, false,  true, false,  true, false },  /* FaultElements                             */
@@ -579,9 +564,8 @@ void PropertyOutputConstraints::ensureConsistency () {
 }
 
 
-void PropertyOutputConstraints::initialise ( const CalculationMode          calculationMode,
-                                             const Interface::ModellingMode modellingMode ) {
-
+void PropertyOutputConstraints::initialise ( const CalculationMode calculationMode)
+{
    applyOutputRegionConstraints ();
    applyCalculationModeConstraints ( calculationMode );
    applyOutputPermittedConstraints ( calculationMode );

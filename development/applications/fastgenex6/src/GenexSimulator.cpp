@@ -85,7 +85,6 @@ bool GenexSimulator::run()
                                                           simulationDetails->getSimulatorMode () == "CoupledHighResDecompaction" or
                                                           simulationDetails->getSimulatorMode () == "LooselyCoupledTemperature" or
                                                           simulationDetails->getSimulatorMode () == "CoupledDarcy" );
-   coupledCalculation = coupledCalculation and getModellingMode() == Interface::MODE3D;
 
    started =  GeoPhysics::ProjectHandle::initialise ( coupledCalculation );
    if (!started) return false;
@@ -220,12 +219,6 @@ void GenexSimulator::setRequestedOutputProperties()
    using namespace CBMGenerics;
    GenexResultManager & theResultManager = GenexResultManager::getInstance();
 
-   Interface::ModellingMode theMode = getModellingMode();
-   string theModellingMode = "3d";
-
-   if( Interface::MODE1D == theMode ) {
-      theModellingMode = "1d";
-   }
    bool doOutputGenexHistory = ( m_adsorptionPointHistoryList.size() != 0 );
 
    Table * timeIoTbl = getTable ("FilterTimeIoTbl");
@@ -234,10 +227,9 @@ void GenexSimulator::setRequestedOutputProperties()
    for (tblIter = timeIoTbl->begin (); tblIter != timeIoTbl->end (); ++ tblIter) {
       Record * filterTimeIoRecord = * tblIter;
       const string & outPutOption = database::getOutputOption(filterTimeIoRecord);
-      const string & modellingMode = database::getModellingMode(filterTimeIoRecord);
       const string & propertyName = database::getPropertyName (filterTimeIoRecord);
 
-      if(outPutOption != "None" && modellingMode == theModellingMode) {
+      if(outPutOption != "None") {
 
          if(isPropertyRegistered(propertyName)) {
             if( theResultManager.getResultId ( propertyName ) != -1 ) {
@@ -248,16 +240,15 @@ void GenexSimulator::setRequestedOutputProperties()
             }
          }
 
-      } else if ((( propertyName == theResultManager.GetResultName(GenexResultManager::HcGasExpelledCum)) or
-                  ( propertyName == theResultManager.GetResultName(GenexResultManager::OilExpelledCum))) and
-                 modellingMode == theModellingMode) {
+      } else if ((( propertyName == theResultManager.GetResultName(GenexResultManager::HcGasExpelledCum)) ||
+                  ( propertyName == theResultManager.GetResultName(GenexResultManager::OilExpelledCum)))) {
 
          if( isPropertyRegistered(propertyName)) {
             m_requestedProperties.push_back(propertyName);
             theResultManager.SetResultToggleByName(propertyName, true);
          }
 
-      } else if ( doOutputGenexHistory && modellingMode == theModellingMode ) { // calculate (not output) all if output history
+      } else if ( doOutputGenexHistory ) { // calculate (not output) all if output history
 
          if(isPropertyRegistered(propertyName) and theResultManager.getResultId ( propertyName ) != -1 ) {
             theResultManager.SetResultToggleByName(propertyName, true);
@@ -354,9 +345,8 @@ void GenexSimulator::deleteSourceRockPropertyValues()
    }
 
 }
-bool GenexSimulator::mergeOutputFiles ( ) {
-
-   if( getModellingMode () == Interface::MODE1D ) return true;
+bool GenexSimulator::mergeOutputFiles ( )
+{
 #ifdef _MSC_VER
    return true;
 #else

@@ -12,7 +12,6 @@
 ///    if -clean command line option is given, utility will clean the following tables:
 ///       * TimeIoTbl
 ///       * 3DtimeIoTbl
-///       * 1DTimeIoTbl
 
 //CmbAPI
 #include "cmbAPI.h"
@@ -49,7 +48,7 @@ int Usage()
    std::cout << "   options:"                                                                                                                                    << std::endl <<
                 "      -h | --help                       Print this help"                                                                                        << std::endl <<
                 "      -save <out.project3d>             Saves the upgraded in.project3d to out.project3d instead of prograde_out_in.project3d"                  << std::endl <<
-                "      -clean [<comma sep. tables list>] Clean the TimeIoTbl, 3DTimeIoTbl, 1DTimeIoTbl and SimulationDetailsIoTbl and extra tables if specified" << std::endl <<
+                "      -clean [<comma sep. tables list>] Clean the TimeIoTbl, 3DTimeIoTbl and SimulationDetailsIoTbl and extra tables if specified" << std::endl <<
                 "      -verbosity <verbosity>            Sets log handler verbosity, default is detailed (quiet||minimal||normal||detailed||diagnostic)"         << std::endl << std::endl;
 
    std::cout << "   examples:"                                                                                                                                        << std::endl <<
@@ -57,9 +56,9 @@ int Usage()
                 "         prograde -project in.project3d"                                                                                                                       << std::endl <<
                 "      2. Upgrade a project3d and save it to p10.p3d"                                                                                                           << std::endl <<
                 "         prograde -project in.project3d -save p10.p3d"                                                                                                         << std::endl <<
-                "      3. Upgrade a project3d, clean TimeIoTbl, 3DTimeIoTbl, 1DTimeIoTbl and SimulationDetailsIoTbl and save it to p10.p3d"                                     << std::endl <<
+                "      3. Upgrade a project3d, clean TimeIoTbl, 3DTimeIoTbl and SimulationDetailsIoTbl and save it to p10.p3d"                                     << std::endl <<
                 "         prograde -project in.project3d -clean -save p10.p3d"                                                                                                  << std::endl <<
-                "      4. Upgrade a project3d, clean TimeIoTbl, 3DTimeIoTbl, 1DTimeIoTbl and SimulationDetailsIoTbl, RandomIoTbl and AnotherRandomIoTbl and save it to p10.p3d" << std::endl <<
+                "      4. Upgrade a project3d, clean TimeIoTbl, 3DTimeIoTbl and SimulationDetailsIoTbl, RandomIoTbl and AnotherRandomIoTbl and save it to p10.p3d" << std::endl <<
                 "         prograde -project in.project3d -clean RandomIoTbl,AnotherRandomIoTbl -save p10.p3d"                                                                   << std::endl;
    std::cout << "_________________________________________________________________________" << std::endl;
    return 0;
@@ -228,11 +227,7 @@ int main( const int argc, char ** argv )
 
       numRecs += cldProject.tableSize( "3DTimeIoTbl" );
       LogHandler( LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_STEP ) << "cleaning 3DTimeIoTbl";
-      cldProject.clearTable( "3DTimeIoTbl" );
-
-      numRecs += cldProject.tableSize( "1DTimeIoTbl" );
-      LogHandler( LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_STEP ) << "cleaning 1DTimeIoTbl";
-      cldProject.clearTable( "1DTimeIoTbl" );    
+      cldProject.clearTable( "3DTimeIoTbl" ); 
 
       numRecs += cldProject.tableSize( "SimulationDetailsIoTbl" );
       LogHandler( LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_STEP ) << "cleaning SimulationDetailsIoTbl";

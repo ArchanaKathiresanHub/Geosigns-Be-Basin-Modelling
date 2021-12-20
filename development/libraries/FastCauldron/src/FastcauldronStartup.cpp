@@ -10,7 +10,6 @@
 #include "FastcauldronSimulator.h"
 #include "MultiComponentFlowHandler.h"
 #include "StatisticsHandler.h"
-#include "filterwizard.h"
 #include "ConstantsFastcauldron.h"
 #include "PressureSolver.h"
 #include "readproperties.h"

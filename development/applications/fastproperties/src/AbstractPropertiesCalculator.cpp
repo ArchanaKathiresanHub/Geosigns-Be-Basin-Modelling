@@ -214,8 +214,6 @@ bool AbstractPropertiesCalculator::startActivity() {
       m_simulationMode == "CoupledPressureAndTemperature" or
       m_simulationMode == "CoupledDarcy";
 
-   coupledCalculation = coupledCalculation and m_projectHandle->getModellingMode() == Interface::MODE3D;
-
    if (started)
    {
       m_projectHandle->initialise (coupledCalculation);

@@ -2017,7 +2017,6 @@ bool reservoirSorter (const Interface::Reservoir * reservoir1, const Interface::
 
 bool Migrator::mergeOutputFiles ()
 {
-   if (m_projectHandle->getModellingMode () == Interface::MODE1D) return true;
 #ifndef _MSC_VER
 
    bool status = true;

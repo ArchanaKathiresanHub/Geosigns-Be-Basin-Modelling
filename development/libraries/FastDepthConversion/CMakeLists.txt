@@ -66,7 +66,6 @@ target_link_libraries( ${FDC_LIB_NAME}
     genex6_kernel
     GeoPhysics
     FileSystem
-    calibration_kernel
     OTGC_kernel6
     cmbapi
     ${HDF5_LIBRARIES}

@@ -27,14 +27,11 @@
 using namespace FiniteElementMethod;
 using namespace AbstractDerivedProperties;
 
-DerivedProperties::HeatFlowFormationCalculator::HeatFlowFormationCalculator ( const GeoPhysics::ProjectHandle& projectHandle ) : m_projectHandle ( projectHandle ) {
-
-
-   if ( m_projectHandle.getModellingMode() == DataAccess::Interface::MODE3D )
-   {
-     addPropertyName( "HeatFlowX" );
-     addPropertyName( "HeatFlowY" );
-   }
+DerivedProperties::HeatFlowFormationCalculator::HeatFlowFormationCalculator ( const GeoPhysics::ProjectHandle& projectHandle ) :
+  m_projectHandle ( projectHandle )
+{
+   addPropertyName( "HeatFlowX" );
+   addPropertyName( "HeatFlowY" );
    addPropertyName( "HeatFlowZ" );
 
    const DataAccess::Interface::SimulationDetails* lastFastcauldronRun =  m_projectHandle.getDetailsOfLastFastcauldron();
@@ -373,11 +370,8 @@ void DerivedProperties::HeatFlowFormationCalculator::calculate (       AbstractP
             }
          } // elements loop
 
-         if ( m_projectHandle.getModellingMode() == DataAccess::Interface::MODE3D )
-         {
-           derivedProperties.push_back ( heatFlowX );
-           derivedProperties.push_back ( heatFlowY );
-         }
+         derivedProperties.push_back ( heatFlowX );
+         derivedProperties.push_back ( heatFlowY );
          derivedProperties.push_back ( heatFlowZ );
       }
    }

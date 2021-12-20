@@ -1,9 +1,9 @@
-//                                                                      
+//
 // Copyright (C) 2015-2016 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
 //
@@ -31,23 +31,12 @@ Filterwizard::Filterwizard(TimeFilter* tf){
 
 Filterwizard::~Filterwizard(){};
 
-bool Filterwizard::IsBiomarkersCalculationNeeded()
-{
-   bool bCalculationNeeded = false;
-
-   bCalculationNeeded = timefilter->PropertyOutputOption[BIOMARKERS];
-
-   return (bCalculationNeeded);
-
-}
-
-
 bool Filterwizard::IsBulkThCondCalculationNeeded()
 {
 
    bool bCalculationNeeded = false;
 
-   bCalculationNeeded = 
+   bCalculationNeeded =
      ( timefilter->PropertyOutputOption[THCONDVEC] ||
        IsDiffusivityCalculationNeeded() ||
        IsHeatFlow_CalculationNeeded() );
@@ -73,17 +62,6 @@ bool Filterwizard::IsHeatFlow_CalculationNeeded()
    bool bCalculationNeeded = false;
 
    bCalculationNeeded = timefilter->PropertyOutputOption[HEAT_FLOW_];
-
-   return (bCalculationNeeded);
-
-}
-
-bool Filterwizard::IsSmectiteIlliteCalculationNeeded()
-{
-
-   bool bCalculationNeeded = false;
-
-   bCalculationNeeded = timefilter->PropertyOutputOption[ILLITEFRACTION];
 
    return (bCalculationNeeded);
 

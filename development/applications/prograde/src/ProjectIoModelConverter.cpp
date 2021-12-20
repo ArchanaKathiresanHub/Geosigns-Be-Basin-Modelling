@@ -16,90 +16,6 @@
 #include "ProjectDataManager.h"
 
 using namespace mbapi;
-#if 0 //these methods are not releavent...as there will no be any upgrade performed on node counts
-int Prograde::ProjectIoModelConverter::upgradeNodeX(const std::string& modellingMode, const int& nodeX, const int& OriginalwindowXMax, int& NewWindowXMax)
-{
-   int upgradeNodeX, node_diff;
-   if (modellingMode == "3d" || modellingMode=="Both")
-   {
-	   if (nodeX < 3)
-	   {
-		   upgradeNodeX = 3; 
-		   node_diff = upgradeNodeX - nodeX;
-		   NewWindowXMax = OriginalwindowXMax + node_diff;
-		   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "<Basin-Warning> The number of x-nodes specified is less than 3. Resetting values of nodeX from " << nodeX << " to " << upgradeNodeX << " , simulation window max size from "<< OriginalwindowXMax<< " to "<< NewWindowXMax;
-	   }
-	   else
-	   {
-		   upgradeNodeX = nodeX;
-		   NewWindowXMax = OriginalwindowXMax;
-	   }
-   }
-   else if (modellingMode == "1d")
-   {
-	   if (nodeX != 2)
-	   {
-		   upgradeNodeX = 2;
-		   node_diff = upgradeNodeX - nodeX;
-		   NewWindowXMax= OriginalwindowXMax + node_diff;
-		   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "<Basin-Warning> Default value for number of x-nodes is not found. Resetting its value from " << nodeX << " to " << upgradeNodeX << " as it is a 1d scenario";
-	   }
-	   else
-	   {
-		   upgradeNodeX = nodeX;
-		   NewWindowXMax = OriginalwindowXMax;
-	   }
-   }
-   else
-   {
-	   upgradeNodeX = nodeX;//Need to be added when the mapping is ready for 1Dand3D scenarios
-	   NewWindowXMax = OriginalwindowXMax;
-	   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Unknown modelling mode is found. Not a valid scenario";
-   }
-   return upgradeNodeX;
-}
-int Prograde::ProjectIoModelConverter::upgradeNodeY(const std::string& modellingMode, const int& nodeY, const int& OriginalwindowYMax, int& NewWindowYMax)
-{
-   int upgradeNodeY, node_diff;
-   if (modellingMode == "3d" || modellingMode == "Both")
-   {
-	   if (nodeY < 3)
-	   {
-		   upgradeNodeY = 3; 
-		   node_diff = 3 - nodeY;	   
-		   NewWindowYMax = OriginalwindowYMax + node_diff;
-		   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "<Basin-Warning> The number of y-nodes specified is less 3. Resetting values of nodeX from " << nodeY << " to " << upgradeNodeY << " , simulation window max size from " << OriginalwindowYMax << " to " << NewWindowYMax;;
-	   }
-	   else
-	   {
-		   upgradeNodeY = nodeY;
-		   NewWindowYMax = OriginalwindowYMax;
-	   }
-   }
-   else if (modellingMode == "1d")
-   {
-	   if (nodeY != 2)
-	   {
-		   upgradeNodeY = 2;
-		   node_diff = upgradeNodeY - nodeY;
-		   NewWindowYMax = OriginalwindowYMax + node_diff;
-		   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "<Basin-Warning> Default value for number of y-nodes is not found. Resetting its value from " << nodeY << " to " << upgradeNodeY << " as it is a 1d scenario";
-	   }
-	   else
-	   {
-		   upgradeNodeY = nodeY;
-		   NewWindowYMax = OriginalwindowYMax;
-	   }
-   }
-   else
-   {
-	   upgradeNodeY = nodeY;//May needed to be updated when the mapping is ready for 1Dand3D scenarios
-	   NewWindowYMax = OriginalwindowYMax;
-	   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Unknown modelling mode is found. Not a valid scenario";
-   }
-   return upgradeNodeY;
-}
-#endif
 
 void Prograde::ProjectIoModelConverter::upgradeSimulationWindow(const std::string& legacyModellingMode, int& windowXMin, int& windowXMax, int nodeX, int & stepX)
 {
@@ -219,27 +135,6 @@ double Prograde::ProjectIoModelConverter::upgradeDeltaY(const std::string& model
    }
 
    return upgradeDeltaY;
-}
-std::string Prograde::ProjectIoModelConverter::upgradeModellingMode(const std::string& originalModellingMode)
-{
-   std::string upgradeModellingMode;
-
-   if (originalModellingMode == "1d" || originalModellingMode=="Both")
-   {
-      upgradeModellingMode = "3d";
-      LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "<Basin-Info> Deprecated modelling mode is identified";
-      LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Warning> Modelling mode is upgraded from "<< originalModellingMode<<" to "<< upgradeModellingMode;
-   }
-   else if (originalModellingMode == "3d")
-   {
-      upgradeModellingMode = originalModellingMode;
-   }
-   else//This is unlikely to found any other modelling mode but is added here to track if unknownly this field is got edited 
-   {
-	   upgradeModellingMode = "3d";
-	   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "<Basin-Warning> Unknown ModellingMode (" << originalModellingMode << ") is found; upgraded to 3d";
-   }
-   return upgradeModellingMode;
 }
 std::string Prograde::ProjectIoModelConverter::upgradeDescription(const std::string& ModellingMode, const std::string& orignalDescription)
 {

@@ -81,7 +81,6 @@ TEST ( ProjectFileHandlerTest, SetManyTablesAsOutputTest ) {
 
    EXPECT_EQ ( reference->setTableAsOutput ( "TimeIoTbl" ), true );
    EXPECT_EQ ( reference->setTableAsOutput ( "3DTimeIoTbl" ), true );
-   EXPECT_EQ ( reference->setTableAsOutput ( "1DTimeIoTbl" ), true );
    EXPECT_EQ ( reference->setTableAsOutput ( "TrapperIoTbl" ), true );
    EXPECT_EQ ( reference->setTableAsOutput ( "TrapIoTbl" ), true );
    // Cannot set the table OutputTablesFileIoTbl as an output table.
@@ -90,7 +89,6 @@ TEST ( ProjectFileHandlerTest, SetManyTablesAsOutputTest ) {
 
    compareTables ( referenceWithTables->getTable ( "TimeIoTbl" ), reference->getTable ( "TimeIoTbl" ));
    compareTables ( referenceWithTables->getTable ( "3DTimeIoTbl" ), reference->getTable ( "3DTimeIoTbl" ));
-   compareTables ( referenceWithTables->getTable ( "1DTimeIoTbl" ), reference->getTable ( "1DTimeIoTbl" ));
 
    delete reference;
    delete referenceWithTables;

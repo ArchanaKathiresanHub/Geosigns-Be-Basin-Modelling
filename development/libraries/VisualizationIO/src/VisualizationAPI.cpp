@@ -27,12 +27,11 @@ using namespace std;
 /// Project Implementation
 //////////////////////////////////////////////////////////////////////////
 
-CauldronIO::Project::Project(const string& name, const string& description, const string& version, ModellingMode mode, int xmlVersionMajor, int xmlVersionMinor)
+CauldronIO::Project::Project(const string& name, const string& description, const string& version, int xmlVersionMajor, int xmlVersionMinor)
 {
     m_name = name;
     m_description = description;
     m_version = version;
-    m_mode = mode;
     m_xmlVersionMajor = xmlVersionMajor;
     m_xmlVersionMinor = xmlVersionMinor;
 }
@@ -41,7 +40,6 @@ CauldronIO::Project::~Project()
 {
     release();
 }
-
 
 void CauldronIO::Project::addSnapShot(std::shared_ptr<SnapShot>& newSnapShot) throw (CauldronIOException)
 {
@@ -65,15 +63,9 @@ const string& CauldronIO::Project::getProgramVersion() const
     return m_version;
 }
 
-CauldronIO::ModellingMode CauldronIO::Project::getModelingMode() const
-{
-    return m_mode;
-}
-
 bool CauldronIO::Project::operator==(const Project& other) const
 {
     return
-        m_mode == other.m_mode &&
         m_version == other.m_version &&
         m_description == other.m_description &&
         m_name == other.m_name;
@@ -350,126 +342,6 @@ void CauldronIO::Project::release()
     m_trapList.clear();
     m_formationList.clear();
     m_propertyList.clear();
-}
-
-const CauldronIO::DisplayContourList& CauldronIO::Project::getDisplayContourTable() const
-{
-    return m_displayContour;
-}
-
-void CauldronIO::Project::addDisplayContour(std::shared_ptr<DisplayContour> event)
-{
-    m_displayContour.push_back(event);
-}
-
-const DepthIoList& CauldronIO::Project::getDepthIoTable() const
-{
-   return m_depthIo;
-}
-
-void CauldronIO::Project::addDepthIo(std::shared_ptr<DepthIo> entry)
-{
-   m_depthIo.push_back(entry);
-}
-
-const TimeIo1DList& CauldronIO::Project::get1DTimeIoTable() const
-{
-   return m_timeIo1D;
-}
-
-void CauldronIO::Project::add1DTimeIo(std::shared_ptr<TimeIo1D> entry)
-{
-   m_timeIo1D.push_back(entry);
-}
-
-const TemperatureIsoList& CauldronIO::Project::getTemperatureIsoTable() const
-{
-   return m_temperatureIso;
-}
-
-void CauldronIO::Project::addTemperatureIsoEntry(std::shared_ptr<IsoEntry> entry)
-{
-   m_temperatureIso.push_back(entry);
-}
-
-const VrIsoList& CauldronIO::Project::getVrIsoTable() const
-{
-   return m_vrIso;
-}
-
-void CauldronIO::Project::addVrIsoEntry(std::shared_ptr<IsoEntry> entry)
-{
-   m_vrIso.push_back(entry);
-}
-
-const FtSampleList& CauldronIO::Project::getFtSampleTable() const
-{
-   return m_ftSample;
-}
-
-void CauldronIO::Project::addFtSample(std::shared_ptr<FtSample> entry)
-{
-   m_ftSample.push_back(entry);
-}
-
-const FtGrainList& CauldronIO::Project::getFtGrainTable() const
-{
-   return m_ftGrain;
-}
-
-void CauldronIO::Project::addFtGrain(std::shared_ptr<FtGrain> entry)
-{
-   m_ftGrain.push_back(entry);
-}
-
-const FtPredLengthCountsHistList& CauldronIO::Project::getFtPredLengthCountsHistTable() const
-{
-   return m_ftPredHist;
-}
-
-void CauldronIO::Project::addFtPredLengthCountsHist(std::shared_ptr<FtPredLengthCountsHist> entry)
-{
-   m_ftPredHist.push_back(entry);
-}
-
-const FtPredLengthCountsHistDataList& CauldronIO::Project::getFtPredLengthCountsHistDataTable() const
-{
-   return m_ftPredHistData;
-}
-
-void CauldronIO::Project::addFtPredLengthCountsHistData(std::shared_ptr<FtPredLengthCountsHistData> entry)
-{
-   m_ftPredHistData.push_back(entry);
-}
-
-const SmectiteIlliteList& CauldronIO::Project::getSmectiteIlliteTable() const
-{
-   return m_smectiteIllite;
-}
-
-void CauldronIO::Project::addSmectiteIllite(std::shared_ptr<SmectiteIllite> entry)
-{
-   m_smectiteIllite.push_back(entry);
-}
-
-const BiomarkermList& CauldronIO::Project::getBiomarkermTable() const
-{
-   return m_biomarkerm;
-}
-
-void CauldronIO::Project::addBiomarkerm(std::shared_ptr<Biomarkerm> entry)
-{
-   m_biomarkerm.push_back(entry);
-}
-
-const FtClWeightPercBinsList& CauldronIO::Project::getFtClWeightPercBinsTable() const
-{
-   return m_ftClWeightPercBins;
-}
-
-void CauldronIO::Project::addFtClWeightPercBins(std::shared_ptr<FtClWeightPercBins> entry)
-{
-   m_ftClWeightPercBins.push_back(entry);
 }
 
 float CauldronIO::Project::getPropertyAtLocation(double snapshotTime, const std::string & propertyName,

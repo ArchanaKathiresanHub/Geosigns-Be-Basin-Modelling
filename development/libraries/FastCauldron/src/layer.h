@@ -22,7 +22,6 @@ using CBMGenerics::Polyfunction;
 #include "CompoundLithology.h"
 #include "GeoPhysicsFluidType.h"
 #include "GeoPhysicsFormation.h"
-#include "filterwizard.h"
 #include "ConstantsFastcauldron.h"
 #include "ghost_array.h"
 #include "PetscVectors.h"
@@ -34,9 +33,6 @@ using CBMGenerics::Polyfunction;
 #include "CauldronGridDescription.h"
 
 #include "property_manager.h"
-
-#include "BiomarkersSimulatorState.h"
-#include "SmectiteIlliteSimulatorState.h"
 
 #include "LinearPropertyInterpolator.h"
 
@@ -387,12 +383,6 @@ public:
   Vec              BulkTHCondP;
   Vec              BulkHeatProd;
 
-  PETSc_Local_3D_Array<Calibration::SmectiteIlliteSimulatorState> m_SmectiteIlliteState;
-  PETSc_Local_3D_Array<Calibration::BiomarkersSimulatorState> m_BiomarkersState;
-
-  void resetSmectiteIlliteStateVectors();
-  void resetBiomarkerStateVectors();
-
   //~~~~~~~~~ pressure - Temperature Coupling ~~~~~~~
   Vec              FCTCorrection;
 
@@ -408,9 +398,6 @@ public:
 
   //~~~~~~~~~~~~~~~~Scalar Properties~~~~~~~~~~~~~~~~
   Vec Vre;
-
-  Vec m_IlliteFraction;
-  Vec m_HopaneIsomerisation, m_SteraneIsomerisation, m_SteraneAromatisation;
 
   //
   //

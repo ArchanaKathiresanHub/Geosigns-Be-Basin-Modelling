@@ -110,19 +110,9 @@ GeoPhysics::CompoundLithology* GeoPhysics::GeoPhysicsFormation::getLithologyFrom
   double maximumPercentage = NumericFunctions::Maximum3 ( lithologyPercentage1, lithologyPercentage2, lithologyPercentage3 );
   double percentageSum = lithologyPercentage1 + lithologyPercentage2 + lithologyPercentage3;
 
-  GeoPhysics::LithologyManager& lithologyManager = dynamic_cast<GeoPhysics::ProjectHandle&>(getProjectHandle()).getLithologyManager ();
-  if ( !useMaps && getProjectHandle().getModellingMode () == Interface::MODE1D &&
-       NumericFunctions::isEqual ( lithologyPercentage1 + lithologyPercentage2 + lithologyPercentage3, 0.0, LithologyTolerance ))
-  {
-     CompoundLithologyComposition lc ( OneDHiatusLithologyName, "", "",
-                                       100.0, 0.0, 0.0,
-                                       getMixModelStr (), getLayeringIndex());
-
-     return lithologyManager.getCompoundLithology ( lc );
-  }
-  else if ( minimumPercentage < -LithologyTolerance ||
-            maximumPercentage > 100.0 + LithologyTolerance ||
-            ! NumericFunctions::isEqual<double> ( percentageSum, 100.0, LithologyTolerance ))
+  if ( minimumPercentage < -LithologyTolerance ||
+       maximumPercentage > 100.0 + LithologyTolerance ||
+       ! NumericFunctions::isEqual<double> ( percentageSum, 100.0, LithologyTolerance ))
   {
      std::ostringstream errorBuffer;
      if (useMaps)

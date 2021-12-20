@@ -27,9 +27,6 @@
 using namespace database;
 
 #include "layer_iterators.h"
-#include "milestones.h"
-#include "FissionTrackCalculator.h"
-
 #include "GeoPhysicalFunctions.h"
 #include "NumericFunctions.h"
 #include "Quadrature.h"
@@ -1270,16 +1267,6 @@ string AppCtx::getOutputPath ()
 bool AppCtx::makeOutputDirectory ()
 {
    return FastcauldronSimulator::getInstance ().makeOutputDir ();
-}
-
-
-#undef __FUNCT__
-#define __FUNCT__ "AppCtx::openProject"
-
-bool AppCtx::openProject ()
-{
-   setMilestones();
-   return true;
 }
 
 void AppCtx::setRelatedProject ( const int indexI, const int indexJ ) {
@@ -3556,19 +3543,6 @@ void AppCtx::Display_Grid_Description() {
 
 }
 
-
-bool AppCtx::isModellingMode1D () const
-{
-   return FastcauldronSimulator::getInstance ().getModellingMode () == Interface::MODE1D;
-}
-
-bool AppCtx::isModellingMode3D () const
-{
-   return FastcauldronSimulator::getInstance ().getModellingMode () == Interface::MODE3D;
-}
-
-
-
 #undef __FUNCT__
 #define __FUNCT__ "Create_Reference_DA_for_Io_Maps"
 
@@ -3766,139 +3740,6 @@ void AppCtx::setLayerData () {
   Crust_Layer->depositionStartAge  = 4500.0;
   Mantle_Layer->depoage = 4500.0;
   Mantle_Layer->depositionStartAge = 5000.0;
-
-}
-
-//------------------------------------------------------------//
-
-const IsoLineTable & AppCtx::getContourValueTable(enum ContourType theType) const
-{
-   return m_theTables[theType];
-}
-const AppCtx::DoubleVector & AppCtx::getContourMilestones(enum ContourType theType) const
-{
-   return m_theMilestones[theType];
-}
-void AppCtx::addIsolinePoint(ContourType theType, IsolinePoint *thePoint)
-{
-   m_theTables[theType].addIsoLinePoint(thePoint);
-}
-void AppCtx::setMilestones(void)
-{
-
-   database::Table * DisplayContourIoTbl;
-   DisplayContourIoTbl = FastcauldronSimulator::getInstance ().getTable ("DisplayContourIoTbl");
-   assert(DisplayContourIoTbl);
-   Table::iterator tblIter;
-
-   for (tblIter = DisplayContourIoTbl->begin (); tblIter != DisplayContourIoTbl->end (); ++tblIter)
-   {
-      Record * displayContourIoRecord = * tblIter;
-      const string & propertyName = database::getPropertyName(displayContourIoRecord);
-      const double & contourValue = database::getContourValue(displayContourIoRecord);
-
-      if("Temperature" == propertyName)
-      {
-         m_theMilestones[ISOTEMPERATURE].push_back(contourValue);
-      }
-
-      if("Vr" == propertyName)
-      {
-         m_theMilestones[ISOVRE].push_back(contourValue);
-      }
-
-   }
-   sort(m_theMilestones[ISOTEMPERATURE].begin(),m_theMilestones[ISOTEMPERATURE].end());
-   sort(m_theMilestones[ISOVRE].begin(),m_theMilestones[ISOVRE].end());
-}
-
-void AppCtx::addBottomSedimentSurfaceIsoPointsToIsolines(void)
-{
-   const AppCtx::DoubleVector & vreMilestoneValues = this->getContourMilestones(AppCtx::ISOVRE);
-
-   AppCtx::DoubleVector::const_iterator itVre    = vreMilestoneValues.begin();
-   AppCtx::DoubleVector::const_iterator itVreEnd = vreMilestoneValues.end();
-
-   while(itVre != itVreEnd)
-   {
-      double vreMilestone = (*itVre);
-      const Polyfunction::Point* low = 0;
-      const Polyfunction::Point* high = 0;
-
-      if( m_bottomSedimentSurfaceAgeVreCurve.findIntervalForValueY(vreMilestone,low, high) )
-      {
-         double deltaVre = vreMilestone - low->getY();
-         double totalDeltaTime = high->getX() - low->getX();
-         double totalDeltaVre = high->getY() - low->getY();
-         double DeltaAgeOfMilestoneDepth = (deltaVre * totalDeltaTime)/totalDeltaVre;
-
-         double ageOfMilestoneDepth = low->getX() + DeltaAgeOfMilestoneDepth;
-         double bottomSurfaceVreMilestoneDepth = m_bottomSedimentSurfaceAgeDepthCurve.F(ageOfMilestoneDepth);
-
-         IsolinePoint *thePoint = new IsolinePoint(-ageOfMilestoneDepth, bottomSurfaceVreMilestoneDepth, vreMilestone);
-         this->addIsolinePoint(AppCtx::ISOVRE, thePoint);
-      }
-      ++itVre;
-   }
-}
-
-void AppCtx::writeIsoLinesToDatabase(void)
-{
-
-   this->addBottomSedimentSurfaceIsoPointsToIsolines();
-   database::Table * TemperatureIsoIoTbl;
-   TemperatureIsoIoTbl = FastcauldronSimulator::getInstance ().getTable ("TemperatureIsoIoTbl");
-   assert(TemperatureIsoIoTbl);
-   m_theTables[ISOTEMPERATURE].writeToDatabaseTable( TemperatureIsoIoTbl );
-
-   database::Table * VrIsoIoTbl;
-   VrIsoIoTbl = FastcauldronSimulator::getInstance ().getTable ("VrIsoIoTbl");
-   assert(VrIsoIoTbl);
-   m_theTables[ISOVRE].writeToDatabaseTable( VrIsoIoTbl );
-}
-
-void AppCtx::writeFissionTrackResultsToDatabase(const FissionTrackCalculator &theFTCalculator)
-{
-   database::Table * FtSampleIoTbl;
-   FtSampleIoTbl = FastcauldronSimulator::getInstance ().getTable ("FtSampleIoTbl");
-   assert(FtSampleIoTbl);
-
-   database::Table * FtGrainIoTbl;
-   FtGrainIoTbl = FastcauldronSimulator::getInstance ().getTable ("FtGrainIoTbl");
-   assert(FtGrainIoTbl);
-
-   database::Table * FtPredLengthCountsHistIoTbl;
-   FtPredLengthCountsHistIoTbl = FastcauldronSimulator::getInstance ().getTable ("FtPredLengthCountsHistIoTbl");
-   assert(FtPredLengthCountsHistIoTbl);
-
-   database::Table * FtPredLengthCountsHistDataIoTbl;
-   FtPredLengthCountsHistDataIoTbl = FastcauldronSimulator::getInstance ().getTable ("FtPredLengthCountsHistDataIoTbl");
-   assert(FtPredLengthCountsHistDataIoTbl);
-
-   database::Table * FtClWeightPercBinsIoTbl;
-   FtClWeightPercBinsIoTbl = FastcauldronSimulator::getInstance ().getTable ("FtClWeightPercBinsIoTbl");
-   assert(FtClWeightPercBinsIoTbl);
-
-   //qnd to get data...FisssionTrackWriter class could be a better option
-   theFTCalculator.writeFissionTrackResultsToDatabaseTables(*FtSampleIoTbl,
-                                                            *FtGrainIoTbl,
-                                                            *FtPredLengthCountsHistIoTbl,
-                                                            *FtPredLengthCountsHistDataIoTbl,
-                                                            *FtClWeightPercBinsIoTbl);
-
-
-}
-void AppCtx::deleteIsoValues(void)
-{
-   int i;
-   for(i = 0; i < NUMBEROFCONTOURTYPES; i++)
-   {
-      m_theTables[i].clear();
-   }
-   //initialize the sediment bottom surface functions with empty Polyfunction
-   m_bottomSedimentSurfaceAgeTemperatureCurve = Polyfunction();
-   m_bottomSedimentSurfaceAgeDepthCurve  = Polyfunction();
-   m_bottomSedimentSurfaceAgeVreCurve = Polyfunction();
 
 }
 

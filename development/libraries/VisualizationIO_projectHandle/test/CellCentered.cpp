@@ -23,10 +23,9 @@ TEST( Utilities, CellCenterData )
 	const string teamName("team");
 	const string description("descript");
 	const string version("version");
-	ModellingMode mode = MODE1D;
 	int xmlVersionMjr = 2;
 	int xmlVersionMnr = 1;
-	std::shared_ptr<Project> project(new Project(projectName, description, version, mode, xmlVersionMjr, xmlVersionMnr));
+	std::shared_ptr<Project> project(new Project(projectName, description, version, xmlVersionMjr, xmlVersionMnr));
 
 	// create a snapshot
 	double age = 10.11;

@@ -4,9 +4,7 @@
 #include "PrimaryOutputPropertyMap.h"
 #include "PrimaryOutputPropertyVolume.h"
 
-#include "BiomarkersAdapter.h"
 #include "LithologyIdCalculator.h"
-#include "SmectiteIlliteAdapter.h"
 #include "VitriniteReflectanceCalculator.h"
 
 #include "ComponentConcentrationCalculator.h"
@@ -58,11 +56,6 @@ DerivedOutputPropertyMapFactory::DerivedOutputPropertyMapFactory () {
 //     ISOSTATICDEFLECTION,
 //     ISOSTATICWB,
 //     MASSFLUX,
-//     BIOMARKERS,
-//     STERANEAROMATISATION,
-//     STERANEISOMERISATION,
-//     HOPANEISOMERISATION,
-//     ILLITEFRACTION,
 
    // Primary properties.
    mapTraits.m_propertyAllocator = allocatePrimaryPropertyCalculator;
@@ -139,16 +132,6 @@ DerivedOutputPropertyMapFactory::DerivedOutputPropertyMapFactory () {
    // Derived properties.
 
    // Surface properties.
-   mapTraits.m_propertyAllocator = allocateSmectiteIlliteAdapter;
-   mapTraits.m_outputAssociation = SURFACE_ASSOCIATION;
-   mapTraits.m_isPrimaryProperty = false;
-   m_mapPropertyTraitsMap [ ILLITEFRACTION ] = mapTraits;
-
-   mapTraits.m_propertyAllocator = allocateBiomarkersAdapter;
-   mapTraits.m_outputAssociation = SURFACE_ASSOCIATION;
-   mapTraits.m_isPrimaryProperty = false;
-   m_mapPropertyTraitsMap [ BIOMARKERS ] = mapTraits;
-
    mapTraits.m_propertyAllocator = allocateEmptyMap;
    mapTraits.m_outputAssociation = SURFACE_ASSOCIATION;
    mapTraits.m_isPrimaryProperty = false;
@@ -430,11 +413,6 @@ DerivedOutputPropertyMapFactory::DerivedOutputPropertyMapFactory () {
 //       ISOSTATICDEFLECTION,
 //       ISOSTATICWB,
 //       MASSFLUX,
-//       BIOMARKERS,
-//       STERANEAROMATISATION,
-//       STERANEISOMERISATION,
-//       HOPANEISOMERISATION,
-//       ILLITEFRACTION,
 
    volumeTraits.m_propertyAllocator = allocatePrimaryPropertyVolumeCalculator;
    volumeTraits.m_isPrimaryProperty = true;
@@ -527,14 +505,6 @@ DerivedOutputPropertyMapFactory::DerivedOutputPropertyMapFactory () {
    volumeTraits.m_propertyAllocator = allocateVitriniteReflectanceVolumeCalculator;
    volumeTraits.m_isPrimaryProperty = false;
    m_volumePropertyTraitsMap [ VR ] = volumeTraits;
-
-   volumeTraits.m_propertyAllocator = allocateSmectiteIlliteVolumeAdapter;
-   volumeTraits.m_isPrimaryProperty = false;
-   m_volumePropertyTraitsMap [ ILLITEFRACTION ] = volumeTraits;
-
-   volumeTraits.m_propertyAllocator = allocateBiomarkersVolumeAdapter;
-   volumeTraits.m_isPrimaryProperty = false;
-   m_volumePropertyTraitsMap [ BIOMARKERS ] = volumeTraits;
 
    volumeTraits.m_propertyAllocator = allocateLithologyIdVolumeCalculator;
    volumeTraits.m_isPrimaryProperty = false;

@@ -240,9 +240,6 @@ ProjectHandle::ProjectHandle(database::ProjectFileHandlerPtr pfh, const string &
 
    if (!pfh) return;
 
-   //1DComponent
-   loadModellingMode();
-
    splitName();
 
    loadBottomBoundaryConditions();
@@ -324,44 +321,6 @@ int ProjectHandle::getRank() const {
 int ProjectHandle::getSize() const {
    return m_size;
 }
-
-//1DComponent
-bool ProjectHandle::loadModellingMode( void )
-{
-   database::Table * projectIoTbl = 0;
-
-   // try to get it from the ProjectIoTbl
-   projectIoTbl = getTable( "ProjectIoTbl" );
-   if ( !projectIoTbl )
-      return false;
-
-   Record *projectIoRecord = projectIoTbl->getRecord( 0 );
-
-   assert( projectIoRecord );
-
-   const string & theModellingMode = database::getModellingMode( projectIoRecord );
-
-   if ( "3d" == theModellingMode )
-   {
-      m_modellingMode = Interface::MODE3D; //declared in Interface.h
-   }
-   else if ( "1d" == theModellingMode )
-   {
-      m_modellingMode = Interface::MODE1D; //declared in Interface.h
-   }
-   else
-   {
-      cout << "Basin_Warning: Modeling mode was not set in table ProjectIoTbl. Setting Modeling mode to 3D..." << endl;
-      m_modellingMode = Interface::MODE3D;
-   }
-   return true;
-}
-
-Interface::ModellingMode ProjectHandle::getModellingMode( void ) const
-{
-   return m_modellingMode;
-}
-
 
 const ObjectFactory * ProjectHandle::getFactory( void ) const
 {
@@ -547,10 +506,6 @@ bool ProjectHandle::restartActivity( void )
    if ( getActivityName() == "" || getActivityOutputGrid() == 0 )
    {
       return false;
-   }
-   else if ( getModellingMode() == Interface::MODE1D )
-   {
-      return true;
    }
    else
    {
@@ -979,12 +934,9 @@ bool ProjectHandle::loadProperties( void )
    m_properties.push_back( getFactory()->produceProperty( *this, 0, "HeatFlowZ",                      "HeatFlowZ",                      "mW/m2", FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
 
 
-   // not sure which attribute this property should have, so give it the most general one
-   m_properties.push_back( getFactory()->produceProperty( *this, 0, "HopaneIsomerisation",            "HopaneIsomerisation",            "",      FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
    m_properties.push_back( getFactory()->produceProperty( *this, 0, "HydroStaticPressure",            "HydroStaticPressure",            "MPa",   FORMATIONPROPERTY, DataModel::CONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
 
-   // not sure which attribute this property should have, so give it the most general one
-   m_properties.push_back( getFactory()->produceProperty( *this, 0, "IlliteFraction",                 "IlliteFraction",                 "",      FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
+   // not sure which attribute this property should have, so give it the most general one   
    m_properties.push_back( getFactory()->produceProperty( *this, 0, "Lithology",                      "Lithology",                      "",      FORMATIONPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
    m_properties.push_back( getFactory()->produceProperty( *this, 0, "LithoStaticPressure",            "LithoStaticPressure",            "MPa",   FORMATIONPROPERTY, DataModel::CONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
    m_properties.push_back( getFactory()->produceProperty( *this, 0, "MaxVesHighRes",                  "MaxVesHighRes",                  "Pa",    FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTMIG_PROPERTY ));
@@ -1000,11 +952,6 @@ bool ProjectHandle::loadProperties( void )
    m_properties.push_back( getFactory()->produceProperty( *this, 0, "Reflectivity",                   "ReflectivityVec2",               "",      FORMATIONPROPERTY, DataModel::SURFACE_2D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
    m_properties.push_back( getFactory()->produceProperty( *this, 0, "SonicSlowness",                  "SonicVec2",                      "us/m",  FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
 
-   // not sure which attribute this property should have, so give it the most general one
-   m_properties.push_back( getFactory()->produceProperty( *this, 0, "SteraneAromatisation",           "SteraneAromatisation",           "",      FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
-
-   // not sure which attribute this property should have, so give it the most general one
-   m_properties.push_back( getFactory()->produceProperty( *this, 0, "SteraneIsomerisation",           "SteraneIsomerisation",           "",      FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
    m_properties.push_back( getFactory()->produceProperty( *this, 0, "Temperature",                    "Temperature",                    "C",     FORMATIONPROPERTY, DataModel::CONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
    m_properties.push_back( getFactory()->produceProperty( *this, 0, "ThCond",                         "ThCondVec2",                     "W/mK",  FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
    m_properties.push_back( getFactory()->produceProperty( *this, 0, "ThicknessError",                 "ThicknessError",                 "m",     FORMATIONPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
@@ -1040,10 +987,6 @@ bool ProjectHandle::loadProperties( void )
    m_properties.push_back( getFactory()->produceProperty( *this, 0, "CondensateAPI",                  "CondensateAPI",                  "",      FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
    m_properties.push_back( getFactory()->produceProperty( *this, 0, "TimeOfInvasion",                 "TimeOfInvasion",                 "frac",  FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
    m_properties.push_back( getFactory()->produceProperty( *this, 0, "ImmobileSaturation",             "ImmobileSaturation",             "frac",  FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
-   // m_properties.push_back( getFactory()->produceProperty( *this, 0, "AverageBrineSaturation",         "AverageBrineSaturation",         "frac", FORMATIONPROPERTY ));
-   // m_properties.push_back( getFactory()->produceProperty( *this, 0, "AverageHcLiquidSaturation",      "AverageHcLiquidSaturation",      "frac", FORMATIONPROPERTY ));
-   // m_properties.push_back( getFactory()->produceProperty( *this, 0, "AverageHcVapourSaturation",      "AverageHcVapourSaturation",      "frac", FORMATIONPROPERTY ));
-   // m_properties.push_back( getFactory()->produceProperty( *this, 0, "AverageImmobileSaturation",      "AverageImmobileSaturation",      "frac", FORMATIONPROPERTY ));
    m_properties.push_back( getFactory()->produceProperty( *this, 0, "HcVapourVolume",                 "HcVapourVolume",                 "m3",    FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
    m_properties.push_back( getFactory()->produceProperty( *this, 0, "HcLiquidVolume",                 "HcLiquidVolume",                 "m3",    FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
    m_properties.push_back( getFactory()->produceProperty( *this, 0, "ElementVolume",                  "ElementVolume",                  "m3",    FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
@@ -1267,27 +1210,12 @@ bool ProjectHandle::loadTimeOutputProperties() {
 
    database::Table* filterTimeTbl = getTable( "FilterTimeIoTbl" );
    database::Table::iterator tblIter;
-   Interface::ModellingMode recordMode;
 
    m_timeOutputProperties.clear();
 
    for ( tblIter = filterTimeTbl->begin(); tblIter != filterTimeTbl->end(); ++tblIter )
    {
-
-      if ( database::getModellingMode( *tblIter ) == "1d" ) {
-         recordMode = Interface::MODE1D;
-      }
-      else {
-         // It may be that the modeling mode string = "multi-1d", in which case
-         // it will be switched to 3d.
-         recordMode = Interface::MODE3D;
-      }
-
-      if ( recordMode == getModellingMode() )
-      {
-         m_timeOutputProperties.push_back( getFactory()->produceOutputProperty( *this, *tblIter ) );
-      }
-
+     m_timeOutputProperties.push_back( getFactory()->produceOutputProperty( *this, *tblIter ) );
    }
 
    return true;
@@ -2456,7 +2384,6 @@ bool ProjectHandle::loadMapPropertyValues( void )
 
 bool ProjectHandle::initializeMapPropertyValuesWriter( const bool append )
 {
-   if ( Interface::MODE3D != getModellingMode() ) return true;
    if ( m_mapPropertyValuesWriter ) return false;
 
    // create hdf file
@@ -2482,25 +2409,14 @@ bool TimeIoTblSorter( database::Record * recordL, database::Record * recordR );
 
 bool ProjectHandle::finalizeMapPropertyValuesWriter( void )
 {
-   if ( Interface::MODE3D != getModellingMode() )
-   {
-      database::Table * timeIoTbl = getTable( "TimeIoTbl" );
-      if ( !timeIoTbl ) return false;
+   if ( !m_mapPropertyValuesWriter )
+      return false;
 
-      sort( timeIoTbl->begin(), timeIoTbl->end(), TimeIoTblSorter );
-      return true;
-   }
-   else
-   {
-      if ( !m_mapPropertyValuesWriter )
-         return false;
+   m_mapPropertyValuesWriter->close();
+   delete m_mapPropertyValuesWriter;
+   m_mapPropertyValuesWriter = 0;
 
-      m_mapPropertyValuesWriter->close();
-      delete m_mapPropertyValuesWriter;
-      m_mapPropertyValuesWriter = 0;
-
-      return true;
-   }
+  return true;
 }
 
 bool TimeIoTblSorter( database::Record * recordL, database::Record * recordR )
@@ -2515,49 +2431,6 @@ bool TimeIoTblSorter( database::Record * recordL, database::Record * recordR )
 
 /// Write newly created volume properties to timeiotbl file.
 bool ProjectHandle::saveCreatedMapPropertyValues( void )
-{
-   if ( Interface::MODE3D == getModellingMode() )
-   {
-      return saveCreatedMapPropertyValuesMode3D();
-   }
-   else
-   {
-      return saveCreatedMapPropertyValuesMode1D();
-   }
-}
-
-//1DComponent
-bool ProjectHandle::saveCreatedMapPropertyValuesMode1D( void )
-{
-   database::Table * timeIoTbl = getTable( "TimeIoTbl" );
-   if ( !timeIoTbl )
-      return false;
-
-   MutablePropertyValueList::iterator propertyValueIter;
-
-   int increment = 1;
-   for ( propertyValueIter = m_recordLessMapPropertyValues.begin();
-      propertyValueIter != m_recordLessMapPropertyValues.end(); propertyValueIter += increment )
-   {
-      PropertyValue *propertyValue = *propertyValueIter;
-
-      if ( !propertyValue->toBeSaved() )
-      {
-         increment = 1;
-         continue;
-      }
-      //1DComponent
-      propertyValue->createTimeIoRecord( timeIoTbl, Interface::MODE1D );
-      m_propertyValues.push_back( propertyValue );
-      propertyValueIter = m_recordLessMapPropertyValues.erase( propertyValueIter );
-      increment = 0;
-   }
-
-   return true;
-}
-
-//1DComponent
-bool ProjectHandle::saveCreatedMapPropertyValuesMode3D( void )
 {
    database::Table * timeIoTbl = getTable( "TimeIoTbl" );
    if ( !timeIoTbl || !m_mapPropertyValuesWriter )
@@ -2577,7 +2450,7 @@ bool ProjectHandle::saveCreatedMapPropertyValuesMode3D( void )
          continue;
       }
 
-      propertyValue->createTimeIoRecord( timeIoTbl, Interface::MODE3D );
+      propertyValue->createTimeIoRecord( timeIoTbl );
       m_propertyValues.push_back( propertyValue );
       propertyValueIter = m_recordLessMapPropertyValues.erase( propertyValueIter );
       increment = 0;
@@ -2600,22 +2473,10 @@ bool ProjectHandle::saveCreatedMapPropertyValuesMode3D( void )
    return true;
 }
 
-bool ProjectHandle::saveCreatedVolumePropertyValues( void )
-{
-   if ( Interface::MODE3D == getModellingMode() )
-   {
-      return saveCreatedVolumePropertyValuesMode3D();
-   }
-   else
-   {
-      return saveCreatedVolumePropertyValuesMode1D();
-   }
-}
-
 /// Write newly created volume properties to snapshot file.
 /// This function assumes that all volume properties for a given snapshot are written in one go
 /// and that the snapshot file can be re-created.
-bool ProjectHandle::saveCreatedVolumePropertyValuesMode3D( void )
+bool ProjectHandle::saveCreatedVolumePropertyValues( void )
 {
    database::Table * timeIoTbl = getTable( "3DTimeIoTbl" );
    if ( !timeIoTbl ) return false;
@@ -2665,7 +2526,7 @@ bool ProjectHandle::saveCreatedVolumePropertyValuesMode3D( void )
                mapWriter->setChunking();
          }
 
-         propertyValue->create3DTimeIoRecord( timeIoTbl, Interface::MODE3D );
+         propertyValue->create3DTimeIoRecord( timeIoTbl );
          m_propertyValues.push_back( propertyValue );
          propertyValueIter = m_recordLessVolumePropertyValues.erase( propertyValueIter );
          increment = 0;
@@ -2682,63 +2543,6 @@ bool ProjectHandle::saveCreatedVolumePropertyValuesMode3D( void )
    }
 
    delete mapWriter;
-   return status;
-}
-
-bool ProjectHandle::saveCreatedVolumePropertyValuesMode1D( void )
-{
-   database::Table * timeIoTbl = getTable( "1DTimeIoTbl" );
-   if ( !timeIoTbl ) return false;
-
-   MutablePropertyValueList::iterator propertyValueIter;
-
-   bool status = true;
-
-   int index = 0;
-   for ( propertyValueIter = m_recordLessVolumePropertyValues.begin();
-      propertyValueIter != m_recordLessVolumePropertyValues.end(); ++propertyValueIter, ++index )
-   {
-      PropertyValue *propertyValue = *propertyValueIter;
-
-      if ( !propertyValue->toBeSaved() ) continue;
-
-      GridMap *gridMap = (GridMap *)propertyValue->getGridMap();
-
-      gridMap->retrieveData();
-
-      unsigned int gridMapDepth = gridMap->getDepth();
-
-      for ( int k = gridMapDepth - 1; k >= 0; --k )
-      {
-
-         double value = gridMap->getValue( 0, 0, (unsigned int)k );
-         if ( value == gridMap->getUndefinedValue() )
-         {
-            value = DefaultUndefinedScalarValue; // or, should we just not output?
-         }
-
-         Record * timeIoRecord = propertyValue->create1DTimeIoRecord( timeIoTbl, Interface::MODE1D );
-
-         if ( k == 0 )
-         {
-            database::setSurfaceName( timeIoRecord, propertyValue->getFormation()->getBottomSurfaceName() );
-         }
-         if ( k == static_cast<int>(gridMapDepth - 1) )
-         {
-            database::setSurfaceName( timeIoRecord, propertyValue->getFormation()->getTopSurfaceName() );
-         }
-
-         database::setNodeIndex( timeIoRecord, k );
-
-         database::setValue( timeIoRecord, value );
-      }
-
-      gridMap->restoreData();
-
-      m_propertyValues.push_back( propertyValue );
-   }
-   m_recordLessVolumePropertyValues.clear();
-
    return status;
 }
 
@@ -2889,8 +2693,6 @@ static herr_t ListVolumePropertyValues( hid_t groupId, const char * propertyValu
 /// Does not load the actual values of thr PropertyValues, this is done on demand only.
 bool ProjectHandle::loadVolumePropertyValues( void )
 {
-   if ( Interface::MODE1D == getModellingMode() ) return false;
-
    database::Table* timeIoTbl = getTable( "3DTimeIoTbl" );
    if ( timeIoTbl == 0 || timeIoTbl->size() == 0 )
    {

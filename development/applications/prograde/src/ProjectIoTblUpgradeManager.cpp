@@ -44,12 +44,11 @@ void Prograde::ProjectIoTblUpgradeManager::upgrade() {
    double deltaX, deltaY;
    int xnodes, ynodes, legacyWindowXMin, legacyWindowXMax, legacyWindowYMin, legacyWindowYMax, stepX, stepY;
 
-   m_model.projectDataManager().getModellingMode(originalModellingMode);
-   m_model.projectDataManager().setModellingMode(modelConverter.upgradeModellingMode(originalModellingMode));
-   
    //upgradation of node count to the default values for out of range values, if any
    m_model.projectDataManager().getNumberOfNodesX(xnodes);
    m_model.projectDataManager().getNumberOfNodesY(ynodes);
+
+   originalModellingMode = (xnodes == 2 && ynodes == 2) ? "1d" : "3d";
 
    // Upgrading the simulation window if the legacy inputs doesn't satisfy BPA2 GUI validations
    m_model.projectDataManager().getSimulationWindowDetails(legacyWindowXMin, legacyWindowXMax, stepX, legacyWindowYMin, legacyWindowYMax, stepY);
@@ -64,17 +63,10 @@ void Prograde::ProjectIoTblUpgradeManager::upgrade() {
    modelConverter.upgradeSimulationWindow(originalModellingMode, legacyWindowYMin, legacyWindowYMax, ynodes, stepY);
    m_model.projectDataManager().setSimulationWindowY(legacyWindowYMin, legacyWindowYMax, stepY);
 
-   //If any invalid case is encountered then Prograde log is updated just to have this extra information.
-   if (originalModellingMode == "3d" and (xnodes < 3 or ynodes < 3))
-	   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "<Basin-Warning> Legacy 3d scenario with [" << xnodes << "x" << ynodes <<"] nodes doesn't fall within the acceptable limit of BPA2";
-   else if (originalModellingMode == "1d")
-   {
-	   if ((xnodes > 2) or (ynodes > 2))
-		   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "<Basin-Warning> Legacy 1d scenario with [" << xnodes << "x" << ynodes << "] nodes; not having the default value for 1d mode. These scenarios will become actual 3d in BPA2";
-	   else if ((xnodes < 2) or (ynodes < 2))
-		   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "<Basin-Warning> Legacy 1d scenario with [" << xnodes << "x" << ynodes << "] nodes; not having the default value for 1d mode. These scenarios will fail in import";
-   }
-	   
+	 if ((xnodes < 2) or (ynodes < 2))
+	 {
+		 LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "<Basin-Warning> Legacy 1d scenario with [" << xnodes << "x" << ynodes << "] nodes; not having the default value for 1d mode. These scenarios will fail in import";
+	 }
 
    m_model.projectDataManager().getDeltaX(deltaX);
    m_model.projectDataManager().setDeltaX(modelConverter.upgradeDeltaX(originalModellingMode, deltaX, xnodes));

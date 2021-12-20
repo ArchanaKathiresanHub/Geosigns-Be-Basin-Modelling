@@ -54,20 +54,13 @@ using namespace DataModel;
 
 std::shared_ptr<CauldronIO::Project> ImportProjectHandle::createFromProjectHandle(ProjectHandle& projectHandle, bool verbose)
 {
-    // Get modeling mode
-    ModellingMode modeIn = projectHandle.getModellingMode();
-    CauldronIO::ModellingMode mode = modeIn == MODE1D ? CauldronIO::MODE1D : CauldronIO::MODE3D;
-    // setActivityGrid
-    if( modeIn == MODE1D ) {
-       projectHandle.setActivityOutputGrid(projectHandle.getLowResolutionOutputGrid ());
-    }
     // Read general project data
     const Interface::ProjectData* projectData = projectHandle.getProjectData();
 
     // Create the project
     std::shared_ptr<CauldronIO::Project> project(new CauldronIO::Project(
         projectData->getProjectName(), projectData->getDescription(),
-        projectData->getProgramVersion(), mode, xml_version_major, xml_version_minor));
+        projectData->getProgramVersion(), xml_version_major, xml_version_minor));
 
     // Import all snapshots
     ImportProjectHandle import(verbose, project, projectHandle);
@@ -93,9 +86,6 @@ std::shared_ptr<CauldronIO::Project> ImportProjectHandle::createFromProjectHandl
 
     // Add reference to massBalance file
     import.addMassBalance();
-
-    // Add 1D tables
-    import.add1Ddata();
 
     return project;
 }
@@ -356,18 +346,13 @@ vector<std::shared_ptr<CauldronIO::Surface> > ImportProjectHandle::createSurface
         // Ignore this property value object if it has no gridmap
         if (!gridmap) continue;
 
-        double constValue1d = 0.0;
-
         gridmap->retrieveData();
         // Set the geometry
         std::shared_ptr<const CauldronIO::Geometry2D> geometry(new CauldronIO::Geometry2D(gridmap->getGrid()->numIGlobal(), gridmap->getGrid()->numJGlobal(),
                                                                                           gridmap->getGrid()->deltaIGlobal(), gridmap->getGrid()->deltaJGlobal(),
                                                                                           gridmap->getGrid()->minIGlobal(), gridmap->getGrid()->minJGlobal()));
-       if(m_project->getModelingMode() == CauldronIO::MODE1D ) {
-           constValue1d = gridmap->getAverageValue();
-         }
-         gridmap->restoreData();
-         gridmap->release();
+        gridmap->restoreData();
+        gridmap->release();
 
         // Add the geometry to the project
         m_project->addGeometry(geometry);
@@ -407,10 +392,6 @@ vector<std::shared_ptr<CauldronIO::Surface> > ImportProjectHandle::createSurface
         // Set reservoir
         if (reservoir)
             propertyMap->setReservoir(reservoirIO);
-
-        if(m_project->getModelingMode() == CauldronIO::MODE1D) {
-            propertyMap->setConstantValue((float)constValue1d);
-         }
 
         // Add the property/surfaceData object
         CauldronIO::PropertySurfaceData propSurfaceData(propertyIO, propertyMap);
@@ -503,15 +484,7 @@ std::shared_ptr<CauldronIO::Formation> ImportProjectHandle::findOrCreateFormatio
 
     formationIO = createFormation(form, depthFormations);
 
-    // It can be that this formation is not created from a depthformation: don't add it to the list
-    if( !formationIO ) {
-
-       if(m_projectHandle.getModellingMode() == Interface::MODE1D and form->getName() == "Mantle") {
-          const DataAccess::Interface::Formation * mantleForm = dynamic_cast<const DataAccess::Interface::Formation *>(m_projectHandle.getMantleFormation());
-          formationIO = findOrCreateFormation(mantleForm);
-          return formationIO;
-       }
-    }
+    // It can be that this formation is not created from a depthformation: don't add it to the list    
     if (!formationIO)
        return formationIO;
 
@@ -805,9 +778,7 @@ std::shared_ptr<CauldronIO::FormationInfoList> ImportProjectHandle::getDepthForm
     if (!depthProp) return depthFormations;
 
     // Find the depth property formations for this snapshot
-    std::shared_ptr<PropertyValueList> propValues( m_projectHandle.getModellingMode() == Interface::MODE1D ?
-                                                   m_projectHandle.getPropertyValues(SURFACE, depthProp, snapShot, 0, 0, 0, MAP| VOLUME) :
-                                                   m_projectHandle.getPropertyValues(FORMATION, depthProp, snapShot, 0, 0, 0, VOLUME));
+    std::shared_ptr<PropertyValueList> propValues(m_projectHandle.getPropertyValues(FORMATION, depthProp, snapShot, 0, 0, 0, VOLUME));
 
     if (propValues->size() == 0) return depthFormations;
 
@@ -1474,195 +1445,4 @@ void ImportProjectHandle::addGenexHistory()  {
          it ++;
       }
    }
-}
-
-void ImportProjectHandle::add1Ddata()  {
-   // DisplayContour
-   database::Table* aTable = m_projectHandle.getTable("DisplayContourIoTbl");
-   if (aTable != nullptr and aTable->size() > 0)
-   {
-      database::Table::iterator tblIter;
-      for (tblIter = aTable->begin(); tblIter != aTable->end(); ++tblIter)
-      {
-         database::Record * aRecord = *tblIter;
-         std::shared_ptr<CauldronIO::DisplayContour> entry(new CauldronIO::DisplayContour());
-         entry->setPropertyName(getPropertyName(aRecord));
-         entry->setContourValue(static_cast<float>(getContourValue(aRecord)));
-         entry->setContourColour(getContourColour(aRecord));
-
-         m_project->addDisplayContour(entry);
-      }
-   }
-   // TemperatureIsoIoTbl
-   aTable = m_projectHandle.getTable("TemperatureIsoIoTbl");
-   if (aTable != nullptr and aTable->size() > 0)
-   {
-      database::Table::iterator tblIter;
-      for (tblIter = aTable->begin(); tblIter != aTable->end(); ++tblIter)
-      {
-         database::Record * aRecord = *tblIter;
-
-         std::shared_ptr<CauldronIO::IsoEntry> entry(new CauldronIO::IsoEntry());
-         entry->setContourValue(static_cast<float>(getContourValue(aRecord)));
-         entry->setAge(static_cast<float>(getAge(aRecord)));
-         entry->setNP(getNP(aRecord));
-         entry->setSum(getSum(aRecord));
-
-         m_project->addTemperatureIsoEntry(entry);
-      }
-   }
-   // VrIsoIoTbl
-   aTable = m_projectHandle.getTable("VrIsoIoTbl");
-   if (aTable != nullptr and aTable->size() > 0)
-   {
-      database::Table::iterator tblIter;
-      for (tblIter = aTable->begin(); tblIter != aTable->end(); ++tblIter)
-      {
-         database::Record * aRecord = *tblIter;
-
-         std::shared_ptr<CauldronIO::IsoEntry> entry(new CauldronIO::IsoEntry());
-         entry->setContourValue(static_cast<float>(getContourValue(aRecord)));
-         entry->setAge(static_cast<float>(getAge(aRecord)));
-         entry->setNP(getNP(aRecord));
-         entry->setSum(getSum(aRecord));
-
-         m_project->addVrIsoEntry(entry);
-      }
-   }
-   // FtSampleIoTbl
-   aTable = m_projectHandle.getTable("FtSampleIoTbl");
-   if (aTable != nullptr and aTable->size() > 0)
-   {
-      database::Table::iterator tblIter;
-      for (tblIter = aTable->begin(); tblIter != aTable->end(); ++tblIter)
-      {
-         database::Record * aRecord = *tblIter;
-
-         std::shared_ptr<CauldronIO::FtSample> entry(new CauldronIO::FtSample());
-
-         entry->setFtSampleId(getFtSampleId(aRecord));
-         entry->setDepthIndex(static_cast<float>(getDepthIndex(aRecord)));
-         entry->setFtZeta(static_cast<float>(getFtZeta(aRecord)));
-         entry->setFtUstglTrackDensity(static_cast<float>(getFtUstglTrackDensity(aRecord)));
-         entry->setFtPredictedAge(static_cast<float>(getFtPredictedAge(aRecord)));
-         entry->setFtPooledAge(static_cast<float>(getFtPooledAge(aRecord)));
-         entry->setFtPooledAgeErr(static_cast<float>(getFtPooledAgeErr(aRecord)));
-         entry->setFtAgeChi2(static_cast<float>(getFtAgeChi2(aRecord)));
-         entry->setFtDegreeOfFreedom(getFtDegreeOfFreedom(aRecord));
-         entry->setFtPAgeChi2(static_cast<float>(getFtPAgeChi2(aRecord)));
-         entry->setFtCorrCoeff(static_cast<float>(getFtCorrCoeff(aRecord)));
-         entry->setFtVarianceSqrtNs(static_cast<float>(getFtVarianceSqrtNs(aRecord)));
-         entry->setFtVarianceSqrtNi(static_cast<float>(getFtVarianceSqrtNi(aRecord)));
-         entry->setFtNsDivNi(static_cast<float>(getFtNsDivNi(aRecord)));
-         entry->setFtNsDivNiErr(static_cast<float>(getFtNsDivNiErr(aRecord)));
-         entry->setFtMeanRatio(static_cast<float>(getFtMeanRatio(aRecord)));
-         entry->setFtMeanRatioErr(static_cast<float>(getFtMeanRatioErr(aRecord)));
-         entry->setFtCentralAge(static_cast<float>(getFtCentralAge(aRecord)));
-         entry->setFtMeanAge(static_cast<float>(getFtMeanAge(aRecord)));
-         entry->setFtMeanAgeErr(static_cast<float>(getFtMeanAgeErr(aRecord)));
-         entry->setFtLengthChi2(static_cast<float>(getFtLengthChi2(aRecord)));
-         entry->setFtApatiteYield(getFtApatiteYield(aRecord));
-
-         m_project->addFtSample(entry);
-      }
-   }
-   // FtGrainIoTbl
-   aTable = m_projectHandle.getTable("FtGrainIoTbl");
-   if (aTable != nullptr and aTable->size() > 0)
-   {
-      database::Table::iterator tblIter;
-      for (tblIter = aTable->begin(); tblIter != aTable->end(); ++tblIter)
-      {
-         database::Record * aRecord = *tblIter;
-
-         std::shared_ptr<CauldronIO::FtGrain> entry(new CauldronIO::FtGrain());
-
-         entry->setFtSampleId(getFtSampleId(aRecord));
-         entry->setFtGrainId(getFtGrainId(aRecord));
-         entry->setFtSpontTrackNo(getFtSpontTrackNo(aRecord));
-         entry->setFtInducedTrackNo(getFtInducedTrackNo(aRecord));
-         entry->setFtClWeightPerc(static_cast<float>(getFtClWeightPerc(aRecord)));
-         entry->setFtGrainAge(static_cast<float>(getFtGrainAge(aRecord)));
-
-         m_project->addFtGrain(entry);
-      }
-   }
-   // FtPredLengthCountsHistIoTbl
-   aTable = m_projectHandle.getTable("FtPredLengthCountsHistIoTbl");
-   if (aTable != nullptr and aTable->size() > 0)
-   {
-      database::Table::iterator tblIter;
-      for (tblIter = aTable->begin(); tblIter != aTable->end(); ++tblIter)
-      {
-         database::Record * aRecord = *tblIter;
-
-         std::shared_ptr<CauldronIO::FtPredLengthCountsHist> entry(new CauldronIO::FtPredLengthCountsHist());
-
-         entry->setFtPredLengthHistId(getFtPredLengthHistId(aRecord));
-         entry->setFtSampleId(getFtSampleId(aRecord));
-         entry->setFtClWeightPerc(static_cast<float>(getFtClWeightPerc(aRecord)));
-         entry->setFtPredLengthBinStart(static_cast<float>(getFtPredLengthBinStart(aRecord)));
-         entry->setFtPredLengthBinWidth(static_cast<float>(getFtPredLengthBinWidth(aRecord)));
-         entry->setFtPredLengthBinNum(getFtPredLengthBinNum(aRecord));
-
-         m_project->addFtPredLengthCountsHist(entry);
-      }
-   }
-   // FtPredLengthCountsHistDataIoTbl
-   aTable = m_projectHandle.getTable("FtPredLengthCountsHistDataIoTbl");
-   if (aTable != nullptr and aTable->size() > 0)
-   {
-      database::Table::iterator tblIter;
-      for (tblIter = aTable->begin(); tblIter != aTable->end(); ++tblIter)
-      {
-         database::Record * aRecord = *tblIter;
-
-         std::shared_ptr<CauldronIO::FtPredLengthCountsHistData> entry(new CauldronIO::FtPredLengthCountsHistData());
-
-         entry->setFtPredLengthHistId(getFtPredLengthHistId(aRecord));
-         entry->setFtPredLengthBinIndex(getFtPredLengthBinIndex(aRecord));
-         entry->setFtPredLengthBinCount(static_cast<float>(getFtPredLengthBinCount(aRecord)));
-
-         m_project->addFtPredLengthCountsHistData(entry);
-      }
-   }
-   // 1DTimeIoTbl
-   aTable = m_projectHandle.getTable("1DTimeIoTbl");
-   if (aTable != nullptr and aTable->size() > 0)
-   {
-      database::Table::iterator tblIter;
-      for (tblIter = aTable->begin(); tblIter != aTable->end(); ++tblIter)
-      {
-         database::Record * aRecord = *tblIter;
-
-         std::shared_ptr<CauldronIO::TimeIo1D> entry(new CauldronIO::TimeIo1D());;
-
-         entry->setTime(static_cast<float>(getTime(aRecord)));
-         entry->setPropertyName(getPropertyName(aRecord));
-         entry->setFormationName(getFormationName(aRecord));
-         entry->setNodeIndex(getNodeIndex(aRecord));
-         entry->setSurfaceName(getSurfaceName(aRecord));
-         entry->setValue(static_cast<float>(getValue(aRecord)));
-
-         m_project->add1DTimeIo(entry);
-      }
-   }
-   // FtClWeightPercBinsTbl
-   aTable = m_projectHandle.getTable("FtClWeightPercBinsIoTbl");
-   if (aTable != nullptr and aTable->size() > 0)
-   {
-      database::Table::iterator tblIter;
-      for (tblIter = aTable->begin(); tblIter != aTable->end(); ++tblIter)
-      {
-         database::Record * aRecord = *tblIter;
-
-         std::shared_ptr<CauldronIO::FtClWeightPercBins> entry(new CauldronIO::FtClWeightPercBins());
-
-         entry->setFtClWeightBinStart(getFtClWeightBinStart(aRecord));
-         entry->setFtClWeightBinWidth(getFtClWeightBinWidth(aRecord));
-
-         m_project->addFtClWeightPercBins(entry);
-      }
-   }
-
 }

@@ -12,10 +12,6 @@ using namespace mbapi;
 TEST(ProjectIoModelConverter, upgrade)
 {
    Prograde::ProjectIoModelConverter modelConverter;
-   std::string modellingMode="1d";
-   EXPECT_EQ("3d", modelConverter.upgradeModellingMode(modellingMode));
-   EXPECT_EQ("3d", modelConverter.upgradeModellingMode("3d"));
-   EXPECT_EQ("3d", modelConverter.upgradeModellingMode("UnknownMode"));
 
    //tests to verify whether grid spacings are manipulated correctly if out of range values are found for node counts 
    EXPECT_EQ(100.0, modelConverter.upgradeDeltaX("1d", 100.0, 2));//default value is found...nothing to do

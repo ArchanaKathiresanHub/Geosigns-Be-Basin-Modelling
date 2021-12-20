@@ -241,7 +241,7 @@ void DoEcontroller::slotPushSelectProject3dClicked()
   QString fileName = QFileDialog::getOpenFileName(doeTab_,
                                                   "Select project file",
                                                   casaScenario_.workingDirectory(),
-                                                  "Project files (*.project3d *.project1d)");
+                                                  "Project files (*.project3d)");
   if (fileName == "")
   {
     return;

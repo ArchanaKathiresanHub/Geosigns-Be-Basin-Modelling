@@ -18,18 +18,7 @@ using namespace Interface;
 OutputProperty::OutputProperty (ProjectHandle& projectHandle, database::Record * record) :
    DAObject (projectHandle, record), m_name ( database::getPropertyName (m_record))
 {
-
-   const string& modeStr = database::getModellingMode ( record );
    const string& outputStr = database::getOutputOption ( record );
-
-   if ( modeStr == "1d" ) {
-      m_mode = MODE1D;
-   } else if ( modeStr == "3d") {
-      m_mode = MODE3D;
-   } else {
-      // Error.
-      m_mode = MODE3D;
-   }
 
    if ( outputStr == "None" ) {
       m_option = NO_OUTPUT;
@@ -42,26 +31,18 @@ OutputProperty::OutputProperty (ProjectHandle& projectHandle, database::Record *
    } else {
       // Error.
    }
-
 }
 
-OutputProperty::OutputProperty (ProjectHandle& projectHandle, const ModellingMode mode, const PropertyOutputOption option, const std::string& name ) :
-   DAObject ( projectHandle, 0 ), m_name ( name ), m_mode ( mode ), m_option ( option ) {
+OutputProperty::OutputProperty (ProjectHandle& projectHandle, const PropertyOutputOption option, const std::string& name ) :
+   DAObject ( projectHandle, 0 ), m_name ( name ), m_option ( option ) {
 }
-
-
 
 OutputProperty::~OutputProperty (void)
 {
 }
 
-
 const std::string & OutputProperty::getName (void) const {
    return m_name;
-}
-
-ModellingMode OutputProperty::getMode (void) const {
-   return m_mode;
 }
 
 PropertyOutputOption OutputProperty::getOption (void) const {
@@ -84,7 +65,6 @@ void OutputProperty::asString (string & str) const
 
    buf << "OutputProperty: ";
    buf << " name = " << getName ();
-   buf << ", modelling mode = " << (getMode () == MODE1D ? "1d" : "3d" );
    buf << ", output-option = ";
 
    switch ( getOption ()) {

@@ -151,22 +151,14 @@ void CrustalThicknessCalculator::finalise ( const bool saveResults ) {
 
 void CrustalThicknessCalculator::setRequestedOutputProperties( InterfaceOutput & theOutput ) const
 {
-   const Interface::ModellingMode theMode = getModellingMode();
-   string theModellingMode = "3d";
-
-   if( Interface::MODE1D == theMode ) {
-      theModellingMode = "1d";
-   }
-
    Table * timeIoTbl = getTable ("FilterTimeIoTbl");
 
    for (auto tblIter = timeIoTbl->begin (); tblIter != timeIoTbl->end (); ++ tblIter) {
       Record * filterTimeIoRecord = * tblIter;
-      const string & outPutOption = database::getOutputOption(filterTimeIoRecord);
-      const string & modellingMode = database::getModellingMode(filterTimeIoRecord);
+      const string & outPutOption = database::getOutputOption(filterTimeIoRecord);      
       const string & propertyName = database::getPropertyName (filterTimeIoRecord);
 
-      if(outPutOption != "None" && modellingMode == theModellingMode) {
+      if(outPutOption != "None") {
 
          const outputMaps index = CrustalThicknessInterface::getPropertyId ( propertyName );
          if( index != numberOfOutputMaps ) {
@@ -354,8 +346,6 @@ bool CrustalThicknessCalculator::mergeOutputFiles() {
 #ifdef _MSC_VER
    return true;
 #else
-   if (getModellingMode() == Interface::MODE1D) return true;
-
    ibs::FilePath localPath( getProjectPath() );
    localPath << getOutputDir();
 

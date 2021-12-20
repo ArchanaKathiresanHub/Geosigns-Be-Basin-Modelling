@@ -116,8 +116,6 @@ public :
    /// \brief Determine if the last fastcauldron PT run was coupled or not.
    bool getLastPTWasCoupled () const;
 
-   void clear1DTimeIoTbl ();
-
    void initialiseFastcauldronLayers ();
 
    /// Determines which element pillars are active. A pillar is a stack of elements through all layers.

@@ -105,10 +105,6 @@ LayerProps::LayerProps ( Interface::ProjectHandle& projectHandle,
    m_averagedSaturation(nullptr),
    m_timeOfElementInvasionVec(nullptr),
    Vre(nullptr),
-   m_IlliteFraction(nullptr),
-   m_HopaneIsomerisation(nullptr),
-   m_SteraneIsomerisation(nullptr),
-   m_SteraneAromatisation(nullptr),
    layerThickness(nullptr),
    Thickness_Error(nullptr),
    erosionFactor(nullptr),
@@ -581,13 +577,6 @@ LayerProps::~LayerProps(){
   Destroy_Petsc_Vector ( BulkTHCondP );
   Destroy_Petsc_Vector ( BulkHeatProd );
 
-
-  Destroy_Petsc_Vector ( m_SteraneAromatisation );
-  Destroy_Petsc_Vector ( m_SteraneIsomerisation );
-  Destroy_Petsc_Vector ( m_HopaneIsomerisation );
-
-  Destroy_Petsc_Vector ( m_IlliteFraction );
-
   Destroy_Petsc_Vector ( Computed_Deposition_Thickness );
 
   PetscBool includedInDarcySimulation;
@@ -793,22 +782,6 @@ bool LayerProps::allocateNewVecs ( AppCtx* basinModel, const double Current_Time
     createVec ( BulkTHCondN );
     createVec ( BulkTHCondP );
     createVec ( BulkHeatProd );
-
-    if(  basinModel->isModellingMode1D()  )
-    {
-       m_BiomarkersState.create(layerDA);
-    }
-
-    createVec ( m_SteraneAromatisation);
-    createVec ( m_SteraneIsomerisation);
-    createVec ( m_HopaneIsomerisation );
-
-    if(  basinModel->isModellingMode1D() )
-    {
-       m_SmectiteIlliteState.create(layerDA);
-    }
-
-   createVec ( m_IlliteFraction );
 
     if( basinModel -> isALC() ) {
        allocateBasementVecs( );
@@ -1093,10 +1066,6 @@ void LayerProps::nullify (){
   BulkHeatProd          = nullptr;
   Lithology_ID          = nullptr;
 
-  m_IlliteFraction = nullptr;
-  m_SteraneAromatisation = nullptr;
-  m_SteraneIsomerisation = nullptr;
-  m_HopaneIsomerisation   = nullptr;
   m_flowComponents = nullptr;
   m_previousFlowComponents = nullptr;
   m_saturations = nullptr;
@@ -1199,12 +1168,6 @@ void LayerProps::reInitialise (){
    Destroy_Petsc_Vector ( BulkTHCondP );
    Destroy_Petsc_Vector ( BulkHeatProd );
 
-   Destroy_Petsc_Vector ( m_SteraneAromatisation );
-   Destroy_Petsc_Vector ( m_SteraneIsomerisation );
-   Destroy_Petsc_Vector ( m_HopaneIsomerisation );
-
-   Destroy_Petsc_Vector ( m_IlliteFraction );
-
    if( isBasement() ) {
      reInitialiseBasementVecs();
    }
@@ -1293,46 +1256,6 @@ void LayerProps::setVectorList() {
 
   vectorList.VecArray [ CHEMICAL_COMPACTION ] = &Chemical_Compaction;
   Chemical_Compaction = nullptr;
-
-  vectorList.VecArray[ILLITEFRACTION]  = &m_IlliteFraction;  m_IlliteFraction = nullptr;
-  vectorList.VecArray[STERANEAROMATISATION]  = &m_SteraneAromatisation;  m_SteraneAromatisation = nullptr;
-  vectorList.VecArray[STERANEISOMERISATION]  = &m_SteraneIsomerisation;  m_SteraneIsomerisation = nullptr;
-  vectorList.VecArray[HOPANEISOMERISATION ]  = &m_HopaneIsomerisation ;  m_HopaneIsomerisation = nullptr;
-
-}
-void LayerProps::resetSmectiteIlliteStateVectors()
-{
-
-   int xs, ys, zs, xm, ym, zm;
-   int i, j, k;
-   DMDAGetCorners(layerDA,&xs,&ys,&zs,&xm,&ym,&zm);
-   for (i = xs; i < xs+xm; i++)
-   {
-      for (j = ys; j < ys+ym; j++)
-      {
-         for (k = zs; k < zs+zm; k++)
-         {
-            m_SmectiteIlliteState(i,j,k).setAsNotInitialized();
-         }
-      }
-   }
-}
-void LayerProps::resetBiomarkerStateVectors()
-{
-
-   int xs, ys, zs, xm, ym, zm;
-   int i, j, k;
-   DMDAGetCorners(layerDA,&xs,&ys,&zs,&xm,&ym,&zm);
-   for (i = xs; i < xs+xm; i++)
-   {
-      for (j = ys; j < ys+ym; j++)
-      {
-         for (k = zs; k < zs+zm; k++)
-         {
-            m_BiomarkersState(i,j,k).setAsNotInitialized();
-         }
-      }
-   }
 }
 
 //------------------------------------------------------------//

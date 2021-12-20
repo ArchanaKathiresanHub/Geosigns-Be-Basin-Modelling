@@ -24,9 +24,6 @@ bool ReadProjectFile::Read ( AppCtx* Basin_Model )
 
    PetscPrintf (PETSC_COMM_WORLD, "o Reading Project File... ");
 
-   if (!Basin_Model -> openProject ())
-      return false;
-
    Basin_Model->Create_Reference_DA_for_Io_Maps();
 
    if ( ! projectFileReadOkay ) {

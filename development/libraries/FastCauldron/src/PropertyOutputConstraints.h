@@ -30,9 +30,7 @@ public :
 
    PropertyOutputConstraints ();
 
-   void initialise ( const CalculationMode          calculationMode,
-                     const Interface::ModellingMode modellingMode );
-
+   void initialise (const CalculationMode calculationMode);
 
    void print ( std::ostream& o = std::cout ) const;
 

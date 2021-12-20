@@ -437,9 +437,6 @@ void VisualizationPropertiesCalculator::addTables ()
          // Find genex/shale-gas history files (replace existing)
          import.addGenexHistory();
       }
-
-      // Add 1D tables
-      import.add1Ddata();    // todo
    }
 }
 
@@ -552,21 +549,12 @@ bool VisualizationPropertiesCalculator::computeFormationMap (OutputPropertyValue
 //------------------------------------------------------------//
 std::shared_ptr<CauldronIO::Project> VisualizationPropertiesCalculator::createStructureFromProjectHandle(bool verbose) {
 
-   // Get modeling mode
-   Interface::ModellingMode modeIn = getProjectHandle().getModellingMode();
-   CauldronIO::ModellingMode mode = modeIn == Interface::MODE1D ? CauldronIO::MODE1D : CauldronIO::MODE3D;
-
-   // setActivityGrid
-   if (mode == CauldronIO:: MODE1D)
-   {
-      getProjectHandle().setActivityOutputGrid(getProjectHandle().getLowResolutionOutputGrid ());
-   }
    // Read general project data
    const Interface::ProjectData* projectData = getProjectHandle().getProjectData();
 
    // Create the project
    std::shared_ptr<CauldronIO::Project> project(new CauldronIO::Project(projectData->getProjectName(), projectData->getDescription(),
-                                                                        projectData->getProgramVersion(), mode,
+                                                                        projectData->getProgramVersion(),
                                                                         xml_version_major, xml_version_minor));
    ImportProjectHandle import(false, project, getProjectHandle());
 

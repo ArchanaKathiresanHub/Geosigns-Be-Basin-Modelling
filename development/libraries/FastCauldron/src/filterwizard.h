@@ -1,9 +1,9 @@
-//                                                                      
+//
 // Copyright (C) 2015-2016 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
 //
@@ -33,11 +33,9 @@ public:
 // member functions
 private:
 public:
-  bool IsBiomarkersCalculationNeeded();
   bool IsBulkThCondCalculationNeeded();
   bool IsDiffusivityCalculationNeeded();
   bool IsHeatFlow_CalculationNeeded();
-  bool IsSmectiteIlliteCalculationNeeded();
   bool InitDerivedCalculationsNeeded();
   bool thicknessCalculationNeeded () const;
 };

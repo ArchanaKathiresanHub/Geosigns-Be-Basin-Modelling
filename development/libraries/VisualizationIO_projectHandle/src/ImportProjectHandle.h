@@ -55,7 +55,6 @@ public:
     void addTrapIO();
     void addGenexHistory();
     void addMassBalance();
-    void add1Ddata();
 
  private:
 

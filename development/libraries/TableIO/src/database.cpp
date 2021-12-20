@@ -709,12 +709,12 @@ namespace database {
 
       if ( !loadLine( infile, line, true ) ) { return false; }
 
-      int version = m_tableDefinition.version();
-      if ( line.find( ";v " ) == 0 ) // if table has version - read it
+      int version = s_versionNumStart; // Everything after 100 has the version written to file
+      if ( line.find( ";v" ) == 0 ) // if table has version - read it
       {
          version = stoi( line.substr( 2 ) );
          if ( !loadLine( infile, line ) ) { return false; }
-      }
+      }      
       setVersion( version );
 
       if ( findAndRemoveDelimiters( line, "[]" ) && line == "End" )

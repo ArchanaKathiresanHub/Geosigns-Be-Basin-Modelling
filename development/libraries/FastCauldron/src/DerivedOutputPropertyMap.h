@@ -140,35 +140,10 @@ bool DerivedOutputPropertyMap<PropertyCalculator>::calculate ()
    {
      m_isCalculated = m_propertyCalculator ( m_properties, m_values );
 
-     //check if formation has thickness for 1D mode. If not->switch off output
-     bool allowOutput = true;
-     if ( ( m_containsVolumeData ) and
-          ( FastcauldronSimulator::getInstance().getModellingMode() == Interface::MODE1D ) and
-          m_formation->isBasement() )
-     {
-       OutputPropertyMap* thickness = property_manager::FindOutputPropertyMap ( "Thickness", m_formation, 0, m_snapshot );
-       if ( not thickness->isCalculated () )
-       {
-         if ( not thickness->calculate () )
-         {
-           return false;
-         }
-       }
-
-       if ( (*thickness)( 0, 0 ) <= 0.0 )
-         allowOutput = false;
-     }
-
      for ( i = 0; i < m_values.size (); ++i )
      {
-
-       if (not allowOutput)
-         m_values [ i ] -> allowOutput(false);
-
        m_propertyMaps.push_back ( const_cast<Interface::GridMap*>(m_values [ i ]->getGridMap ()));
-
      }
-
    }
 
    for ( i = 0; i < m_propertyMaps.size (); ++i )
@@ -178,7 +153,6 @@ bool DerivedOutputPropertyMap<PropertyCalculator>::calculate ()
       {
         m_propertyMaps [ i ]->retrieveGhostedData ();
       }
-
    }
 
    return m_isCalculated;

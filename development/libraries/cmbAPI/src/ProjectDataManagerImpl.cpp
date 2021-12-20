@@ -23,7 +23,6 @@ namespace mbapi
    const char* ProjectDataManagerImpl::s_yNodesFieldName = "NumberY";
    const char* ProjectDataManagerImpl::s_xGridSpecingFieldName = "DeltaX";
    const char* ProjectDataManagerImpl::s_yGridSpecingFieldName = "DeltaY";
-   const char* ProjectDataManagerImpl::s_modellingModeFieldName = "ModellingMode"; 
    const char* ProjectDataManagerImpl::s_projectDescriptionFieldName = "Description";
    const char* ProjectDataManagerImpl::s_windowXMaxFieldName = "WindowXMax"; 
    const char* ProjectDataManagerImpl::s_windowXMinFieldName = "WindowXMin"; 
@@ -171,37 +170,6 @@ namespace mbapi
          database::Record* rec = m_projectIoTbl->getRecord(static_cast<int>(0));
          if (!rec) { throw Exception(NonexistingID) << "No data found in ProjectIo table: "; }
          rec->setValue<double>(s_yGridSpecingFieldName, deltaY);
-      }
-      catch (const Exception& e) { return reportError(e.errorCode(), e.what()); }
-      return NoError;
-   }
-
-   // Get modelling mode specified in the ProjectIoTbl
-   ErrorHandler::ReturnCode ProjectDataManagerImpl::getModellingMode(std::string& modellingMode)
-   {
-      if (errorCode() != NoError) resetError();
-      try
-      {
-         if (!m_projectIoTbl) { throw Exception(NonexistingID) << s_projectOptionsTableName << " table could not be found in project"; }
-         database::Record* rec = m_projectIoTbl->getRecord(static_cast<int>(0));
-         if (!rec) { throw Exception(NonexistingID) << "No data found in ProjectIo table: "; }
-         modellingMode = rec->getValue<std::string>(s_modellingModeFieldName);
-      }
-
-      catch (const Exception& e) { return reportError(e.errorCode(), e.what()); }
-      return NoError;
-   }
-
-   // Set modelling mode in the ProjectIoTbl
-   ErrorHandler::ReturnCode ProjectDataManagerImpl::setModellingMode(const std::string& modellingMode)
-   {
-      if (errorCode() != NoError) resetError();
-      try
-      {
-         if (!m_projectIoTbl) { throw Exception(NonexistingID) << s_projectOptionsTableName << " table could not be found in project"; }
-         database::Record* rec = m_projectIoTbl->getRecord(static_cast<int>(0));
-         if (!rec) { throw Exception(NonexistingID) << "No data found in ProjectIo table: "; }
-         rec->setValue<std::string>(s_modellingModeFieldName, modellingMode);
       }
       catch (const Exception& e) { return reportError(e.errorCode(), e.what()); }
       return NoError;

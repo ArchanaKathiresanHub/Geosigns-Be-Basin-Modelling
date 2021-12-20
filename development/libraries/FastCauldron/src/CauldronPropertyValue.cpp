@@ -106,26 +106,20 @@ bool CauldronPropertyValue::saveVolumeToFile ( Interface::MapWriter & mapWriter,
    }
 }
 
-database::Record * CauldronPropertyValue::createTimeIoRecord (database::Table * timeIoTbl, Interface::ModellingMode theMode) {
+database::Record * CauldronPropertyValue::createTimeIoRecord (database::Table * timeIoTbl) {
 
    database::Record* record = 0;
-   if ( FastcauldronSimulator::getInstance ().getModellingMode () == Interface::MODE3D ) {
 
-      std::string surfaceName = ( m_surface == 0 ? "" : m_surface->getName ());
-      std::string formationName = ( m_formation == 0 ? "" : m_formation->getName ());
+   std::string surfaceName = ( m_surface == 0 ? "" : m_surface->getName ());
+   std::string formationName = ( m_formation == 0 ? "" : m_formation->getName ());
 
-      record = FastcauldronSimulator::getInstance ().findTimeIoRecord ( timeIoTbl, getName (), m_snapshot->getTime (), surfaceName, formationName );
+   record = FastcauldronSimulator::getInstance ().findTimeIoRecord ( timeIoTbl, getName (), m_snapshot->getTime (), surfaceName, formationName );
 
-//       cout << " PropertyValue::createTimeIoRecord " << (unsigned long)( record ) << endl;
-
-      if ( record == 0 ) {
-         record = Interface::PropertyValue::createTimeIoRecord ( timeIoTbl, theMode );
-      } else {
-         setRecord ( record );
-      }
-
+   if ( record == 0 ) {
+      record = Interface::PropertyValue::createTimeIoRecord ( timeIoTbl );
    } else {
-      record = Interface::PropertyValue::createTimeIoRecord ( timeIoTbl, theMode );
+      setRecord ( record );
    }
+
    return record;
 }

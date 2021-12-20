@@ -210,65 +210,25 @@ GridMap * PropertyValue::getGridMap (void) const
    Record * record = getRecord();
    if (!record) return 0;
 
-   if (MODE3D == getProjectHandle().getModellingMode ())
-   {
-      // The GridMap is to be retrieved from file
-      string fileName, dataSetName, outputDir;
-      getHDFinfo(fileName, dataSetName, outputDir);
+   // The GridMap is to be retrieved from file
+   string fileName, dataSetName, outputDir;
+   getHDFinfo(fileName, dataSetName, outputDir);
 
-      const bool oldPrimaryDoubleFlag = getProjectHandle().isPrimaryDouble();
+   const bool oldPrimaryDoubleFlag = getProjectHandle().isPrimaryDouble();
 
-      if( not isPrimary() ) {
-         getProjectHandle().setPrimaryDouble( false );
-      }
-      (void) getProjectHandle().loadOutputMap (this, ValueMap, fileName, dataSetName);
-
-      if( not isPrimary() ) {
-         getProjectHandle().setPrimaryDouble( oldPrimaryDoubleFlag );
-      }
-
-      return (GridMap *) getChild (ValueMap);
+   if( not isPrimary() ) {
+      getProjectHandle().setPrimaryDouble( false );
    }
-   else if (MODE1D == getProjectHandle().getModellingMode ())
-   {
-      if (getStorage () == TIMEIOTBL)
-      {
-         // The record to refer to is a TimeIoTbl record
-         const double &scalarValue = database::getAverage (record);
+   (void) getProjectHandle().loadOutputMap (this, ValueMap, fileName, dataSetName);
 
-         if (scalarValue != DefaultUndefinedScalarValue) //1D Mode...
-         {
-            const Grid *grid = getProjectHandle().getActivityOutputGrid ();
-
-            assert (grid);
-            (void) getProjectHandle().getFactory ()->produceGridMap (this, ValueMap, grid, scalarValue);
-         }
-      }
+   if( not isPrimary() ) {
+      getProjectHandle().setPrimaryDouble( oldPrimaryDoubleFlag );
    }
 
    return (GridMap *) getChild (ValueMap);
 }
 
-//1DComponennt
-//assumtpion lower left corner
-double PropertyValue::getMode1DResult() const	//used in createTimeIoRecord for the MODE1D case
-{
-   const GridMap *theGridMap = dynamic_cast < const Interface::GridMap * >(getGridMap ());
-
-   assert (theGridMap);
-   theGridMap->retrieveData ();
-
-   double retValue = theGridMap->getValue (theGridMap->firstI (), theGridMap->firstJ (), theGridMap->getDepth () - 1);
-
-   if (retValue == theGridMap->getUndefinedValue ()) retValue = DefaultUndefinedScalarValue;
-   theGridMap->restoreData ();
-
-   return retValue;
-}
-
-//1DComponennt
-//ModellingMode enum declared in Interface.h
-database::Record* PropertyValue::createTimeIoRecord (database::Table * timeIoTbl, ModellingMode theMode)
+database::Record* PropertyValue::createTimeIoRecord (database::Table * timeIoTbl)
 {
    assert (timeIoTbl);
    database::Record * timeIoRecord = timeIoTbl->createRecord ();
@@ -276,82 +236,55 @@ database::Record* PropertyValue::createTimeIoRecord (database::Table * timeIoTbl
    database::setPropertyName (timeIoRecord, getName ());
    database::setTime (timeIoRecord, m_snapshot->getTime ());
 
+   database::setAverage (timeIoRecord, DefaultUndefinedScalarValue);
+   database::setMinimum (timeIoRecord, DefaultUndefinedScalarValue);
+   database::setMaximum (timeIoRecord, DefaultUndefinedScalarValue);
+   database::setSum (timeIoRecord, DefaultUndefinedScalarValue);
+   string propertyGrid;
 
-   if(MODE3D == theMode)
+   propertyGrid += getName ();
+
+   propertyGrid += "_";
+   propertyGrid += m_snapshot->asString ();
+
+   if (getReservoir () && !m_surface && !getFormation ())
    {
-      database::setAverage (timeIoRecord, DefaultUndefinedScalarValue);
-      database::setMinimum (timeIoRecord, DefaultUndefinedScalarValue);
-      database::setMaximum (timeIoRecord, DefaultUndefinedScalarValue);
-      database::setSum (timeIoRecord, DefaultUndefinedScalarValue);
-      string propertyGrid;
+      propertyGrid += "_";
 
-      propertyGrid += getName ();
+      // Supress printing of this information as
+      // a) It is not avialable (Seep formation is no reservoir), and
+      // b) It is not needed.
+      if (getName () != "SeepageBasinTop_Gas" and getName () != "SeepageBasinTop_Oil")
+      {
+         propertyGrid += ((Reservoir *) getReservoir ())->getMangledName ();
+         database::setFormationName (timeIoRecord, getReservoir ()->getName ());
+         propertyGrid += "_";
+      }
+   }
+   else if (m_surface || m_formation)
+   {
+      propertyGrid += "_";
+      if (m_surface)
+      {
+         propertyGrid += m_surface->getMangledName ();
+         database::setSurfaceName (timeIoRecord, m_surface ->getName ());
+      }
 
       propertyGrid += "_";
-      propertyGrid += m_snapshot->asString ();
-
-      if (getReservoir () && !m_surface && !getFormation ())
+      if (m_formation)
       {
-         propertyGrid += "_";
-
-         // Supress printing of this information as
-         // a) It is not avialable (Seep formation is no reservoir), and
-         // b) It is not needed.
-         if (getName () != "SeepageBasinTop_Gas" and getName () != "SeepageBasinTop_Oil")
-         {
-            propertyGrid += ((Reservoir *) getReservoir ())->getMangledName ();
-            database::setFormationName (timeIoRecord, getReservoir ()->getName ());
-            propertyGrid += "_";
-         }
+         propertyGrid += m_formation->getMangledName ();
+         database::setFormationName (timeIoRecord, m_formation->getName ());
       }
-      else if (m_surface || m_formation)
-      {
-         propertyGrid += "_";
-         if (m_surface)
-         {
-            propertyGrid += m_surface->getMangledName ();
-            database::setSurfaceName (timeIoRecord, m_surface ->getName ());
-         }
-
-         propertyGrid += "_";
-         if (m_formation)
-         {
-            propertyGrid += m_formation->getMangledName ();
-            database::setFormationName (timeIoRecord, m_formation->getName ());
-         }
-      }
-      else
-      {
-         timeIoTbl->deleteRecord (timeIoRecord);
-         return 0;
-      }
-
-      database::setPropertyGrid (timeIoRecord, propertyGrid);
    }
-   //1DComponent
-   else if(MODE1D == theMode)
+   else
    {
-      database::setAverage (timeIoRecord, getMode1DResult());
-      database::setMinimum (timeIoRecord, getMode1DResult ());
-      database::setMaximum (timeIoRecord, getMode1DResult ());
-      database::setSum (timeIoRecord, getMode1DResult ());
-      if (m_surface || m_formation)
-      {
-         if (m_surface)
-         {
-            database::setSurfaceName (timeIoRecord, m_surface ->getName ());
-         }
-         if (m_formation)
-         {
-            database::setFormationName (timeIoRecord, m_formation->getName ());
-         }
-      }
-      else
-      {
-         timeIoTbl->deleteRecord (timeIoRecord);
-         return 0;
-      }
+      timeIoTbl->deleteRecord (timeIoRecord);
+      return 0;
    }
+
+   database::setPropertyGrid (timeIoRecord, propertyGrid);
+
    int depoSequence = 0;
    if (m_surface)
    {
@@ -380,30 +313,9 @@ database::Record* PropertyValue::createTimeIoRecord (database::Table * timeIoTbl
    return timeIoRecord;
 }
 
-database::Record* PropertyValue::create1DTimeIoRecord (database::Table * timeIoTbl, ModellingMode theMode)
+database::Record* PropertyValue::create3DTimeIoRecord (database::Table * timeIoTbl)
 {
    assert (timeIoTbl);
-   assert (MODE1D == theMode);
-
-   database::Record * timeIoRecord = timeIoTbl->createRecord ();
-
-   database::setPropertyName (timeIoRecord, getName ());
-   database::setTime (timeIoRecord, m_snapshot->getTime ());
-   database::setFormationName (timeIoRecord, m_formation->getName ());
-   database::setNodeIndex (timeIoRecord, DefaultUndefinedScalarIntValue );
-
-   database::setSurfaceName (timeIoRecord, "");
-   database::setValue (timeIoRecord, DefaultUndefinedScalarValue);
-
-   setRecord (timeIoRecord);
-
-   return timeIoRecord;
-}
-
-database::Record* PropertyValue::create3DTimeIoRecord (database::Table * timeIoTbl, ModellingMode theMode)
-{
-   assert (timeIoTbl);
-   assert (MODE3D == theMode);
 
    database::Record * timeIoRecord = timeIoTbl->createRecord ();
 

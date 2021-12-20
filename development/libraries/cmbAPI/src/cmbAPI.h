@@ -232,11 +232,11 @@ namespace mbapi {
       /// @brief Clean all parameters of the model and load the new model parameters from the given project file
       ///        If file can't be opened, red or not valid it return error
       ///
-      /// @param[in] projectFileName name of the Cauldron project1d/project3d file
+      /// @param[in] projectFileName name of the Cauldron project3d file
       /// @return NoError in case of success, error code otherwise
       ReturnCode loadModelFromProjectFile(const string& projectFileName );
 
-      /// @brief Save the model to the Cauldron project project1d/project3d file under the given file name
+      /// @brief Save the model to the Cauldron project project3d file under the given file name
       ///        If file exist, it will be overwritten
       ///
       /// @param projectFileName the name for the Cauldron project file
