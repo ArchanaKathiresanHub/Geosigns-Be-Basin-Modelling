@@ -36,6 +36,17 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2021-12-20  Erik.vandenBoogaard  <Erik.vandenBoogaard@shell.com>
+
+	chg: Removal of 1d modelling mode.
+	* 1d modelling mode is decommissioned and removed from the source code
+
+	* Related work items: #416961
+
+	================== COMMIT-END ========================
+	Commit-ID:<1d5dda535bd6429b3c1ee7c40bcec84b19b2abf0>	  (refs/heads/master)
+
+++
 2021-12-20  arijit.khan Khan  <arijit.khan@shell.com>
 
 	Using Doxygen 1.8.15 for cauldron docs.
