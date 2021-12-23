@@ -36,6 +36,18 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2021-12-23  Richard Faasse  <Richard.Faasse@shell.com>
+
+	chg: Improving the partitioning based on the Valid/Invalid node distribution
+	* This includes:
+	* The addition of a domainshapeReader, which determines which nodes are valid/invalid based on input maps
+	* The addition of a decompositionCalculator, which calculates the optimum partitioning based on the domainshape
+	* Added flags to fastcauldron, fastgenex6, fastmig and fastproperties for testing purposes in PBI#446810, these will be removed after that PBI is done (automatic selection is then implemented.
+	* Related work items: #446667
+	================== COMMIT-END ========================
+	Commit-ID:<f5c29564c4039b51a53391e72d20457d2482d0e1>	  (refs/heads/master)
+
+++
 2021-12-20  Erik.vandenBoogaard  <Erik.vandenBoogaard@shell.com>
 
 	chg: Removal of 1d modelling mode.
