@@ -44,9 +44,10 @@ GridMap * ObjectFactory::produceGridMap (const Parent * owner, unsigned int chil
    return new DistributedGridMap (owner, childIndex, operand, unaryFunctor);
 }
 
-Grid * ObjectFactory::produceGrid (double minI, double minJ, double maxI, double maxJ, unsigned int numI, unsigned int numJ, unsigned int lowResNumI, unsigned int lowResNumJ) const
+Grid * ObjectFactory::produceGrid (double minI, double minJ, double maxI, double maxJ, unsigned int numI, unsigned int numJ, unsigned int lowResNumI, unsigned int lowResNumJ,
+                                   std::vector<std::vector<int>> domainShape, const double maxDeviation) const
 {
-   return new DistributedGrid (minI, minJ, maxI, maxJ, numI, numJ, lowResNumI, lowResNumJ);
+   return new DistributedGrid (minI, minJ, maxI, maxJ, numI, numJ, lowResNumI, lowResNumJ, domainShape, maxDeviation);
 }
 
 Grid * ObjectFactory::produceGrid (const Grid * referenceGrid, double minI, double minJ, double maxI, double maxJ, unsigned int numI, unsigned int numJ) const

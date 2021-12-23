@@ -454,6 +454,7 @@ public:
    ///
    /// If exitat has not been enabled then this will return the null-value.
    double getExitAtAge () const;
+   double m_maxDev;
 
 
  private:

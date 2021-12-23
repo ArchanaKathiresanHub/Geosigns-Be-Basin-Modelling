@@ -33,7 +33,9 @@
 #include "ObjectFactory.h"
 #include "DistributedMessageHandler.h"
 #include "DistributedApplicationGlobalOperations.h"
+#include "domainShapeReader.h"
 
+#include "cauldronschemafuncs.h"
 #include "h5_parallel_file_types.h"
 #include "petscvector_readwrite.h"
 
@@ -91,6 +93,24 @@ void ProjectHandle::mapFileCacheCloseFiles(void)
             }
         }
     }
+}
+
+std::vector<std::vector<int>> ProjectHandle::getDomainShape( const int numI, const int numJ ) const
+{
+  if (m_rank == 0)
+  {
+    std::vector<std::vector<int>> domainShape;
+    database::Table* gridMapTbl = getTable( "GridMapIoTbl" );
+    if (gridMapTbl->getRecord(0))
+    {
+      DomainShapeReader reader(getMapFileName(gridMapTbl->getRecord(0)));
+      domainShape = reader.readShape(numI, numJ);
+    }
+
+    return domainShape;
+  }
+
+  return {};
 }
 
 void ProjectHandle::checkForValidPartitioning (const string & name, int M, int N) const

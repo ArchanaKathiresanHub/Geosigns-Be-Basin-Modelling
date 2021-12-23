@@ -81,9 +81,9 @@ namespace DataAccess
    {
       /// Create a project from a project file with the given name
       /// return the associated ProjectHandle
-      ProjectHandle * OpenCauldronProject( const std::string & name,
+      ProjectHandle * OpenCauldronProject(const std::string & name,
                                            const ObjectFactory* objectFactory,
-                                           const std::vector<std::string>& outputTableNames = NoTableNames );
+                                           const std::vector<std::string>& outputTableNames = NoTableNames);
 
       /// @brief Create TableIO database object from project file. This function is used by OpenCauldronProject()
       /// @param name project file name
@@ -170,11 +170,11 @@ namespace DataAccess
 
          /// Returns the Grid of the output GridMaps that were produced by either a migration run or
          /// a high resolution decompaction run. This grid is a subgrid of the input grid.
-         virtual const Grid * getHighResolutionOutputGrid( void ) const;
+         virtual const Grid * getHighResolutionOutputGrid() const;
 
          /// Returns the Grid of the output GridMaps that were not produced by either a migration run or
          /// a high resolution decompaction run. This grid is a subgrid of the high resolution output grid.
-         virtual const Grid * getLowResolutionOutputGrid( void ) const;
+         virtual const Grid * getLowResolutionOutputGrid() const;
 
          /// print the snapshot table
          void printSnapshotTable () const;
@@ -629,6 +629,10 @@ namespace DataAccess
 
          static bool isEqualTime( double t1, double t2 );
 
+         void setMaxDev(const double maxDev);
+
+         void clearHighResOutputGrid();
+
       protected:
 
          /// the full path of the project
@@ -957,6 +961,9 @@ namespace DataAccess
          std::set<std::string> m_primaryList;
 
          friend class migration::Migrator;
+         std::vector<std::vector<int> > getDomainShape(const int numI, const int numJ) const;
+
+         double m_maxDev;
       };
    }
 }

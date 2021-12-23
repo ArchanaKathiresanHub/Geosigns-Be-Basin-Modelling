@@ -45,7 +45,8 @@ GridMap * ObjectFactory::produceGridMap (const Parent * owner, unsigned int chil
    return new SerialGridMap (owner, childIndex, operand, unaryFunctor);
 }
 
-Grid * ObjectFactory::produceGrid (double minI, double minJ, double maxI, double maxJ, unsigned int numI, unsigned int numJ, unsigned int , unsigned int ) const
+Grid * ObjectFactory::produceGrid (double minI, double minJ, double maxI, double maxJ, unsigned int numI, unsigned int numJ, unsigned int ,
+                                   unsigned int, std::vector<std::vector<int>>, const double ) const
 {
    return new SerialGrid (minI, minJ, maxI, maxJ, numI, numJ);
 }

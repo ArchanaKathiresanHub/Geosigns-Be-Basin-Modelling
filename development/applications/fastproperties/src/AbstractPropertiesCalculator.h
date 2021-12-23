@@ -98,7 +98,7 @@ public:
 
    bool showLists();
 
-   bool startActivity();
+   bool startActivity(const double maxDev);
    bool finalise ( bool isComplete );
    bool createFrom( DataAccess::Interface::ObjectFactory* factory);
 

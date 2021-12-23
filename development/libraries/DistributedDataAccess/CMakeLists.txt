@@ -55,6 +55,12 @@ if (BM_PARALLEL)
       set( MACHINE_FILE -machinefile machines)
    endif (UNIX)
 
+   add_gtest( NAME DecompositionCalculator
+              SOURCES test/testDecompositionCalculator.cpp
+              LIBRARIES Utilities_Petsc ${PETSC_LIBRARIES} ${LIB_NAME} DataAccess
+              LINK_FLAGS "${PETSC_LINK_FLAGS}"
+              FOLDER "${BASE_FOLDER}/${LIB_NAME}"
+   )
 
    add_gtest( NAME DistributedGridMap_MPInp4
               SOURCES test/DistributedGridMap.cpp

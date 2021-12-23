@@ -119,6 +119,9 @@
 // FileSystem library
 #include "FilePath.h"
 
+// MISC
+#include "domainShapeReader.h"
+
 
 using namespace DataAccess;
 using namespace Interface;
@@ -150,13 +153,12 @@ static const char * words [] = {"ALCStepBasaltThickness", "ALCStepTopBasaltDepth
 
 ProjectHandle* DataAccess::Interface::OpenCauldronProject( const string & name,
                                                            const ObjectFactory* objectFactory,
-                                                           const std::vector<std::string>& outputTableNames )
+                                                           const std::vector<std::string>& outputTableNames)
 {
    if ( !boost::filesystem::exists( name ) )
    {
       throw formattingexception::GeneralException() << "Project file " << name << " does not exist";
    }
-
    database::ProjectFileHandlerPtr pfh = CreateDatabaseFromCauldronProject( name, outputTableNames );
 
    if ( pfh != nullptr )
@@ -205,7 +207,8 @@ ProjectHandle::ProjectHandle(database::ProjectFileHandlerPtr pfh, const string &
    m_tableCTC                         ( *this ),
    m_tableCTCRiftingHistory           ( *this ),
    m_validator( *this ),
-   m_activityOutputGrid( 0 ), m_mapPropertyValuesWriter( 0 ), m_primaryList( words, words + 20 )
+   m_activityOutputGrid( 0 ), m_mapPropertyValuesWriter( 0 ), m_primaryList( words, words + 20 ),
+   m_maxDev{-1}
 {
    m_messageHandler = 0;
    m_globalOperations = 0;
@@ -857,7 +860,18 @@ void ProjectHandle::fillSnapshotIoTbl( std::list<double>& times, const bool isUs
 
 bool ProjectHandle::isEqualTime( double t1, double t2 )
 {
-   return ( std::fabs( t1 - t2 ) < 1e-5 );
+  return ( std::fabs( t1 - t2 ) < 1e-5 );
+}
+
+void ProjectHandle::setMaxDev(const double maxDev)
+{
+  m_maxDev = maxDev;
+}
+
+void ProjectHandle::clearHighResOutputGrid()
+{
+  delete m_highResOutputGrid;
+  m_highResOutputGrid = nullptr;
 }
 
 bool ProjectHandle::loadGrids( void )
@@ -3744,7 +3758,7 @@ const Interface::Grid * ProjectHandle::getInputGrid( void ) const
    return m_inputGrid;
 }
 
-const Interface::Grid * ProjectHandle::getLowResolutionOutputGrid( void ) const
+const Interface::Grid * ProjectHandle::getLowResolutionOutputGrid() const
 {
    if ( m_lowResOutputGrid == 0 )
    {
@@ -3802,7 +3816,7 @@ const Interface::Grid * ProjectHandle::getLowResolutionOutputGrid( void ) const
    return m_lowResOutputGrid;
 }
 
-const Interface::Grid * ProjectHandle::getHighResolutionOutputGrid( void ) const
+const Interface::Grid * ProjectHandle::getHighResolutionOutputGrid() const
 {
    if ( m_highResOutputGrid == 0 )
    {
@@ -3844,11 +3858,12 @@ const Interface::Grid * ProjectHandle::getHighResolutionOutputGrid( void ) const
       scaleI = database::getScaleX( projectIoRecord );
       scaleJ = database::getScaleY( projectIoRecord );
 
+      std::vector<std::vector<int>> domain = getDomainShape(numI, numJ);
 
       lowResNumI = ( numI - offsetI - 1 ) / scaleI + 1;
       lowResNumJ = ( numJ - offsetJ - 1 ) / scaleJ + 1;
 
-      m_highResOutputGrid = getFactory()->produceGrid( minI, minJ, maxI, maxJ, numI, numJ, lowResNumI, lowResNumJ );
+      m_highResOutputGrid = getFactory()->produceGrid( minI, minJ, maxI, maxJ, numI, numJ, lowResNumI, lowResNumJ, domain, m_maxDev );
    }
    return m_highResOutputGrid;
 }

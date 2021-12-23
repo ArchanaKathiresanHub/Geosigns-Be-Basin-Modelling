@@ -90,6 +90,10 @@ int main (int argc, char ** argv)
       strcpy (outputFileName, inputFileName);
    }
 
+   char maxDev[128];
+   PetscBool maxDevSet;
+   PetscOptionsGetString (PETSC_IGNORE, PETSC_IGNORE, "-maxDev", maxDev, 128, &maxDevSet);
+
    char numProcessors[PETSC_MAX_PATH_LEN];
    PetscBool numProcessorsSet;
 
@@ -251,10 +255,21 @@ int main (int argc, char ** argv)
 
    StartTime ();
 
+   double maxDevDouble = -1;
+   if (maxDevSet)
+   {
+     try
+     {
+       maxDevDouble = std::stod(maxDev);
+     } catch (...)
+     {
+     }
+   }
+
    if (status)
    {
       ReportProgress ("Reading Project File: ", inputFileName);
-      migrator = new Migrator (inputFileName);
+      migrator = new Migrator (inputFileName, maxDevDouble);
       status = (migrator != 0);
    }
 

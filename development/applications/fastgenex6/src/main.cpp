@@ -66,6 +66,10 @@ int main (int argc, char ** argv)
       return -1;
    }
 
+   char maxDev[128];
+   PetscBool maxDevSet;
+   PetscOptionsGetString (PETSC_IGNORE, PETSC_IGNORE, "-maxDev", maxDev, 128, &maxDevSet);
+
    char outputFileName[128];
    PetscBool outputFileSet;
 
@@ -207,12 +211,24 @@ int main (int argc, char ** argv)
 
    bool status = false;
 
+   double maxDevDouble = -1;
+   if (maxDevSet)
+   {
+     try
+     {
+       maxDevDouble = std::stod(maxDev);
+     } catch (...)
+     {
+     }
+   }
+
    try {
      //create the factory
      GenexSimulatorFactory theFactory;
 
      //create the ProjectHandle
      std::unique_ptr<GenexSimulator> theGenexSimulator( GenexSimulator::CreateFrom (inputFileName, &theFactory) );
+     theGenexSimulator->setMaxDev(maxDevDouble);
 
      status = (theGenexSimulator != 0);
 

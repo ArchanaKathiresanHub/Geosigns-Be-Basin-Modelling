@@ -149,6 +149,23 @@ bool AppCtx::readProjectName () {
 
    PetscOptionsGetString (PETSC_IGNORE, PETSC_IGNORE, "-project", fname, MaxLineSize, 0);
 
+   char maxDev[MaxLineSize];
+   maxDev[0] = '\0';
+
+   PetscBool maxDevSet;
+   PetscOptionsGetString(PETSC_IGNORE, PETSC_IGNORE, "-maxDev", maxDev, MaxLineSize, &maxDevSet);
+
+   m_maxDev = -1;
+   if (maxDevSet)
+   {
+     try
+     {
+       m_maxDev = std::stod(maxDev);
+     } catch (...)
+     {
+     }
+   }
+
    PetscOptionsHasName(PETSC_IGNORE, PETSC_IGNORE, "-project", &hasProject );
 
 

@@ -87,10 +87,12 @@ static bool reservoirSorter (const Interface::Reservoir * reservoir1, const Inte
 
 extern string NumProcessorsArg;
 
-Migrator::Migrator (const string & name) :
+Migrator::Migrator (const string & name, const double maxDev) :
   m_objectFactory(this)
 {
-   m_projectHandle.reset (dynamic_cast<GeoPhysics::ProjectHandle *> (Interface::OpenCauldronProject (name, &m_objectFactory, getOutputTableNames() )));
+   m_projectHandle.reset (dynamic_cast<GeoPhysics::ProjectHandle *> (Interface::OpenCauldronProject (name, &m_objectFactory, getOutputTableNames())));
+   m_projectHandle->clearHighResOutputGrid();
+   m_projectHandle->setMaxDev(maxDev);
 
    if (!m_projectHandle.get ())
    {

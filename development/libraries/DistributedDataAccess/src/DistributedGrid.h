@@ -34,7 +34,8 @@ namespace DataAccess
       {
       public:        
          /// create a new grid
-         DistributedGrid (double minI, double minJ, double maxI, double maxJ, int numI, int numJ, int lowResNumI, int lowResNumJ);
+        DistributedGrid (double minI, double minJ, double maxI, double maxJ, int numI, int numJ, int lowResNumI, int lowResNumJ,
+                         std::vector<std::vector<int>> domainShape = {}, const double maxDeviation = -1);
          ~DistributedGrid (void);
          
          /// Create a new grid such that each grid point and its corresponding grid point in the reference grid

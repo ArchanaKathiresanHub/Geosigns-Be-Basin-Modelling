@@ -8,6 +8,7 @@
 using namespace std;
 
 #include "DistributedGrid.h"
+#include "decompositionCalculator.h"
 
 #define Round(a) ((int) (((double) a) + 0.5))
 
@@ -63,7 +64,7 @@ bool DistributedGrid::CalculatePartitioning (int M, int N, int & mSelected, int 
 }
 
 DistributedGrid::DistributedGrid (double minI, double minJ,
-      double maxI, double maxJ, int numI, int numJ, int lowResNumI, int lowResNumJ) :
+      double maxI, double maxJ, int numI, int numJ, int lowResNumI, int lowResNumJ, std::vector<std::vector<int> > domainShape, const double maxDeviation) :
    m_globalGrid (minI, minJ, maxI, maxJ, numI, numJ), m_numProcsI (-1), m_numProcsJ (-1), m_numsI (0), m_numsJ (0),
    m_convertingTo (0), m_conversionsToI (0), m_conversionsToJ (0), m_returnsI (0), m_returnsJ (0)
 {
@@ -74,7 +75,6 @@ DistributedGrid::DistributedGrid (double minI, double minJ,
 
    // Calculate the core partitioning based on the low resolution output grid as that is the grid mostly used.
    // If there is no core partitioning for the low res grid, use the high res grid and hope the low res grid will not be used (checked elsewhere).
-
    if ( lowResNumI <= 1 or lowResNumJ <= 1 ) {
       PetscPrintf (PETSC_COMM_WORLD,
                    "\nBasin_Error: Unable to partition a %d x %d grid, please increase the number of grid nodes.\nThere must be at least two nodes in each direction \n", lowResNumI, lowResNumJ );
@@ -97,18 +97,108 @@ DistributedGrid::DistributedGrid (double minI, double minJ,
 
    PetscInt M = numIGlobal();
    PetscInt N = numJGlobal();
-   PetscInt m = numICores;
-   PetscInt n = numJCores;
-   err = DMDACreate2d(PETSC_COMM_WORLD, DM_BOUNDARY_NONE, DM_BOUNDARY_NONE, DMDA_STENCIL_BOX,
-       M, N,
-       m, n,
-       1, 1, NULL, NULL, &m_localInfo.da);
+   int m = numICores;
+   int n = numJCores;
+
+   std::vector<int> lx;
+   std::vector<int> ly;
+
+   if (maxDeviation >= 0)
+   {
+
+     int mpiRank;
+     MPI_Comm_rank (PETSC_COMM_WORLD, &mpiRank);
+     if (mpiRank == 0 && !domainShape.empty())
+     {
+       DecompositionCalculator decompositionCalculator(domainShape, size, maxDeviation);
+       decompositionCalculator.calculateDomain(m, n, lx, ly);
+     }
+
+     int lxSize = lx.size();
+     int lySize = ly.size();
+
+     MPI_Barrier(PETSC_COMM_WORLD);
+     MPI_Bcast(&m, 1, MPI_INT, 0, PETSC_COMM_WORLD);
+     MPI_Bcast(&n, 1, MPI_INT, 0, PETSC_COMM_WORLD);
+
+     MPI_Bcast(&lxSize, 1, MPI_INT, 0, PETSC_COMM_WORLD);
+     MPI_Bcast(&lySize, 1, MPI_INT, 0, PETSC_COMM_WORLD);
+
+     lx.reserve(lxSize);
+     ly.reserve(lySize);
+
+     MPI_Bcast(lx.data(), lxSize, MPI_INT, 0, PETSC_COMM_WORLD);
+     MPI_Bcast(ly.data(), lySize, MPI_INT, 0, PETSC_COMM_WORLD);
+     err = DMDACreate2d(PETSC_COMM_WORLD, DM_BOUNDARY_NONE, DM_BOUNDARY_NONE, DMDA_STENCIL_BOX,
+         M, N,
+         m, n,
+         1, 1, &lx[0], &ly[0], &m_localInfo.da);
+   }
+   else
+   {
+     err = DMDACreate2d(PETSC_COMM_WORLD, DM_BOUNDARY_NONE, DM_BOUNDARY_NONE, DMDA_STENCIL_BOX,
+         M, N,
+         m, n,
+         1, 1, NULL, NULL, &m_localInfo.da);
+   }
+
    err = DMSetFromOptions(m_localInfo.da);
    err = DMSetUp(m_localInfo.da);
    err = DMDAGetLocalInfo(m_localInfo.da, &m_localInfo);
    err = DMCreateGlobalVector(m_localInfo.da, &m_vecGlobal);
 
    calculateNums(this); // calculated because fastcauldron is using them to create its own DA's.
+
+   // Print the corners of the subdomains
+   int start[2];
+   int count[2];
+   DMDAGetCorners (m_localInfo.da, &start[0], &start[1], PETSC_IGNORE, &count[0], &count[1], PETSC_IGNORE);
+   std::cout << (std::to_string(start[0]) + "  " + std::to_string(start[1]) + "\n").c_str();
+   std::cout << (std::to_string(start[0] + count[0]) + "  " + std::to_string(start[1]) + "\n").c_str();
+   std::cout << (std::to_string(start[0] + count[0]) + "  " + std::to_string(start[1] + count[1]) + "\n").c_str();
+   std::cout << (std::to_string(start[0]) + "  " + std::to_string(start[1] + count[1]) + "\n").c_str();
+
+   // Print processor-info
+   PetscMPIInt rank;
+   MPI_Comm_rank (PETSC_COMM_WORLD, &rank);
+   if (rank == 0 && maxDeviation >= 0)
+   {
+
+     int maxValidNodesInProcessor = 0;
+     int maxNodesInProcessor = 0;
+     double maxGhostNodesPerComputationNode = 0;
+
+     int iStart = 0;
+     for (int iProc = 0; iProc < numProcsI(); iProc++)
+     {
+       int jStart = 0;
+       for (int jProc = 0; jProc < numProcsJ(); jProc++)
+       {
+         double ghostNodesForProcessor = 4 + 2 * numsI()[iProc] + 2*numsJ()[jProc];
+         int validNodesInProcessor = 0;
+         int nodesInProcessor = 0;
+
+         for (int i = iStart; i < iStart + numsI()[iProc]; i++)
+         {
+           for (int j = jStart; j < jStart + numsJ()[jProc]; j++)
+           {
+             validNodesInProcessor += domainShape[i][j];
+             nodesInProcessor++;
+           }
+         }
+
+         if (validNodesInProcessor > maxValidNodesInProcessor) maxValidNodesInProcessor = validNodesInProcessor;
+         if (nodesInProcessor > maxNodesInProcessor) maxNodesInProcessor = nodesInProcessor;
+         if (ghostNodesForProcessor / nodesInProcessor > maxGhostNodesPerComputationNode) maxGhostNodesPerComputationNode = ghostNodesForProcessor / nodesInProcessor;
+
+         jStart+= numsJ()[jProc];
+       }
+       iStart+=numsI()[iProc];
+     }
+     std::cout << "Processor with most valid nodes has " << maxValidNodesInProcessor << " nodes." << std::endl;
+     std::cout << "Processor with most nodes has " << maxNodesInProcessor << " nodes." << std::endl;
+     std::cout << "Processor with most ghost nodes per computational nodes has " << maxGhostNodesPerComputationNode << " ghost nodes per computational node." << std::endl;
+   }
 }
 
 /// Create a low res local grid and base its grid distribution on this, high res, local grid.
@@ -117,7 +207,6 @@ DistributedGrid::DistributedGrid (const Grid * referenceGrid, double minI, doubl
    m_globalGrid (minI, minJ, maxI, maxJ, numI, numJ), m_numProcsI (-1), m_numProcsJ (-1), m_numsI (0), m_numsJ (0),
    m_convertingTo (0), m_conversionsToI (0), m_conversionsToJ (0), m_returnsI (0), m_returnsJ (0)
 {
-
    calculateNums(referenceGrid);
    PetscErrorCode err;
    //  global dimension in each direction of the array
@@ -126,7 +215,7 @@ DistributedGrid::DistributedGrid (const Grid * referenceGrid, double minI, doubl
    // corresponding number of processors in each dimension
    PetscInt m = referenceGrid->numProcsI();
    PetscInt n = referenceGrid->numProcsJ();
-   //Arrays containing the number of nodes in each cell along the x and y coordinates, or NULL. If non-null, these must be of length as m and n, and the corresponding m and n cannot be PETSC_DECIDE. 
+   //Arrays containing the number of nodes in each cell along the x and y coordinates, or NULL. If non-null, these must be of length as m and n, and the corresponding m and n cannot be PETSC_DECIDE.
    //The sum of the lx[] entries must be M, and the sum of the ly[] entries must be N.
    auto lx = numsI();
    auto ly = numsJ();

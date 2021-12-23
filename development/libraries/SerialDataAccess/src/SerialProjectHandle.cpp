@@ -152,6 +152,11 @@ const std::string ProjectHandle::getFullOutputDir() const
    return ppath.path();
 }
 
+std::vector<std::vector<int>> ProjectHandle::getDomainShape( const int numI, const int numJ ) const
+{
+  return {};
+}
+
 bool ProjectHandle::makeOutputDir() const
 {
    // Need to create output directory if it does not exist.
