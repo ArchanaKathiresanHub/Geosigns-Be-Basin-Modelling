@@ -54,46 +54,66 @@ using namespace Interface;
 static bool snapshotSorter (const Interface::Snapshot * snapshot1, const Interface::Snapshot * snapshot2);
 static bool snapshotIsEqual (const Interface::Snapshot * snapshot1, const Interface::Snapshot * snapshot2);
 
+#if 0
+// This is replaced by initialization of m_basementPropertiesList in the constructor as the method that was used earlier for initialization 
+// of m_basementPropertiesList with the hard coded value of number of properties, was error-prone.
 static const char * basementProperties [] = {"BulkDensity", "Diffusivity",
                                              "HeatFlow", "Reflectivity",
                                              "SonicSlowness", "ThCond", "Velocity", "Depth",
                                              "Temperature", "LithoStaticPressure",
                                              "Thickness", "Lithology", "ALC",
-                                             "DepthHighRes", "ThicknessHighRes"};
-
+                                             "DepthHighRes", "ThicknessHighRes","DepthBelowMudline"};
+#endif
 //------------------------------------------------------------//
 
-AbstractPropertiesCalculator::AbstractPropertiesCalculator(int aRank) : m_basementPropertiesList (basementProperties, basementProperties + 15)
+AbstractPropertiesCalculator::AbstractPropertiesCalculator(int aRank)
 {
+    m_basementPropertiesList.emplace("BulkDensity");
+    m_basementPropertiesList.emplace("Diffusivity");
+    m_basementPropertiesList.emplace("HeatFlow");
+    m_basementPropertiesList.emplace("Reflectivity");
+    m_basementPropertiesList.emplace("SonicSlowness");
+    m_basementPropertiesList.emplace("ThCond");
+    m_basementPropertiesList.emplace("Velocity");
+    m_basementPropertiesList.emplace("Depth");
+    m_basementPropertiesList.emplace("Temperature");
+    m_basementPropertiesList.emplace("LithoStaticPressure");
+    m_basementPropertiesList.emplace("Thickness");
+    m_basementPropertiesList.emplace("Lithology");
+    m_basementPropertiesList.emplace("ALC");
+    m_basementPropertiesList.emplace("DepthHighRes");
+    m_basementPropertiesList.emplace("ThicknessHighRes");
+    m_basementPropertiesList.emplace("DepthBelowMudline");
 
-   m_rank = aRank;
+    m_rank = aRank;
 
-   m_debug            = false;
-   m_basement         = true;
-   m_all2Dproperties  = false;
-   m_all3Dproperties  = false;
-   m_listProperties   = false;
-   m_listSnapshots    = false;
-   m_listStratigraphy = false;
-   m_primaryPod       = false;
-   m_extract2D        = false;
-   m_no3Dproperties   = false;
+    m_debug            = false;
+    m_basement         = true;
+    m_all2Dproperties  = false;
+    m_all3Dproperties  = false;
+    m_listProperties   = false;
+    m_listSnapshots    = false;
+    m_listStratigraphy = false;
+    m_primaryPod       = false;
+    m_extract2D        = false;
+    m_no3Dproperties   = false;
 
-   m_snapshotsType = MAJOR;
+    m_snapshotsType = MAJOR;
 
-   m_projectFileName = "";
-   m_simulationMode  = "";
-   m_activityName    = "";
-   m_decompactionMode = false;
+    m_projectFileName = "";
+    m_simulationMode  = "";
+    m_activityName    = "";
+    m_decompactionMode = false;
 
-   m_projectHandle   = 0;
-   m_propertyManager = 0;
-   m_activeGrid      = 0;
+    m_projectHandle   = 0;
+    m_propertyManager = 0;
+    m_activeGrid      = 0;
 }
 
 //------------------------------------------------------------//
 
-AbstractPropertiesCalculator::~AbstractPropertiesCalculator() {
+AbstractPropertiesCalculator::~AbstractPropertiesCalculator() 
+{
 
    if (m_propertyManager != 0) delete m_propertyManager;
    m_propertyManager = 0;
@@ -107,13 +127,15 @@ GeoPhysics::ProjectHandle& AbstractPropertiesCalculator::getProjectHandle() cons
 }
 //------------------------------------------------------------//
 
-DerivedPropertyManager& AbstractPropertiesCalculator::getPropertyManager() const {
+DerivedPropertyManager& AbstractPropertiesCalculator::getPropertyManager() const 
+{
 
    return *m_propertyManager;
 }
 //------------------------------------------------------------//
 
-bool  AbstractPropertiesCalculator::finalise (bool isComplete) {
+bool  AbstractPropertiesCalculator::finalise (bool isComplete) 
+{
 
    PetscLogDouble Start_Time;
    PetscTime(&Start_Time);

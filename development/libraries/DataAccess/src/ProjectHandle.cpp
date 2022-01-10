@@ -900,7 +900,7 @@ bool ProjectHandle::loadSurfaces( void )
    return true;
 }
 
-/// Actually, the properties are created here, hardwired.
+/// Actually, the properties are created here, hardwired. (Listed in alphabetical order)
 bool ProjectHandle::loadProperties( void )
 {
    using Interface::FORMATIONPROPERTY;
@@ -925,6 +925,7 @@ bool ProjectHandle::loadProperties( void )
    m_properties.push_back( getFactory()->produceProperty( *this, 0, "ChemicalCompaction",             "ChemicalCompaction",             "frac",  FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
    m_properties.push_back( getFactory()->produceProperty( *this, 0, "BulkDensity",                    "BulkDensityVec2",                "kg/m3", FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
    m_properties.push_back( getFactory()->produceProperty( *this, 0, "Depth",                          "Depth",                          "m",     FORMATIONPROPERTY, DataModel::CONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "DepthBelowMudline",              "DepthBelowMudline",              "m",     FORMATIONPROPERTY, DataModel::CONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
    m_properties.push_back( getFactory()->produceProperty( *this, 0, "DepthHighRes",                   "DepthHighRes",                   "m",     FORMATIONPROPERTY, DataModel::CONTINUOUS_3D_PROPERTY, DataModel::FASTMIG_PROPERTY ));
    m_properties.push_back( getFactory()->produceProperty( *this, 0, "Diffusivity",                    "DiffusivityVec2",                "m2/s",  FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
    m_properties.push_back( getFactory()->produceProperty( *this, 0, "ErosionFactor",                  "ErosionFactor",                  "",      FORMATIONPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
@@ -946,7 +947,6 @@ bool ProjectHandle::loadProperties( void )
    m_properties.push_back( getFactory()->produceProperty( *this, 0, "HeatFlowX",                      "HeatFlowX",                      "mW/m2", FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
    m_properties.push_back( getFactory()->produceProperty( *this, 0, "HeatFlowY",                      "HeatFlowY",                      "mW/m2", FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
    m_properties.push_back( getFactory()->produceProperty( *this, 0, "HeatFlowZ",                      "HeatFlowZ",                      "mW/m2", FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
-
 
    m_properties.push_back( getFactory()->produceProperty( *this, 0, "HydroStaticPressure",            "HydroStaticPressure",            "MPa",   FORMATIONPROPERTY, DataModel::CONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
 

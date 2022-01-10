@@ -52,6 +52,7 @@
 #include "ThermalDiffusivityFormationCalculator.h"
 #include "TwoWayTimeFormationCalculator.h"
 #include "VelocityFormationCalculator.h"
+#include "DepthBelowMudlineFormationCalculator.h"
 
 // Derived formation-map property calculators
 #include "AllochthonousLithologyFormationMapCalculator.h"
@@ -231,6 +232,8 @@ void DerivedProperties::DerivedPropertyManager::loadDerivedFormationPropertyCalc
   loadDerivedFormationPropertyCalculator(FormationPropertyCalculatorPtr(new HeatFlowFormationCalculator(m_projectHandle)), debug);
 
   loadDerivedFormationPropertyCalculator(FormationPropertyCalculatorPtr(new FluidVelocityFormationCalculator(m_projectHandle)), debug);
+
+  loadDerivedFormationPropertyCalculator(FormationPropertyCalculatorPtr(new DepthBelowMudlineFormationCalculator(m_projectHandle)), debug);
 }
 
 void  DerivedProperties::DerivedPropertyManager::loadDerivedFormationMapPropertyCalculator(FormationMapPropertyCalculatorPtr formationMapPropertyCalculator)

@@ -31,6 +31,8 @@ create_bm_library( TARGET ${LIB_NAME}
 
 generate_dox( DerivedProperties.cfg )
 
+copy_test_file(DBMProject.project3d)
+
 
 ################################################################
 ######################## UNIT TESTS ############################
@@ -138,6 +140,14 @@ add_gtest( NAME ${LIB_NAME}::GammaRayFormationCalculatorTest
            INCLUDE_DIRS  ${CMAKE_CURRENT_SOURCE_DIR}/src ${CMAKE_CURRENT_SOURCE_DIR}/../DataModel/test ${CMAKE_CURRENT_SOURCE_DIR}/../DataAccess/src ${CMAKE_CURRENT_SOURCE_DIR}/../DistributedDataAccess/src ${PETSC_INCLUDE_DIRS}
            LIBRARIES ${LIB_NAME} ${PETSC_LIBRARIES} Utilities_Petsc GeoPhysics DataAccess DistributedDataAccess
            LINK_FLAGS "${PETSC_LINK_FLAGS}"
+           FOLDER "${BASE_FOLDER}/${LIB_NAME}"
+)
+
+add_gtest( NAME ${LIB_NAME}::DepthBelowMudlinePropertyTest
+           SOURCES test/DepthBelowMudlinePropertyTest.cpp
+           INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/../DataModel/test ${CMAKE_CURRENT_SOURCE_DIR}/../GeoPhysics/src ${CMAKE_CURRENT_SOURCE_DIR}/src ${CMAKE_CURRENT_SOURCE_DIR}/../DataAccess/src ${CMAKE_CURRENT_SOURCE_DIR}/../DistributedDataAccess/src
+           LIBRARIES ${LIB_NAME} SerialDataAccess GeoPhysics DataModel DataAccess DistributedDataAccess
+	       ENV_VARS CTCDIR=${PROJECT_SOURCE_DIR}/geocase/misc
            FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
