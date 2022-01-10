@@ -36,6 +36,15 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2022-01-10  Sumant.Kalra  <Sumant.Kalra@shell.com>
+
+	new: usr: DepthBelowMudline as Cauldron Output. !feature.
+	 * DepthBelowMudline is implemented as a derived output property in the cauldron
+	 * Related work items: #363523, #445686
+	================== COMMIT-END ========================
+	Commit-ID:<8180f9a1f3c7d25a32c09c8d2f0c7cf0e9a994d0>	  (HEAD -> Developers/sumant.kalra/445686/DBM-ChangeLog, origin/master, origin/Developers/sumant.kalra/445686/DBM-ChangeLog, master)
+
+++
 2021-12-23  Richard Faasse  <Richard.Faasse@shell.com>
 
 	chg: Improving the partitioning based on the Valid/Invalid node distribution
