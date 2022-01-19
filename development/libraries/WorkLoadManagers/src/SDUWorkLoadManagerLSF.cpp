@@ -99,6 +99,7 @@ bool workloadmanagers::WorkLoadManagerForLSF::writeProjectNameSpecification(cons
 // 
 bool workloadmanagers::WorkLoadManagerForLSF::writeWaitTimeSpecification(int theJobSubmissionWaitTimeSpec)
 {
+#ifdef WLM_RUNTIME
 	int hours = theJobSubmissionWaitTimeSpec / 3600;
 	theJobSubmissionWaitTimeSpec %= 3600;
 	int minutes = theJobSubmissionWaitTimeSpec / 60;
@@ -108,6 +109,9 @@ bool workloadmanagers::WorkLoadManagerForLSF::writeWaitTimeSpecification(int the
 		return true;
 	}
     return false;
+#else
+	return true;
+#endif
 }
 
 bool workloadmanagers::WorkLoadManagerForLSF::writeJobNameSpecification(const std::string& theJobSubmissionJobName)
@@ -172,6 +176,15 @@ bool workloadmanagers::WorkLoadManagerForLSF::writeInteractiveSessionSpecificati
 		return true;
 	}
     return false;
+}
+
+bool workloadmanagers::WorkLoadManagerForLSF::writeWaitForJobToFinish(bool)
+{
+	if ((*getTheFileStream()).is_open()) { // check for successful opening
+		(*getTheFileStream()) << theSchedulerDirective() << "\t -K \n" ;
+		return true;
+	}
+	return false;
 }
 
 bool workloadmanagers::WorkLoadManagerForLSF::writeCWDSpecification(const std::string& theJobSubmissionCWDSpec)

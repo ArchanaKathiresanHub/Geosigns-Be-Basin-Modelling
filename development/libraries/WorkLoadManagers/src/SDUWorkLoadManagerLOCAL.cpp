@@ -99,6 +99,11 @@ bool workloadmanagers::WorkLoadManagerForLOCAL::writeInteractiveSessionSpecifica
     return false;
 }
 
+bool workloadmanagers::WorkLoadManagerForLOCAL::writeWaitForJobToFinish(bool)
+{
+	return false;
+}
+
 bool workloadmanagers::WorkLoadManagerForLOCAL::writeCWDSpecification(const std::string& theJobSubmissionCWDSpec)
 {
 	return false;

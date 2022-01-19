@@ -36,6 +36,7 @@ namespace workloadmanagers {
 		 bool writeErrorLogSpecification(const std::string& theJobSubmissionErrorLogSpec) final;
 		 bool writeExlusivitySpecification(bool) final;
 		 bool writeInteractiveSessionSpecification(bool) final;
+		 bool writeWaitForJobToFinish(bool) final;
 		 bool writeCWDSpecification(const std::string& theJobSubmissionCWDSpec) final;
 		 bool writeQueueSpecification(const std::string& theJobSubmissionQueueSpec) final;
 		 std::string theSchedulerDirective() final;
@@ -46,6 +47,7 @@ namespace workloadmanagers {
 		 int getJobIDFromOutputOfSubmissionCommand(const std::string &output) const override;
 		 enum JobStatus getJobStatusFromOutputOfJobStatusCommand(const std::string &output) const override;
 		 enum JobStatus getJobStatusFromOutputOfJobStatusFinishedJobsCommand(const std::string& output) const override;
+		 enum WorkLoadManagerType getWlmType(void) const final { return WorkLoadManagerType::SLURM; };
 
 	private:
 		 std::string getJobStatusString(const std::string& output) const;

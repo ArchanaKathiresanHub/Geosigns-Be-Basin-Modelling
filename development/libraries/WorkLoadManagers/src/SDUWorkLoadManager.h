@@ -41,7 +41,7 @@ namespace workloadmanagers
 	};
 
 	std::string GetCurrentWorkingDir();
-
+	std::string exec(const char* cmd);
 	/// <summary>
 	/// This is the storage class for all variables related
 	/// to HPC
@@ -113,6 +113,7 @@ namespace workloadmanagers
 		virtual int getJobIDFromOutputOfSubmissionCommand(const std::string& output) const = 0;
 		virtual JobStatus getJobStatusFromOutputOfJobStatusCommand(const std::string& output) const = 0;
 		virtual JobStatus getJobStatusFromOutputOfJobStatusFinishedJobsCommand(const std::string& output) const = 0;
+		virtual WorkLoadManagerType getWlmType(void) const = 0;
 
 	protected:
 		virtual bool writeProjectNameSpecification(const std::string & theJobSubmissionProjectName) = 0;
@@ -136,6 +137,7 @@ namespace workloadmanagers
 		virtual bool writeErrorLogSpecification(const std::string& theJobSubmissionErrorLogSpec) = 0;
 		virtual bool writeExlusivitySpecification(bool isExclusive) = 0;
 		virtual bool writeInteractiveSessionSpecification(bool isInteractiveSession) = 0;
+		virtual bool writeWaitForJobToFinish(bool) = 0;
 		virtual bool writeCWDSpecification(const std::string& theJobSubmissionCWDSpec) = 0;
 		virtual bool writeQueueSpecification(const std::string& theJobSubmissionQueueSpec) = 0;
 

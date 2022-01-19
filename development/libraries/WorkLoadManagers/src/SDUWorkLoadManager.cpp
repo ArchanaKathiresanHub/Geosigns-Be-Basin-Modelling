@@ -17,7 +17,7 @@
 #include <fstream>
 
 #ifndef WIN32
-std::string exec(const char* cmd) {
+std::string workloadmanagers::exec(const char* cmd) {
     std::array<char, 128> buffer;
     std::string result;
     std::unique_ptr<FILE, decltype(&pclose)> pipe(popen(cmd, "r"), pclose);
@@ -83,7 +83,7 @@ std::unique_ptr<workloadmanagers::WorkLoadManager> workloadmanagers::WorkLoadMan
 #ifndef WIN32
 		if(!found)
 		{
-			std::string result = exec("which sbatch");
+			std::string result = workloadmanagers::exec("which sbatch");
 			if (!result.empty()
 					|| access("/usr/bin/srun", 0) != -1
 					|| (getenv("SLURM_INSTALL") && !std::string(std::getenv("SLURM_INSTALL")).empty()))
@@ -159,6 +159,8 @@ std::string workloadmanagers::WorkLoadManager::JobSubmissionCommand(const std::s
 		writeErrorLogSpecification(errorfilename);
 		writeExlusivitySpecification(isExlusive);
 		writeInteractiveSessionSpecification(isInteractiveSession);
+		/// esp. needed for SLURM
+		writeWaitForJobToFinish(true);
 	}
 
 	if (cwd.empty() && isSuccess)

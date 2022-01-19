@@ -147,6 +147,7 @@ bool workloadmanagers::WorkLoadManagerForSLURM::writeProjectNameSpecification(co
 
 bool workloadmanagers::WorkLoadManagerForSLURM::writeWaitTimeSpecification(int theJobSubmissionWaitTimeSpec)
 {
+#ifdef WLM_RUNTIME
 	int hours = theJobSubmissionWaitTimeSpec / 3600;
 	theJobSubmissionWaitTimeSpec %= 3600;
 	int minutes = theJobSubmissionWaitTimeSpec / 60;
@@ -158,6 +159,9 @@ bool workloadmanagers::WorkLoadManagerForSLURM::writeWaitTimeSpecification(int t
 		return true;
 	}
     return false;
+#else
+	return true;
+#endif
 }
 
 bool workloadmanagers::WorkLoadManagerForSLURM::writeJobNameSpecification(const std::string& theJobSubmissionJobName)
@@ -215,13 +219,21 @@ bool workloadmanagers::WorkLoadManagerForSLURM::writeExlusivitySpecification(boo
     return false;
 }
 
-bool workloadmanagers::WorkLoadManagerForSLURM::writeInteractiveSessionSpecification(bool isInteractive)
+bool workloadmanagers::WorkLoadManagerForSLURM::writeWaitForJobToFinish(bool doWait)
 {
-	if ((*getTheFileStream()).is_open() && isInteractive) { // check for successful opening
+	/// Do not exit until the submitted job terminates. 
+	/// The exit code of the sbatch command will be the same as the exit code of the submitted job
+	if ((*getTheFileStream()).is_open() && doWait) { // check for successful opening
 		(*getTheFileStream()) << theSchedulerDirective() << "\t -W" << '\n';
 		return true;
 	}
     return false;
+}
+
+// there is no Interactive way to JobSubmission on SLURM
+bool workloadmanagers::WorkLoadManagerForSLURM::writeInteractiveSessionSpecification(bool isInteractive)
+{
+	return false;
 }
 
 bool workloadmanagers::WorkLoadManagerForSLURM::writeCWDSpecification(const std::string& theJobSubmissionCWDSpec)

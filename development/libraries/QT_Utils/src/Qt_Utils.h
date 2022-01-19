@@ -1,7 +1,12 @@
+#ifndef Qt_Utils_h__
+#define Qt_Utils_h__
+
 #include <QDateTime>
 #include <QDir>
 #include <QFile>
 #include <QTextStream>
+#include <QTextEdit>
+
 
 namespace qtutils {
 	constexpr int MAX_PROCS = 1000;
@@ -16,5 +21,29 @@ namespace qtutils {
 	QString ExportApplicationPath(void);
 
 	QString IsValidNoOfProcs(QString noOfProcs);
+
+	bool delay(int secs);
+
+	class FileLogger
+	{
+	public:
+		/// <summary>
+		/// giving more flexibility to revisit logged lines
+		/// </summary>
+		/// <param name="lineNumber"></param>
+		void returnToLineNumber(int lineNumber=0);
+		void logFromFile(const QString& logFilePath, QTextEdit* theText) const;
+		void finishupLogging(const QString& logFilePath, QTextEdit* theText=nullptr) const;
+		/// Sometimes the WLM returns thread even before the log files is closed for reading, next.
+		/// Hence we wait for 100 ms before trying again
+		int readFileWhenCreated(const QString& logFilePath, QTextEdit* theText) const;
+	private:
+		int lineNr_ = 0;
+		const int maxRetryCount = 600;// approx 1 min
+	};
+
+	
+
 }
 
+#endif // Qt_Utils_h__
