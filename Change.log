@@ -36,6 +36,14 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2022-01-21  Richard Faasse  <Richard.Faasse@shell.com>
+
+	fix: Small fix for UA graphs to make percentile text readable in plot & move the reading of the project3dfile !minor
+	* Related work items: #339574
+	================== COMMIT-END ========================
+	Commit-ID:<e6411e38336e9cbd957526ac615a492023af4252>	  (refs/heads/master)
+
+++
 2022-01-10  Sumant.Kalra  <Sumant.Kalra@shell.com>
 
 	new: usr: DepthBelowMudline as Cauldron Output. !feature.
