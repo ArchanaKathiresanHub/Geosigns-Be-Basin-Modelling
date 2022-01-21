@@ -86,17 +86,15 @@ void MainController::slotOpen()
     return;
   }
 
-  QString file{fileName};
-  ScenarioReader reader{file};
-  scenario().readFromFile(reader);
-
   QDir folderLocation = QFileInfo(fileName).dir();
   folderLocation.cdUp();
   scenario().setWorkingDirectory( folderLocation.path() );
 
-  scenario().loadProject3dFile();
-
+  QString file{fileName};
+  ScenarioReader reader{file};
+  scenario().readFromFile(reader);
   emit signalProjectOpened();
+
   showFirstTab();
   Logger::log() << "Reading from file " << file << Logger::endl();
 }

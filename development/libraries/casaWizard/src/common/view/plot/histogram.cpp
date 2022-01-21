@@ -94,10 +94,13 @@ void Histogram::drawData(QPainter& painter)
 
   for ( int i = 0; i<percentileValues_.size(); ++i)
   {
-    QPointF bottom = valToPoint(percentileValues_[i], 0.0);
-    const qreal x = bottom.x();
-    painter.drawLine(bottom, QPointF(x, 0));
-    painter.drawText(QPointF(x - 22, 20),
+    const QPointF bottom = valToPoint(percentileValues_[i], 0.0);
+    const QPointF top = valToPoint(percentileValues_[i], yAxisMaxValue());
+    painter.drawLine(bottom, top);
+
+    const QFontMetrics fontMetrics(painter.font());
+    const int fontHeight = fontMetrics.height();
+    painter.drawText(top + QPointF(-22, fontHeight),
                      "P" + QString::number(percentileTargets[i]*100,'f',0) +
                      " (" + QString::number(percentileValues_[i],'g',4) + ")");
   }

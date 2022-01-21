@@ -232,6 +232,8 @@ void CasaScenario::readFromFile(const ScenarioReader& reader)
   expertUser_ = reader.readBool("expertUser");
   numberCPUs_ = reader.readInt("numberCPUs");
 
+  loadProject3dFile();
+
   calibrationTargetManager_.readFromFile(reader);
   if (version >= 2)
   {
