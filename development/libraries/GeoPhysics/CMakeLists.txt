@@ -235,3 +235,14 @@ add_gtest( NAME ${LIB_NAME}::ConfigFileAlc
       ENV_VARS CTCDIR=${PROJECT_SOURCE_DIR}/geocase/misc
       FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
+
+copy_test_file(FracturePressureFuncOfDepth.project3d)
+copy_test_file(FracturePressureFuncOfLithostaticPress.project3d)
+copy_test_file(FracturePressureNoFracPress.project3d)
+
+add_gtest( NAME ${LIB_NAME}::FracturePressureCalculator
+      SOURCES test/FracturePressureCalculatorTest.cpp
+      LIBRARIES ${LIB_NAME} DataAccess SerialDataAccess
+      ENV_VARS CTCDIR=${PROJECT_SOURCE_DIR}/geocase/misc
+      FOLDER "${BASE_FOLDER}/${LIB_NAME}"
+)

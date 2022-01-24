@@ -15,6 +15,7 @@
 #include "GeoPhysicalConstants.h"
 #include "GeoPhysicalFunctions.h"
 #include "NumericFunctions.h"
+#include "LogHandler.h"
 
 // std library
 #include <vector>
@@ -31,8 +32,8 @@ GeoPhysics::FracturePressureCalculator::FracturePressureCalculator (DataAccess::
    if(m_fracturePressureFunctionParameters)
       m_selectedFunction = m_fracturePressureFunctionParameters->type ();
 
-   if ( m_selectedFunction == DataAccess::Interface::FunctionOfDepthWrtSeaLevelSurface or
-        m_selectedFunction == DataAccess::Interface::FunctionOfDepthWrtSedimentSurface ) {
+   if ( m_selectedFunction == DataAccess::Interface::FracturePressureFunctionType::FunctionOfDepthWrtSeaLevelSurface or
+        m_selectedFunction == DataAccess::Interface::FracturePressureFunctionType::FunctionOfDepthWrtSedimentSurface ) {
       m_a = m_fracturePressureFunctionParameters->coefficients ()[ 0 ];
       m_b = m_fracturePressureFunctionParameters->coefficients ()[ 1 ];
       m_c = m_fracturePressureFunctionParameters->coefficients ()[ 2 ];
@@ -42,6 +43,8 @@ GeoPhysics::FracturePressureCalculator::FracturePressureCalculator (DataAccess::
       m_b = DataAccess::Interface::DefaultUndefinedScalarValue;
       m_c = DataAccess::Interface::DefaultUndefinedScalarValue;
       m_d = DataAccess::Interface::DefaultUndefinedScalarValue;
+      if ( m_selectedFunction == DataAccess::Interface::FracturePressureFunctionType::None )
+          LogHandler(LogHandler::INFO_SEVERITY) << "No fracture type is selected , hence fracture pressure calculations will be avoided";
    }
 
 }
@@ -106,9 +109,8 @@ double GeoPhysics::FracturePressureCalculator::fracturePressure  ( const Compoun
   }
 
   if ( calculatedFracturePressure != DataAccess::Interface::DefaultUndefinedScalarValue and calculatedFracturePressure != NoFracturePressureValue ) {
-    // Set fracture pressure to be within reasonable range.
-    calculatedFracturePressure = NumericFunctions::Minimum<double>( calculatedFracturePressure, lithostaticPressure );
-    calculatedFracturePressure = NumericFunctions::Maximum<double>( calculatedFracturePressure, hydrostaticPressure );
+      // bound calculated fracture pressure value within a resonable range of lithostaticPressure & hydrostaticPressure.
+      calculatedFracturePressure = NumericFunctions::clipValueToRange(calculatedFracturePressure, hydrostaticPressure, lithostaticPressure);
   }
 
   return calculatedFracturePressure;
@@ -136,9 +138,6 @@ double GeoPhysics::FracturePressureCalculator::fracturePressure ( const Compound
    // The pressure at the bottom of the sea.
    // Valid only for FunctionOfDepthWrtSeaLevelSurface.
    double sedimentSurfaceHydrostaticPressure;
-
-
-
 
    switch ( m_selectedFunction ) {
 
@@ -179,10 +178,8 @@ double GeoPhysics::FracturePressureCalculator::fracturePressure ( const Compound
    }
 
    if ( calculatedFracturePressure != DataAccess::Interface::DefaultUndefinedScalarValue and calculatedFracturePressure != NoFracturePressureValue ) {
-      // Set fracture pressure to be within reasonable range.
-      // calculatedFracturePressure = clipRange ( calculatedFracturePressure, hydrostaticPressure, lithostaticPressure );
-      calculatedFracturePressure = NumericFunctions::Minimum ( calculatedFracturePressure, lithostaticPressure );
-      calculatedFracturePressure = NumericFunctions::Maximum ( calculatedFracturePressure, hydrostaticPressure );
+       // bound calculated fracture pressure value within a resonable range of lithostaticPressure & hydrostaticPressure.
+       calculatedFracturePressure = NumericFunctions::clipValueToRange(calculatedFracturePressure, hydrostaticPressure, lithostaticPressure );
    }
 
    return calculatedFracturePressure;

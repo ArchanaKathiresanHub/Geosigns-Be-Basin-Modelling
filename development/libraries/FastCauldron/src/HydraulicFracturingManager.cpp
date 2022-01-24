@@ -17,6 +17,8 @@
 #include "PressureSolver.h"
 #include "layer_iterators.h"
 #include "utils.h"
+#include "LogHandler.h"
+#include "FormattingException.h"
 
 #include "FastcauldronSimulator.h"
 
@@ -230,36 +232,41 @@ void HydraulicFracturingManager::checkForFracturing ( const double currentTime,
 
   using namespace Basin_Modelling;
 
-  if (m_fracturePressureCalculator->getFracturePressureFunctionParameters() == nullptr ||  m_fracturePressureCalculator->getFracturePressureFunctionParameters ()->type () == Interface::None ) {
-//   if ( m_functionSelection == NO_FRACTURE_PRESSURE ) {
-    return;
+  if ( m_fracturePressureCalculator->getFracturePressureFunctionParameters() == nullptr ) {
+      throw std::runtime_error( " Fracture pressure function parameters can't be empty, check the inputs ");
   }
-
-  bool layerHasFractured;
-
-  modelHasFractured = false;
-
-  Layer_Iterator Layers ( m_basinModel->layers, Ascending, Sediments_Only, Active_Layers_Only );
-
-  while ( ! Layers.Iteration_Is_Done ()) {
-    checkForFracturing ( Layers.Current_Layer (), currentTime, m_basinModel->getValidNeedles (), applyNonConservativeModel, layerHasFractured );
-
-    // Since there has been a synchronisation at the layer level, there is no need to perform a further sync here.
-    // The layerHasFractured variable already contains the globally (all processes) value.
-    modelHasFractured = modelHasFractured || layerHasFractured;
-    Layers++;
+  if ( m_fracturePressureCalculator->getFracturePressureFunctionParameters()->type() == Interface::FracturePressureFunctionType::None ) {
+      LogHandler(LogHandler::INFO_SEVERITY) << " Fracture pressure calculations is not enabled \n";       
+      return;
   }
+  else
+  {
+      bool layerHasFractured;
 
-  if (m_basinModel->debug1 || m_basinModel->verbose ) {
+      modelHasFractured = false;
 
-    if ( modelHasFractured ) {
-      PetscPrintf ( PETSC_COMM_WORLD, " Model has fractured \n" );
-    } else {
-      PetscPrintf ( PETSC_COMM_WORLD, " Model has not fractured \n" );
-    }
+      Layer_Iterator Layers(m_basinModel->layers, Ascending, Sediments_Only, Active_Layers_Only);
 
+      while (!Layers.Iteration_Is_Done()) {
+          checkForFracturing(Layers.Current_Layer(), currentTime, m_basinModel->getValidNeedles(), applyNonConservativeModel, layerHasFractured);
+          if ( layerHasFractured ) {
+              LogHandler(LogHandler::INFO_SEVERITY) << "Layer " << Layers.Current_Layer()->getName() << " has fractured at " << currentTime << " Ma" ;
+          }
+
+          // Since there has been a synchronisation at the layer level, there is no need to perform a further sync here.
+          // The layerHasFractured variable already contains the globally (all processes) value.
+          modelHasFractured = modelHasFractured || layerHasFractured;
+          Layers++;
+      }
+
+     if (modelHasFractured){
+         LogHandler(LogHandler::INFO_SEVERITY) << " Model has fractured at " << currentTime << " Ma";
+     }
+     else {
+         LogHandler(LogHandler::INFO_SEVERITY) << " Model has not fractured at " << currentTime << " Ma";
+     }
+      
   }
-
 }
 
 //------------------------------------------------------------//

@@ -423,10 +423,10 @@ void LayerProps::initialise () {
 
       FastcauldronSimulator::DACreate3D ( getMaximumNumberOfElements() + 1, FCT_DA );
       fracturedPermeabilityScaling.create ( FCT_DA );
-      fracturedPermeabilityScaling.fill ( 0 );
+      fracturedPermeabilityScaling.fill ( 0.0 );
 
       pressureExceedsFracturePressure.create ( FCT_DA );
-      pressureExceedsFracturePressure.fill ( 0 );
+      pressureExceedsFracturePressure.fill ( false );
 
       nodeIsTemporarilyDirichlet.create ( FCT_DA );
       nodeIsTemporarilyDirichlet.fill ( false );

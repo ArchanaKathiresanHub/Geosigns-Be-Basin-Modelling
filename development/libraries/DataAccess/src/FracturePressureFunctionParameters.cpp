@@ -2,6 +2,7 @@
 #include "RunParameters.h"
 
 #include "cauldronschemafuncs.h"
+#include "LogHandler.h"
 
 #include <assert.h>
 
@@ -13,30 +14,30 @@ FracturePressureFunctionParameters::FracturePressureFunctionParameters(
    ProjectHandle& projectHandle, database::Record* runOptionsIoTblRecord,
    database::Record* pressureIoTblRecord):
    DAObject(projectHandle, pressureIoTblRecord),
-   m_type(None)
+   m_type(FracturePressureFunctionType::None), m_name("")
 {
-   string function = database::getFractureType(runOptionsIoTblRecord);
-   if (function == "" || function.find("None") == 0)
-       m_type = None;
-   else if (function.find("FunctionOfDepthBelowSeaLevel") == 0)
-      m_type = FunctionOfDepthWrtSeaLevelSurface;
-   else if (function.find("FunctionOfDepthBelowSedimentSurface") == 0)
-      m_type = FunctionOfDepthWrtSedimentSurface;
-   else if (function.find("FunctionOfLithostaticPressure") == 0)
-      m_type = FunctionOfLithostaticPressure;
+   m_typeName = database::getFractureType(runOptionsIoTblRecord);
+   if (m_typeName == "" || m_typeName.find("None") == 0)
+       m_type = FracturePressureFunctionType::None;
+   else if (m_typeName.find("FunctionOfDepthBelowSeaLevel") == 0)
+      m_type = FracturePressureFunctionType::FunctionOfDepthWrtSeaLevelSurface;
+   else if (m_typeName.find("FunctionOfDepthBelowSedimentSurface") == 0)
+      m_type = FracturePressureFunctionType::FunctionOfDepthWrtSedimentSurface;
+   else if (m_typeName.find("FunctionOfLithostaticPressure") == 0)
+      m_type = FracturePressureFunctionType::FunctionOfLithostaticPressure;
    else assert(0);
 
-   m_typeName = function;
-   m_name = database::getPresFuncName ( pressureIoTblRecord );
+   if (pressureIoTblRecord)
+       m_name = database::getPresFuncName(pressureIoTblRecord);
 
    if ( projectHandle.getRunParameters ()->getFractureModel () <= 0 or
         projectHandle.getRunParameters ()->getFractureModel () > int ( CONSERVATIVE_2 )) {
-      m_fractureModel = NON_CONSERVATIVE_TOTAL;
+      m_fractureModel = FracturePressureModel::NON_CONSERVATIVE_TOTAL;
    } else {
       m_fractureModel = FracturePressureModel ( projectHandle.getRunParameters ()->getFractureModel ());
    }
 
-   if ( database::getSelected(m_record) == 1 and m_type != FunctionOfLithostaticPressure and m_type != None ) {
+   if ( m_type != FunctionOfLithostaticPressure and m_type != None and database::getSelected(m_record) == 1 ) {
       m_coefficients.push_back ( database::getCoefA(m_record));
       m_coefficients.push_back ( database::getCoefB(m_record));
       m_coefficients.push_back ( database::getCoefC(m_record));

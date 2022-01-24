@@ -1,0 +1,1731 @@
+;
+; START - Project.project3d Tue Jan  4 18:08:18 2022
+;
+;
+; ProjectIoTbl
+;
+[ProjectIoTbl]
+;v101
+             ProjectName              Description         ProjectStartDate           ProgramVersion                   XCoord                   YCoord                  NumberX                  NumberY                   DeltaX                   DeltaY                   ScaleX                   ScaleY                  OffsetX                  OffsetY               WindowXMin               WindowXMax               WindowYMin               WindowYMax
+                      ()                       ()                       ()                       ()                      (m)                      (m)                       ()                       ()                      (m)                      (m)                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()
+"Fracture Pressure" "To test fracture pressure calculations" "2021-02-23T05:39:50.000Z" "877ded1fd63b2707b3ab85d73b2bea03391016fd" 416500 6697000        185                      125                      500                      500                       20                       20                        0                        0                        0                      184                        0                      124
+[End]
+;
+;
+; RelatedProjectsIoTbl
+;
+[RelatedProjectsIoTbl]
+;v100
+                Filename
+                      ()
+[End]
+;
+;
+; BPANameMapping
+;
+[BPANameMapping]
+;v100
+      TblIoMappingEncode            BPAColumnName           BPAColumnValue
+                      ()                       ()                       ()
+[End]
+;
+;
+; RunOptionsIoTbl
+;
+[RunOptionsIoTbl]
+;v100
+            VreAlgorithm             VelAlgorithm       Optimisation_Level     Temperature_Gradient        AdvancedMigration HydrodynamicCapillaryPressure  ReservoirDetection               PaleoSeeps                   Legacy          StepsPerSegment    TempDiffBasedStepping            PrefReconstep     OptimalTotalPresDiff     OptimalTotalTempDiff OptimalSourceRockTempDiff MaxTimeStepIncreaseFactor MinTimeStepDecreaseFactor   BrickHeightSediment         BrickHeightCrust        BrickHeightMantle MaxNumberOfRunOverpressure FracturePressureFunction           FractureType            FractureModel             WorkflowType              CoupledMode       ChemicalCompaction ChemicalCompactionAlgorithm        ConvectiveTerm         NonGeometricLoop   AllochthonousModelling         ApplyOtgcToDarcy         DarcyMaxTimeStep           PTCouplingMode
+                      ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                     (Ma)                    (MPa)         (DegreesCelcius)         (DegreesCelcius)                       ()                     (Ma)                      (m)                      (m)                      (m)                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                     (Ma)                       ()
+     "Burnham & Sweeney" "Kennan's Velocity-Porosity"            "Level 2"                       30                        0                        0                        0                        0                        0                        1                        1                      0.1                      0.1                        4                        4                      1.5                      0.5                      400                     4000                    20000                       10              			"" 					"None"                 -9999       "StandardCauldron"                        1                        0             "Walderhaug"                        0                        0                        0                        1                    0.001              "ItCoupled"
+[End]
+;
+;
+; UserDefinedSnapshotIoTbl
+;
+[UserDefinedSnapshotIoTbl]
+;v100
+                    Time
+                    (Ma)
+[End]
+;
+;
+; FilterTimeIoTbl
+;
+[FilterTimeIoTbl]
+;v101
+            PropertyName             OutputOption             ResultOption
+                      ()                       ()                       ()
+        "BulkDensityVec"  "SedimentsPlusBasement"                 "Simple"
+                 "Depth"  "SedimentsPlusBasement"                 "Simple"
+        "DiffusivityVec"                   "None"                 "Simple"
+"DryGasGeneratedCumulative"                "None"                 "Simple"
+   "DryGasGeneratedRate"                   "None"                 "Simple"
+         "FaultElements"          "SedimentsOnly"                 "Simple"
+"HcGasGeneratedCumulative"       "SourceRockOnly"                 "Simple"
+    "HcGasGeneratedRate"         "SourceRockOnly"                 "Simple"
+"KerogenConversionRatio"         "SourceRockOnly"                 "Simple"
+"OilGeneratedCumulative"         "SourceRockOnly"                 "Simple"
+      "OilGeneratedRate"         "SourceRockOnly"                 "Simple"
+       "PermeabilityVec"          "SedimentsOnly"                 "Simple"
+           "PorosityVec"          "SedimentsOnly"                 "Simple"
+              "Pressure"          "SedimentsOnly"                 "Simple"
+       "ReflectivityVec"                   "None"                 "Simple"
+              "SonicVec"                   "None"                 "Simple"
+           "Temperature"  "SedimentsPlusBasement"                 "Simple"
+             "Thickness"                   "None"                 "Simple"
+            "TwoWayTime"                   "None"                 "Simple"
+    "TwoWayTimeResidual"                   "None"                 "Simple"
+                   "Ves"          "SedimentsOnly"                 "Simple"
+  "SourceRockEndMember1"                   "None"                 "Simple"
+  "SourceRockEndMember2"                   "None"                 "Simple"
+                   "TOC"         "SourceRockOnly"                 "Simple"
+"PorosityLossFromPyroBitumen"    "SourceRockOnly"                 "Simple"
+               "H2SRisk"         "SourceRockOnly"                 "Simple"
+"asphaltenesExpelledCumulative"  "SourceRockOnly"                 "Simple"
+"asphaltenesExpelledCumulativeSR"          "None"                 "Simple"
+"resinsExpelledCumulative"       "SourceRockOnly"                 "Simple"
+"resinsExpelledCumulativeSR"               "None"                 "Simple"
+"C15+AroExpelledCumulative"      "SourceRockOnly"                 "Simple"
+"C15+AroExpelledCumulativeSR"              "None"                 "Simple"
+"C15+SatExpelledCumulative"      "SourceRockOnly"                 "Simple"
+"C15+SatExpelledCumulativeSR"              "None"                 "Simple"
+"C6-14AroExpelledCumulative"     "SourceRockOnly"                 "Simple"
+"C6-14AroExpelledCumulativeSR"             "None"                 "Simple"
+"C6-14SatExpelledCumulative"     "SourceRockOnly"                 "Simple"
+"C6-14SatExpelledCumulativeSR"             "None"                 "Simple"
+  "C5ExpelledCumulative"         "SourceRockOnly"                 "Simple"
+"C5ExpelledCumulativeSR"                   "None"                 "Simple"
+  "C4ExpelledCumulative"         "SourceRockOnly"                 "Simple"
+"C4ExpelledCumulativeSR"                   "None"                 "Simple"
+  "C3ExpelledCumulative"         "SourceRockOnly"                 "Simple"
+"C3ExpelledCumulativeSR"                   "None"                 "Simple"
+  "C2ExpelledCumulative"         "SourceRockOnly"                 "Simple"
+"C2ExpelledCumulativeSR"                   "None"                 "Simple"
+  "C1ExpelledCumulative"         "SourceRockOnly"                 "Simple"
+"C1ExpelledCumulativeSR"                   "None"                 "Simple"
+ "COxExpelledCumulative"         "SourceRockOnly"                 "Simple"
+"COxExpelledCumulativeSR"                  "None"                 "Simple"
+  "N2ExpelledCumulative"         "SourceRockOnly"                 "Simple"
+"N2ExpelledCumulativeSR"                   "None"                 "Simple"
+ "H2SExpelledCumulative"         "SourceRockOnly"                 "Simple"
+"H2SExpelledCumulativeSR"                  "None"                 "Simple"
+ "LSCExpelledCumulative"         "SourceRockOnly"                 "Simple"
+"LSCExpelledCumulativeSR"                  "None"                 "Simple"
+"C15+ATExpelledCumulative"       "SourceRockOnly"                 "Simple"
+"C15+ATExpelledCumulativeSR"               "None"                 "Simple"
+"C6-14BTExpelledCumulative"      "SourceRockOnly"                 "Simple"
+"C6-14BTExpelledCumulativeSR"              "None"                 "Simple"
+"C6-14DBTExpelledCumulative"     "SourceRockOnly"                 "Simple"
+"C6-14DBTExpelledCumulativeSR"             "None"                 "Simple"
+"C6-14BPExpelledCumulative"      "SourceRockOnly"                 "Simple"
+"C6-14BPExpelledCumulativeSR"              "None"                 "Simple"
+"C15+AroSExpelledCumulative"     "SourceRockOnly"                 "Simple"
+"C15+AroSExpelledCumulativeSR"             "None"                 "Simple"
+"C15+SatSExpelledCumulative"     "SourceRockOnly"                 "Simple"
+"C15+SatSExpelledCumulativeSR"             "None"                 "Simple"
+"C6-14SatSExpelledCumulative"    "SourceRockOnly"                 "Simple"
+"C6-14SatSExpelledCumulativeSR"            "None"                 "Simple"
+"C6-14AroSExpelledCumulative"    "SourceRockOnly"                 "Simple"
+"C6-14AroSExpelledCumulativeSR"            "None"                 "Simple"
+"InstantaneousExpulsionApi"                "None"                 "Simple"
+"CumulativeExpulsionApi"                   "None"                 "Simple"
+"InstantaneousExpulsionCondensateGasRatio" "SourceRockOnly"       "Simple"
+"CumulativeExpulsionCondensateGasRatio" "SourceRockOnly"          "Simple"
+"InstantaneousExpulsionGasOilRatio" "SourceRockOnly"              "Simple"
+"CumulativeExpulsionGasOilRatio" "SourceRockOnly"                 "Simple"
+"InstantaneousExpulsionGasWetness"         "None"                 "Simple"
+"CumulativeExpulsionGasWetness"            "None"                 "Simple"
+"InstantaneousExpulsionAromaticity" "SourceRockOnly"              "Simple"
+"CumulativeExpulsionAromaticity" "SourceRockOnly"                 "Simple"
+ "OilExpelledCumulative"         "SourceRockOnly"                 "Simple"
+       "OilExpelledRate"         "SourceRockOnly"                 "Simple"
+"HcGasExpelledCumulative"        "SourceRockOnly"                 "Simple"
+     "HcGasExpelledRate"         "SourceRockOnly"                 "Simple"
+"DryGasExpelledCumulative"                 "None"                 "Simple"
+    "DryGasExpelledRate"                   "None"                 "Simple"
+"WetGasGeneratedCumulative"                "None"                 "Simple"
+   "WetGasGeneratedRate"                   "None"                 "Simple"
+"WetGasExpelledCumulative"                 "None"                 "Simple"
+    "WetGasExpelledRate"                   "None"                 "Simple"
+"SbearingHCsGeneratedCumulative"           "None"                 "Simple"
+"SbearingHCsGeneratedRate"                 "None"                 "Simple"
+"SbearingHCsExpelledCumulative"            "None"                 "Simple"
+"SbearingHCsExpelledRate"        "SourceRockOnly"                 "Simple"
+   "asphaltenesRetained"                   "None"                 "Simple"
+        "resinsRetained"                   "None"                 "Simple"
+       "C15+AroRetained"                   "None"                 "Simple"
+       "C15+SatRetained"                   "None"                 "Simple"
+      "C6-14AroRetained"                   "None"                 "Simple"
+      "C6-14SatRetained"                   "None"                 "Simple"
+            "C5Retained"                   "None"                 "Simple"
+            "C4Retained"                   "None"                 "Simple"
+            "C3Retained"                   "None"                 "Simple"
+            "C2Retained"                   "None"                 "Simple"
+            "C1Retained"                   "None"                 "Simple"
+            "C1Adsorped"         "SourceRockOnly"                 "Simple"
+           "COxRetained"                   "None"                 "Simple"
+            "N2Retained"                   "None"                 "Simple"
+           "H2SRetained"                   "None"                 "Simple"
+           "LSCRetained"                   "None"                 "Simple"
+        "C15+ATRetained"                   "None"                 "Simple"
+       "C6-14BTRetained"                   "None"                 "Simple"
+      "C6-14DBTRetained"                   "None"                 "Simple"
+       "C6-14BPRetained"                   "None"                 "Simple"
+      "C15+AroSRetained"                   "None"                 "Simple"
+      "C15+SatSRetained"                   "None"                 "Simple"
+     "C6-14SatSRetained"                   "None"                 "Simple"
+     "C6-14AroSRetained"                   "None"                 "Simple"
+    "AdsorptionCapacity"         "SourceRockOnly"                 "Simple"
+"FractionOfAdsorptionCap"        "SourceRockOnly"                 "Simple"
+  "GasExpansionRatio_Bg"         "SourceRockOnly"                 "Simple"
+           "HcLiquidSat"         "SourceRockOnly"                 "Simple"
+          "HcSaturation"         "SourceRockOnly"                 "Simple"
+           "HcVapourSat"         "SourceRockOnly"                 "Simple"
+      "ImmobileWaterSat"         "SourceRockOnly"                 "Simple"
+"Oil2GasGeneratedCumulative"     "SourceRockOnly"                 "Simple"
+      "OverChargeFactor"         "SourceRockOnly"                 "Simple"
+"RetainedCondensateApiSR"        "SourceRockOnly"                 "Simple"
+         "RetainedCgrSR"         "SourceRockOnly"                 "Simple"
+   "RetainedGasVolumeST"         "SourceRockOnly"                 "Simple"
+         "RetainedGorSR"         "SourceRockOnly"                 "Simple"
+      "RetainedOilApiSR"         "SourceRockOnly"                 "Simple"
+   "RetainedOilVolumeST"         "SourceRockOnly"                 "Simple"
+"TotalGasGeneratedCumulative"    "SourceRockOnly"                 "Simple"
+"ALCMaxAsthenoMantleDepth"                 "None"                 "Simple"
+"ALCOrigLithMantleDepth"                   "None"                 "Simple"
+  "ALCSmBasaltThickness"                   "None"                 "Simple"
+"ALCSmContCrustThickness"                  "None"                 "Simple"
+        "ALCSmMohoDepth"                   "None"                 "Simple"
+   "ALCSmTopBasaltDepth"                   "None"                 "Simple"
+"ALCStepBasaltThickness"  "SedimentsPlusBasement"                 "Simple"
+"ALCStepContCrustThickness" "SedimentsPlusBasement"               "Simple"
+      "ALCStepMohoDepth"  "SedimentsPlusBasement"                 "Simple"
+ "ALCStepTopBasaltDepth"  "SedimentsPlusBasement"                 "Simple"
+          "BrineDensity"                   "None"                 "Simple"
+        "BrineViscosity"                   "None"                 "Simple"
+         "ErosionFactor"          "SedimentsOnly"                 "Simple"
+        "FluidVelocityX"                   "None"                 "Simple"
+        "FluidVelocityY"                   "None"                 "Simple"
+        "FluidVelocityZ"                   "None"                 "Simple"
+             "HeatFlowX"                   "None"                 "Simple"
+             "HeatFlowY"                   "None"                 "Simple"
+             "HeatFlowZ"                   "None"                 "Simple"
+      "PermeabilityHVec"          "SedimentsOnly"                 "Simple"
+   "HydroStaticPressure"          "SedimentsOnly"                 "Simple"
+   "LithoStaticPressure"  "SedimentsPlusBasement"                 "Simple"
+             "MaxVesVec"          "SedimentsOnly"                 "Simple"
+          "OverPressure"          "SedimentsOnly"                 "Simple"
+             "ThCondVec"  "SedimentsPlusBasement"                 "Simple"
+                 "VrVec"          "SedimentsOnly"                 "Simple"
+      "FracturePressure"          "SedimentsOnly"                 "Simple"
+           "VelocityVec"                   "None"                 "Simple"
+        "ThicknessError"          "SedimentsOnly"                 "Simple"
+         "FCTCorrection"          "SedimentsOnly"                 "Simple"
+              "GammaRay"                   "None"                 "Simple"
+  "LithoType1Percentage"                   "None"                 "Simple"
+  "LithoType2Percentage"                   "None"                 "Simple"
+            "LayerIndex"                   "None"                 "Simple"
+[End]
+;
+;
+; WellLocIoTbl
+;
+[WellLocIoTbl]
+;v100
+                WellName                   XCoord                   YCoord                Longitude                 Latitude                    Datum            WellElevation             DerFloorElev               Waterdepth
+                      ()                      (m)                      (m)           (degs,minutes)           (degs,minutes)                       ()                      (m)                      (m)                      (m)
+[End]
+;
+;
+; GridMapIoTbl
+;
+[GridMapIoTbl]
+;v100
+              ReferredBy                  MapName                  MapType              MapFileName                MapSeqNbr
+                      ()                       ()                       ()                       ()                       ()
+[End]
+;
+;
+; StratIoTbl
+;
+[StratIoTbl]
+;v100
+             SurfaceName                  DepoAge                    Depth                DepthGrid                LayerName             DepoSequence                Thickness            ThicknessGrid               Lithotype1                 Percent1             Percent1Grid               Lithotype2                 Percent2             Percent2Grid               Lithotype3                 Percent3                 MixModel            LayeringIndex                Fluidtype               SourceRock              MobileLayer       HasAllochthonLitho       IsIgneousIntrusion      IgneousIntrusionAge                HydroSand       ChemicalCompaction   EnableSourceRockMixing          SourceRockType1          SourceRockType2       SourceRockMixingHI   SourceRockMixingHIGrid       SourceRockMixingHC   SourceRockMixingHCGrid       ElementRefinementZ           IncludeInDarcy
+                      ()                     (Ma)                      (m)                      (m)                       ()                       ()                      (m)                      (m)                       ()                (volume%)                (volume%)                       ()                (volume%)                (volume%)                       ()                (volume%)                       ()                       ()                       ()                       ()                       ()                       ()                       ()                     (Ma)                       ()                       ()                       ()                       ()                       ()               (kg/tonne)                       ()               (kg/tonne)                       ()                       ()                       ()
+          "Water bottom"                        0                        0                       ""                     "L1"                       10                    -9999                       ""                   "Coal"                      100                       ""                       ""                    -9999                       ""                       ""                    -9999            "Homogeneous"                    -9999         "Std. Sea Water"                        0                        0                        0                        0                    -9999                        0                        0                        0                       ""                       ""                    -9999                       ""                        0                       ""                        1                        0
+                    "S2"                       10                      500                       ""                     "L2"                        9                    -9999                       ""                   "Coal"                      100                       ""                       ""                    -9999                       ""                       ""                    -9999            "Homogeneous"                    -9999         "Std. Sea Water"                        0                        0                        0                        0                    -9999                        0                        0                        0                       ""                       ""                    -9999                       ""                        0                       ""                        1                        0
+                    "S3"                       20                     1000                       ""                     "L3"                        8                    -9999                       ""                   "Coal"                      100                       ""                       ""                    -9999                       ""                       ""                    -9999            "Homogeneous"                    -9999         "Std. Sea Water"                        0                        0                        0                        0                    -9999                        0                        0                        0                       ""                       ""                    -9999                       ""                        0                       ""                        1                        0
+                    "S4"                       30                     1500                       ""                     "L4"                        7                    -9999                       ""                   "Coal"                      100                       ""                       ""                    -9999                       ""                       ""                    -9999            "Homogeneous"                    -9999         "Std. Sea Water"                        0                        0                        0                        0                    -9999                        0                        0                        0                       ""                       ""                    -9999                       ""                        0                       ""                        1                        0
+                    "S5"                       40                     2000                       ""                     "L5"                        6                    -9999                       ""                   "Coal"                      100                       ""                       ""                    -9999                       ""                       ""                    -9999            "Homogeneous"                    -9999         "Std. Sea Water"                        0                        0                        0                        0                    -9999                        0                        0                        0                       ""                       ""                    -9999                       ""                        0                       ""                        1                        0
+                    "S6"                       50                     2500                       ""                     "L6"                        5                    -9999                       ""                   "Coal"                      100                       ""                       ""                    -9999                       ""                       ""                    -9999            "Homogeneous"                    -9999         "Std. Sea Water"                        0                        0                        0                        0                    -9999                        0                        0                        0                       ""                       ""                    -9999                       ""                        0                       ""                        1                        0
+                    "S7"                       60                     3000                       ""                     "L7"                        4                    -9999                       ""    "Shale, organic rich"                      100                       ""                       ""                    -9999                       ""                       ""                    -9999            "Homogeneous"                    -9999         "Std. Sea Water"                        0                        0                        0                        0                    -9999                        0                        0                        0                       ""                       ""                    -9999                       ""                        0                       ""                        1                        0
+                    "S8"                       70                     3500                       ""                     "L8"                        3                    -9999                       ""     "Sandstone, typical"                      100                       ""                       ""                    -9999                       ""                       ""                    -9999            "Homogeneous"                    -9999         "Std. Sea Water"                        0                        0                        0                        0                    -9999                        0                        0                        0                       ""                       ""                    -9999                       ""                        0                       ""                        1                        0
+                    "S9"                       80                     4000                       ""                     "L9"                        2                    -9999                       ""     "Mudstone, 50% clay"                      100                       ""                       ""                    -9999                       ""                       ""                    -9999            "Homogeneous"                    -9999         "Std. Sea Water"                        0                        0                        0                        0                    -9999                        0                        0                        0                       ""                       ""                    -9999                       ""                        0                       ""                        1                        0
+                   "S10"                       90                     4500                       ""                    "L10"                        1                    -9999                       ""     "Mudstone, 50% clay"                      100                       ""                       ""                    -9999                       ""                       ""                    -9999            "Homogeneous"                    -9999         "Std. Sea Water"                        0                        0                        0                        0                    -9999                        0                        0                        0                       ""                       ""                    -9999                       ""                        0                       ""                        1                        0
+          "Top basement"                      100                     5000                       ""                       ""                    -9999                    -9999                       ""                       ""                    -9999                       ""                       ""                    -9999                       ""                       ""                    -9999                       ""                    -9999                       ""                        0                        0                        0                        0                    -9999                        0                        0                        0                       ""                       ""                    -9999                       ""                        0                       ""                    -9999                        0
+[End]
+;
+;
+; MobLayThicknIoTbl
+;
+[MobLayThicknIoTbl]
+;v100
+               LayerName                      Age                Thickness            ThicknessGrid
+                      ()                     (Ma)                      (m)                      (m)
+[End]
+;
+;
+; AllochthonLithoIoTbl
+;
+[AllochthonLithoIoTbl]
+;v100
+               LayerName                Lithotype
+                      ()                       ()
+[End]
+;
+;
+; AllochthonLithoDistribIoTbl
+;
+[AllochthonLithoDistribIoTbl]
+;v100
+               LayerName         DistributionGrid                      Age
+                      ()                       ()                     (Ma)
+[End]
+;
+;
+; AllochthonLithoInterpIoTbl
+;
+[AllochthonLithoInterpIoTbl]
+;v100
+               LayerName           InterpFileName           NumberOfPoints         PolynomialDegree          InterpGroupName                 StartAge                   EndAge
+                      ()                       ()                       ()                       ()                       ()                     (Ma)                     (Ma)
+[End]
+;
+;
+; CrustIoTbl
+;
+[CrustIoTbl]
+;v100
+                     Age                Thickness            ThicknessGrid
+                    (Ma)                      (m)                      (m)
+[End]
+;
+;
+; ContCrustalThicknessIoTbl
+;
+[ContCrustalThicknessIoTbl]
+;v100
+                     Age                Thickness            ThicknessGrid
+                    (Ma)                      (m)                      (m)
+                       0                    35000                       ""
+[End]
+;
+;
+; OceaCrustalThicknessIoTbl
+;
+[OceaCrustalThicknessIoTbl]
+;v0
+                     Age                Thickness            ThicknessGrid
+                    (Ma)                      (m)                      (m)
+                       0                        0                       ""
+[End]
+;
+;
+; BasaltThicknessIoTbl
+;
+[BasaltThicknessIoTbl]
+;v100
+         BasaltThickness      BasaltThicknessGrid  CrustThicknessMeltOnset CrustThicknessMeltOnsetGrid
+                     (m)                       ()                      (m)                       ()
+[End]
+;
+;
+; SourceRockLithoIoTbl
+;
+[SourceRockLithoIoTbl]
+;v100
+               LayerName           SourceRockType       BaseSourceRockType                   TocIni               TocIniGrid                  HcVRe05                  ScVRe05       PreAsphaltStartAct AsphalteneDiffusionEnergy    ResinDiffusionEnergy    C15AroDiffusionEnergy    C15SatDiffusionEnergy          VREoptimization             VREthreshold        VESLimitIndicator                 VESLimit          ApplyAdsorption   AdsorptionTOCDependent              ComputeOTGC AdsorptionCapacityFunctionName WhichAdsorptionSimulator
+                      ()                       ()                       ()                 (weight)                       ()               (kg/tonne)               (kg/tonne)                 (kJ/mol)                     (kJ)                     (kJ)                     (kJ)                     (kJ)                       ()                       ()                       ()                    (MPa)                       ()                       ()                       ()                       ()                       ()
+[End]
+;
+;
+; CTCIoTbl
+;
+[CTCIoTbl]
+;v100
+             SurfaceName                    TRIni                TRIniGrid                   HCuIni               HCuIniGrid                  HLMuIni              HLMuIniGrid                  DeltaSL              DeltaSLGrid                      HBu                  HBuGrid          FilterHalfWidth UpperLowerContinentalCrustRatio UpperLowerOceanicCrustRatio
+                      ()                     (Ma)                       ()                      (m)                       ()                      (m)                       ()                      (m)                       ()                      (m)                       ()                       ()                       ()                       ()
+[End]
+;
+;
+; CTCRiftingHistoryIoTbl
+;
+[CTCRiftingHistoryIoTbl]
+;v0
+                     Age             TectonicFlag                  DeltaSL              DeltaSLGrid                      HBu                  HBuGrid
+                    (Ma)                       ()                      (m)                       ()                      (m)                       ()
+[End]
+;
+;
+; GeologicalBoundaryIoTbl
+;
+[GeologicalBoundaryIoTbl]
+;v100
+    GeologicalObjectName     GeologicalObjectType           TypeOfProperty FirstIndexInPropertyIoTbl      NumberOfProperties
+                      ()                       ()                       ()                       ()                       ()
+[End]
+;
+;
+; PropertyBoundaryIoTbl
+;
+[PropertyBoundaryIoTbl]
+;v100
+          NameOfProperty FirstIndexInPropertyBoundaryValuesIoTbl NumberOfTimeIntervals
+                      ()                       ()                       ()
+[End]
+;
+;
+; BoundaryValuesIoTbl
+;
+[BoundaryValuesIoTbl]
+;v100
+         BeginTimeValues            EndTimeValues        PropertyValueGrid            PropertyValue
+                      ()                       ()                       ()                       ()
+[End]
+;
+;
+; SurfaceTempIoTbl
+;
+[SurfaceTempIoTbl]
+;v100
+                     Age              Temperature          TemperatureGrid
+                    (Ma)                      (C)                      (C)
+                       0                       10                       ""
+[End]
+;
+;
+; PermafrostIoTbl
+;
+[PermafrostIoTbl]
+;v100
+           PermafrostInd             PressureTerm             SalinityTerm
+                      ()                       ()                       ()
+[End]
+;
+;
+; SurfaceDepthIoTbl
+;
+[SurfaceDepthIoTbl]
+;v100
+                     Age                    Depth                DepthGrid
+                    (Ma)                      (m)                      (m)
+                       0                        0                       ""
+[End]
+;
+;
+; MntlHeatFlowIoTbl
+;
+[MntlHeatFlowIoTbl]
+;v100
+                     Age                 HeatFlow             HeatFlowGrid
+                    (Ma)                  (mW/m2)                  (mW/m2)
+[End]
+;
+;
+; BasementIoTbl
+;
+[BasementIoTbl]
+;v100
+     BottomBoundaryModel           TopAsthenoTemp         TopCrustHeatProd     TopCrustHeatProdGrid     CrustHeatPDecayConst     LithoMantleThickness     InitialLthMntThickns      FixedCrustThickness InitialLithosphericMantleThickness CrustPropertyModel  MantlePropertyModel           CrustLithoName          MantleLithoName EquilibriumOceanicLithosphereThickness MaxNumberMantleElements
+                      ()                      (C)                  (uW/m3)                  (uW/m3)                      (m)                      (m)                      (m)                      (m)                      (m)                       ()                       ()                       ()                       ()                       ()                       ()
+"Improved Lithosphere Calculator Linear Element Mode" 1333             2.5                       ""                    10000                        0                        0                        0                   115000 "Standard Conductivity Crust" "High Conductivity Mantle"           "Crust"                 "Mantle"                    92500                      100
+[End]
+;
+;
+; ReservoirIoTbl
+;
+[ReservoirIoTbl]
+;v100
+           ReservoirName        DetectedReservoir            FormationName             TrapCapacity             ActivityMode            ActivityStart                Thickness            ThicknessGrid               NetToGross           NetToGrossGrid             BioDegradInd      OilToGasCrackingInd             DiffusionInd       MinOilColumnHeight       MinGasColumnHeight              BlockingInd     BlockingPermeability         BlockingPorosity
+                      ()                       ()                       ()                     (m3)                       ()                     (Ma)                      (m)                      (m)                (percent)                (percent)                       ()                       ()                       ()                      (m)                      (m)                       ()                     (mD)                      (%)
+[End]
+;
+;
+; ReservoirOptionsIoTbl
+;
+[ReservoirOptionsIoTbl]
+;v101
+            TrapCapacity             BioDegradInd      OilToGasCrackingInd             DiffusionInd       MinOilColumnHeight       MinGasColumnHeight              BlockingInd     BlockingPermeability         BlockingPorosity
+                    (m3)                       ()                       ()                       ()                      (m)                      (m)                       ()                     (mD)                      (%)
+                  500000                        0                        1                        0                        1                        1                        0                    1e-09                        0
+[End]
+;
+;
+; BioDegradIoTbl
+;
+[BioDegradIoTbl]
+;v100
+              MaxBioTemp             TempConstant             TimeConstant                  BioRate        PasteurizationInd             C1_BioFactor             C2_BioFactor             C3_BioFactor             C4_BioFactor             C5_BioFactor             N2_BioFactor            COx_BioFactor       C6_14Aro_BioFactor       C6_14Sat_BioFactor         C15Aro_BioFactor         C15Sat_BioFactor         resins_BioFactor    asphaltenes_BioFactor
+                     (C)                    (1/C)                   (1/Ma)                   (m/Ma)                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()
+                      80                       70                      0.5                      0.3                        0                   0.0008                   0.0005                   0.0003                   0.0008                    0.001                    0.001                        1                    0.007                    0.009                     0.05                    0.011                    0.061                      0.1
+[End]
+;
+;
+; DiffusionIoTbl
+;
+[DiffusionIoTbl]
+;v100
+          DiffusionModel       SealThicknessModel     MaximumSealThickness             DiffSalinity                ActEnergy            C1_DiffFactor            C2_DiffFactor            C3_DiffFactor            C4_DiffFactor            C5_DiffFactor            C1_ConcFactor            C2_ConcFactor            C3_ConcFactor            C4_ConcFactor            C5_ConcFactor
+                      ()                       ()                      (m)                  (kg/kg)                      (J)                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()
+             "Transient"         "FullOverburden"                        0                     0.15                    18360                3.047e-06                2.484e-06                2.266e-06                2.036e-06                1.908e-06                        1                    0.222                    0.089                     0.02                   0.0067
+[End]
+;
+;
+; PalinspasticIoTbl
+;
+[PalinspasticIoTbl]
+;v100
+               DepthGrid             FaultcutsMap              SurfaceName      BottomFormationName                      Age                    Depth                MapSeqNbr
+                     (m)                      (m)                       ()                       ()                     (Ma)                      (m)                       ()
+[End]
+;
+;
+; FaultcutIoTbl
+;
+[FaultcutIoTbl]
+;v100
+             SurfaceName                FaultName           FaultcutStatus                      Age
+                      ()                       ()                       ()                     (Ma)
+[End]
+;
+;
+; PressureFaultcutIoTbl
+;
+[PressureFaultcutIoTbl]
+;v100
+            FaultcutsMap                FaultName                 StartAge           FaultLithology       UsedInOverpressure
+                     (m)                       ()                     (Ma)                       ()                       ()
+[End]
+;
+;
+; PressureFuncIoTbl
+;
+[PressureFuncIoTbl]
+;v100
+            PresFuncName                    CoefA                    CoefB                    CoefC                    CoefD                 Selected              UserDefined
+                      ()                    (MPa)                  (MPa/m)                (MPa/m^2)                (MPa/m^3)                       ()                       ()
+[End]
+;
+;
+; TrapIoTbl
+;
+[TrapIoTbl]
+;v100
+           ReservoirName                      Age                   TrapID                   XCoord                   YCoord             TrapCapacity                    Depth               SpillDepth         SpillPointXCoord         SpillPointYCoord                WCSurface              Temperature                 Pressure             Permeability         SealPermeability               NetToGross                   CEPGas                   CEPOil   CriticalTemperatureGas   CriticalTemperatureOil    InterfacialTensionGas    InterfacialTensionOil        FractSealStrength         FracturePressure                      GOC                      OWC                VolumeGas                VolumeOil                   MassC1                   MassC2                   MassC3                   MassC4                   MassC5                   MassN2                  MassCOx                  MassH2S             MassC6_14Aro             MassC6_14Sat               MassC15Aro               MassC15Sat                  MassLSC                MassC15AT              MassC15AroS              MassC15SatS              MassC6_14BT             MassC6_14DBT              MassC6_14BP            MassC6_14SatS            MassC6_14AroS               Massresins          Massasphaltenes
+                      ()                     (Ma)                       ()                      (m)                      (m)                     (m3)                      (m)                      (m)                      (m)                      (m)                     (m2)                      (C)                    (MPa)                     (mD)                     (mD)                (percent)                    (MPa)                    (MPa)                      (C)                      (C)                   (mN/m)                   (mN/m)                    (MPa)                    (MPa)                      (m)                      (m)                     (m3)                     (m3)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)
+[End]
+;
+;
+; TrapperIoTbl
+;
+[TrapperIoTbl]
+;v100
+        PersistentTrapID            ReservoirName                      Age                   TrapID                   XCoord                   YCoord             TrapCapacity                    Depth               SpillDepth         SpillPointXCoord         SpillPointYCoord                 Pressure              Temperature             Permeability         SealPermeability                 Porosity               NetToGross InterfacialTensionVapour CriticalTemperatureVapour               CEPVapour               MassVapour             VolumeVapour          ViscosityVapour            DensityVapour InterfacialTensionLiquid CriticalTemperatureLiquid               CEPLiquid               MassLiquid             VolumeLiquid          ViscosityLiquid            DensityLiquid                   OilAPI                      CGR                      GOR         FracturePressure                 Buoyancy                WCSurface                      GOC                      OWC              FreeGasMass            FreeGasVolume           FreeGasDensity         FreeGasViscosity            FreeGasMassC1            FreeGasMassC2            FreeGasMassC3            FreeGasMassC4            FreeGasMassC5            FreeGasMassN2           FreeGasMassCOx           FreeGasMassH2S      FreeGasMassC6_14Aro      FreeGasMassC6_14Sat        FreeGasMassC15Aro        FreeGasMassC15Sat           FreeGasMassLSC         FreeGasMassC15AT       FreeGasMassC15AroS       FreeGasMassC15SatS       FreeGasMassC6_14BT      FreeGasMassC6_14DBT       FreeGasMassC6_14BP     FreeGasMassC6_14SatS     FreeGasMassC6_14AroS        FreeGasMassresins   FreeGasMassasphaltenes           CondensateMass         CondensateVolume        CondensateDensity      CondensateViscosity         CondensateMassC1         CondensateMassC2         CondensateMassC3         CondensateMassC4         CondensateMassC5         CondensateMassN2        CondensateMassCOx        CondensateMassH2S   CondensateMassC6_14Aro   CondensateMassC6_14Sat     CondensateMassC15Aro     CondensateMassC15Sat     CondensateMassresins CondensateMassasphaltenes       CondensateMassLSC      CondensateMassC15AT    CondensateMassC15AroS    CondensateMassC15SatS    CondensateMassC6_14BT   CondensateMassC6_14DBT    CondensateMassC6_14BP  CondensateMassC6_14SatS  CondensateMassC6_14AroS          SolutionGasMass        SolutionGasVolume       SolutionGasDensity     SolutionGasViscosity        SolutionGasMassC1        SolutionGasMassC2        SolutionGasMassC3        SolutionGasMassC4        SolutionGasMassC5        SolutionGasMassN2       SolutionGasMassCOx       SolutionGasMassH2S  SolutionGasMassC6_14Aro  SolutionGasMassC6_14Sat    SolutionGasMassC15Aro    SolutionGasMassC15Sat    SolutionGasMassresins SolutionGasMassasphaltenes     SolutionGasMassLSC     SolutionGasMassC15AT   SolutionGasMassC15AroS   SolutionGasMassC15SatS   SolutionGasMassC6_14BT  SolutionGasMassC6_14DBT   SolutionGasMassC6_14BP SolutionGasMassC6_14SatS SolutionGasMassC6_14AroS         StockTankOilMass       StockTankOilVolume      StockTankOilDensity    StockTankOilViscosity       StockTankOilMassC1       StockTankOilMassC2       StockTankOilMassC3       StockTankOilMassC4       StockTankOilMassC5       StockTankOilMassN2      StockTankOilMassCOx      StockTankOilMassH2S StockTankOilMassC6_14Aro StockTankOilMassC6_14Sat   StockTankOilMassC15Aro   StockTankOilMassC15Sat   StockTankOilMassresins StockTankOilMassasphaltenes   StockTankOilMassLSC    StockTankOilMassC15AT  StockTankOilMassC15AroS  StockTankOilMassC15SatS  StockTankOilMassC6_14BT StockTankOilMassC6_14DBT  StockTankOilMassC6_14BP StockTankOilMassC6_14SatS StockTankOilMassC6_14AroS
+                      ()                       ()                     (Ma)                       ()                      (m)                      (m)                     (m3)                      (m)                      (m)                      (m)                      (m)                    (MPa)                      (C)                     (mD)                     (mD)                (volume%)                (percent)                   (mN/m)                      (C)                    (MPa)                     (kg)                    (m^3)                   (Pa*s)                 (kg/m^3)                   (mN/m)                      (C)                    (MPa)                     (kg)                    (m^3)                   (Pa*s)                 (kg/m^3)             (degreesAPI)                (m^3/m^3)                (m^3/m^3)                    (MPa)                    (MPa)                     (m2)                      (m)                      (m)                     (kg)                    (m^3)                 (kg/m^3)                   (Pa*s)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                    (m^3)                 (kg/m^3)                   (Pa*s)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                    (m^3)                 (kg/m^3)                   (Pa*s)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                    (m^3)                 (kg/m^3)                   (Pa*s)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)
+[End]
+;
+;
+; DataMiningIoTbl
+;
+[DataMiningIoTbl]
+;v100
+                  BPAKey                     Time                   XCoord                   YCoord                   ZCoord            ReservoirName            FormationName              SurfaceName             PropertyName             PropertyUnit                    Value
+                      ()                     (Ma)                      (m)                      (m)                      (m)                       ()                       ()                       ()                       ()                       ()                       ()
+[End]
+;
+;
+; MigrationIoTbl
+;
+[MigrationIoTbl]
+;v100
+        MigrationProcess                SourceAge           SourceRockName      SourceReservoirName             SourceTrapID             SourcePointX             SourcePointY           DestinationAge DestinationReservoirName        DestinationTrapID        DestinationPointX        DestinationPointY                   MassC1                   MassC2                   MassC3                   MassC4                   MassC5                   MassN2                  MassCOx                  MassH2S             MassC6_14Aro             MassC6_14Sat               MassC15Aro               MassC15Sat                  MassLSC                MassC15AT              MassC15AroS              MassC15SatS              MassC6_14BT             MassC6_14DBT              MassC6_14BP            MassC6_14SatS            MassC6_14AroS               Massresins          Massasphaltenes
+                      ()                     (Ma)                       ()                       ()                       ()                       ()                       ()                     (Ma)                       ()                       ()                       ()                       ()                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)
+[End]
+;
+;
+; LithotypeIoTbl
+;
+[LithotypeIoTbl]
+;v100
+               Lithotype              Description                DefinedBy              UserDefined           DefinitionDate            LastChangedBy          LastChangedDate                 FgColour                 BgColour                   Pixmap                  Density                 HeatProd          SurfacePorosity             CompacCoefES            CompacCoefESA            CompacCoefESB            CompacRatioES                StpThCond         ThCondAnisotropy                 DepoPerm       PermDecrStressCoef        PermIncrRelaxCoef           PermAnisotropy             PermMixModel             SeisVelocity     SeisVelocityExponent                    CapC1                    CapC2                PcKrModel                 LambdaPc                 LambdaKr              LambdaPc_LW              LambdaPc_VL                      N_W                      N_V                      N_L                   KrwMax                   KrvMax                   KrlMax                      Swi                      Svr                      Slr           Porosity_Model Compaction_Coefficient_SM   Number_Of_Data_Points      Multipoint_Porosity  Multipoint_Permeability HydraulicFracturingPercent ReferenceSolidViscosity        ActivationEnergy          MinimumPorosity IgneousIntrusionTemperature       QuartzGrainSize           QuartzFraction        ClayCoatingFactor
+                      ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                  (kg/m3)                  (uW/m3)                      (%)               (10-8Pa-1)               (10-8Pa-1)               (10-8Pa-1)                       ()                   (W/mK)                ((ratio))                     (mD)                       ()                       ()                ((ratio))                       ()                    (m/s)                       ()              ((unknown))              ((unknown))              ((unknown))              ((unknown))              ((unknown))              ((unknown))              ((unknown))              ((unknown))              ((unknown))              ((unknown))                   (frac)                   (frac)                   (frac)                   (frac)                   (frac)                   (frac)                       ()                       ()                       ()                       ()                       ()                      (%)                       ()                       ()                      (%)         (DegreesCelcius)                     (cm)               (fraction)               (fraction)
+                  "Coal" "Low density, high TOC coal."              "Coal"                        0 "2019-11-28T20:00:00.000Z"                     ""                       ""                "#000000"                "#272624"              "46113.svg"                     1350                     0.38                       75                       15                        0                        0                      0.5                      0.3                        1                        0                        0                        0                        1             "Multipoint"                     3000                    -0.75                     0.33                   0.2611           "Brooks_Corey"                        1                        5                    0.109                    0.109                  6.01738                  1.99564                  1.99564                        1                        1                        1                  0.60174                  0.05786                  0.05786            "Exponential"                        0                        2                   "5 60"                  "-6 -6"                      100                    1e+17                        0                      1.1                    -9999                    0.006                        0                        0
+   "Shale, organic rich" "Mudstone with 80% clay content and velocity, density drop reflecting c. 10% organic matter. Porosity, compaction and permeability modified after Yang and Aplin 2004, 2010, similar to 'soil mechanics' lithologies." "Shale, organic rich" 0 "2019-11-28T20:00:00.000Z" "" "" "#000000" "#9ea0a0" "46113.svg" 2550 5 79          6                        0                        0                      0.5                      1.5                        1                        0                        0                        0                        1             "Multipoint"                     3250                     -0.8                     0.33                   0.2611           "Brooks_Corey"                      0.5                        2                  0.10874                  0.10874                  6.01738                  1.99564                  1.99564                        1                        1                        1                  0.60174                  0.05786                  0.05786            "Exponential"                        0                        2                   "5 60"            "-6.83 -3.93"                      100                    1e+17                        0                        3                    -9999                    0.006                        0                        0
+    "Sandstone, typical" "Typical porosity, permeability sandstone suitable for general use." "Sandstone, typical" 0 "2019-11-28T20:00:00.000Z"    ""                       ""                "#000000"                "#ffee00"              "46103.svg"                     2660                      0.8                       45                     3.25                        0                        0                      0.5                      4.5                      1.2                        0                        0                        0                        1             "Multipoint"                     5700                     0.45                     0.33                   0.2611           "Brooks_Corey"                      0.5                       10                     1.87                     1.87                 1.439125                2.4652375                2.4652375                        1                        1                        1                0.1438875                 0.022625                 0.022625            "Exponential"                        0                        2                   "5 60"                "0.2 4.9"                      100                    1e+17                        0                        5                    -9999                    0.006                    0.189                        0
+    "Mudstone, 50% clay" "Mudstone with 50% clay content and low to moderate density clay minerals, low carbonate. Porosity, compaction and permeability modified after Yang and Aplin 2004, 2010, similar to 'soil mechanics' lithologies." "Mudstone, 50% clay" 0 "2019-11-28T20:00:00.000Z" "" "" "#000000" "#b9c2bd" "46108.svg" 2710 1.8 51          5.6                        0                        0                      0.5                      2.3                      1.4                        0                        0                        0                        1             "Multipoint"                     4500                     -0.4                     0.33                   0.2611           "Brooks_Corey"                      0.5                        2                 0.760915                 0.760915                  4.32173                 2.169565                 2.169565                        1                        1                        1                 0.432165                  0.04481                  0.04481            "Exponential"                        0                        2                   "5 60"            "-6.19 -1.28"                      100                    1e+17                        0                        6                    -9999                    0.006                        0                        0
+                 "Crust" "Typical continental crust for use  in stratigraphy if needed." "Crust"  0 "2019-11-28T20:00:00.000Z"                     ""                       ""                "#000000"                "#f09977"              "42902.svg"                     2850                        1                      0.1                        0                        0                        0                      0.5                      4.1                        1                        0                        0                        0                        1             "Multipoint"                     6500                        0                     0.33                   0.2611           "Brooks_Corey"                      1.5                        4                    1.544                    1.544                  2.28695                 2.378275                 2.378275                        1                        1                        1                 0.228675                  0.02915                  0.02915            "Exponential"                        0                        2                   "5 60"                  "-4 -4"                      100                    1e+17                        0                      0.1                    -9999                    0.006                        0                        0
+                "Mantle" "Typical mantle peridotite for use  in stratigraphy if needed." "Mantle" 0 "2019-11-28T20:00:00.000Z"                     ""                       ""                "#000000"                "#e4181f"             "429022.svg"                     3350                      0.1                      0.1                        0                        0                        0                      0.5                      5.5                        1                        0                        0                        0                        1             "Multipoint"                     8000                        0                     0.33                   0.2611           "Brooks_Corey"                      1.5                        4                    1.544                    1.544                  2.28695                 2.378275                 2.378275                        1                        1                        1                 0.228675                  0.02915                  0.02915            "Exponential"                        0                        2                   "5 60"                  "-4 -4"                      100                    1e+17                        0                      0.1                    -9999                    0.006                        0                        0
+[End]
+;
+;
+; LitThCondIoTbl
+;
+[LitThCondIoTbl]
+;v100
+               Lithotype                TempIndex                   ThCond
+                      ()                      (C)                   (W/mK)
+                  "Coal"                      -20                     0.29
+                  "Coal"                        0                      0.3
+                  "Coal"                       20                      0.3
+                  "Coal"                      100                     0.31
+                  "Coal"                      200                     0.32
+                  "Coal"                      300                     0.32
+                  "Coal"                      400                     0.33
+                  "Coal"                      500                     0.33
+                  "Coal"                      600                     0.33
+                  "Coal"                      700                     0.33
+                  "Coal"                      800                     0.34
+                  "Coal"                      900                     0.34
+                  "Coal"                     1000                     0.34
+                  "Coal"                     1100                     0.34
+                  "Coal"                     1200                     0.34
+                  "Coal"                     1300                     0.34
+                  "Coal"                     1400                     0.34
+   "Shale, organic rich"                      -20                     1.57
+   "Shale, organic rich"                        0                     1.53
+   "Shale, organic rich"                       20                      1.5
+   "Shale, organic rich"                      100                      1.4
+   "Shale, organic rich"                      200                     1.33
+   "Shale, organic rich"                      300                     1.28
+   "Shale, organic rich"                      400                     1.25
+   "Shale, organic rich"                      500                     1.22
+   "Shale, organic rich"                      600                      1.2
+   "Shale, organic rich"                      700                     1.19
+   "Shale, organic rich"                      800                     1.17
+   "Shale, organic rich"                      900                     1.16
+   "Shale, organic rich"                     1000                     1.15
+   "Shale, organic rich"                     1100                     1.15
+   "Shale, organic rich"                     1200                     1.14
+   "Shale, organic rich"                     1300                     1.13
+   "Shale, organic rich"                     1400                     1.13
+    "Sandstone, typical"                      -20                     4.97
+    "Sandstone, typical"                        0                     4.72
+    "Sandstone, typical"                       20                      4.5
+    "Sandstone, typical"                      100                     3.86
+    "Sandstone, typical"                      200                     3.36
+    "Sandstone, typical"                      300                     3.03
+    "Sandstone, typical"                      400                     2.81
+    "Sandstone, typical"                      500                     2.64
+    "Sandstone, typical"                      600                     2.51
+    "Sandstone, typical"                      700                      2.4
+    "Sandstone, typical"                      800                     2.32
+    "Sandstone, typical"                      900                     2.25
+    "Sandstone, typical"                     1000                     2.19
+    "Sandstone, typical"                     1100                     2.14
+    "Sandstone, typical"                     1200                      2.1
+    "Sandstone, typical"                     1300                     2.06
+    "Sandstone, typical"                     1400                     2.03
+    "Mudstone, 50% clay"                      -20                     2.44
+    "Mudstone, 50% clay"                        0                     2.37
+    "Mudstone, 50% clay"                       20                      2.3
+    "Mudstone, 50% clay"                      100                     2.11
+    "Mudstone, 50% clay"                      200                     1.96
+    "Mudstone, 50% clay"                      300                     1.86
+    "Mudstone, 50% clay"                      400                     1.79
+    "Mudstone, 50% clay"                      500                     1.74
+    "Mudstone, 50% clay"                      600                      1.7
+    "Mudstone, 50% clay"                      700                     1.67
+    "Mudstone, 50% clay"                      800                     1.65
+    "Mudstone, 50% clay"                      900                     1.62
+    "Mudstone, 50% clay"                     1000                     1.61
+    "Mudstone, 50% clay"                     1100                     1.59
+    "Mudstone, 50% clay"                     1200                     1.58
+    "Mudstone, 50% clay"                     1300                     1.57
+    "Mudstone, 50% clay"                     1400                     1.56
+                 "Crust"                      -20                     4.55
+                 "Crust"                        0                     4.31
+                 "Crust"                       20                      4.1
+                 "Crust"                      100                     3.49
+                 "Crust"                      200                     3.02
+                 "Crust"                      300                     2.71
+                 "Crust"                      400                     2.49
+                 "Crust"                      500                     2.33
+                 "Crust"                      600                     2.21
+                 "Crust"                      700                     2.11
+                 "Crust"                      800                     2.03
+                 "Crust"                      900                     1.96
+                 "Crust"                     1000                     1.91
+                 "Crust"                     1100                     1.86
+                 "Crust"                     1200                     1.82
+                 "Crust"                     1300                     1.78
+                 "Crust"                     1400                     1.75
+                "Mantle"                      -20                     6.13
+                "Mantle"                        0                     5.79
+                "Mantle"                       20                      5.5
+                "Mantle"                      100                     4.64
+                "Mantle"                      200                     3.98
+                "Mantle"                      300                     3.55
+                "Mantle"                      400                     3.24
+                "Mantle"                      500                     3.02
+                "Mantle"                      600                     2.84
+                "Mantle"                      700                      2.7
+                "Mantle"                      800                     2.59
+                "Mantle"                      900                      2.5
+                "Mantle"                     1000                     2.42
+                "Mantle"                     1100                     2.35
+                "Mantle"                     1200                      2.3
+                "Mantle"                     1300                     2.25
+                "Mantle"                     1400                      2.2
+[End]
+;
+;
+; LitHeatCapIoTbl
+;
+[LitHeatCapIoTbl]
+;v100
+               Lithotype                TempIndex             HeatCapacity
+                      ()                      (C)                  (J/kgK)
+                  "Coal"                      -20                  1296.05
+                  "Coal"                        0                     1300
+                  "Coal"                       20                  1303.41
+                  "Coal"                      100                   1313.4
+                  "Coal"                      200                  1321.13
+                  "Coal"                      300                  1326.17
+                  "Coal"                      400                  1329.71
+                  "Coal"                      500                  1332.34
+                  "Coal"                      600                  1334.36
+                  "Coal"                      700                  1335.97
+                  "Coal"                      800                  1337.27
+                  "Coal"                      900                  1338.36
+                  "Coal"                     1000                  1339.27
+                  "Coal"                     1100                  1340.05
+                  "Coal"                     1200                  1340.73
+                  "Coal"                     1300                  1341.32
+                  "Coal"                     1400                  1341.84
+   "Shale, organic rich"                      -20                    752.6
+   "Shale, organic rich"                        0                      800
+   "Shale, organic rich"                       20                   840.93
+   "Shale, organic rich"                      100                   960.79
+   "Shale, organic rich"                      200                  1053.62
+   "Shale, organic rich"                      300                  1114.05
+   "Shale, organic rich"                      400                  1156.53
+   "Shale, organic rich"                      500                  1188.02
+   "Shale, organic rich"                      600                   1212.3
+   "Shale, organic rich"                      700                  1231.59
+   "Shale, organic rich"                      800                  1247.28
+   "Shale, organic rich"                      900                   1260.3
+   "Shale, organic rich"                     1000                  1271.27
+   "Shale, organic rich"                     1100                  1280.65
+   "Shale, organic rich"                     1200                  1288.75
+   "Shale, organic rich"                     1300                  1295.82
+   "Shale, organic rich"                     1400                  1302.05
+    "Sandstone, typical"                      -20                   729.57
+    "Sandstone, typical"                        0                      775
+    "Sandstone, typical"                       20                   814.23
+    "Sandstone, typical"                      100                   929.09
+    "Sandstone, typical"                      200                  1018.05
+    "Sandstone, typical"                      300                  1075.97
+    "Sandstone, typical"                      400                  1116.68
+    "Sandstone, typical"                      500                  1146.86
+    "Sandstone, typical"                      600                  1170.12
+    "Sandstone, typical"                      700                  1188.61
+    "Sandstone, typical"                      800                  1203.64
+    "Sandstone, typical"                      900                  1216.12
+    "Sandstone, typical"                     1000                  1226.64
+    "Sandstone, typical"                     1100                  1235.62
+    "Sandstone, typical"                     1200                  1243.38
+    "Sandstone, typical"                     1300                  1250.16
+    "Sandstone, typical"                     1400                  1256.13
+    "Mudstone, 50% clay"                      -20                    702.6
+    "Mudstone, 50% clay"                        0                      750
+    "Mudstone, 50% clay"                       20                   790.93
+    "Mudstone, 50% clay"                      100                   910.79
+    "Mudstone, 50% clay"                      200                  1003.62
+    "Mudstone, 50% clay"                      300                  1064.05
+    "Mudstone, 50% clay"                      400                  1106.53
+    "Mudstone, 50% clay"                      500                  1138.02
+    "Mudstone, 50% clay"                      600                   1162.3
+    "Mudstone, 50% clay"                      700                  1181.59
+    "Mudstone, 50% clay"                      800                  1197.28
+    "Mudstone, 50% clay"                      900                   1210.3
+    "Mudstone, 50% clay"                     1000                  1221.27
+    "Mudstone, 50% clay"                     1100                  1230.65
+    "Mudstone, 50% clay"                     1200                  1238.75
+    "Mudstone, 50% clay"                     1300                  1245.82
+    "Mudstone, 50% clay"                     1400                  1252.05
+                 "Crust"                      -20                    639.3
+                 "Crust"                        0                      695
+                 "Crust"                       20                    743.1
+                 "Crust"                      100                   883.93
+                 "Crust"                      200                      993
+                 "Crust"                      300                  1064.01
+                 "Crust"                      400                  1113.93
+                 "Crust"                      500                  1150.93
+                 "Crust"                      600                  1179.45
+                 "Crust"                      700                  1202.12
+                 "Crust"                      800                  1220.56
+                 "Crust"                      900                  1235.85
+                 "Crust"                     1000                  1248.74
+                 "Crust"                     1100                  1259.76
+                 "Crust"                     1200                  1269.28
+                 "Crust"                     1300                  1277.59
+                 "Crust"                     1400                  1284.91
+                "Mantle"                      -20                   712.46
+                "Mantle"                        0                      765
+                "Mantle"                       20                   810.37
+                "Mantle"                      100                   943.21
+                "Mantle"                      200                  1046.09
+                "Mantle"                      300                  1113.08
+                "Mantle"                      400                  1160.16
+                "Mantle"                      500                  1195.06
+                "Mantle"                      600                  1221.97
+                "Mantle"                      700                  1243.34
+                "Mantle"                      800                  1260.74
+                "Mantle"                      900                  1275.16
+                "Mantle"                     1000                  1287.33
+                "Mantle"                     1100                  1297.72
+                "Mantle"                     1200                   1306.7
+                "Mantle"                     1300                  1314.53
+                "Mantle"                     1400                  1321.44
+[End]
+;
+;
+; FluidtypeIoTbl
+;
+[FluidtypeIoTbl]
+;v100
+               Fluidtype              Description                DefinedBy              UserDefined           DefinitionDate          LastChangedDate            LastChangedBy                  Density                DensModel             SeisVelocity        SeisVelocityModel                 Salinity              HeatCaptype            ThermCondtype
+                      ()                       ()                       ()                       ()                       ()                       ()                       ()                  (kg/m3)                       ()                    (m/s)                       ()                    (ppm)                       ()                       ()
+        "Std. Sea Water"     "Standard Sea Water"                 "System"                        0 "2017-04-25T19:00:00.000Z"                     ""                       ""                        0             "Calculated"                        0             "Calculated"                    0.035         "Std. Sea Water"         "Std. Sea Water"
+[End]
+;
+;
+; FltThCondIoTbl
+;
+[FltThCondIoTbl]
+;v100
+               Fluidtype                TempIndex                 Pressure                   ThCond
+                      ()                      (C)                    (MPa)                   (W/mK)
+        "Std. Sea Water"                        0                      0.1                     0.56
+        "Std. Sea Water"                       25                      0.1                     0.61
+        "Std. Sea Water"                       50                      0.1                     0.64
+        "Std. Sea Water"                       75                      0.1                     0.66
+        "Std. Sea Water"                      100                      0.1                     0.02
+        "Std. Sea Water"                      125                      0.1                     0.03
+        "Std. Sea Water"                      150                      0.1                     0.03
+        "Std. Sea Water"                      200                      0.1                     0.03
+        "Std. Sea Water"                      250                      0.1                     0.04
+        "Std. Sea Water"                      300                      0.1                     0.04
+        "Std. Sea Water"                      350                      0.1                     0.05
+        "Std. Sea Water"                      375                      0.1                     0.05
+        "Std. Sea Water"                      400                      0.1                     0.05
+        "Std. Sea Water"                      425                      0.1                     0.06
+        "Std. Sea Water"                      450                      0.1                     0.06
+        "Std. Sea Water"                      475                      0.1                     0.06
+        "Std. Sea Water"                      500                      0.1                     0.07
+        "Std. Sea Water"                      550                      0.1                     0.07
+        "Std. Sea Water"                      600                      0.1                     0.08
+        "Std. Sea Water"                      650                      0.1                     0.09
+        "Std. Sea Water"                      700                      0.1                     0.09
+        "Std. Sea Water"                      750                      0.1                      0.1
+        "Std. Sea Water"                      800                      0.1                     0.11
+        "Std. Sea Water"                        0                      0.5                     0.56
+        "Std. Sea Water"                       25                      0.5                     0.61
+        "Std. Sea Water"                       50                      0.5                     0.64
+        "Std. Sea Water"                       75                      0.5                     0.66
+        "Std. Sea Water"                      100                      0.5                     0.68
+        "Std. Sea Water"                      125                      0.5                     0.68
+        "Std. Sea Water"                      150                      0.5                     0.68
+        "Std. Sea Water"                      200                      0.5                     0.03
+        "Std. Sea Water"                      250                      0.5                     0.04
+        "Std. Sea Water"                      300                      0.5                     0.04
+        "Std. Sea Water"                      350                      0.5                     0.05
+        "Std. Sea Water"                      375                      0.5                     0.05
+        "Std. Sea Water"                      400                      0.5                     0.06
+        "Std. Sea Water"                      425                      0.5                     0.06
+        "Std. Sea Water"                      450                      0.5                     0.06
+        "Std. Sea Water"                      475                      0.5                     0.06
+        "Std. Sea Water"                      500                      0.5                     0.07
+        "Std. Sea Water"                      550                      0.5                     0.07
+        "Std. Sea Water"                      600                      0.5                     0.08
+        "Std. Sea Water"                      650                      0.5                     0.09
+        "Std. Sea Water"                      700                      0.5                     0.09
+        "Std. Sea Water"                      750                      0.5                      0.1
+        "Std. Sea Water"                      800                      0.5                     0.11
+        "Std. Sea Water"                        0                        1                     0.56
+        "Std. Sea Water"                       25                        1                     0.61
+        "Std. Sea Water"                       50                        1                     0.64
+        "Std. Sea Water"                       75                        1                     0.66
+        "Std. Sea Water"                      100                        1                     0.68
+        "Std. Sea Water"                      125                        1                     0.68
+        "Std. Sea Water"                      150                        1                     0.68
+        "Std. Sea Water"                      200                        1                     0.04
+        "Std. Sea Water"                      250                        1                     0.04
+        "Std. Sea Water"                      300                        1                     0.04
+        "Std. Sea Water"                      350                        1                     0.05
+        "Std. Sea Water"                      375                        1                     0.05
+        "Std. Sea Water"                      400                        1                     0.06
+        "Std. Sea Water"                      425                        1                     0.06
+        "Std. Sea Water"                      450                        1                     0.06
+        "Std. Sea Water"                      475                        1                     0.06
+        "Std. Sea Water"                      500                        1                     0.07
+        "Std. Sea Water"                      550                        1                     0.07
+        "Std. Sea Water"                      600                        1                     0.08
+        "Std. Sea Water"                      650                        1                     0.09
+        "Std. Sea Water"                      700                        1                     0.09
+        "Std. Sea Water"                      750                        1                      0.1
+        "Std. Sea Water"                      800                        1                     0.11
+        "Std. Sea Water"                        0                      2.5                     0.56
+        "Std. Sea Water"                       25                      2.5                     0.61
+        "Std. Sea Water"                       50                      2.5                     0.64
+        "Std. Sea Water"                       75                      2.5                     0.66
+        "Std. Sea Water"                      100                      2.5                     0.68
+        "Std. Sea Water"                      125                      2.5                     0.69
+        "Std. Sea Water"                      150                      2.5                     0.69
+        "Std. Sea Water"                      200                      2.5                     0.67
+        "Std. Sea Water"                      250                      2.5                     0.04
+        "Std. Sea Water"                      300                      2.5                     0.05
+        "Std. Sea Water"                      350                      2.5                     0.05
+        "Std. Sea Water"                      375                      2.5                     0.05
+        "Std. Sea Water"                      400                      2.5                     0.06
+        "Std. Sea Water"                      425                      2.5                     0.06
+        "Std. Sea Water"                      450                      2.5                     0.06
+        "Std. Sea Water"                      475                      2.5                     0.07
+        "Std. Sea Water"                      500                      2.5                     0.07
+        "Std. Sea Water"                      550                      2.5                     0.07
+        "Std. Sea Water"                      600                      2.5                     0.08
+        "Std. Sea Water"                      650                      2.5                     0.09
+        "Std. Sea Water"                      700                      2.5                     0.09
+        "Std. Sea Water"                      750                      2.5                      0.1
+        "Std. Sea Water"                      800                      2.5                     0.11
+        "Std. Sea Water"                        0                        5                     0.56
+        "Std. Sea Water"                       25                        5                     0.61
+        "Std. Sea Water"                       50                        5                     0.64
+        "Std. Sea Water"                       75                        5                     0.67
+        "Std. Sea Water"                      100                        5                     0.68
+        "Std. Sea Water"                      125                        5                     0.69
+        "Std. Sea Water"                      150                        5                     0.69
+        "Std. Sea Water"                      200                        5                     0.67
+        "Std. Sea Water"                      250                        5                     0.62
+        "Std. Sea Water"                      300                        5                     0.05
+        "Std. Sea Water"                      350                        5                     0.06
+        "Std. Sea Water"                      375                        5                     0.06
+        "Std. Sea Water"                      400                        5                     0.06
+        "Std. Sea Water"                      425                        5                     0.06
+        "Std. Sea Water"                      450                        5                     0.06
+        "Std. Sea Water"                      475                        5                     0.07
+        "Std. Sea Water"                      500                        5                     0.07
+        "Std. Sea Water"                      550                        5                     0.08
+        "Std. Sea Water"                      600                        5                     0.08
+        "Std. Sea Water"                      650                        5                     0.09
+        "Std. Sea Water"                      700                        5                      0.1
+        "Std. Sea Water"                      750                        5                      0.1
+        "Std. Sea Water"                      800                        5                     0.11
+        "Std. Sea Water"                        0                      7.5                     0.57
+        "Std. Sea Water"                       25                      7.5                     0.61
+        "Std. Sea Water"                       50                      7.5                     0.64
+        "Std. Sea Water"                       75                      7.5                     0.67
+        "Std. Sea Water"                      100                      7.5                     0.68
+        "Std. Sea Water"                      125                      7.5                     0.69
+        "Std. Sea Water"                      150                      7.5                     0.69
+        "Std. Sea Water"                      200                      7.5                     0.67
+        "Std. Sea Water"                      250                      7.5                     0.62
+        "Std. Sea Water"                      300                      7.5                     0.06
+        "Std. Sea Water"                      350                      7.5                     0.06
+        "Std. Sea Water"                      375                      7.5                     0.06
+        "Std. Sea Water"                      400                      7.5                     0.06
+        "Std. Sea Water"                      425                      7.5                     0.07
+        "Std. Sea Water"                      450                      7.5                     0.07
+        "Std. Sea Water"                      475                      7.5                     0.07
+        "Std. Sea Water"                      500                      7.5                     0.07
+        "Std. Sea Water"                      550                      7.5                     0.08
+        "Std. Sea Water"                      600                      7.5                     0.08
+        "Std. Sea Water"                      650                      7.5                     0.09
+        "Std. Sea Water"                      700                      7.5                      0.1
+        "Std. Sea Water"                      750                      7.5                      0.1
+        "Std. Sea Water"                      800                      7.5                     0.11
+        "Std. Sea Water"                        0                       10                     0.57
+        "Std. Sea Water"                       25                       10                     0.61
+        "Std. Sea Water"                       50                       10                     0.65
+        "Std. Sea Water"                       75                       10                     0.67
+        "Std. Sea Water"                      100                       10                     0.68
+        "Std. Sea Water"                      125                       10                     0.69
+        "Std. Sea Water"                      150                       10                     0.69
+        "Std. Sea Water"                      200                       10                     0.67
+        "Std. Sea Water"                      250                       10                     0.63
+        "Std. Sea Water"                      300                       10                     0.55
+        "Std. Sea Water"                      350                       10                     0.07
+        "Std. Sea Water"                      375                       10                     0.07
+        "Std. Sea Water"                      400                       10                     0.07
+        "Std. Sea Water"                      425                       10                     0.07
+        "Std. Sea Water"                      450                       10                     0.07
+        "Std. Sea Water"                      475                       10                     0.07
+        "Std. Sea Water"                      500                       10                     0.08
+        "Std. Sea Water"                      550                       10                     0.08
+        "Std. Sea Water"                      600                       10                     0.09
+        "Std. Sea Water"                      650                       10                     0.09
+        "Std. Sea Water"                      700                       10                      0.1
+        "Std. Sea Water"                      750                       10                     0.11
+        "Std. Sea Water"                      800                       10                     0.11
+        "Std. Sea Water"                        0                     12.5                     0.56
+        "Std. Sea Water"                       25                     12.5                     0.61
+        "Std. Sea Water"                       50                     12.5                     0.65
+        "Std. Sea Water"                       75                     12.5                     0.67
+        "Std. Sea Water"                      100                     12.5                     0.68
+        "Std. Sea Water"                      125                     12.5                     0.69
+        "Std. Sea Water"                      150                     12.5                     0.69
+        "Std. Sea Water"                      200                     12.5                     0.67
+        "Std. Sea Water"                      250                     12.5                     0.63
+        "Std. Sea Water"                      300                     12.5                     0.55
+        "Std. Sea Water"                      350                     12.5                     0.08
+        "Std. Sea Water"                      375                     12.5                     0.07
+        "Std. Sea Water"                      400                     12.5                     0.07
+        "Std. Sea Water"                      425                     12.5                     0.07
+        "Std. Sea Water"                      450                     12.5                     0.07
+        "Std. Sea Water"                      475                     12.5                     0.08
+        "Std. Sea Water"                      500                     12.5                     0.08
+        "Std. Sea Water"                      550                     12.5                     0.08
+        "Std. Sea Water"                      600                     12.5                     0.09
+        "Std. Sea Water"                      650                     12.5                     0.09
+        "Std. Sea Water"                      700                     12.5                      0.1
+        "Std. Sea Water"                      750                     12.5                     0.11
+        "Std. Sea Water"                      800                     12.5                     0.11
+        "Std. Sea Water"                        0                       15                     0.57
+        "Std. Sea Water"                       25                       15                     0.62
+        "Std. Sea Water"                       50                       15                     0.65
+        "Std. Sea Water"                       75                       15                     0.67
+        "Std. Sea Water"                      100                       15                     0.69
+        "Std. Sea Water"                      125                       15                     0.69
+        "Std. Sea Water"                      150                       15                     0.69
+        "Std. Sea Water"                      200                       15                     0.67
+        "Std. Sea Water"                      250                       15                     0.63
+        "Std. Sea Water"                      300                       15                     0.56
+        "Std. Sea Water"                      350                       15                      0.1
+        "Std. Sea Water"                      375                       15                     0.08
+        "Std. Sea Water"                      400                       15                     0.08
+        "Std. Sea Water"                      425                       15                     0.08
+        "Std. Sea Water"                      450                       15                     0.08
+        "Std. Sea Water"                      475                       15                     0.08
+        "Std. Sea Water"                      500                       15                     0.08
+        "Std. Sea Water"                      550                       15                     0.09
+        "Std. Sea Water"                      600                       15                     0.09
+        "Std. Sea Water"                      650                       15                      0.1
+        "Std. Sea Water"                      700                       15                      0.1
+        "Std. Sea Water"                      750                       15                     0.11
+        "Std. Sea Water"                      800                       15                     0.12
+        "Std. Sea Water"                        0                     17.5                     0.57
+        "Std. Sea Water"                       25                     17.5                     0.62
+        "Std. Sea Water"                       50                     17.5                     0.65
+        "Std. Sea Water"                       75                     17.5                     0.67
+        "Std. Sea Water"                      100                     17.5                     0.69
+        "Std. Sea Water"                      125                     17.5                     0.69
+        "Std. Sea Water"                      150                     17.5                     0.69
+        "Std. Sea Water"                      200                     17.5                     0.67
+        "Std. Sea Water"                      250                     17.5                     0.63
+        "Std. Sea Water"                      300                     17.5                     0.56
+        "Std. Sea Water"                      350                     17.5                     0.44
+        "Std. Sea Water"                      375                     17.5                      0.1
+        "Std. Sea Water"                      400                     17.5                     0.09
+        "Std. Sea Water"                      425                     17.5                     0.09
+        "Std. Sea Water"                      450                     17.5                     0.08
+        "Std. Sea Water"                      475                     17.5                     0.08
+        "Std. Sea Water"                      500                     17.5                     0.09
+        "Std. Sea Water"                      550                     17.5                     0.09
+        "Std. Sea Water"                      600                     17.5                     0.09
+        "Std. Sea Water"                      650                     17.5                      0.1
+        "Std. Sea Water"                      700                     17.5                     0.11
+        "Std. Sea Water"                      750                     17.5                     0.11
+        "Std. Sea Water"                      800                     17.5                     0.12
+        "Std. Sea Water"                        0                       20                     0.57
+        "Std. Sea Water"                       25                       20                     0.62
+        "Std. Sea Water"                       50                       20                     0.65
+        "Std. Sea Water"                       75                       20                     0.67
+        "Std. Sea Water"                      100                       20                     0.69
+        "Std. Sea Water"                      125                       20                      0.7
+        "Std. Sea Water"                      150                       20                      0.7
+        "Std. Sea Water"                      200                       20                     0.67
+        "Std. Sea Water"                      250                       20                     0.64
+        "Std. Sea Water"                      300                       20                     0.57
+        "Std. Sea Water"                      350                       20                     0.45
+        "Std. Sea Water"                      375                       20                     0.15
+        "Std. Sea Water"                      400                       20                      0.1
+        "Std. Sea Water"                      425                       20                     0.09
+        "Std. Sea Water"                      450                       20                     0.09
+        "Std. Sea Water"                      475                       20                     0.09
+        "Std. Sea Water"                      500                       20                     0.09
+        "Std. Sea Water"                      550                       20                     0.09
+        "Std. Sea Water"                      600                       20                      0.1
+        "Std. Sea Water"                      650                       20                      0.1
+        "Std. Sea Water"                      700                       20                     0.11
+        "Std. Sea Water"                      750                       20                     0.11
+        "Std. Sea Water"                      800                       20                     0.12
+        "Std. Sea Water"                        0                     22.5                     0.57
+        "Std. Sea Water"                       25                     22.5                     0.62
+        "Std. Sea Water"                       50                     22.5                     0.65
+        "Std. Sea Water"                       75                     22.5                     0.68
+        "Std. Sea Water"                      100                     22.5                     0.69
+        "Std. Sea Water"                      125                     22.5                      0.7
+        "Std. Sea Water"                      150                     22.5                      0.7
+        "Std. Sea Water"                      200                     22.5                     0.68
+        "Std. Sea Water"                      250                     22.5                     0.64
+        "Std. Sea Water"                      300                     22.5                     0.57
+        "Std. Sea Water"                      350                     22.5                     0.46
+        "Std. Sea Water"                      375                     22.5                      0.5
+        "Std. Sea Water"                      400                     22.5                     0.12
+        "Std. Sea Water"                      425                     22.5                      0.1
+        "Std. Sea Water"                      450                     22.5                      0.1
+        "Std. Sea Water"                      475                     22.5                     0.09
+        "Std. Sea Water"                      500                     22.5                     0.09
+        "Std. Sea Water"                      550                     22.5                      0.1
+        "Std. Sea Water"                      600                     22.5                      0.1
+        "Std. Sea Water"                      650                     22.5                      0.1
+        "Std. Sea Water"                      700                     22.5                     0.11
+        "Std. Sea Water"                      750                     22.5                     0.12
+        "Std. Sea Water"                      800                     22.5                     0.12
+        "Std. Sea Water"                        0                       25                     0.58
+        "Std. Sea Water"                       25                       25                     0.62
+        "Std. Sea Water"                       50                       25                     0.65
+        "Std. Sea Water"                       75                       25                     0.68
+        "Std. Sea Water"                      100                       25                     0.69
+        "Std. Sea Water"                      125                       25                      0.7
+        "Std. Sea Water"                      150                       25                      0.7
+        "Std. Sea Water"                      200                       25                     0.68
+        "Std. Sea Water"                      250                       25                     0.64
+        "Std. Sea Water"                      300                       25                     0.58
+        "Std. Sea Water"                      350                       25                     0.47
+        "Std. Sea Water"                      375                       25                     0.39
+        "Std. Sea Water"                      400                       25                     0.16
+        "Std. Sea Water"                      425                       25                     0.12
+        "Std. Sea Water"                      450                       25                     0.11
+        "Std. Sea Water"                      475                       25                      0.1
+        "Std. Sea Water"                      500                       25                      0.1
+        "Std. Sea Water"                      550                       25                      0.1
+        "Std. Sea Water"                      600                       25                      0.1
+        "Std. Sea Water"                      650                       25                     0.11
+        "Std. Sea Water"                      700                       25                     0.11
+        "Std. Sea Water"                      750                       25                     0.12
+        "Std. Sea Water"                      800                       25                     0.12
+        "Std. Sea Water"                        0                     27.5                     0.58
+        "Std. Sea Water"                       25                     27.5                     0.62
+        "Std. Sea Water"                       50                     27.5                     0.65
+        "Std. Sea Water"                       75                     27.5                     0.68
+        "Std. Sea Water"                      100                     27.5                     0.69
+        "Std. Sea Water"                      125                     27.5                      0.7
+        "Std. Sea Water"                      150                     27.5                      0.7
+        "Std. Sea Water"                      200                     27.5                     0.69
+        "Std. Sea Water"                      250                     27.5                     0.65
+        "Std. Sea Water"                      300                     27.5                     0.58
+        "Std. Sea Water"                      350                     27.5                     0.48
+        "Std. Sea Water"                      375                     27.5                     0.41
+        "Std. Sea Water"                      400                     27.5                     0.23
+        "Std. Sea Water"                      425                     27.5                     0.14
+        "Std. Sea Water"                      450                     27.5                     0.12
+        "Std. Sea Water"                      475                     27.5                     0.11
+        "Std. Sea Water"                      500                     27.5                     0.11
+        "Std. Sea Water"                      550                     27.5                      0.1
+        "Std. Sea Water"                      600                     27.5                     0.11
+        "Std. Sea Water"                      650                     27.5                     0.11
+        "Std. Sea Water"                      700                     27.5                     0.11
+        "Std. Sea Water"                      750                     27.5                     0.12
+        "Std. Sea Water"                      800                     27.5                     0.12
+        "Std. Sea Water"                        0                       30                     0.58
+        "Std. Sea Water"                       25                       30                     0.62
+        "Std. Sea Water"                       50                       30                     0.66
+        "Std. Sea Water"                       75                       30                     0.68
+        "Std. Sea Water"                      100                       30                     0.69
+        "Std. Sea Water"                      125                       30                      0.7
+        "Std. Sea Water"                      150                       30                      0.7
+        "Std. Sea Water"                      200                       30                     0.69
+        "Std. Sea Water"                      250                       30                     0.65
+        "Std. Sea Water"                      300                       30                     0.59
+        "Std. Sea Water"                      350                       30                     0.49
+        "Std. Sea Water"                      375                       30                     0.42
+        "Std. Sea Water"                      400                       30                     0.33
+        "Std. Sea Water"                      425                       30                     0.17
+        "Std. Sea Water"                      450                       30                     0.13
+        "Std. Sea Water"                      475                       30                     0.12
+        "Std. Sea Water"                      500                       30                     0.11
+        "Std. Sea Water"                      550                       30                     0.11
+        "Std. Sea Water"                      600                       30                     0.11
+        "Std. Sea Water"                      650                       30                     0.11
+        "Std. Sea Water"                      700                       30                     0.12
+        "Std. Sea Water"                      750                       30                     0.12
+        "Std. Sea Water"                      800                       30                     0.13
+        "Std. Sea Water"                        0                       35                     0.58
+        "Std. Sea Water"                       25                       35                     0.63
+        "Std. Sea Water"                       50                       35                     0.66
+        "Std. Sea Water"                       75                       35                     0.68
+        "Std. Sea Water"                      100                       35                      0.7
+        "Std. Sea Water"                      125                       35                     0.71
+        "Std. Sea Water"                      150                       35                     0.71
+        "Std. Sea Water"                      200                       35                     0.69
+        "Std. Sea Water"                      250                       35                     0.65
+        "Std. Sea Water"                      300                       35                     0.59
+        "Std. Sea Water"                      350                       35                      0.5
+        "Std. Sea Water"                      375                       35                     0.44
+        "Std. Sea Water"                      400                       35                     0.37
+        "Std. Sea Water"                      425                       35                     0.25
+        "Std. Sea Water"                      450                       35                     0.17
+        "Std. Sea Water"                      475                       35                     0.14
+        "Std. Sea Water"                      500                       35                     0.13
+        "Std. Sea Water"                      550                       35                     0.12
+        "Std. Sea Water"                      600                       35                     0.12
+        "Std. Sea Water"                      650                       35                     0.12
+        "Std. Sea Water"                      700                       35                     0.12
+        "Std. Sea Water"                      750                       35                     0.13
+        "Std. Sea Water"                      800                       35                     0.13
+        "Std. Sea Water"                        0                       40                     0.58
+        "Std. Sea Water"                       25                       40                     0.63
+        "Std. Sea Water"                       50                       40                     0.66
+        "Std. Sea Water"                       75                       40                     0.68
+        "Std. Sea Water"                      100                       40                      0.7
+        "Std. Sea Water"                      125                       40                     0.71
+        "Std. Sea Water"                      150                       40                     0.71
+        "Std. Sea Water"                      200                       40                     0.69
+        "Std. Sea Water"                      250                       40                     0.66
+        "Std. Sea Water"                      300                       40                      0.6
+        "Std. Sea Water"                      350                       40                     0.52
+        "Std. Sea Water"                      375                       40                     0.46
+        "Std. Sea Water"                      400                       40                      0.4
+        "Std. Sea Water"                      425                       40                     0.32
+        "Std. Sea Water"                      450                       40                     0.23
+        "Std. Sea Water"                      475                       40                     0.17
+        "Std. Sea Water"                      500                       40                     0.15
+        "Std. Sea Water"                      550                       40                     0.13
+        "Std. Sea Water"                      600                       40                     0.13
+        "Std. Sea Water"                      650                       40                     0.13
+        "Std. Sea Water"                      700                       40                     0.13
+        "Std. Sea Water"                      750                       40                     0.13
+        "Std. Sea Water"                      800                       40                     0.14
+        "Std. Sea Water"                        0                       45                     0.59
+        "Std. Sea Water"                       25                       45                     0.63
+        "Std. Sea Water"                       50                       45                     0.66
+        "Std. Sea Water"                       75                       45                     0.69
+        "Std. Sea Water"                      100                       45                      0.7
+        "Std. Sea Water"                      125                       45                     0.71
+        "Std. Sea Water"                      150                       45                     0.71
+        "Std. Sea Water"                      200                       45                      0.7
+        "Std. Sea Water"                      250                       45                     0.66
+        "Std. Sea Water"                      300                       45                     0.61
+        "Std. Sea Water"                      350                       45                     0.53
+        "Std. Sea Water"                      375                       45                     0.48
+        "Std. Sea Water"                      400                       45                     0.42
+        "Std. Sea Water"                      425                       45                     0.35
+        "Std. Sea Water"                      450                       45                     0.28
+        "Std. Sea Water"                      475                       45                     0.21
+        "Std. Sea Water"                      500                       45                     0.18
+        "Std. Sea Water"                      550                       45                     0.15
+        "Std. Sea Water"                      600                       45                     0.14
+        "Std. Sea Water"                      650                       45                     0.13
+        "Std. Sea Water"                      700                       45                     0.13
+        "Std. Sea Water"                      750                       45                     0.14
+        "Std. Sea Water"                      800                       45                     0.14
+        "Std. Sea Water"                        0                       50                     0.59
+        "Std. Sea Water"                       25                       50                     0.63
+        "Std. Sea Water"                       50                       50                     0.67
+        "Std. Sea Water"                       75                       50                     0.69
+        "Std. Sea Water"                      100                       50                      0.7
+        "Std. Sea Water"                      125                       50                     0.71
+        "Std. Sea Water"                      150                       50                     0.71
+        "Std. Sea Water"                      200                       50                      0.7
+        "Std. Sea Water"                      250                       50                     0.67
+        "Std. Sea Water"                      300                       50                     0.61
+        "Std. Sea Water"                      350                       50                     0.54
+        "Std. Sea Water"                      375                       50                     0.49
+        "Std. Sea Water"                      400                       50                     0.44
+        "Std. Sea Water"                      425                       50                     0.38
+        "Std. Sea Water"                      450                       50                     0.32
+        "Std. Sea Water"                      475                       50                     0.25
+        "Std. Sea Water"                      500                       50                     0.21
+        "Std. Sea Water"                      550                       50                     0.16
+        "Std. Sea Water"                      600                       50                     0.15
+        "Std. Sea Water"                      650                       50                     0.14
+        "Std. Sea Water"                      700                       50                     0.14
+        "Std. Sea Water"                      750                       50                     0.14
+        "Std. Sea Water"                      800                       50                     0.15
+        "Std. Sea Water"                        0                       55                     0.59
+        "Std. Sea Water"                       25                       55                     0.64
+        "Std. Sea Water"                       50                       55                     0.67
+        "Std. Sea Water"                       75                       55                     0.69
+        "Std. Sea Water"                      100                       55                     0.71
+        "Std. Sea Water"                      125                       55                     0.72
+        "Std. Sea Water"                      150                       55                     0.72
+        "Std. Sea Water"                      200                       55                     0.71
+        "Std. Sea Water"                      250                       55                     0.67
+        "Std. Sea Water"                      300                       55                     0.62
+        "Std. Sea Water"                      350                       55                     0.55
+        "Std. Sea Water"                      375                       55                      0.5
+        "Std. Sea Water"                      400                       55                     0.45
+        "Std. Sea Water"                      425                       55                      0.4
+        "Std. Sea Water"                      450                       55                     0.34
+        "Std. Sea Water"                      475                       55                     0.29
+        "Std. Sea Water"                      500                       55                     0.24
+        "Std. Sea Water"                      550                       55                     0.18
+        "Std. Sea Water"                      600                       55                     0.16
+        "Std. Sea Water"                      650                       55                     0.15
+        "Std. Sea Water"                      700                       55                     0.15
+        "Std. Sea Water"                      750                       55                     0.15
+        "Std. Sea Water"                      800                       55                     0.15
+        "Std. Sea Water"                        0                       60                      0.6
+        "Std. Sea Water"                       25                       60                     0.64
+        "Std. Sea Water"                       50                       60                     0.67
+        "Std. Sea Water"                       75                       60                     0.69
+        "Std. Sea Water"                      100                       60                     0.71
+        "Std. Sea Water"                      125                       60                     0.72
+        "Std. Sea Water"                      150                       60                     0.72
+        "Std. Sea Water"                      200                       60                     0.71
+        "Std. Sea Water"                      250                       60                     0.68
+        "Std. Sea Water"                      300                       60                     0.63
+        "Std. Sea Water"                      350                       60                     0.56
+        "Std. Sea Water"                      375                       60                     0.52
+        "Std. Sea Water"                      400                       60                     0.47
+        "Std. Sea Water"                      425                       60                     0.42
+        "Std. Sea Water"                      450                       60                     0.37
+        "Std. Sea Water"                      475                       60                     0.31
+        "Std. Sea Water"                      500                       60                     0.26
+        "Std. Sea Water"                      550                       60                      0.2
+        "Std. Sea Water"                      600                       60                     0.17
+        "Std. Sea Water"                      650                       60                     0.16
+        "Std. Sea Water"                      700                       60                     0.16
+        "Std. Sea Water"                      750                       60                     0.16
+        "Std. Sea Water"                      800                       60                     0.16
+        "Std. Sea Water"                        0                       65                      0.6
+        "Std. Sea Water"                       25                       65                     0.64
+        "Std. Sea Water"                       50                       65                     0.67
+        "Std. Sea Water"                       75                       65                      0.7
+        "Std. Sea Water"                      100                       65                     0.71
+        "Std. Sea Water"                      125                       65                     0.72
+        "Std. Sea Water"                      150                       65                     0.72
+        "Std. Sea Water"                      200                       65                     0.71
+        "Std. Sea Water"                      250                       65                     0.68
+        "Std. Sea Water"                      300                       65                     0.63
+        "Std. Sea Water"                      350                       65                     0.57
+        "Std. Sea Water"                      375                       65                     0.53
+        "Std. Sea Water"                      400                       65                     0.48
+        "Std. Sea Water"                      425                       65                     0.43
+        "Std. Sea Water"                      450                       65                     0.38
+        "Std. Sea Water"                      475                       65                     0.34
+        "Std. Sea Water"                      500                       65                     0.29
+        "Std. Sea Water"                      550                       65                     0.22
+        "Std. Sea Water"                      600                       65                     0.19
+        "Std. Sea Water"                      650                       65                     0.17
+        "Std. Sea Water"                      700                       65                     0.17
+        "Std. Sea Water"                      750                       65                     0.16
+        "Std. Sea Water"                      800                       65                     0.16
+        "Std. Sea Water"                        0                       70                      0.6
+        "Std. Sea Water"                       25                       70                     0.64
+        "Std. Sea Water"                       50                       70                     0.67
+        "Std. Sea Water"                       75                       70                      0.7
+        "Std. Sea Water"                      100                       70                     0.71
+        "Std. Sea Water"                      125                       70                     0.72
+        "Std. Sea Water"                      150                       70                     0.73
+        "Std. Sea Water"                      200                       70                     0.72
+        "Std. Sea Water"                      250                       70                     0.69
+        "Std. Sea Water"                      300                       70                     0.64
+        "Std. Sea Water"                      350                       70                     0.57
+        "Std. Sea Water"                      375                       70                     0.53
+        "Std. Sea Water"                      400                       70                     0.49
+        "Std. Sea Water"                      425                       70                     0.45
+        "Std. Sea Water"                      450                       70                      0.4
+        "Std. Sea Water"                      475                       70                     0.36
+        "Std. Sea Water"                      500                       70                     0.31
+        "Std. Sea Water"                      550                       70                     0.24
+        "Std. Sea Water"                      600                       70                      0.2
+        "Std. Sea Water"                      650                       70                     0.18
+        "Std. Sea Water"                      700                       70                     0.17
+        "Std. Sea Water"                      750                       70                     0.17
+        "Std. Sea Water"                      800                       70                     0.17
+        "Std. Sea Water"                        0                       75                      0.6
+        "Std. Sea Water"                       25                       75                     0.65
+        "Std. Sea Water"                       50                       75                     0.68
+        "Std. Sea Water"                       75                       75                      0.7
+        "Std. Sea Water"                      100                       75                     0.72
+        "Std. Sea Water"                      125                       75                     0.73
+        "Std. Sea Water"                      150                       75                     0.73
+        "Std. Sea Water"                      200                       75                     0.72
+        "Std. Sea Water"                      250                       75                     0.69
+        "Std. Sea Water"                      300                       75                     0.64
+        "Std. Sea Water"                      350                       75                     0.58
+        "Std. Sea Water"                      375                       75                     0.54
+        "Std. Sea Water"                      400                       75                      0.5
+        "Std. Sea Water"                      425                       75                     0.46
+        "Std. Sea Water"                      450                       75                     0.42
+        "Std. Sea Water"                      475                       75                     0.37
+        "Std. Sea Water"                      500                       75                     0.33
+        "Std. Sea Water"                      550                       75                     0.26
+        "Std. Sea Water"                      600                       75                     0.22
+        "Std. Sea Water"                      650                       75                      0.2
+        "Std. Sea Water"                      700                       75                     0.18
+        "Std. Sea Water"                      750                       75                     0.18
+        "Std. Sea Water"                      800                       75                     0.18
+        "Std. Sea Water"                        0                       80                     0.61
+        "Std. Sea Water"                       25                       80                     0.65
+        "Std. Sea Water"                       50                       80                     0.68
+        "Std. Sea Water"                       75                       80                      0.7
+        "Std. Sea Water"                      100                       80                     0.72
+        "Std. Sea Water"                      125                       80                     0.73
+        "Std. Sea Water"                      150                       80                     0.73
+        "Std. Sea Water"                      200                       80                     0.72
+        "Std. Sea Water"                      250                       80                     0.69
+        "Std. Sea Water"                      300                       80                     0.65
+        "Std. Sea Water"                      350                       80                     0.59
+        "Std. Sea Water"                      375                       80                     0.55
+        "Std. Sea Water"                      400                       80                     0.51
+        "Std. Sea Water"                      425                       80                     0.47
+        "Std. Sea Water"                      450                       80                     0.43
+        "Std. Sea Water"                      475                       80                     0.39
+        "Std. Sea Water"                      500                       80                     0.35
+        "Std. Sea Water"                      550                       80                     0.28
+        "Std. Sea Water"                      600                       80                     0.23
+        "Std. Sea Water"                      650                       80                     0.21
+        "Std. Sea Water"                      700                       80                     0.19
+        "Std. Sea Water"                      750                       80                     0.19
+        "Std. Sea Water"                      800                       80                     0.18
+        "Std. Sea Water"                        0                       85                     0.61
+        "Std. Sea Water"                       25                       85                     0.65
+        "Std. Sea Water"                       50                       85                     0.68
+        "Std. Sea Water"                       75                       85                      0.7
+        "Std. Sea Water"                      100                       85                     0.72
+        "Std. Sea Water"                      125                       85                     0.73
+        "Std. Sea Water"                      150                       85                     0.73
+        "Std. Sea Water"                      200                       85                     0.72
+        "Std. Sea Water"                      250                       85                      0.7
+        "Std. Sea Water"                      300                       85                     0.65
+        "Std. Sea Water"                      350                       85                     0.59
+        "Std. Sea Water"                      375                       85                     0.56
+        "Std. Sea Water"                      400                       85                     0.52
+        "Std. Sea Water"                      425                       85                     0.48
+        "Std. Sea Water"                      450                       85                     0.44
+        "Std. Sea Water"                      475                       85                      0.4
+        "Std. Sea Water"                      500                       85                     0.36
+        "Std. Sea Water"                      550                       85                      0.3
+        "Std. Sea Water"                      600                       85                     0.25
+        "Std. Sea Water"                      650                       85                     0.22
+        "Std. Sea Water"                      700                       85                      0.2
+        "Std. Sea Water"                      750                       85                      0.2
+        "Std. Sea Water"                      800                       85                     0.19
+        "Std. Sea Water"                        0                       90                     0.61
+        "Std. Sea Water"                       25                       90                     0.65
+        "Std. Sea Water"                       50                       90                     0.68
+        "Std. Sea Water"                       75                       90                     0.71
+        "Std. Sea Water"                      100                       90                     0.72
+        "Std. Sea Water"                      125                       90                     0.73
+        "Std. Sea Water"                      150                       90                     0.74
+        "Std. Sea Water"                      200                       90                     0.73
+        "Std. Sea Water"                      250                       90                      0.7
+        "Std. Sea Water"                      300                       90                     0.66
+        "Std. Sea Water"                      350                       90                      0.6
+        "Std. Sea Water"                      375                       90                     0.57
+        "Std. Sea Water"                      400                       90                     0.53
+        "Std. Sea Water"                      425                       90                      0.5
+        "Std. Sea Water"                      450                       90                     0.46
+        "Std. Sea Water"                      475                       90                     0.42
+        "Std. Sea Water"                      500                       90                     0.38
+        "Std. Sea Water"                      550                       90                     0.31
+        "Std. Sea Water"                      600                       90                     0.26
+        "Std. Sea Water"                      650                       90                     0.23
+        "Std. Sea Water"                      700                       90                     0.21
+        "Std. Sea Water"                      750                       90                      0.2
+        "Std. Sea Water"                      800                       90                      0.2
+        "Std. Sea Water"                        0                       95                     0.61
+        "Std. Sea Water"                       25                       95                     0.65
+        "Std. Sea Water"                       50                       95                     0.69
+        "Std. Sea Water"                       75                       95                     0.71
+        "Std. Sea Water"                      100                       95                     0.73
+        "Std. Sea Water"                      125                       95                     0.74
+        "Std. Sea Water"                      150                       95                     0.74
+        "Std. Sea Water"                      200                       95                     0.73
+        "Std. Sea Water"                      250                       95                      0.7
+        "Std. Sea Water"                      300                       95                     0.66
+        "Std. Sea Water"                      350                       95                     0.61
+        "Std. Sea Water"                      375                       95                     0.57
+        "Std. Sea Water"                      400                       95                     0.54
+        "Std. Sea Water"                      425                       95                      0.5
+        "Std. Sea Water"                      450                       95                     0.47
+        "Std. Sea Water"                      475                       95                     0.43
+        "Std. Sea Water"                      500                       95                     0.39
+        "Std. Sea Water"                      550                       95                     0.33
+        "Std. Sea Water"                      600                       95                     0.28
+        "Std. Sea Water"                      650                       95                     0.25
+        "Std. Sea Water"                      700                       95                     0.23
+        "Std. Sea Water"                      750                       95                     0.21
+        "Std. Sea Water"                      800                       95                     0.21
+        "Std. Sea Water"                        0                      100                     0.62
+        "Std. Sea Water"                       25                      100                     0.66
+        "Std. Sea Water"                       50                      100                     0.69
+        "Std. Sea Water"                       75                      100                     0.71
+        "Std. Sea Water"                      100                      100                     0.73
+        "Std. Sea Water"                      125                      100                     0.74
+        "Std. Sea Water"                      150                      100                     0.74
+        "Std. Sea Water"                      200                      100                     0.73
+        "Std. Sea Water"                      250                      100                     0.71
+        "Std. Sea Water"                      300                      100                     0.67
+        "Std. Sea Water"                      350                      100                     0.61
+        "Std. Sea Water"                      375                      100                     0.58
+        "Std. Sea Water"                      400                      100                     0.55
+        "Std. Sea Water"                      425                      100                     0.51
+        "Std. Sea Water"                      450                      100                     0.48
+        "Std. Sea Water"                      475                      100                     0.44
+        "Std. Sea Water"                      500                      100                      0.4
+        "Std. Sea Water"                      550                      100                     0.34
+        "Std. Sea Water"                      600                      100                     0.29
+        "Std. Sea Water"                      650                      100                     0.26
+        "Std. Sea Water"                      700                      100                     0.24
+        "Std. Sea Water"                      750                      100                     0.22
+        "Std. Sea Water"                      800                      100                     0.21
+[End]
+;
+;
+; FltHeatCapIoTbl
+;
+[FltHeatCapIoTbl]
+;v100
+               Fluidtype                TempIndex                 Pressure             HeatCapacity
+                      ()                      (C)                    (MPa)                  (J/kgK)
+        "Std. Sea Water"                        0                      0.1                     4250
+        "Std. Sea Water"                       50                      0.1                     4190
+        "Std. Sea Water"                      100                      0.1                     4200
+        "Std. Sea Water"                      150                      0.1                     4200
+        "Std. Sea Water"                      200                      0.1                     4200
+        "Std. Sea Water"                      250                      0.1                     4200
+        "Std. Sea Water"                      300                      0.1                     4200
+        "Std. Sea Water"                      350                      0.1                     4200
+        "Std. Sea Water"                      400                      0.1                     4200
+        "Std. Sea Water"                      450                      0.1                     4200
+        "Std. Sea Water"                      500                      0.1                     4200
+        "Std. Sea Water"                      550                      0.1                     4200
+        "Std. Sea Water"                      600                      0.1                     4200
+        "Std. Sea Water"                        0                     40.1                     4060
+        "Std. Sea Water"                       50                     40.1                     4090
+        "Std. Sea Water"                      100                     40.1                     4120
+        "Std. Sea Water"                      150                     40.1                     4120
+        "Std. Sea Water"                      200                     40.1                     4120
+        "Std. Sea Water"                      250                     40.1                     4120
+        "Std. Sea Water"                      300                     40.1                     4120
+        "Std. Sea Water"                      350                     40.1                     4120
+        "Std. Sea Water"                      400                     40.1                     4120
+        "Std. Sea Water"                      450                     40.1                     4120
+        "Std. Sea Water"                      500                     40.1                     4120
+        "Std. Sea Water"                      550                     40.1                     4120
+        "Std. Sea Water"                      600                     40.1                     4120
+        "Std. Sea Water"                        0                     80.1                     4030
+        "Std. Sea Water"                       50                     80.1                     4030
+        "Std. Sea Water"                      100                     80.1                     4060
+        "Std. Sea Water"                      150                     80.1                     4120
+        "Std. Sea Water"                      200                     80.1                     4190
+        "Std. Sea Water"                      250                     80.1                     4190
+        "Std. Sea Water"                      300                     80.1                     4190
+        "Std. Sea Water"                      350                     80.1                     4190
+        "Std. Sea Water"                      400                     80.1                     4190
+        "Std. Sea Water"                      450                     80.1                     4190
+        "Std. Sea Water"                      500                     80.1                     4190
+        "Std. Sea Water"                      550                     80.1                     4190
+        "Std. Sea Water"                      600                     80.1                     4190
+        "Std. Sea Water"                        0                    120.1                     4000
+        "Std. Sea Water"                       50                    120.1                     4000
+        "Std. Sea Water"                      100                    120.1                     4000
+        "Std. Sea Water"                      150                    120.1                     4030
+        "Std. Sea Water"                      200                    120.1                     4090
+        "Std. Sea Water"                      250                    120.1                     4090
+        "Std. Sea Water"                      300                    120.1                     4090
+        "Std. Sea Water"                      350                    120.1                     4090
+        "Std. Sea Water"                      400                    120.1                     4090
+        "Std. Sea Water"                      450                    120.1                     4090
+        "Std. Sea Water"                      500                    120.1                     4090
+        "Std. Sea Water"                      550                    120.1                     4090
+        "Std. Sea Water"                      600                    120.1                     4090
+        "Std. Sea Water"                        0                    160.1                     3970
+        "Std. Sea Water"                       50                    160.1                     3970
+        "Std. Sea Water"                      100                    160.1                     3970
+        "Std. Sea Water"                      150                    160.1                     4000
+        "Std. Sea Water"                      200                    160.1                     4030
+        "Std. Sea Water"                      250                    160.1                     4080
+        "Std. Sea Water"                      300                    160.1                     4080
+        "Std. Sea Water"                      350                    160.1                     4080
+        "Std. Sea Water"                      400                    160.1                     4080
+        "Std. Sea Water"                      450                    160.1                     4080
+        "Std. Sea Water"                      500                    160.1                     4080
+        "Std. Sea Water"                      550                    160.1                     4080
+        "Std. Sea Water"                      600                    160.1                     4080
+        "Std. Sea Water"                        0                    200.1                     3910
+        "Std. Sea Water"                       50                    200.1                     3910
+        "Std. Sea Water"                      100                    200.1                     3910
+        "Std. Sea Water"                      150                    200.1                     3910
+        "Std. Sea Water"                      200                    200.1                     3940
+        "Std. Sea Water"                      250                    200.1                     4000
+        "Std. Sea Water"                      300                    200.1                     4060
+        "Std. Sea Water"                      350                    200.1                     4060
+        "Std. Sea Water"                      400                    200.1                     4060
+        "Std. Sea Water"                      450                    200.1                     4060
+        "Std. Sea Water"                      500                    200.1                     4060
+        "Std. Sea Water"                      550                    200.1                     4060
+        "Std. Sea Water"                      600                    200.1                     4060
+        "Std. Sea Water"                        0                    240.1                     3880
+        "Std. Sea Water"                       50                    240.1                     3880
+        "Std. Sea Water"                      100                    240.1                     3880
+        "Std. Sea Water"                      150                    240.1                     3880
+        "Std. Sea Water"                      200                    240.1                     3910
+        "Std. Sea Water"                      250                    240.1                     3960
+        "Std. Sea Water"                      300                    240.1                     4000
+        "Std. Sea Water"                      350                    240.1                     4060
+        "Std. Sea Water"                      400                    240.1                     4060
+        "Std. Sea Water"                      450                    240.1                     4060
+        "Std. Sea Water"                      500                    240.1                     4060
+        "Std. Sea Water"                      550                    240.1                     4060
+        "Std. Sea Water"                      600                    240.1                     4060
+        "Std. Sea Water"                        0                    280.1                     3870
+        "Std. Sea Water"                       50                    280.1                     3870
+        "Std. Sea Water"                      100                    280.1                     3870
+        "Std. Sea Water"                      150                    280.1                     3870
+        "Std. Sea Water"                      200                    280.1                     3870
+        "Std. Sea Water"                      250                    280.1                     3910
+        "Std. Sea Water"                      300                    280.1                     3930
+        "Std. Sea Water"                      350                    280.1                     3970
+        "Std. Sea Water"                      400                    280.1                     4030
+        "Std. Sea Water"                      450                    280.1                     4030
+        "Std. Sea Water"                      500                    280.1                     4030
+        "Std. Sea Water"                      550                    280.1                     4030
+        "Std. Sea Water"                      600                    280.1                     4030
+        "Std. Sea Water"                        0                    320.1                     3860
+        "Std. Sea Water"                       50                    320.1                     3860
+        "Std. Sea Water"                      100                    320.1                     3860
+        "Std. Sea Water"                      150                    320.1                     3860
+        "Std. Sea Water"                      200                    320.1                     3860
+        "Std. Sea Water"                      250                    320.1                     3860
+        "Std. Sea Water"                      300                    320.1                     3870
+        "Std. Sea Water"                      350                    320.1                     3900
+        "Std. Sea Water"                      400                    320.1                     3940
+        "Std. Sea Water"                      450                    320.1                     3980
+        "Std. Sea Water"                      500                    320.1                     3980
+        "Std. Sea Water"                      550                    320.1                     3980
+        "Std. Sea Water"                      600                    320.1                     3980
+        "Std. Sea Water"                        0                    360.1                     3840
+        "Std. Sea Water"                       50                    360.1                     3840
+        "Std. Sea Water"                      100                    360.1                     3840
+        "Std. Sea Water"                      150                    360.1                     3840
+        "Std. Sea Water"                      200                    360.1                     3840
+        "Std. Sea Water"                      250                    360.1                     3840
+        "Std. Sea Water"                      300                    360.1                     3850
+        "Std. Sea Water"                      350                    360.1                     3860
+        "Std. Sea Water"                      400                    360.1                     3890
+        "Std. Sea Water"                      450                    360.1                     3930
+        "Std. Sea Water"                      500                    360.1                     3940
+        "Std. Sea Water"                      550                    360.1                     3940
+        "Std. Sea Water"                      600                    360.1                     3940
+        "Std. Sea Water"                        0                    400.1                     3800
+        "Std. Sea Water"                       50                    400.1                     3800
+        "Std. Sea Water"                      100                    400.1                     3800
+        "Std. Sea Water"                      150                    400.1                     3800
+        "Std. Sea Water"                      200                    400.1                     3800
+        "Std. Sea Water"                      250                    400.1                     3800
+        "Std. Sea Water"                      300                    400.1                     3800
+        "Std. Sea Water"                      350                    400.1                     3810
+        "Std. Sea Water"                      400                    400.1                     3830
+        "Std. Sea Water"                      450                    400.1                     3850
+        "Std. Sea Water"                      500                    400.1                     3860
+        "Std. Sea Water"                      550                    400.1                     3850
+        "Std. Sea Water"                      600                    400.1                     3840
+        "Std. Sea Water"                        0                    440.1                     3770
+        "Std. Sea Water"                       50                    440.1                     3770
+        "Std. Sea Water"                      100                    440.1                     3770
+        "Std. Sea Water"                      150                    440.1                     3770
+        "Std. Sea Water"                      200                    440.1                     3770
+        "Std. Sea Water"                      250                    440.1                     3770
+        "Std. Sea Water"                      300                    440.1                     3770
+        "Std. Sea Water"                      350                    440.1                     3780
+        "Std. Sea Water"                      400                    440.1                     3800
+        "Std. Sea Water"                      450                    440.1                     3810
+        "Std. Sea Water"                      500                    440.1                     3820
+        "Std. Sea Water"                      550                    440.1                     3820
+        "Std. Sea Water"                      600                    440.1                     3800
+[End]
+;
+;
+; TwoWayTimeIoTbl
+;
+[TwoWayTimeIoTbl]
+;v100
+             SurfaceName           TwoWayTimeGrid               TwoWayTime
+                      ()                     (ms)                     (ms)
+[End]
+;
+;
+; GenexHistoryLocationIoTbl
+;
+[GenexHistoryLocationIoTbl]
+;v100
+           FormationName                 WellName           XPlanePosition           YPlanePosition                 Filename
+                      ()                       ()                      (m)                      (m)                       ()
+[End]
+;
+;
+; LangmuirAdsorptionCapacityIsothermSetIoTbl
+;
+[LangmuirAdsorptionCapacityIsothermSetIoTbl]
+;v100
+            LangmuirName      LangmuirTemperature         LangmuirPressure           LangmuirVolume
+                      ()                      (C)                    (MPa)                     (cc)
+[End]
+;
+;
+; LangmuirAdsorptionCapacityTOCFunctionIoTbl
+;
+[LangmuirAdsorptionCapacityTOCFunctionIoTbl]
+;v100
+            LangmuirName     ReferenceTemperature                 VLCoeffA                 VLCoeffB    VLTemperatureGradient         LangmuirPressure
+                      ()                      (C)                       ()                       ()                 (cc/g/C)                    (MPa)
+[End]
+;
+;
+; AdsorptionHistoryIoTbl
+;
+[AdsorptionHistoryIoTbl]
+;v100
+ AdsorptionFormationName           XPlanePosition           YPlanePosition
+                      ()                      (m)                      (m)
+[End]
+;
+;
+; IrreducibleWaterSaturationIoTbl
+;
+[IrreducibleWaterSaturationIoTbl]
+;v100
+            CoefficientA             CoefficientB
+                      ()                       ()
+                   -0.13                      0.7
+[End]
+;
+;
+; SGDensityIoTbl
+;
+[SGDensityIoTbl]
+;v100
+       SGMeanBulkDensity
+                      ()
+                    2300
+[End]
+;
+;
+; OutputTablesFileIoTbl
+;
+[OutputTablesFileIoTbl]
+;v100
+                Filename
+                      ()
+     "Output.iotables3d"
+[End]
+;
+;
+; OutputTablesIoTbl
+;
+[OutputTablesIoTbl]
+;v100
+               TableName
+                      ()
+             "TimeIoTbl"
+           "3DTimeIoTbl"
+         "SnapshotIoTbl"
+           "1DTimeIoTbl"
+"SimulationDetailsIoTbl"
+[End]
+;

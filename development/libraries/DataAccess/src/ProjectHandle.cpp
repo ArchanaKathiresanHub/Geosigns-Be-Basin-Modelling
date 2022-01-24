@@ -4204,12 +4204,24 @@ bool ProjectHandle::loadFracturePressureFunctionParameters()
       return false;
 
    Record* runOptionsIoTblRecord = runOptionsIoTbl->getRecord( 0 );
+   std::string fracType;
+   if (runOptionsIoTblRecord != 0)
+       fracType = runOptionsIoTblRecord->getValue<std::string>("FractureType");
+   else
+       throw std::runtime_error("RunOptionsIoTbl can't be empty, verify the p3d file");
 
    database::Table* pressureFuncIoTbl = getTable( "PressureFuncIoTbl" );
    if ( !pressureFuncIoTbl )
       return false;
 
-   Record* pressureFuncIoTblRecord = pressureFuncIoTbl->getRecord( 0 );
+   Record* pressureFuncIoTblRecord = pressureFuncIoTbl->getRecord(0);
+   if (pressureFuncIoTblRecord == 0 && (fracType != "FunctionOfLithostaticPressure" && fracType != "None"))
+   {
+       throw std::runtime_error("Fracture pressure function can't be empty for the specified Fracture type");
+   }
+   // Legacy PressureFuncIoTbl contains multiple records with all the available fracture pressure functions with their specific coeff.
+   // However, BPA2 PressureFuncIoTbl contains the only one record for the fracture pressure function used in the scenario. So the below for loop is redundent.
+   // But it is not removed from the code as the cauldron RT suite still have legacy scenarios
    for ( size_t r = 0; r < pressureFuncIoTbl->size(); ++r )
    {
       Record* curPressureFuncIoTblRecord = pressureFuncIoTbl->getRecord( static_cast<int>( r ) );
@@ -4220,7 +4232,7 @@ bool ProjectHandle::loadFracturePressureFunctionParameters()
       }
    }
 
-   if ( runOptionsIoTblRecord && pressureFuncIoTblRecord )
+   if ( runOptionsIoTblRecord )
    {
       m_fracturePressureFunctionParameters = getFactory()->produceFracturePressureFunctionParameters(
          *this, runOptionsIoTblRecord, pressureFuncIoTblRecord );
