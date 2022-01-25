@@ -236,7 +236,7 @@ void HydraulicFracturingManager::checkForFracturing ( const double currentTime,
       throw std::runtime_error( " Fracture pressure function parameters can't be empty, check the inputs ");
   }
   if ( m_fracturePressureCalculator->getFracturePressureFunctionParameters()->type() == Interface::FracturePressureFunctionType::None ) {
-      LogHandler(LogHandler::INFO_SEVERITY) << " Fracture pressure calculations is not enabled \n";       
+      LogHandler(LogHandler::DEBUG_SEVERITY) << " Fracture pressure calculations is not enabled \n";
       return;
   }
   else
@@ -250,7 +250,7 @@ void HydraulicFracturingManager::checkForFracturing ( const double currentTime,
       while (!Layers.Iteration_Is_Done()) {
           checkForFracturing(Layers.Current_Layer(), currentTime, m_basinModel->getValidNeedles(), applyNonConservativeModel, layerHasFractured);
           if ( layerHasFractured ) {
-              LogHandler(LogHandler::INFO_SEVERITY) << "Layer " << Layers.Current_Layer()->getName() << " has fractured at " << currentTime << " Ma" ;
+              LogHandler(LogHandler::DEBUG_SEVERITY) << "Layer " << Layers.Current_Layer()->getName() << " has fractured at " << currentTime << " Ma" ;
           }
 
           // Since there has been a synchronisation at the layer level, there is no need to perform a further sync here.
@@ -260,10 +260,10 @@ void HydraulicFracturingManager::checkForFracturing ( const double currentTime,
       }
 
      if (modelHasFractured){
-         LogHandler(LogHandler::INFO_SEVERITY) << " Model has fractured at " << currentTime << " Ma";
+         LogHandler(LogHandler::DEBUG_SEVERITY) << " Model has fractured at " << currentTime << " Ma";
      }
      else {
-         LogHandler(LogHandler::INFO_SEVERITY) << " Model has not fractured at " << currentTime << " Ma";
+         LogHandler(LogHandler::DEBUG_SEVERITY) << " Model has not fractured at " << currentTime << " Ma";
      }
       
   }

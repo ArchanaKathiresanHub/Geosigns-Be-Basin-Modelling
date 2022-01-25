@@ -47,7 +47,7 @@ public:
    /// @details The log will write only the messages with Verbosity_level<=Severity_level;
    enum SeverityLevel {
       DEBUG_SEVERITY,
-      INFO_SEVERITY,
+      INFO_SEVERITY, //default
       WARNING_SEVERITY,
       ERROR_SEVERITY,
       FATAL_SEVERITY
