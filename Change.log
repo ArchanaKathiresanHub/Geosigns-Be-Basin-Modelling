@@ -36,6 +36,18 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2022-01-25  Borgohain, Preetirekha SOMLOG-SOMLOGr  <P.Borgohain@shell.com>
+
+	fix: usr: dev: Enable Fracture pressure calculations for FunctionsOfLithostaticPressure !major
+	 * When user selects the "Function Of Lithostatic Pressure" as the fracture pressure type, Fracture pressure calculations are enabled in the PT solver
+	 * Introduced relevant  UTs
+	 * Debug informations are put inside verbosity level= diagnostic
+
+	Related work items: #451179
+	================== COMMIT-END ========================
+	Commit-ID:<3f071b10257644be16c09e5923972249327c73dd>	  (refs/heads/master)
+
+++
 2022-01-21  Richard Faasse  <Richard.Faasse@shell.com>
 
 	fix: Small fix for UA graphs to make percentile text readable in plot & move the reading of the project3dfile !minor
