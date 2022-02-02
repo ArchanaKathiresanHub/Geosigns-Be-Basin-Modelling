@@ -9,6 +9,7 @@ using namespace std;
 
 #include "DistributedGrid.h"
 #include "decompositionCalculator.h"
+#include "LogHandler.h"
 
 #define Round(a) ((int) (((double) a) + 0.5))
 
@@ -153,10 +154,10 @@ DistributedGrid::DistributedGrid (double minI, double minJ,
    int start[2];
    int count[2];
    DMDAGetCorners (m_localInfo.da, &start[0], &start[1], PETSC_IGNORE, &count[0], &count[1], PETSC_IGNORE);
-   std::cout << (std::to_string(start[0]) + "  " + std::to_string(start[1]) + "\n").c_str();
-   std::cout << (std::to_string(start[0] + count[0]) + "  " + std::to_string(start[1]) + "\n").c_str();
-   std::cout << (std::to_string(start[0] + count[0]) + "  " + std::to_string(start[1] + count[1]) + "\n").c_str();
-   std::cout << (std::to_string(start[0]) + "  " + std::to_string(start[1] + count[1]) + "\n").c_str();
+   LogHandler(LogHandler::DEBUG_SEVERITY) << (std::to_string(start[0]) + "  " + std::to_string(start[1]) + "\n").c_str();
+   LogHandler(LogHandler::DEBUG_SEVERITY) << (std::to_string(start[0] + count[0]) + "  " + std::to_string(start[1]) + "\n").c_str();
+   LogHandler(LogHandler::DEBUG_SEVERITY) << (std::to_string(start[0] + count[0]) + "  " + std::to_string(start[1] + count[1]) + "\n").c_str();
+   LogHandler(LogHandler::DEBUG_SEVERITY) << (std::to_string(start[0]) + "  " + std::to_string(start[1] + count[1]) + "\n").c_str();
 
    // Print processor-info
    PetscMPIInt rank;
