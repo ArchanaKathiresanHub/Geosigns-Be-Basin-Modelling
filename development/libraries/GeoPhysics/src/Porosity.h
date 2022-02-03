@@ -11,7 +11,7 @@
 #define _GEOPHYSICS__POROSITY_H_
 
 #include <boost/shared_ptr.hpp>
-
+#include <cmath>
 #include "Interface.h"
 
 #include "ArrayDefinitions.h"
@@ -137,12 +137,12 @@ namespace GeoPhysics
                       ArrayDefs::Real_ptr porosities,
                       ArrayDefs::Real_ptr porosityDers ) const;
 
-      /// @brief Overwrite default assginment operator to avoid bitwise copy
-      Porosity& operator= (const Porosity& porosity);
+      /// @brief Overwrite default assignment operator to avoid bitwise copy
+      Porosity& operator = (const Porosity& porosity);
       /// @brief Overwrite default copy constructor to avoid bitwise copy
       Porosity( const Porosity& porosity );
 
-      ~Porosity();
+      ~Porosity() = default;
 
       /*!
        * \brief Get the porosity model
@@ -155,13 +155,19 @@ namespace GeoPhysics
       double getSurfacePorosity() const;
 
       /*!
+       * \brief Get the porosity at Top of the Layer (phi_bar from literature) 
+       */
+      double getTopPorosity(double ves) const;
+
+
+      /*!
        * \brief Get the full thickness value, i.e. the thickness of the solid material [m]
        *
        * \param maxVesValue Maximum VES reached until current time. If equals to the ves, it is a loading phase in [Pa]
        * \param thickness Current thickness of the layer [m]
        * \param densitydiff Difference between the density of the rock and the density of the fluid in porosity [kg/m3]
-       * \param vesScaleFactor Based on the amount of ves there would be if the basin was hydrostatically pressured [1]
-       * \param overpressuredCompaction Is the basin overpressured?
+       * \param vesScaleFactor Based on the amount of ves there would be if the basin was hydrostatic pressured [1]
+       * \param overpressuredCompaction Is the basin overpressure-d?
        */
       double getFullCompThickness(const double maxVesValue, const double thickness, const double densitydiff, const double vesScaleFactor, const bool overpressuredCompaction) const;
 
@@ -196,7 +202,7 @@ namespace GeoPhysics
       /*! \class Algorithm
        * \brief Abstract class. Compute porosity.
        *
-       * Allow to compute porosity whith one of the models: soil mechanics, single exponential or double exponential (October 2014).
+       * Allow to compute porosity with one of the models: soil mechanics, single exponential or double exponential (October 2014).
        * These algorithms are modeling mechanical compaction. Chemical compaction can also be added if relevant.
        *
        */
@@ -204,7 +210,7 @@ namespace GeoPhysics
       {
       public:
         Algorithm (double depoPorosity, double minimumMechanicalPorosity);
-         virtual ~Algorithm() {/*Intentionally unimplemented*/}
+        virtual ~Algorithm() = default;//{/*Intentionally unimplemented*/}
 
          /*!
           * \brief Compute the porosity value [fraction of volume]
@@ -291,15 +297,17 @@ namespace GeoPhysics
           * \brief Return the minimum porosity [fraction of volume]
           */
          double  minimumMechanicalPorosity( ) const;
+		 /// Return the new porosity at the top of the layer (phi_bar)
+		 virtual double topPorosity(double surfPorosity, double minPorosity, double ves, double CompCoeff) const;
 
       protected:
 
          const double m_depoPorosity;                       /*!< Porosity at deposition */
          const double m_minimumMechanicalPorosity;          /*!< Minimum attainable porosity */
-         bool   m_isLegacy;                           /*!< Legacy behaviour for minimum porosity?
+         bool   m_isLegacy = false;                           /*!< Legacy behavior for minimum porosity?
                                                             * Flag for new rock property library (and new migration engine)
-                                                            * 0 is the revised minimum porosity behaviour and additional mixing models
-                                                            * 1 is simple minimum porosity behaviour and 2 mixing models*/
+                                                            * 0 is the revised/new minimum porosity behavior and additional mixing models
+                                                            * 1 is simple minimum porosity behavior and 2 mixing models*/
 
       };
 
@@ -326,6 +334,11 @@ namespace GeoPhysics
       return m_minimumMechanicalPorosity;
    }
 
+   inline double Porosity::Algorithm::topPorosity(double surfPorosity, double minPorosity, double ves, double CompCoeff) const
+   {
+       return (surfPorosity - minPorosity) * std::exp(-CompCoeff * ves) + minPorosity;
+   }
+
    inline double
    Porosity::Algorithm::surfacePorosity() const
    {
@@ -342,6 +355,11 @@ namespace GeoPhysics
       ::getSurfacePorosity() const
    {
       return m_algorithm->surfacePorosity();
+   }
+
+   inline double Porosity::getTopPorosity(double ves) const
+   {
+       return m_algorithm->topPorosity(getSurfacePorosity(), getMinimumMechanicalPorosity(),  ves, getCompactionCoefficient());
    }
 
    inline double Porosity

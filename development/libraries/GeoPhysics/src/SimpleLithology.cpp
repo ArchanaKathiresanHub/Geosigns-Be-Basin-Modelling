@@ -182,7 +182,7 @@ void GeoPhysics::SimpleLithology::loadPropertyTables() {
       ibs::XF xyPoint(sample->getTemperature(), sample->getThermalConductivity());
 
       m_thermCondTbl.push_back(xyPoint);
-      m_thermalconductivitytbl.addPoint(sample->getTemperature(), sample->getThermalConductivity());
+      m_thermalconductivitytbl.addPoint(xyPoint.getX(), xyPoint.getF());
    }
 
    std::sort(m_thermCondTbl.begin(), m_thermCondTbl.end(), ibs::XYAscendingOrderFunctor());

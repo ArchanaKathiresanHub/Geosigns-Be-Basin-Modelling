@@ -81,7 +81,7 @@ namespace GeoPhysics
       virtual double compactionRatio() const;
 
    private:
-      /// @brief Overwrite default assginment operator
+      /// @brief Overwrite default assignment operator
       ExponentialPorosity& operator= (const ExponentialPorosity&);
       /// @brief Overwrite default copy constructor
       ExponentialPorosity( const ExponentialPorosity& );
@@ -98,9 +98,10 @@ namespace GeoPhysics
                                            const double maxVes,
                                            const bool includeChemicalCompaction,
                                            const double chemicalCompactionTerm ) const;
-
-      const double m_compactionIncr; ///< The loading phase compaction coefficient
-      const double m_compactionDecr; ///< The unloading phase compaction coefficient
+      ///< The loading phase compaction coefficient
+      const double m_compactionIncr; 
+      ///< The unloading phase compaction coefficient
+      const double m_compactionDecr; 
    };
 
 

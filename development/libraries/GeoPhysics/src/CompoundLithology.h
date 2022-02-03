@@ -87,7 +87,7 @@ namespace GeoPhysics {
       /// Calculate the density times heat-capacity of the compound-lithology.
       double densityXheatcapacity(const double temperature, const double pressure) const;
 
-      /// \bried Calculate the density times heat-capacity of the compound-lithology for a vector of values.
+      /// \brief Calculate the density times heat-capacity of the compound-lithology for a vector of values.
       void densityXheatcapacity ( const unsigned int       size,
                                   ArrayDefs::ConstReal_ptr temperature,
                                   ArrayDefs::ConstReal_ptr pressure,
@@ -163,7 +163,7 @@ namespace GeoPhysics {
                                      const double  LithoPressure,
                                      double& BulkDensXHeatCapacity) const;
 
-      /// \bried Calculate the bulk-density times heat-capacity for a vector of values.
+      /// \brief Calculate the bulk-density times heat-capacity for a vector of values.
       void calcBulkDensXHeatCapacity ( const unsigned int  size,
                                        const double*       fluidDensityXHeatCap,
                                        const double*       porosity,
@@ -175,8 +175,8 @@ namespace GeoPhysics {
 
       /// \brief Compute the density of the lithology.
       ///
-      /// The lithologies "Crust", "Litho. Mantle" and ALCBasalt can only appear
-      /// in the basement. In ALC mode the density of these lithologies depends on
+      /// The lithology's "Crust", "Litho. Mantle" and ALCBasalt can only appear
+      /// in the basement. In ALC mode the density of these lithology depends on
       /// temperature and lithostatic-pressure.
       double computeDensity ( const double temperature,
                               const double lithoPressure ) const;
@@ -184,8 +184,8 @@ namespace GeoPhysics {
 
       /// \brief Calculate the bulk density.
       ///
-      /// This function is to be used only in alc mode, where the density
-      /// in the basement lithologies depends on the pressure and temperature.
+      /// This function is to be used only in ALC mode, where the density
+      /// in the basement lithology depends on the pressure and temperature.
       // Should this be a lithology function?
       void calcBulkDensity ( const FluidType* fluid,
                              const double     porosity,
@@ -197,7 +197,7 @@ namespace GeoPhysics {
       /// \brief Calculate the bulk density.
       ///
       /// This function is to be used only in coupled mode when ALC is not enabled.
-      /// The density of the lithologies in the basement lithologies is constant.
+      /// The density of the lithology in the basement lithology is constant.
       void calcBulkDensity ( const FluidType* fluid,
                              const double     porosity,
                              const double     porePressure,
@@ -322,7 +322,7 @@ namespace GeoPhysics {
                                      const double porePressure,
                                      const double lithostaticPressure) const;
 
-      /// Compute the lithology-dependant fracture pressure.
+      /// Compute the lithology-Dependant fracture pressure.
       double fracturePressure(const double hydrostaticPressure,
                               const double lithostaticPressure) const;
 
@@ -378,7 +378,7 @@ namespace GeoPhysics {
       /// \param  [in] size               The number of values in the array.
       /// \param  [in] ves                The ves values for which the porosity is to be calculated.
       /// \param  [in] maxVes             The max-ves values for which the porosity is to be calculated.
-      /// \param  [in] porosities         The porosity calcualted at the ves and max-ves values.
+      /// \param  [in] porosities         The porosity calculated at the ves and max-ves values.
       /// \param [out] permeabilityNormal The permeability calculated in the vertical direction.
       /// \param [out] permeabilityPlane  The permeability calculated in the horizontal direction.
       /// \param [in,out] workSpace       A set of work-space vectors used to store intermediate results.
@@ -422,14 +422,14 @@ namespace GeoPhysics {
       /// Return whether of not this lithology is a fault.
       bool isFault() const;
 
-      /// Set the value of m_isLegacy to determine which behaviour to use for
-      ///    1.Mixing of lithologies
-      ///    2.Minimum porosity behaviour
+      /// Set the value of m_isLegacy to determine which behavior to use for
+      ///    1.Mixing of lithology
+      ///    2.Minimum porosity behavior
       void setIsLegacy( bool isLegacy );
 
       void setMinimumPorosity(DataAccess::Interface::PorosityModel porosityModel, double  surfaceVoidRatio, double soilMechanicsCompactionCoefficient);
 
-      /// \brief Return the number of simple lithologies the compound lithology is made from.
+      /// \brief Return the number of simple lithology the compound lithology is made from.
       size_t getNumberOfSimpleLithologies () const;
 
    protected:
@@ -438,8 +438,10 @@ namespace GeoPhysics {
 			 const double activationEnergy);
 
 		 double exponentialDecompactionFunction(const double ves) const;
+         double newExponentialDecompactionFunctionTop(const double topVes) const;
+         double newExponentialDecompactionFunctionBottom(const double BottomVes, const double topVes) const;
 
-      /// Decide whether or not you can mix the lithologies depending on the porosity models
+      /// Decide whether or not you can mix the lithology depending on the porosity models
       /// Return true if mixing is ok return false otherwise
       bool allowableMixing() const;
 
@@ -512,11 +514,11 @@ namespace GeoPhysics {
       percentContainer m_componentPercentage;
 
       /// Only effects the calculation of the permeability.
-      /// Fault lithologies will always be modelled as a homogeneous mixing for the permeability,
+      /// Fault lithology will always be modeled as a homogeneous mixing for the permeability,
       /// but the thermal conductivity may still be layered.
       bool m_isFaultLithology;
 
-      /// Holds the porosities of the individual simple lithologies, evaluated at a ves that the
+      /// Holds the porosities of the individual simple lithology, evaluated at a ves that the
       /// compound lithology has the minimum porosity.
       CompoundProperty minimumCompoundPorosity;
 
@@ -538,10 +540,10 @@ namespace GeoPhysics {
 
       bool m_isBasementLithology;
 
-      bool m_isLegacy; /*!< Legacy behaviour for minimum porosity?
+      bool m_isLegacy; /*!< Legacy behavior for minimum porosity?
                         *Flag for new rock property library( and new migration engine )
-                        * 0 is the revised minimum porosity behaviour and additional mixing models
-                        * 1 is simple minimum porosity behaviour and 2 mixing models */
+                        * 0 is the revised minimum porosity behavior and additional mixing models
+                        * 1 is simple minimum porosity behavior and 2 mixing models */
 
       double m_mixHorizonExp;//!< Permeability horizontal mixing exponent , equals (1-m_mixVerticalExp)/2 */
       double m_inverseMixHorizonExp;/// 1 / m_mixHorizonExp

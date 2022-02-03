@@ -36,7 +36,6 @@ namespace GeoPhysics
       m_isLegacy = isLegacy;
    }
 
-
    ///FullCompThickness
    double ExponentialPorosity::fullCompThickness(const double maxVesValue,
                                                  const double thickness,
@@ -44,21 +43,36 @@ namespace GeoPhysics
                                                  const double ,
                                                  const bool ) const
    {
-      double solidThickness;
-
-      if (m_compactionIncr == 0.0 || densitydiff <= 0.0 ) {
-         solidThickness = thickness * (1.0 - m_depoPorosity);
-      }
-      else {
-         const double c1 = AccelerationDueToGravity * densitydiff * m_compactionIncr;
-
-         const double c2 = (1.0 - std::exp(-c1 * thickness)) * m_depoPorosity
-                         * std::exp(-m_compactionIncr * maxVesValue);
-
-         solidThickness = std::log(1.0 - c2) / c1 + thickness;
-      }
-
-      return solidThickness;
+	   const double phi_0 = this->surfacePorosity();
+	   const double d = thickness;
+       double solidThickness = d * (1.0 - phi_0); ///< begins with the known thickness
+       /**
+        * Computes the zero-porosity thickness of a layer.
+        * 
+        * \param maxVesValue
+        * \param thickness
+        * \param densitydiff = rho_solid - rho_fluid
+        * \param 
+        * \param 
+        * \return the zero-porosity thickness of the layer
+        */
+       if (densitydiff <= 0.0 || isIncompressible()) {
+          return solidThickness;
+       }
+       else
+       {
+           double phi_m = m_minimumMechanicalPorosity;
+           if (m_isLegacy)
+               phi_m = 0.0;   
+           const double phi_bar = topPorosity(phi_0, phi_m, maxVesValue, m_compactionIncr);
+           const double beta = phi_bar - phi_m;
+		   const double alpha = 1 - phi_m;
+           const double gamma = AccelerationDueToGravity * densitydiff * m_compactionIncr;
+           solidThickness =
+                               //d + (1.0 / gamma ) * std::log(1.0 - phi_bar      * (1.0 - std::exp(-        gamma * d))) : ///old FullCompThickness formula*/
+                         alpha * d + (1.0 / gamma ) * std::log(1.0 - beta / alpha * (1.0 - std::exp(-alpha * gamma * d)));
+       }
+       return solidThickness;
    }
 
 
@@ -110,7 +124,7 @@ namespace GeoPhysics
    {
       double poro = 0.0;
 
-      //legacy behaviour
+      //legacy behavior
       if (m_isLegacy)
       {
          if (includeChemicalCompaction)
@@ -139,7 +153,7 @@ namespace GeoPhysics
             }
          }
       }
-      //New rock property library behaviour
+      //New rock property library behavior
       else
       {
          if( ves >= maxVes )
@@ -187,7 +201,7 @@ namespace GeoPhysics
       //  otherwise the derivative is zero.
       double poroDer = 0.0;
 
-      //legacy behaviour
+      //legacy behavior
       if (m_isLegacy)
       {
          if (includeChemicalCompaction)
@@ -219,7 +233,7 @@ namespace GeoPhysics
       }
       else
       {
-         // new rock property library behaviour
+         // new rock property library behavior
          if (porosity == MinimumPorosityNonLegacy)
          {
             poroDer = 0.0;

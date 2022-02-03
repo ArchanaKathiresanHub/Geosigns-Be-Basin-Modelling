@@ -408,7 +408,7 @@ void Temperature_Solver::Estimate_Basement_Temperature ( )
 
       Polyfunction Temperature_Polyfunction;
 
-      Sea_Bottom_Temperature = FastcauldronSimulator::getInstance ().getSeaBottomTemperature ( I, J, Age_Of_Basin ),
+      Sea_Bottom_Temperature = FastcauldronSimulator::getInstance().getSeaBottomTemperature(I, J, Age_Of_Basin);
 
       Temperature_Polyfunction.AddPoint( Crust_Depth( Crust_Z_Nodes - 1,J,I ), Sea_Bottom_Temperature );
       Temperature_Polyfunction.AddPoint( Mantle_Depth( 0,J,I ), Top_Asthenospheric_Temperature );

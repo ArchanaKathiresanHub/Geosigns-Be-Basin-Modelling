@@ -80,9 +80,9 @@ namespace GeoPhysics
      :m_algorithm( porosity.m_algorithm )
    {}
 
-   Porosity::~Porosity()
+   /*Porosity::~Porosity()
    {
-   }
+   }*/
 
    Porosity::Algorithm::Algorithm(double depoPorosity, double minimumMechanicalPorosity):
       m_depoPorosity((depoPorosity < MinimumPorosityNonLegacy) ? 0.0 : depoPorosity),
@@ -103,7 +103,7 @@ namespace GeoPhysics
 
          const bool includeChemicalCompaction = false;
 
-         // If we are initialising the model for an Overpressure run
+         // If we are initializing the model for an Overpressure run
          // then we assume some overpressure. An amount that equates to VES = 0.5 * ( Pl - Ph )
          const double vesScaling = (overpressuredCompaction ? vesScaleFactor : 1.0);
 

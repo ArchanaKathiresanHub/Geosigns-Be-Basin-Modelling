@@ -1687,13 +1687,11 @@ bool GeoPhysics::ProjectHandle::compactLayerThicknessHistory ( const unsigned in
 
          compThickness = (*startOfErosion)->getY () - (*endOfEvent)->getY ();
 
-         // if the end of event has iterated past the end of the polyfunction then
+         // if the end of event has iterated past the end of the poly-function then
          // terminate the loop (we will not need to raise the function in this case)
          if (oldPolyf->getREnd () == endOfEvent)
             break;
-
-         //cout << "calcFullCompactedThickness for " << Basin_Model -> layers[layerNr]->layername
-         //   << "[" << segmentNr << "]" << endl;
+         
          result &= calcFullCompactedThickness ( i, j, overpressureCalculation, formation, compThickness, uncMaxVes.front (), fullCompThickness, (*endOfEvent)->getX () );
 
          if (!result)
@@ -1743,12 +1741,17 @@ bool GeoPhysics::ProjectHandle::compactLayerThicknessHistory ( const unsigned in
       }
 
       totalFCT += fullCompThickness;
-
+      
       newPolyf->RaiseBy (fullCompThickness);
       newPolyf->AddPoint ((*startOfDeposition)->getX (), 0.0);
 
       delete oldPolyf;
    }
+
+
+   LogHandler(LogHandler::DEBUG_SEVERITY)
+	   << "calcFullCompactedThickness for " << formation->getName()<< ", startDepoTime-"<< startDepoTime<<
+	   " with i,j=(" << i << ',' << j << ") the FCT is:" << totalFCT;
 
    // Start at the bottom of the layer and iterate through
    // the segments to the top.

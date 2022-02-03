@@ -35,7 +35,6 @@ using Utilities::Maths::MicroWattsToWatts;
 #include "NumericFunctions.h"
 #include "Quadrature.h"
 
-
 using namespace DataAccess;
 using namespace CBMGenerics;
 using namespace capillarySealStrength;
@@ -236,10 +235,10 @@ void GeoPhysics::CompoundLithology::createThCondTbl() {
    double anisotropy;
    anisotropy = (*componentIter)->getThCondAn();
 
-   // Only initialised to prevent compiler warning, the warning is erroneous.
+   // Only initialized to prevent compiler warning, the warning is erroneous.
    double ThermalCondN = 0.0;
 
-   // Only initialised to prevent compiler warning, the warning is erroneous.
+   // Only initialized to prevent compiler warning, the warning is erroneous.
    double ThermalCondP = 0.0;
 
    vector<ibs::XF> mixThermCondNTbl, mixThermCondPTbl;
@@ -250,7 +249,7 @@ void GeoPhysics::CompoundLithology::createThCondTbl() {
    Array_Size = min(Array_Size, Table_Size);
 
    while (thermCondTbl1.end() != XYIter) {
-      //Legacy behaviour
+      //Legacy behavior
       if (m_isLegacy)
       {
          if (m_mixmodeltype == Interface::HOMOGENEOUS)
@@ -268,7 +267,7 @@ void GeoPhysics::CompoundLithology::createThCondTbl() {
             ThermalCondP += (*percentIter)*0.01 * (*XYIter).getF() * anisotropy;
          }
       }
-      //New rock property library behaviour
+      //New rock property library behavior
       else
       {
          //Note:  mixing type is not considered (homogeneous, layered)
@@ -303,7 +302,7 @@ void GeoPhysics::CompoundLithology::createThCondTbl() {
          ThermalCondN = (*mixXYnIter).getF();
          ThermalCondP = (*mixXYpIter).getF();
 
-         //Legacy behaviour
+         //Legacy behavior
          if (m_isLegacy)
          {
             if (m_mixmodeltype == Interface::HOMOGENEOUS)
@@ -317,7 +316,7 @@ void GeoPhysics::CompoundLithology::createThCondTbl() {
                ThermalCondP += (*percentIter)*0.01 * (*XYIter).getF() * anisotropy;
             }
          }
-         //New rock property library behaviour
+         //New rock property library behavior
          else
          {
             ThermalCondN *= pow( (*XYIter).getF(), (*percentIter)*0.01 );
@@ -339,7 +338,7 @@ void GeoPhysics::CompoundLithology::createThCondTbl() {
    for (mixXYnIter = mixThermCondNTbl.begin(); mixXYnIter != mixThermCondNTbl.end();
       mixXYnIter++) {
       if (++Counter > Array_Size) continue;
-      //Legacy behaviour
+      //Legacy behavior
       if (m_isLegacy)
       {
          if (m_mixmodeltype == Interface::LAYERED && (*mixXYnIter).getF() != 0.0)
@@ -351,7 +350,7 @@ void GeoPhysics::CompoundLithology::createThCondTbl() {
             addThermCondPointN( (*mixXYnIter).getX(), (*mixXYnIter).getF() );
          }
       }
-      //New rock property library behaviour
+      //New rock property library behavior
       else
       {
          addThermCondPointN( (*mixXYnIter).getX(), (*mixXYnIter).getF() );
@@ -381,13 +380,42 @@ void GeoPhysics::CompoundLithology::createThCondTbl() {
 double GeoPhysics::CompoundLithology::exponentialDecompactionFunction(const double ves) const {
 
    if (m_porosity.getCompactionCoefficient() <= 0.0) return 0.0;
-
    double  r1 = 1.0 - m_porosity.getSurfacePorosity() * exp(-ves * m_porosity.getCompactionCoefficient());
    double  r2 = log(r1);
    double  r3 = ves + r2 / m_porosity.getCompactionCoefficient();
 
    return r3;
 
+}
+//------------------------------------------------------------//
+
+double GeoPhysics::CompoundLithology::newExponentialDecompactionFunctionTop(const double topVes) const
+{
+    if (m_porosity.getCompactionCoefficient() <= 0.0) return 0.0;
+
+    return topVes/(1.0 - m_porosity.getMinimumMechanicalPorosity()) +
+            1.0 / ( 
+                    m_porosity.getCompactionCoefficient() * (1.0 - m_porosity.getMinimumMechanicalPorosity())
+                  ) *
+            std::log( 
+                          (1.0 - m_porosity.getMinimumMechanicalPorosity()) 
+                      -   (m_porosity.getTopPorosity(topVes) - m_porosity.getMinimumMechanicalPorosity())
+                    );
+}
+//------------------------------------------------------------//
+
+double GeoPhysics::CompoundLithology::newExponentialDecompactionFunctionBottom(const double BottomVes,const double topVes) const
+{
+    if (m_porosity.getCompactionCoefficient() <= 0.0) return 0.0;
+
+	return topVes / (1.0 - m_porosity.getMinimumMechanicalPorosity()) +
+            1.0 / (
+                    m_porosity.getCompactionCoefficient() * (1 - m_porosity.getMinimumMechanicalPorosity())
+                  ) *
+		        std::log(
+                            (1.0 - m_porosity.getMinimumMechanicalPorosity()) * std::exp(m_porosity.getCompactionCoefficient()*(BottomVes - topVes))
+                        -   (m_porosity.getTopPorosity(topVes) - m_porosity.getMinimumMechanicalPorosity())
+                        );
 }
 //------------------------------------------------------------//
 
@@ -453,7 +481,7 @@ void GeoPhysics::CompoundLithology::densityXheatcapacity ( const unsigned int   
       densityXHeatCap [ j ] = currentLitho->heatcapacity(temperature [ j ]) * currentLitho->getDensity(temperature [ j ], pressure [ j ])  * fraction;
    }
 
-   // Now mix the density-times-heat-capacity of the remaining lithologies.
+   // Now mix the density-times-heat-capacity of the remaining lithology.
    for ( size_t l = 1; l < m_lithoComponents.size (); ++l ) {
       fraction = m_componentPercentage [ l ] / 100.0;
       currentLitho = m_lithoComponents [ l ];
@@ -481,7 +509,7 @@ double GeoPhysics::CompoundLithology::hydrostatFullCompThickness(const double ma
    ///
    /// If running an overpressure calculation then make an estimate how much
    /// overpressure there might be. More overpressure implies less ves. The scaling
-   /// factor is based on the amount of ves there would be if the basin was hydrostatically
+   /// factor is based on the amount of ves there would be if the basin was hydrostatic
    /// pressured.
    ///
    const double vesScaleFactor = 0.5;
@@ -537,7 +565,7 @@ bool GeoPhysics::CompoundLithology::allowableMixing() const {
    percentContainer::const_iterator Percentages = m_componentPercentage.begin();
 
    if (m_lithoComponents.size() > 1) {
-      // Only initialised to prevent compiler warning, the warning is erroneous. Code can be re-arranged to prevent the warning.
+      // Only initialized to prevent compiler warning, the warning is erroneous. Code can be re-arranged to prevent the warning.
       DataAccess::Interface::PorosityModel First_Porosity_Model = DataAccess::Interface::EXPONENTIAL_POROSITY;
       bool              First_Active_Lithology = true;
 
@@ -604,7 +632,7 @@ bool  GeoPhysics::CompoundLithology::reCalcProperties(){
    m_thermalConductivityAnisotropy = 1.0;
    m_thermalConductivityValue      = 0.0;
 
-   // loop through all the simple lithologies and calculate the
+   // loop through all the simple lithology and calculate the
    // properties for this lithology
    compContainer::iterator componentIter = m_lithoComponents.begin();
    percentContainer::iterator percentIter = m_componentPercentage.begin();
@@ -618,59 +646,65 @@ bool  GeoPhysics::CompoundLithology::reCalcProperties(){
    m_coatingClayFactor              = 0.0;
    m_igneousIntrusionTemperature    = Interface::RecordValueUndefined;
 
-   //1. Sill intrusion - temperature of intrusion
-   // defined only if an igneous intrusion lithology is used and if there is only one component
-   if ( (double) (*percentIter) == 100 )
-   {
-      m_igneousIntrusionTemperature = (*componentIter)->getIgneousIntrusionTemperature ();
+   //If atleast one simple lithology exists in the lithoComponent list
+   if (m_lithoComponents[0] != nullptr ) {
+       //1. Sill intrusion - temperature of intrusion
+       // defined only if an igneous intrusion lithology is used and if there is only one component
+       if ((double)(*percentIter) == 100)
+       {
+           m_igneousIntrusionTemperature = (*componentIter)->getIgneousIntrusionTemperature();
+       }
+
+       while (m_lithoComponents.end() != componentIter) {
+           double pcMult = (double)(*percentIter) / 100;
+
+           //2. Matrix Property calculated using the arithmetic mean
+           m_density += (*componentIter)->getDensity() * pcMult;
+           m_seismicVelocitySolid += (*componentIter)->getSeismicVelocity() * pcMult;
+           m_nExponentVelocity += (*componentIter)->getSeismicVelocityExponent() * pcMult;
+           m_depositionalPermeability += (*componentIter)->getDepoPerm() * pcMult;
+           m_thermalConductivityValue += (*componentIter)->getThCondVal() * pcMult;
+           m_heatProduction += (*componentIter)->getHeatProduction() * pcMult;
+           m_referenceSolidViscosity += (*componentIter)->getReferenceSolidViscosity() * pcMult;
+           m_lithologyActivationEnergy += (*componentIter)->getLithologyActivationEnergy() * pcMult;
+           minimumMechanicalPorosity += (*componentIter)->getMinimumMechanicalPorosity() / 100.0 * pcMult;
+           m_lithologyFractureGradient += (*componentIter)->getLithologyFractureGradient() * pcMult;
+           m_quartzFraction += (*componentIter)->getQuartzFraction() * pcMult;
+           m_coatingClayFactor += (*componentIter)->getClayCoatingFactor() * pcMult;
+
+           //3. Matrix Property calculated using the geometric mean
+           m_thermalConductivityAnisotropy *= pow((*componentIter)->getThCondAn(), pcMult);
+
+           //4. Matrix Property calculated using the algebraic mean
+           m_quartzGrainSize += pcMult * pow((*componentIter)->getQuartzGrainSize(), 3.0);
+
+           ++componentIter;
+           ++percentIter;
+       }
    }
 
-   while (m_lithoComponents.end() != componentIter) {
-      double pcMult = (double)(*percentIter) / 100;
-
-      //2. Matrix Property calculated using the arithmetic mean
-      m_density                   += (*componentIter)->getDensity()  * pcMult;
-      m_seismicVelocitySolid      += (*componentIter)->getSeismicVelocity() * pcMult;
-      m_nExponentVelocity         += (*componentIter)->getSeismicVelocityExponent() * pcMult;
-      m_depositionalPermeability  += (*componentIter)->getDepoPerm() * pcMult;
-      m_thermalConductivityValue  += (*componentIter)->getThCondVal() * pcMult;
-      m_heatProduction            += (*componentIter)->getHeatProduction() * pcMult;
-      m_referenceSolidViscosity   += (*componentIter)->getReferenceSolidViscosity() * pcMult;
-      m_lithologyActivationEnergy += (*componentIter)->getLithologyActivationEnergy() * pcMult;
-      minimumMechanicalPorosity   += (*componentIter)->getMinimumMechanicalPorosity() / 100.0 * pcMult;
-      m_lithologyFractureGradient += (*componentIter)->getLithologyFractureGradient() * pcMult;
-      m_quartzFraction            += (*componentIter)->getQuartzFraction() * pcMult;
-      m_coatingClayFactor         += (*componentIter)->getClayCoatingFactor() * pcMult;
-
-      //3. Matrix Property calculated using the geometric mean
-      m_thermalConductivityAnisotropy *= pow((*componentIter)->getThCondAn(), pcMult);
-
-      //4. Matrix Property calculated using the algebraic mean
-      m_quartzGrainSize += pcMult * pow((*componentIter)->getQuartzGrainSize(), 3.0);
-
-      ++componentIter;
-      ++percentIter;
-   }
    m_quartzGrainSize = pow(m_quartzGrainSize, 1.0 / 3.0);
 
    //5. Porosity
    // temporary values before mixing
-   DataAccess::Interface::PorosityModel porosityModel;
-   double surfacePorosity;
-   double surfaceVoidRatio;
-   double compactionincr;
-   double compactionincrA;
-   double compactionincrB;
-   double compactiondecr;
-   double compactiondecrA;
-   double compactiondecrB;
-   double compactionRatio;
-   double soilMechanicsCompactionCoefficient;
+   DataAccess::Interface::PorosityModel porosityModel = DataAccess::Interface::PorosityModel::EXPONENTIAL_POROSITY;
+   double surfacePorosity=.51;
+   double surfaceVoidRatio = 0;
+   double compactionincr = 5.6e-8;
+   double compactionincrA = 0;
+   double compactionincrB = 0;
+   double compactiondecr = 5.6e-9;
+   double compactiondecrA = 0;
+   double compactiondecrB = 0;
+   double compactionRatio = 0.5;
+   double soilMechanicsCompactionCoefficient = 0.0;
 
-   mixPorosityModel(porosityModel);
-   mixSurfacePorosity(porosityModel, surfacePorosity, surfaceVoidRatio);
-   mixCompactionCoefficients(compactionincr, compactionincrA, compactionincrB, compactiondecr, compactiondecrA, compactiondecrB, compactionRatio, soilMechanicsCompactionCoefficient);
+   if ( m_lithoComponents[0] != nullptr ) {
+       mixPorosityModel(porosityModel);
+       mixSurfacePorosity(porosityModel, surfacePorosity, surfaceVoidRatio);
 
+       mixCompactionCoefficients(compactionincr, compactionincrA, compactionincrB, compactiondecr, compactiondecrA, compactiondecrB, compactionRatio, soilMechanicsCompactionCoefficient);
+   }
    //Create porosity object
    m_porosity = Porosity::create(porosityModel,
       surfacePorosity,
@@ -685,15 +719,18 @@ bool  GeoPhysics::CompoundLithology::reCalcProperties(){
       soilMechanicsCompactionCoefficient,
       m_projectHandle.getRunParameters()->getLegacy());
 
-   mixCapillaryEntryPressureCofficients();
-   mixBrooksCoreyParameters();
-   createThCondTbl();
+   if ( m_lithoComponents[0] != nullptr ) {
+       mixCapillaryEntryPressureCofficients();
+       mixBrooksCoreyParameters();
 
-   setMinimumPorosity(porosityModel, surfaceVoidRatio, soilMechanicsCompactionCoefficient);
+       createThCondTbl();
+
+       setMinimumPorosity(porosityModel, surfaceVoidRatio, soilMechanicsCompactionCoefficient);
+   }
 
    //6. Permeability
    if (surfacePorosity < 0.0299) {
-      // Really less than 0.03 but some rounding may occur if user set a litho with 0.03 surface porosity
+      // Really less than 0.03 but some rounding may occur if user set a lithology with 0.03 surface porosity
       m_fracturedPermeabilityScalingValue = 100.0;
    }
    else {
@@ -702,37 +739,39 @@ bool  GeoPhysics::CompoundLithology::reCalcProperties(){
 
    //7. Seismic velocity
    DataAccess::Interface::SeismicVelocityModel seismicVelocityModel = m_projectHandle.getRunParameters()->getSeismicVelocityAlgorithm();
-   double mixedModulusSolid = this->mixModulusSolid();
-   m_seismicVelocity = SeismicVelocity::create(seismicVelocityModel,
-      m_seismicVelocitySolid,
-      mixedModulusSolid,
-      m_density,
-      surfacePorosity,
-      m_nExponentVelocity);
+   if ( m_lithoComponents[0] != nullptr ) {
+       double mixedModulusSolid = this->mixModulusSolid();
+       m_seismicVelocity = SeismicVelocity::create(seismicVelocityModel,
+           m_seismicVelocitySolid,
+           mixedModulusSolid,
+           m_density,
+           surfacePorosity,
+           m_nExponentVelocity);
 
-   const string lithoname = m_lithoComponents[0]->getName();
-   m_isBasementLithology = false;
 
-   if ((m_lithoComponents.size() == 1) && (lithoname == m_projectHandle.getCrustLithoName() || lithoname == m_projectHandle.getMantleLithoName() || lithoname == DataAccess::Interface::ALCBasalt)) {
-      m_isBasementLithology = true;
+       const string lithoname = m_lithoComponents[0]->getName();
+       m_isBasementLithology = false;
+
+       if ((m_lithoComponents.size() == 1) && (lithoname == m_projectHandle.getCrustLithoName() || lithoname == m_projectHandle.getMantleLithoName() || lithoname == DataAccess::Interface::ALCBasalt)) {
+           m_isBasementLithology = true;
+       }
+
+       std::vector<double> componentAnisotropy;
+
+       if (m_lithoComponents.size() > 0) {
+           componentAnisotropy.push_back(m_lithoComponents[0]->getPermAniso());
+       }
+
+       if (m_lithoComponents.size() > 1) {
+           componentAnisotropy.push_back(m_lithoComponents[1]->getPermAniso());
+       }
+
+       if (m_lithoComponents.size() > 2) {
+           componentAnisotropy.push_back(m_lithoComponents[2]->getPermAniso());
+       }
+
+       m_permeabilityMixer.reset(m_componentPercentage, componentAnisotropy, m_isLegacy, m_layeringIndex, m_mixmodeltype, m_isFaultLithology);
    }
-
-   std::vector<double> componentAnisotropy;
-
-   if ( m_lithoComponents.size () > 0 ) {
-      componentAnisotropy.push_back ( m_lithoComponents [ 0 ]->getPermAniso ());
-   }
-
-   if ( m_lithoComponents.size () > 1 ) {
-      componentAnisotropy.push_back ( m_lithoComponents [ 1 ]->getPermAniso ());
-   }
-
-   if ( m_lithoComponents.size () > 2 ) {
-      componentAnisotropy.push_back ( m_lithoComponents [ 2 ]->getPermAniso ());
-   }
-
-   m_permeabilityMixer.reset ( m_componentPercentage, componentAnisotropy, m_isLegacy, m_layeringIndex, m_mixmodeltype, m_isFaultLithology );
-
    return true;
 }
 
@@ -763,7 +802,7 @@ void GeoPhysics::CompoundLithology::mixSurfacePorosity(DataAccess::Interface::Po
    else {
       surfacePorosity = 0.0;
 
-      /* Dominant lithotype defines Porosity Model and Compaction Coefficient value */
+      /* Dominant litho-type defines Porosity Model and Compaction Coefficient value */
       while (m_lithoComponents.end() != componentIter) {
 
          surfacePorosity = surfacePorosity + (*componentIter)->getDepoPoro() * (*percentIter) * 0.01;
@@ -834,7 +873,7 @@ void   GeoPhysics::CompoundLithology::mixPorosityModel(DataAccess::Interface::Po
    compContainer::iterator componentIter = m_lithoComponents.begin();
    percentContainer::iterator percentIter = m_componentPercentage.begin();
 
-   /* Dominant lithotype defines Porosity Model and Compaction Coefficient value */
+   /* Dominant litho-type defines Porosity Model and Compaction Coefficient value */
    while (m_lithoComponents.end() != componentIter) {
 
       if ((double)(*percentIter) > Largest_Volume_Fraction) {
@@ -906,14 +945,22 @@ double GeoPhysics::CompoundLithology::computeSegmentThickness(const double topMa
    const double densityDifference,
    const double solidThickness) const {
 
-   if (m_porosity.getPorosityModel() == DataAccess::Interface::EXPONENTIAL_POROSITY && densityDifference > 0.0 ) {
+   if (m_porosity.getPorosityModel() == DataAccess::Interface::EXPONENTIAL_POROSITY && densityDifference > 0.0 ) 
+   {
+       auto isLegacy = m_projectHandle.getRunParameters()->getLegacy();
 
-      double d1 = exponentialDecompactionFunction(topMaxVes);
-      double d2 = exponentialDecompactionFunction(botMaxVes);
-      return (d2 - d1) / (AccelerationDueToGravity * densityDifference);
+       /// The "branchless" programming paradigm, no if's and but's
+       double G_top = exponentialDecompactionFunction(topMaxVes) * isLegacy 
+           + newExponentialDecompactionFunctionTop(topMaxVes) * (!isLegacy);// \ refer to the new Literature
+           
+       double G_btm = exponentialDecompactionFunction(botMaxVes) * isLegacy 
+           + newExponentialDecompactionFunctionBottom(botMaxVes, topMaxVes) * (!isLegacy);// \ refer to the new Literature
+       
+
+       return (G_btm - G_top) / (AccelerationDueToGravity * densityDifference);
    }
    else {
-      return computeSegmentThickness(topMaxVes, botMaxVes, topMaxVes, botMaxVes, densityDifference, solidThickness);
+       return computeSegmentThickness(topMaxVes, botMaxVes, topMaxVes, botMaxVes, densityDifference, solidThickness);
    }
 
 }
@@ -924,7 +971,7 @@ double GeoPhysics::CompoundLithology::computeSegmentThickness(const double topMa
    const double bottomMaxVes,
    const double topVes,
    const double bottomVes,
-   const double densityDifference,
+   const double ,
    const double solidThickness) const {
 
    const bool   IncludeChemicalCompaction = false;

@@ -31,9 +31,9 @@
 
 using namespace DataAccess;
 
-const double GeoPhysics::FluidType::DefaultHydrostaticPressureGradient              = 10.0;
-const double GeoPhysics::FluidType::StandardSurfaceTemperature                      = 10.0;
-const double GeoPhysics::FluidType::DefaultStandardDepth                            = 2000.0;
+const double GeoPhysics::FluidType::DefaultHydrostaticPressureGradient              = 10.0;// MPa/km
+const double GeoPhysics::FluidType::StandardSurfaceTemperature                      = 10.0;//
+const double GeoPhysics::FluidType::DefaultStandardDepth                            = 2000.0;// m
 const double GeoPhysics::FluidType::DefaultThermalConductivityCorrectionTemperature = 20.0;
 
 GeoPhysics::FluidType::FluidType (DataAccess::Interface::ProjectHandle& projectHandle, database::Record * record) :

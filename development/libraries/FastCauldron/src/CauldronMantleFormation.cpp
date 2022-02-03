@@ -128,7 +128,7 @@ const CompoundLithology* CauldronMantleFormation::getLithology( const double aTi
    if( FastcauldronSimulator::getInstance ().isALC() ) {
       double partOfBasaltInMantle = dynamic_cast<GeoPhysics::ProjectHandle&>(getProjectHandle()).getBasaltThickness( iPosition, jPosition, aTime ) +
          dynamic_cast<GeoPhysics::ProjectHandle&>(getProjectHandle()).getContCrustThickness( iPosition, jPosition, aTime) -
-         dynamic_cast<GeoPhysics::ProjectHandle&>(getProjectHandle()).getCrustThickness( iPosition, jPosition, aTime );
+         dynamic_cast<GeoPhysics::ProjectHandle&>(getProjectHandle()).getCrustThickness( iPosition, jPosition, aTime );//partOfBasaltInMantle = BasaltThickness(from OceaCrustalThicknessIoTbl) + cont. crust thickness (from ContCrustalThicknessIoTbl) - ECT
       if(partOfBasaltInMantle != 0.0) {
          if( aOffset <= partOfBasaltInMantle ) {
             isBasaltLayer = true;

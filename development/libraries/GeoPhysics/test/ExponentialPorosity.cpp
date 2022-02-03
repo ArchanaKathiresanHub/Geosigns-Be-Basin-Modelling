@@ -299,3 +299,56 @@ TEST(ExponentialPorosity, near_zero_porosity_and_non_zero_compaction_coefficient
    }
 
 }
+
+TEST(ExponentialPorosity, fullCompThickness){
+    //Considering the properties for Sandstone,typical from BPA2 Lithology Ref. catalog
+    double compactionIncr = 3.25e-08;
+    double compactionDecr = 3.25e-09;
+    double depoPoro = 0.45;//Surface porosity
+    double minMechPor = 0.05;
+    bool isLegacy = false;
+    double fctvalueNonLegacy1, fctvalueLegacy1, fctvalueNonLegacy2, fctvalueLegacy2, fctvalueNonLegacy3, fctvalueLegacy3, maxVes, thickness, densityDifference;
+    maxVes = 50.0e6;
+    thickness = 300.0;
+    densityDifference = 1250.0;
+    //NonLegacy mode
+    {
+        Porosity porExp(Porosity::create(DataAccess::Interface::EXPONENTIAL_POROSITY,
+            depoPoro, minMechPor, compactionIncr, 0.0, 0.0, compactionDecr, 0.0, 0.0, 0.0, 0.0, isLegacy));
+        
+        fctvalueNonLegacy1 = porExp.getFullCompThickness(maxVes, thickness, densityDifference, 0.5, false);//for dendityDifference>0
+        EXPECT_NEAR(262.56311895391127, fctvalueNonLegacy1, 1e-10);
+
+        densityDifference = 0.0;
+        fctvalueNonLegacy2 = porExp.getFullCompThickness(maxVes, thickness, densityDifference, 0.5, false);//for dendityDifference==0
+        EXPECT_NEAR(165.0, fctvalueNonLegacy2, 1e-10);
+
+        Porosity porExp1(Porosity::create(DataAccess::Interface::EXPONENTIAL_POROSITY,
+            depoPoro, 0.0, compactionIncr, 0.0, 0.0, compactionDecr, 0.0, 0.0, 0.0, 0.0, isLegacy));//With MinMechPor=0.0
+
+        fctvalueNonLegacy3 = porExp1.getFullCompThickness(maxVes, thickness, 1250.0, 0.5, false);//for dendityDifference>0
+        EXPECT_NEAR(274.57339596513577, fctvalueNonLegacy3, 1e-10);
+    }
+    //LegacyMode
+    isLegacy = true;
+    {
+        Porosity porExp(Porosity::create(DataAccess::Interface::EXPONENTIAL_POROSITY,
+            depoPoro, minMechPor, compactionIncr, 0.0, 0.0, compactionDecr, 0.0, 0.0, 0.0, 0.0, isLegacy));
+   
+        densityDifference = 1250.0;
+        fctvalueLegacy1 = porExp.getFullCompThickness(maxVes, thickness, densityDifference, 0.5, false);//for dendityDifference>0
+        EXPECT_NEAR(274.81863578217718, fctvalueLegacy1, 1e-10);
+
+        Porosity porExp1(Porosity::create(DataAccess::Interface::EXPONENTIAL_POROSITY,
+            depoPoro, 0.0, compactionIncr, 0.0, 0.0, compactionDecr, 0.0, 0.0, 0.0, 0.0, isLegacy));//With MinMechPor=0.0
+        fctvalueLegacy3 = porExp1.getFullCompThickness(maxVes, thickness, densityDifference, 0.5, false);
+        EXPECT_NEAR(274.81863578217718, fctvalueLegacy3, 1e-10);
+
+        densityDifference = 0.0;
+        fctvalueLegacy2 = porExp.getFullCompThickness(maxVes, thickness, densityDifference, 0.5, false);//for dendityDifference==0
+        EXPECT_NEAR(165.0, fctvalueLegacy2, 1e-10);
+    }
+    EXPECT_GT( fctvalueLegacy1, fctvalueNonLegacy1);
+    EXPECT_DOUBLE_EQ(fctvalueLegacy2, fctvalueNonLegacy2);
+    EXPECT_NE(fctvalueNonLegacy3, fctvalueLegacy3);//Even though the mi_MechPor=0.0 (from the P3d file is same) for both the two cases
+}

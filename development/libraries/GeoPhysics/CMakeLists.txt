@@ -105,6 +105,8 @@ copy_test_file(MixingPermeabilityProject.project3d)
 
 copy_test_file(ConductivityProject.project3d)
 
+copy_test_file(ClaudiusDecompactionTest.project3d)
+
 add_gtest( NAME ${LIB_NAME}::MixingPermeability
    SOURCES test/MixingPermeability.cpp
    LIBRARIES ${LIB_NAME} DataAccess SerialDataAccess
@@ -234,6 +236,13 @@ add_gtest( NAME ${LIB_NAME}::ConfigFileAlc
       LIBRARIES ${LIB_NAME} SerialDataAccess
       ENV_VARS CTCDIR=${PROJECT_SOURCE_DIR}/geocase/misc
       FOLDER "${BASE_FOLDER}/${LIB_NAME}"
+)
+
+add_gtest( NAME ${LIB_NAME}::CompoundLithology
+      SOURCES test/CompoundLithologyTest.cpp
+      LIBRARIES ${LIB_NAME} DataAccess SerialDataAccess
+      ENV_VARS CTCDIR=${PROJECT_SOURCE_DIR}/geocase/misc
+      FOLDER "${BASE_FOLDER}/${LIB_NAME}"     
 )
 
 copy_test_file(FracturePressureFuncOfDepth.project3d)
