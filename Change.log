@@ -13,7 +13,7 @@
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Version				Date of update
 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-Cauldron-v2.7.1		2021-10-07 05:57:16 +0000
+Cauldron-v2.7.2		2022-02-03 06:22:02 +0000
 =============================================================
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Third-party Software 		version
@@ -36,6 +36,17 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2022-02-03  arijit.khan Khan  <arijit.khan@shell.com>
+
+	dev: usr: fix: Exponential compaction model with "minimum mechanical porosity" during decompaction !minor
+	 * Introduced this newly derived analytical formula for decompaction calculations.
+	 * Introduce Unit Tests for the back-stripping Implementation.
+
+	Related work items: #427747
+	================== COMMIT-END ========================
+	Commit-ID:<6611e89d631a321356b32804a325c0b9c949837f>	  (tag: refs/tags/v2.7.2, refs/heads/master, refs/heads/Developers/Arijit.Khan/ChgLogUpdateForBackStrip)
+
+++
 2022-01-25  Borgohain, Preetirekha SOMLOG-SOMLOGr  <P.Borgohain@shell.com>
 
 	fix: usr: dev: Enable Fracture pressure calculations for FunctionsOfLithostaticPressure !major
