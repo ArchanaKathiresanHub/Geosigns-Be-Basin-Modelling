@@ -162,7 +162,8 @@ namespace ctcWizard
 				(	qtutils::AddDoubleQuotes(MPI_BIN).toStdString() + " -n " +
 					numProc.toStdString() + ' ' + (MPI_OPTIONS).toStdString() + ' ' + qtutils::AddDoubleQuotes(CLDRN_BIN).toStdString() + fpp +
 					" -project " + qtutils::AddDoubleQuotes(filePath).toStdString() + " " + cldrnRunMode.toStdString()
-				)
+				),
+				true
 			)
 		);
 
@@ -299,7 +300,8 @@ namespace ctcWizard
 					qtutils::AddDoubleQuotes(MPI_BIN).toStdString() + " -n " +
 					numProc.toStdString() + ' ' + (MPI_OPTIONS).toStdString() + ' ' + qtutils::AddDoubleQuotes(CTC_BIN).toStdString() +
 					" -merge " + fpp + " -project " + qtutils::AddDoubleQuotes(ctcFilenameWithPath).toStdString() + (" -save ") + saveP3
-				)
+				),
+				true
 			)
 		);
 

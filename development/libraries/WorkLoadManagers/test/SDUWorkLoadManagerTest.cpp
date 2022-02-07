@@ -67,13 +67,12 @@ namespace workloadmanagers{
 		"#SBATCH\t --job-name ctcPressureJob",
 		"#SBATCH\t -o out.log",
 		"#SBATCH\t -e err.log",
-		"#SBATCH\t -W",
 		"#SBATCH\t -D \"" + boost::filesystem::current_path().string() + "\"",
 		"MPI_BIN -n 4 CLDRN_BIN -project filePath cldrnRunMode"
 	};
 
 	// Expected vector of strings for the unit tests of SLURM
-	static const std::vector<std::string> expNoOutLogVecOfStrSLURM = {
+	static const std::vector<std::string> expNoOutLogNoWaitVecOfStrSLURM = {
 		"#!/bin/bash",
 		"#",
 		"#SBATCH\t -A cldrn",
@@ -199,22 +198,22 @@ TEST(CTCWorkLoadManager, Job_Submission_SLURM) {
 	}
 }
 
-TEST(CTCWorkLoadManager, Job_Submission_no_outlog_SLURM) {
+TEST(CTCWorkLoadManager, Job_Submission_no_outlog_no_wait_SLURM) {
 	std::vector<std::string> vecOfStr;
 	auto wlm = workloadmanagers::WorkLoadManager::Create("cldrn.sh", workloadmanagers::WorkLoadManagerType::SLURM);
 
 	if (wlm) {
 		std::string runPT = wlm->JobSubmissionCommand("cldrn", "", 1800, "ctcPressureJob", "",
 			"err.log", std::to_string(numProc), "", "", "", false, false, (MPI_BIN + " -n " +
-				std::to_string(numProc) + ' ' + CLDRN_BIN + " -project " + filePath + " " + cldrnRunMode)
+				std::to_string(numProc) + ' ' + CLDRN_BIN + " -project " + filePath + " " + cldrnRunMode), true
 		);
 
 		// Get the contents of file in a vector
 		bool result = getFileContent(wlmScriptPath, vecOfStr);
 
-		ASSERT_EQ(vecOfStr.size(), expNoOutLogVecOfStrSLURM.size()) << "Vectors are of unequal length";
+		ASSERT_EQ(vecOfStr.size(), expNoOutLogNoWaitVecOfStrSLURM.size()) << "Vectors are of unequal length";
 		for (int i = 0; i < vecOfStr.size(); ++i) {
-			EXPECT_EQ(vecOfStr[i], expNoOutLogVecOfStrSLURM[i]) << "Vectors differ at index " << i;
+			EXPECT_EQ(vecOfStr[i], expNoOutLogNoWaitVecOfStrSLURM[i]) << "Vectors differ at index " << i;
 		}
 
 		EXPECT_EQ(wlm->JobTerminationCommand(), std::string("scancel "));

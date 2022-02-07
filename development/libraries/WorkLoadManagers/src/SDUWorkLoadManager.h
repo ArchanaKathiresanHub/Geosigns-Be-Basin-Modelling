@@ -104,8 +104,8 @@ namespace workloadmanagers
 			const std::string& cwd,
 			const bool isExlusive,
 			const bool isInteractiveSession,
-			const std::string& appToRun
-
+			const std::string& appToRun,
+			const bool waitForJobToBeFinished = false
 		);
 		virtual std::string JobTerminationCommand();
 		virtual std::string JobStatusCommand();

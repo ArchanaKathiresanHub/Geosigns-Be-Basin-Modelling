@@ -138,9 +138,9 @@ std::string workloadmanagers::GetCurrentWorkingDir()
 
 std::string workloadmanagers::WorkLoadManager::JobSubmissionCommand(const std::string& project_name,
 	const std::string& queue_name, int maximum_runtime_limit_seconds,
-	const std::string& job_name, const std::string& outfilename, const std::string& errorfilename, const std::string& number_of_cores, 
+	const std::string& job_name, const std::string& outfilename, const std::string& errorfilename, const std::string& number_of_cores,
 	const std::string& setSpecificHost, const std::string& resourceSpec, const std::string& cwd, const bool isExlusive, const bool isInteractiveSession,
-	const std::string& appToRun)
+	const std::string& appToRun, const bool waitForJobToBeFinished)
 {
 	bool isSuccess = writeProjectNameSpecification(project_name);
 	if(isSuccess)
@@ -160,7 +160,7 @@ std::string workloadmanagers::WorkLoadManager::JobSubmissionCommand(const std::s
 		writeExlusivitySpecification(isExlusive);
 		writeInteractiveSessionSpecification(isInteractiveSession);
 		/// esp. needed for SLURM
-		writeWaitForJobToFinish(true);
+		writeWaitForJobToFinish(waitForJobToBeFinished);
 	}
 
 	if (cwd.empty() && isSuccess)

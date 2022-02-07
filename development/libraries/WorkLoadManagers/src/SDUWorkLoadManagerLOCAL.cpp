@@ -24,7 +24,7 @@ std::string workloadmanagers::WorkLoadManagerForLOCAL::theSchedulerJobSubmission
 std::string workloadmanagers::WorkLoadManagerForLOCAL::JobSubmissionCommand(const std::string& project_name, const std::string& queue_name,
     int maximum_runtime_limit, const std::string& job_name, const std::string& outfilename, const std::string& errorfilename,
     const std::string& number_of_cores, const std::string& setSpecificHost, const std::string& resourceSpec, const std::string& cwd,
-    const bool isExlusive, const bool isInteractiveSession, const std::string& appToRun)
+    const bool isExlusive, const bool isInteractiveSession, const std::string& appToRun, const bool waitForJobToBeFinished)
 {
 	bool isSuccess = writeProjectNameSpecification(project_name);
 	if (!isSuccess)

@@ -23,8 +23,7 @@ namespace workloadmanagers {
 		 // no copy no move
 		 WorkLoadManagerForLOCAL(const WorkLoadManagerForLOCAL&) = delete;
 		 WorkLoadManagerForLOCAL& operator=(const WorkLoadManagerForLOCAL&) = delete;
-		 std::string JobSubmissionCommand(
-			 const std::string& project_name,
+		 std::string JobSubmissionCommand(const std::string& project_name,
 			 const std::string& queue_name,
 			 int maximum_runtime_limit,
 			 const std::string& job_name,
@@ -36,7 +35,7 @@ namespace workloadmanagers {
 			 const bool isExlusive,
 			 const bool isInteractiveSession,
 			 const std::string& appToRun
-		 ) override;
+		 , const bool waitForJobToBeFinished = false) override;
 
 	protected:
 		bool writeProjectNameSpecification(const std::string& theJobSubmissionProjectName) final;
