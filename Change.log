@@ -13,7 +13,7 @@
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Version				Date of update
 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-Cauldron-v2.7.2		2022-02-03 06:22:02 +0000
+Cauldron-v2.8.0		2022-02-10 16:08:02 +0000
 =============================================================
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Third-party Software 		version
@@ -36,6 +36,16 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2022-02-10  Richard Faasse  <Richard.Faasse@shell.com>
+
+	new: dev: usr: Implement Dynamic Decomposition !major.
+	 * Added new domain decomposition method, depending on valid/invalid grid-point distribution
+	 * Domain decomposition can be influenced via the environmental variable DYNAMIC_DECOMPOSITION_MAX_DEVIATION
+	 * Related work items: #446810
+	================== COMMIT-END ========================
+	Commit-ID:<c9edc131ea6800eab865f41a125a09b2ceda4821>	  (tag: refs/tags/v2.8.0, refs/heads/master)
+
+++
 2022-02-03  arijit.khan Khan  <arijit.khan@shell.com>
 
 	dev: usr: fix: Exponential compaction model with "minimum mechanical porosity" during decompaction !minor
