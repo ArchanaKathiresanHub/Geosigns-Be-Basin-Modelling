@@ -113,10 +113,10 @@ namespace DataAccess
 
          /// convert grid point to grid point of specified grid
          virtual bool convertToGrid (const Grid & toGrid, unsigned int fromI, unsigned int fromJ,
-                                     unsigned int &toI, unsigned int &toJ, bool useCaching = true) const = 0;
+                                     unsigned int &toI, unsigned int &toJ) const = 0;
 
          virtual bool convertToGrid (const Grid & toGrid, unsigned int fromI, unsigned int fromJ,
-                                     double &toI, double &toJ, bool useCaching = true) const = 0;
+                                     double &toI, double &toJ) const = 0;
 
          /// get the realworld surface at the given grid coordinates
          virtual double getSurface (unsigned int i, unsigned int j) const = 0;

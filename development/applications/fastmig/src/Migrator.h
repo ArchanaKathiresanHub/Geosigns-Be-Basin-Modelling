@@ -45,7 +45,7 @@ namespace migration
    {
    public:
       /// Constructor
-      Migrator (const string & name, const double maxDev);
+      explicit Migrator (const string & name);
       virtual ~Migrator (void);
 
       bool saveTo (const std::string & outputFileName);

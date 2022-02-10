@@ -123,11 +123,11 @@ namespace DataAccess
          
          /// convert grid point to grid point of specified grid
          virtual bool convertToGrid (const Grid & toGrid, unsigned int fromI, unsigned int fromJ,
-         unsigned int &toI, unsigned int &toJ,  bool useCaching = true) const;
+         unsigned int &toI, unsigned int &toJ) const;
          
          /// convert grid point to grid point of specified grid
          virtual bool convertToGrid (const Grid & toGrid, unsigned int fromI, unsigned int fromJ,
-         double &toI, double &toJ,  bool useCaching = true) const;
+         double &toI, double &toJ) const;
          
          /// Print the attributes of this Grid
          // May not work if user application is compiled under IRIX with CC -lang:std

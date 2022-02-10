@@ -86,20 +86,6 @@ int main( int argc, char ** argv )
    PetscBool vizOption = PETSC_FALSE;
    PetscOptionsHasName(PETSC_IGNORE, PETSC_IGNORE, "-viz", &vizOption );
 
-   char maxDev[128];
-   PetscBool maxDevSet;
-   PetscOptionsGetString (PETSC_IGNORE, PETSC_IGNORE, "-maxDev", maxDev, 128, &maxDevSet);
-   double maxDevDouble = -1;
-   if (maxDevSet)
-   {
-     try
-     {
-       maxDevDouble = std::stod(maxDev);
-     } catch (...)
-     {
-     }
-   }
-
    AbstractPropertiesCalculator * propCalculator;
 
    if (vizOption)
@@ -169,7 +155,7 @@ int main( int argc, char ** argv )
       return 0;
    }
 
-   if ( !propCalculator->startActivity (maxDevDouble) ) {
+   if ( !propCalculator->startActivity () ) {
       propCalculator->finalise ( false );
       delete propCalculator;
 

@@ -146,29 +146,8 @@ bool AppCtx::readProjectName () {
    dirExtension[0] = '\0';
 
    PetscBool hasProject   = PETSC_FALSE;
-
-
    PetscOptionsGetString (PETSC_IGNORE, PETSC_IGNORE, "-project", fname, MaxLineSize, 0);
-
-   char maxDev[MaxLineSize];
-   maxDev[0] = '\0';
-
-   PetscBool maxDevSet;
-   PetscOptionsGetString(PETSC_IGNORE, PETSC_IGNORE, "-maxDev", maxDev, MaxLineSize, &maxDevSet);
-
-   m_maxDev = -1;
-   if (maxDevSet)
-   {
-     try
-     {
-       m_maxDev = std::stod(maxDev);
-     } catch (...)
-     {
-     }
-   }
-
    PetscOptionsHasName(PETSC_IGNORE, PETSC_IGNORE, "-project", &hasProject );
-
 
    projectFileReadOkay = projectFileReadOkay && setProjectFileName (fname);
 
@@ -180,7 +159,6 @@ bool AppCtx::readProjectName () {
    setFastCauldronProjectFileName (fname1);
 
    return projectFileReadOkay;
-
 }
 
 bool AppCtx::readProjectFile () {

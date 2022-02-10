@@ -290,7 +290,7 @@ bool SerialGrid::getPosition (double i, double j, double &posI, double &posJ) co
 
 bool SerialGrid::convertToGrid (const Grid & toGrid,
       unsigned int fromI, unsigned int fromJ,
-      unsigned int & toI, unsigned int & toJ, bool) const
+      unsigned int & toI, unsigned int & toJ) const
 {
    double posI, posJ;
    if (!getPosition (fromI, fromJ, posI, posJ)) return false;
@@ -302,7 +302,7 @@ bool SerialGrid::convertToGrid (const Grid & toGrid,
 
 bool SerialGrid::convertToGrid (const Grid & toGrid,
       unsigned int fromI, unsigned int fromJ,
-      double & toI, double & toJ, bool) const
+      double & toI, double & toJ) const
 {
    double posI, posJ;
    if (!getPosition (fromI, fromJ, posI, posJ)) return false;

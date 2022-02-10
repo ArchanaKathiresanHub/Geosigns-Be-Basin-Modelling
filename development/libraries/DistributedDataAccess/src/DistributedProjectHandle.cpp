@@ -95,28 +95,31 @@ void ProjectHandle::mapFileCacheCloseFiles(void)
     }
 }
 
-std::vector<std::vector<int>> ProjectHandle::getDomainShape( const int numI, const int numJ ) const
+void ProjectHandle::getDomainShape(const int numI, const int numJ, std::vector<std::vector<int> >& domainShape ) const
 {
-  if (m_rank == 0)
+  char* dynamicDecomposition = getenv("DYNAMIC_DECOMPOSITION_MAX_DEVIATION");
+  if (!dynamicDecomposition)
   {
-    std::vector<std::vector<int>> domainShape;
-    database::Table* gridMapTbl = getTable( "GridMapIoTbl" );
-    if (gridMapTbl->getRecord(0))
-    {
-      DomainShapeReader reader(getMapFileName(gridMapTbl->getRecord(0)));
-      domainShape = reader.readShape(numI, numJ);
-    }
-
-    return domainShape;
+    return;
   }
 
-  return {};
+  if (m_rank == 0)
+  {
+    database::Table* gridMapTbl = getTable( "GridMapIoTbl" );
+    const auto record = gridMapTbl->getRecord(0);
+    if (record)
+    {
+      DomainShapeReader reader(getMapFileName(record));
+      reader.readShape(numI, numJ, domainShape);
+    }
+    if (domainShape.empty())
+    {
+    }
+  }
 }
 
 void ProjectHandle::checkForValidPartitioning (const string & name, int M, int N) const
 {
-   int m, n;
-
    int scalingFactor = 2;
    if (name == "CrustalThicknessCalculator" || name == "Genex5" || name == "Unknown")
    {
@@ -131,7 +134,7 @@ void ProjectHandle::checkForValidPartitioning (const string & name, int M, int N
 
    if (size == 1) return; // 1 is always okay!
 
-   bool scalingFound = DistributedGrid::CalculatePartitioning (M_, N_, m, n);
+   bool scalingFound = DistributedGrid::checkForValidPartitioning (M_, N_);
 
    if ( M <= 1 or N <= 1 ) {
       PetscPrintf (PETSC_COMM_WORLD,

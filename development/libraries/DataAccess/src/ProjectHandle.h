@@ -629,10 +629,6 @@ namespace DataAccess
 
          static bool isEqualTime( double t1, double t2 );
 
-         void setMaxDev(const double maxDev);
-
-         void clearHighResOutputGrid();
-
       protected:
 
          /// the full path of the project
@@ -782,7 +778,6 @@ namespace DataAccess
          
          void createSnapshotsAtUserDefinedTimes( );
 
-         bool loadGrids( void );
          bool loadLithoTypes( void );
 
          bool loadSurfaces( void );
@@ -961,9 +956,8 @@ namespace DataAccess
          std::set<std::string> m_primaryList;
 
          friend class migration::Migrator;
-         std::vector<std::vector<int> > getDomainShape(const int numI, const int numJ) const;
+         void getDomainShape(const int numI, const int numJ, std::vector<std::vector<int> >& domainShape) const;
 
-         double m_maxDev;
       };
    }
 }

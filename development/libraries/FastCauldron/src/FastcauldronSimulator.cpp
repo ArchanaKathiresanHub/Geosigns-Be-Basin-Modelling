@@ -539,8 +539,6 @@ bool FastcauldronSimulator::setCalculationMode ( const CalculationMode mode, con
 
    m_calculationMode = mode;
 
-   setMaxDev(m_fastcauldronSimulator->m_cauldron->m_maxDev);
-
    switch ( mode ) {
 
       case HYDROSTATIC_DECOMPACTION_MODE :

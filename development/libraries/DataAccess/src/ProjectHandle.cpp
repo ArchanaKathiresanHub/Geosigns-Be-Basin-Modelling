@@ -207,8 +207,7 @@ ProjectHandle::ProjectHandle(database::ProjectFileHandlerPtr pfh, const string &
    m_tableCTC                         ( *this ),
    m_tableCTCRiftingHistory           ( *this ),
    m_validator( *this ),
-   m_activityOutputGrid( 0 ), m_mapPropertyValuesWriter( 0 ), m_primaryList( words, words + 20 ),
-   m_maxDev{-1}
+   m_activityOutputGrid( 0 ), m_mapPropertyValuesWriter( 0 ), m_primaryList( words, words + 20 )
 {
    m_messageHandler = 0;
    m_globalOperations = 0;
@@ -256,7 +255,6 @@ ProjectHandle::ProjectHandle(database::ProjectFileHandlerPtr pfh, const string &
    loadRunParameters();
    loadLithoTypes();
 
-   loadGrids();
    loadSurfaces();
    loadFormations();
    loadReservoirs();
@@ -861,26 +859,6 @@ void ProjectHandle::fillSnapshotIoTbl( std::list<double>& times, const bool isUs
 bool ProjectHandle::isEqualTime( double t1, double t2 )
 {
   return ( std::fabs( t1 - t2 ) < 1e-5 );
-}
-
-void ProjectHandle::setMaxDev(const double maxDev)
-{
-  m_maxDev = maxDev;
-}
-
-void ProjectHandle::clearHighResOutputGrid()
-{
-  delete m_highResOutputGrid;
-  m_highResOutputGrid = nullptr;
-}
-
-bool ProjectHandle::loadGrids( void )
-{
-   // (void) getHighResolutionOutputGrid();
-   // (void) getLowResolutionOutputGrid();
-   // (void) getInputGrid();
-
-   return true;
 }
 
 bool ProjectHandle::loadSurfaces( void )
@@ -3858,12 +3836,13 @@ const Interface::Grid * ProjectHandle::getHighResolutionOutputGrid() const
       scaleI = database::getScaleX( projectIoRecord );
       scaleJ = database::getScaleY( projectIoRecord );
 
-      std::vector<std::vector<int>> domain = getDomainShape(numI, numJ);
+      std::vector<std::vector<int>> domain;
+      getDomainShape(numI, numJ, domain);
 
       lowResNumI = ( numI - offsetI - 1 ) / scaleI + 1;
       lowResNumJ = ( numJ - offsetJ - 1 ) / scaleJ + 1;
 
-      m_highResOutputGrid = getFactory()->produceGrid( minI, minJ, maxI, maxJ, numI, numJ, lowResNumI, lowResNumJ, domain, m_maxDev );
+      m_highResOutputGrid = getFactory()->produceGrid( minI, minJ, maxI, maxJ, numI, numJ, lowResNumI, lowResNumJ, domain );
    }
    return m_highResOutputGrid;
 }

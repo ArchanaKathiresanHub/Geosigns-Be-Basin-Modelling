@@ -35,7 +35,7 @@ namespace DataAccess
       public:        
          /// create a new grid
         DistributedGrid (double minI, double minJ, double maxI, double maxJ, int numI, int numJ, int lowResNumI, int lowResNumJ,
-                         std::vector<std::vector<int>> domainShape = {}, const double maxDeviation = -1);
+                         const std::vector<std::vector<int> >& domainShape = {});
          ~DistributedGrid (void);
          
          /// Create a new grid such that each grid point and its corresponding grid point in the reference grid
@@ -134,11 +134,11 @@ namespace DataAccess
          
          /// convert grid point to grid point of specified grid
          bool convertToGrid (const Grid & toGrid, unsigned int fromI, unsigned int fromJ,
-         unsigned int &toI, unsigned int &toJ, bool useCaching = true) const;
+         unsigned int &toI, unsigned int &toJ) const;
          
          /// convert grid point to grid point of specified grid
          bool convertToGrid (const Grid & toGrid, unsigned int fromI, unsigned int fromJ,
-          double &toI, double &toJ, bool useCaching = true) const;
+          double &toI, double &toJ) const;
          
          /// get the realworld surface at the given grid coordinates
          double getSurface (unsigned int i, unsigned int j) const;
@@ -163,7 +163,7 @@ namespace DataAccess
          
          void printDistributionOn (MPI_Comm com) const;
          
-         static bool CalculatePartitioning (int M, int N, int & m, int & n);
+         static bool checkForValidPartitioning (int M, int N);
 
          bool hasSameGridding( const Grid& grid ) const;
 
@@ -179,15 +179,13 @@ namespace DataAccess
          mutable int *m_numsI;
          mutable int *m_numsJ;
          
-         mutable const Grid * m_convertingTo;
-         mutable unsigned int * m_conversionsToI;
-         mutable unsigned int * m_conversionsToJ;
-         
          mutable bool * m_returnsI;
          mutable bool * m_returnsJ;
          
          void calculateNums (const Grid * referenceGrid);
 
+         PetscErrorCode createPETSCDynamicDecomposition(int& numICores, int& numJCores, std::vector<int>& cellSizesI, std::vector<int>& cellSizesJ);
+         PetscErrorCode createPETSCStaticDecomposition(int& numICores, int& numJCores);
       };
    }
 }

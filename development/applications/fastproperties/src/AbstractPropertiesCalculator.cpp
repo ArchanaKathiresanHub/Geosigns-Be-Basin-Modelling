@@ -210,16 +210,14 @@ bool AbstractPropertiesCalculator::createFrom (DataAccess::Interface::ObjectFact
 }
 //------------------------------------------------------------//
 
-bool AbstractPropertiesCalculator::startActivity(const double maxDev) {
+bool AbstractPropertiesCalculator::startActivity() {
 
    if (!setFastcauldronActivityName())
    {
       return false;
    }
 
-   m_projectHandle->setMaxDev(maxDev);
    const Interface::Grid * grid = m_projectHandle->getLowResolutionOutputGrid();
-
 
    const bool vizFormatResults = getProperiesActivity();
 

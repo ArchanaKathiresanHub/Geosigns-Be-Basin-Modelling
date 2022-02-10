@@ -58,7 +58,7 @@ namespace DataAccess
          virtual GridMap * produceGridMap (const Parent * owner, unsigned int childIndex, const GridMap * operand1, UnaryFunctor& unaryFunctor ) const;
 
          virtual Grid * produceGrid (double minI, double minJ, double maxI, double maxJ, unsigned int numI, unsigned int numJ, unsigned int lowResNumI, unsigned int lowResNumJ,
-                                     std::vector<std::vector<int>> domainShape = {}, const double maxDeviation = -1) const;
+                                     const std::vector<std::vector<int> >& domainShape = {}) const;
          virtual Grid * produceGrid (const Grid * referenceGrid, double minI, double minJ, double maxI, double maxJ, unsigned int numI, unsigned int numJ) const;
 
          virtual Formation * produceFormation (ProjectHandle& projectHandle, database::Record * record) const;
