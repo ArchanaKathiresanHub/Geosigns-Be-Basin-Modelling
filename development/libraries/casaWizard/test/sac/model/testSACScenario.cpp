@@ -119,6 +119,8 @@ TEST(SACScenarioTest, testWellPrepToSAC)
   casaWizard::sac::SACScenario scenario{new casaWizard::StubProjectReader()};
 
   scenario.calibrationTargetManagerWellPrep().addWell("WellName", 1.0, 2.0);
+  scenario.setWorkingDirectory(".");
+  scenario.setProject3dFileNameAndLoadFile("projStub.project3d");
   scenario.calibrationTargetManagerWellPrep().addCalibrationTarget("TwoWayTime", "TwoWayTime", 0, 10.0, 1000.0);
   scenario.calibrationTargetManagerWellPrep().addCalibrationTarget("TwoWayTime", "TwoWayTime", 0, 30.0, 2000.0);
 

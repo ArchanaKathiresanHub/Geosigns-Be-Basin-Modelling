@@ -35,7 +35,7 @@ public:
 
   QString project3dFilename() const;
   QString project3dPath() const;
-  void setProject3dFilePath(const QString& project3dPath);
+  void setProject3dFileNameAndLoadFile(const QString& project3dPath);
 
   QString runLocation() const;
   void setRunLocation(const QString& runLocation);

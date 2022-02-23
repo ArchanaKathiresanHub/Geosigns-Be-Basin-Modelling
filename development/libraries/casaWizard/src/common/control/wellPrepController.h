@@ -60,6 +60,8 @@ private slots:
   void slotApplySmoothing();
   void slotSelectPropertiesForSubsampling();
   void slotApplySubsampling();
+  void slotSelectPropertiesForScaling();
+  void slotApplyScaling();
   void slotSelectPropertiesForCutOff();
   void slotApplyCutOff();
 

@@ -1,5 +1,5 @@
 app 1 fastcauldron "-itcoupled"
-base_project ""
+base_project "projStub.project3d"
 varprm "BasementIoTbl:TopCrustHeatProd" 0 0 "Block"
 doe "Tornado"
 doe "SpaceFilling" 50

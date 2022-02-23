@@ -52,7 +52,8 @@ private:
   LithofractionVisualisation* lithofractionVisualisation_;
   SACScenario& scenario_;
 
-  void connectToolTipSlots();  
+  void connectToolTipSlots();
+  QString currentlyDisplayedLithotype() const;
   QVector<OptimizedLithofraction> getOptimizedLithoFractionsInLayer(const QString& layer) const;
   std::vector<double> getLithopercentagesOfClosestWell(const QPointF& point, int& closestWellID) const;
   std::vector<double> getLithopercentagesAtLocation(const QPointF& point) const;

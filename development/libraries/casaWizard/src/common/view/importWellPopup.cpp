@@ -73,5 +73,4 @@ const QTableWidget* ImportWellPopup::propertyMappingTable() const
   return propertyMappingTable_;
 }
 
-
 } // namespace casaWizard

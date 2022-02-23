@@ -20,6 +20,7 @@
 #include <QPushButton>
 #include <QSpacerItem>
 #include <QSpinBox>
+#include <QDoubleSpinBox>
 #include <QVBoxLayout>
 
 namespace casaWizard
@@ -28,11 +29,13 @@ namespace casaWizard
 WellPrepTab::WellPrepTab(QWidget* parent) :
   QWidget(parent),
   calibrationTargetWellPrepTable_{new CalibrationTargetTable(this)},
-  openDataFileButton_{new EmphasisButton("Add data from file", this)},  
+  openDataFileButton_{new EmphasisButton("Add data from file", this)},
   smoothingLength_{new QSpinBox(this)},
-  buttonApplySmoothing_{new QPushButton("Apply smoothing", this)},  
+  buttonApplySmoothing_{new QPushButton("Apply smoothing", this)},
   subsamplingDistance_{new QSpinBox(this)},
   buttonApplySubsampling_{new QPushButton("Apply subsampling", this)},
+  scalingFactor_{new QDoubleSpinBox(this)},
+  buttonApplyScaling_{new QPushButton("Apply scaling", this)},
   buttonApplyCutOff_{new QPushButton("Apply cut off ranges", this)},
   buttonVPtoDT_{new QPushButton("Convert VP log to DT log", this)},
   buttonDTtoTWT_{new QPushButton("Convert DT log to TWT log", this)},
@@ -49,11 +52,12 @@ WellPrepTab::WellPrepTab(QWidget* parent) :
 
   optionsLayout->addWidget(openDataFileButton_, 0, Qt::AlignTop);
 
-  optionsLayout->addSpacing(20);
+  optionsLayout->addStretch(1);
+
   optionsLayout->addWidget(new CustomTitle("Editing options", this), 0, Qt::AlignLeft);
 
   QHBoxLayout* smoothingLayout = new QHBoxLayout();
-  smoothingLayout->addWidget(new QLabel("Smoothing: ", this), 0, Qt::AlignLeft);  
+  smoothingLayout->addWidget(new QLabel("Smoothing: ", this), 0, Qt::AlignLeft);
   optionsLayout->addLayout(smoothingLayout);
   smoothingLength_->setMinimumWidth(150);
   smoothingLength_->setSizePolicy(QSizePolicy(QSizePolicy::Maximum, QSizePolicy::Fixed));
@@ -80,12 +84,26 @@ WellPrepTab::WellPrepTab(QWidget* parent) :
   optionsLayout->addLayout(subsamplingDistanceLayout);
   optionsLayout->addWidget(buttonApplySubsampling_);
 
+  QHBoxLayout* scalingLayout = new QHBoxLayout();
+  scalingLayout->addWidget(new QLabel("Scaling: ", this), 0, Qt::AlignLeft);
+  optionsLayout->addLayout(scalingLayout);
+  scalingFactor_->setMinimumWidth(150);
+  scalingFactor_->setSizePolicy(QSizePolicy(QSizePolicy::Maximum, QSizePolicy::Fixed));
+  scalingFactor_->setValue(1); //Default
+  scalingFactor_->setMinimum(-1.0e5);
+  scalingFactor_->setMaximum(1.0e5);
+  QHBoxLayout* scalingFactorLayout = new QHBoxLayout();
+  scalingFactorLayout->addWidget(new QLabel("Scaling factor: ", this), 0, Qt::AlignLeft);
+  scalingFactorLayout->addWidget(scalingFactor_, 1, Qt::AlignRight);
+  optionsLayout->addLayout(scalingFactorLayout);
+  optionsLayout->addWidget(buttonApplyScaling_);
+
   QHBoxLayout* cutOffLayout = new QHBoxLayout();
   cutOffLayout->addWidget(new QLabel("Cut off: ", this), 0, Qt::AlignLeft);
   optionsLayout->addLayout(cutOffLayout);
   optionsLayout->addWidget(buttonApplyCutOff_);
 
-  optionsLayout->addSpacing(20);
+  optionsLayout->addStretch(1);
 
   QHBoxLayout* dataTypeConversions = new QHBoxLayout();
   dataTypeConversions->addWidget(new CustomTitle("Data type conversions", this), Qt::AlignLeft);
@@ -98,7 +116,7 @@ WellPrepTab::WellPrepTab(QWidget* parent) :
   optionsLayout->addWidget(buttonVPtoDT_);
   optionsLayout->addWidget(buttonDTtoTWT_);
 
-  optionsLayout->addSpacing(20);
+  optionsLayout->addStretch(1);
 
   QHBoxLayout* cropping = new QHBoxLayout();
   cropping->addWidget(new CustomTitle("Cropping", this), Qt::AlignLeft);
@@ -110,13 +128,13 @@ WellPrepTab::WellPrepTab(QWidget* parent) :
   optionsLayout->addWidget(buttonCropOutline_);
   optionsLayout->addWidget(buttonCropBasement_);
 
-  optionsLayout->addSpacing(50);
+  optionsLayout->addStretch(2);
+
   optionsLayout->addWidget(new QWidget(this), 1);
 
   optionsLayout->addWidget(buttonXYascii_);
   optionsLayout->addWidget(buttonExport_);
   optionsLayout->addWidget(buttonToSAC_);
-
 
   QHBoxLayout* calibrationOptionsLayout = new QHBoxLayout();
   calibrationOptionsLayout->addWidget(new CustomTitle("Data locations", this), 0, Qt::AlignLeft);
@@ -161,6 +179,16 @@ const QPushButton* WellPrepTab::buttonApplySmoothing() const
 int WellPrepTab::subsamplingDistance() const
 {
   return subsamplingDistance_->value();
+}
+
+double WellPrepTab::scalingFactor() const
+{
+  return scalingFactor_->value();
+}
+
+const QPushButton* WellPrepTab::buttonApplyScaling() const
+{
+  return buttonApplyScaling_;
 }
 
 const QPushButton* WellPrepTab::buttonApplySubsampling() const

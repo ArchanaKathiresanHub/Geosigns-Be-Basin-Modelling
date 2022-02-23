@@ -15,6 +15,7 @@ TEST(SACScriptTest, testWriteScript)
   casaWizard::sac::LithofractionManager& lithofractionManager{scenario.lithofractionManager()};
   casaWizard::sac::WellTrajectoryManager& wellTrajectoryManager{scenario.wellTrajectoryManager()};
   scenario.setWorkingDirectory(".");
+  scenario.setProject3dFileNameAndLoadFile("projStub.project3d");
 
   lithofractionManager.addLithofraction("Layer 1", true, false);
   lithofractionManager.addLithofraction("Layer 2");

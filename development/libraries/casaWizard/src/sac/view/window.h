@@ -12,7 +12,7 @@ namespace sac
 {
 
 class MapsTab;
-class SACtab;
+class InputTab;
 class ResultsTab;
 class T2Ztab;
 
@@ -24,7 +24,7 @@ public:
   Window(QWidget* parent = nullptr);
 
   WellPrepTab* wellPrepTab() const;
-  SACtab* sacTab() const;
+  InputTab* inputTab() const;
   T2Ztab* t2zTab() const;
   ResultsTab* resultsTab() const;
   MapsTab* mapsTab() const;
@@ -32,7 +32,7 @@ public:
 
 private:
   WellPrepTab* wellPrepTab_;
-  SACtab* sacTab_;
+  InputTab* inputTab_;
   T2Ztab* t2zTab_;
   ResultsTab* resultsTab_;
   MapsTab* mapsTab_;

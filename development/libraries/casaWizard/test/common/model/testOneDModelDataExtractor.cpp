@@ -18,7 +18,7 @@ using namespace casaWizard;
 TEST(OneDModelDataExtractorTest, testExtraction)
 {
   CasaScenario scenario(new casaWizard::StubProjectReader);
-  scenario.setProject3dFilePath("./Project.project3d");
+  scenario.setProject3dFileNameAndLoadFile("./Project.project3d");
   scenario.setWorkingDirectory(".");
   CalibrationTargetManager& calibrationTargetManager = scenario.calibrationTargetManagerWellPrep();
   calibrationTargetManager.addWell("10_AML2_AV", 184550, 608300);

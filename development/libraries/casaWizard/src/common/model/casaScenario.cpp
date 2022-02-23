@@ -64,14 +64,14 @@ QString CasaScenario::project3dFilename() const
 
 QString CasaScenario::project3dPath() const
 {
-  if (workingDirectory_.isEmpty() && project3dFilename_.isEmpty())
+  if (workingDirectory_.isEmpty() || project3dFilename_.isEmpty())
   {
     return "";
   }
   return workingDirectory_ + "/" + project3dFilename_;
 }
 
-void CasaScenario::setProject3dFilePath(const QString& project3dPath)
+void CasaScenario::setProject3dFileNameAndLoadFile(const QString& project3dPath)
 {
   QFileInfo info(project3dPath);
   project3dFilename_ = info.fileName();

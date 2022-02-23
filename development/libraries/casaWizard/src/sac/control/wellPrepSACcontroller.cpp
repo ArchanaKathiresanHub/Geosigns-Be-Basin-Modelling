@@ -7,6 +7,7 @@
 //
 
 #include "wellPrepSACcontroller.h"
+#include "workspaceGenerationController.h"
 
 #include "control/scriptRunController.h"
 #include "model/logger.h"
@@ -16,6 +17,7 @@
 #include "view/sacTabIDs.h"
 #include "view/wellPrepTab.h"
 
+#include <QDir>
 #include <QPushButton>
 
 namespace casaWizard
@@ -41,9 +43,12 @@ bool WellPrepSACcontroller::checkTabID(int tabID) const
 
 void WellPrepSACcontroller::slotToSAC()
 {
-  if (scenario_.project3dPath().isEmpty())
+  if (scenario_.workingDirectory().isEmpty())
   {
-    return;
+    if (!workspaceGenerationController::generateWorkSpace(QDir::currentPath(),scenario_))
+    {
+      return;
+    }
   }
 
   Logger::log() << "Importing selected wells to the SAC workflow..." << Logger::endl();  
@@ -78,7 +83,7 @@ void WellPrepSACcontroller::slotToSAC()
   scenarioBackup::backup(scenario_);  
   Logger::log() << "Done!" << Logger::endl();
 
-  emit switchToTab(static_cast<int>(TabID::SAC));
+  emit switchToTab(static_cast<int>(TabID::Input));
 }
 
 } // namespace sac

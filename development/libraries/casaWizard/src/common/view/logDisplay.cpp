@@ -26,7 +26,6 @@ LogDisplay::LogDisplay(QWidget* parent) :
   QVBoxLayout* layout = new QVBoxLayout();
   layout->addLayout(buttonLayout);
   layout->addWidget(lineEditLog_);
-  lineEditLog_->setFixedHeight(200);
 
   setLayout(layout);
 }
@@ -90,11 +89,11 @@ void LogDisplay::updateDisplayState()
       break;
     case 1:
       lineEditLog_->show();
-      lineEditLog_->setFixedHeight(200);
+      setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding));
       break;
     case 2:
       lineEditLog_->show();
-      lineEditLog_->setFixedHeight(400);
+      setSizePolicy(QSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum));
       break;
   }
 }

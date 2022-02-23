@@ -3,7 +3,7 @@
 #include "view/mapsTab.h"
 #include "view/menuBar.h"
 #include "view/resultsTab.h"
-#include "view/sacTab.h"
+#include "view/inputTab.h"
 #include "view/sacTabIDs.h"
 #include "view/t2zTab.h"
 #include "view/wellPrepTab.h"
@@ -19,7 +19,7 @@ namespace sac
 Window::Window(QWidget* parent) :
   MainWindow(parent),
   wellPrepTab_{new WellPrepTab{this}},
-  sacTab_{new SACtab{this}},  
+  inputTab_{new InputTab{this}},
   t2zTab_ {new T2Ztab{this}},
   resultsTab_{new ResultsTab{this}},
   mapsTab_{new MapsTab{this}},
@@ -30,7 +30,7 @@ Window::Window(QWidget* parent) :
   setWindowTitle("SAC Wizard");
 
   tabWidget()->addTab(wellPrepTab_, "Well data preparation");
-  tabWidget()->addTab(sacTab_, "Input");
+  tabWidget()->addTab(inputTab_, "Input");
   tabWidget()->addTab(resultsTab_, "Well log plots and results");
   tabWidget()->addTab(mapsTab_, "Maps");
   tabWidget()->addTab(t2zTab_, "T2Z");
@@ -45,9 +45,9 @@ WellPrepTab* Window::wellPrepTab() const
   return wellPrepTab_;
 }
 
-SACtab* Window::sacTab() const
+InputTab* Window::inputTab() const
 {
-  return sacTab_;
+  return inputTab_;
 }
 
 T2Ztab* Window::t2zTab() const

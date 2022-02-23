@@ -3,7 +3,7 @@
 #include "control/logDisplayController.h"
 #include "control/mapsController.h"
 #include "control/resultsController.h"
-#include "control/sacController.h"
+#include "control/inputController.h"
 #include "control/t2zController.h"
 #include "control/wellPrepSACcontroller.h"
 
@@ -20,7 +20,7 @@ Controller::Controller() :
   ui_{},
   scenario_{new CMBProjectReader()},
   wellPrepSACcontroller_{new WellPrepSACcontroller{ui_.wellPrepTab(), scenario_, scriptRunController(), this}},
-  sacController_{new SACcontroller{ui_.sacTab(), scenario_, scriptRunController(), this}},  
+  inputController_{new InputController{ui_.inputTab(), scenario_, scriptRunController(), this}},
   mapsController_{new MapsController{ui_.mapsTab(), scenario_, scriptRunController(), this}},
   t2zController_{new T2Zcontroller{ui_.t2zTab(), scenario_, scriptRunController(), this}},
   resultsController_{new ResultsController{ui_.resultsTab(), scenario_, scriptRunController(), this}}
@@ -28,7 +28,7 @@ Controller::Controller() :
   connect(this, SIGNAL(signalUpdateTabGUI(int)), wellPrepSACcontroller_, SLOT(slotUpdateTabGUI(int)));
   connect(this, SIGNAL(signalUpdateTabGUI(int)), mapsController_,        SLOT(slotUpdateTabGUI(int)));
   connect(this, SIGNAL(signalUpdateTabGUI(int)), resultsController_,     SLOT(slotUpdateTabGUI(int)));
-  connect(this, SIGNAL(signalUpdateTabGUI(int)), sacController_,         SLOT(slotUpdateTabGUI(int)));
+  connect(this, SIGNAL(signalUpdateTabGUI(int)), inputController_,         SLOT(slotUpdateTabGUI(int)));
   connect(this, SIGNAL(signalUpdateTabGUI(int)), t2zController_,         SLOT(slotUpdateTabGUI(int)));
 
   connect(wellPrepSACcontroller_, SIGNAL(switchToTab(int)), this, SLOT(slotSwitchToTab(int)));

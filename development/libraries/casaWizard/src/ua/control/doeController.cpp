@@ -271,7 +271,7 @@ void DoEcontroller::slotPushSelectProject3dClicked()
   setDoEstageIncomplete();
 
   casaScenario_.setWorkingDirectory(popupWorkspace.optionSelected());  
-  casaScenario_.setProject3dFilePath(fileName);
+  casaScenario_.setProject3dFileNameAndLoadFile(fileName);
 
   const QString workingDir = casaScenario_.workingDirectory();
   const QString projectName = casaScenario_.project3dFilename();
@@ -288,7 +288,7 @@ void DoEcontroller::slotComboBoxApplicationCurrentTextChanged(const QString& app
 void DoEcontroller::slotLineEditProject3dTextChanged(const QString& project3dPath)
 {
   setDoEstageIncomplete();
-  casaScenario_.setProject3dFilePath(project3dPath);
+  casaScenario_.setProject3dFileNameAndLoadFile(project3dPath);
 }
 
 void DoEcontroller::slotSpinBoxCpusValueChanged(int cpus)

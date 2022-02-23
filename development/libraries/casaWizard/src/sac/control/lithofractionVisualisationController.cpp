@@ -64,6 +64,8 @@ void LithofractionVisualisationController::slotUpdatePlots(const QString& layerN
     return;
   }
 
+  const QString curLithotype = currentlyDisplayedLithotype();
+
   activeLayer_ = layerName;
   const int layerID = scenario_.projectReader().getLayerID(layerName.toStdString());
 
@@ -85,7 +87,7 @@ void LithofractionVisualisationController::slotUpdatePlots(const QString& layerN
   }
 
   VectorVectorMap depthMap = mapReader.getMapData(scenario_.projectReader().getDepthGridName(0).toStdString());
-  const QStringList lithologyTypes = obtainLithologyTypes(layerID);
+  const QStringList lithologyTypes = obtainLithologyTypes(layerID);  
 
   lithofractionVisualisation_->lithotypeSelection()->clear();
   lithofractionVisualisation_->lithotypeSelection()->addItems(lithologyTypes);
@@ -115,6 +117,30 @@ void LithofractionVisualisationController::slotUpdatePlots(const QString& layerN
   }
 
   updateBirdsView();
+
+  //If present, set lithotype to lithotype used in previous plot.
+  int idxOfPreviousLithotype = lithologyTypes.indexOf(curLithotype);
+  if (idxOfPreviousLithotype != -1)
+  {
+    lithofractionVisualisation_->lithotypeSelection()->setCurrentIndex(idxOfPreviousLithotype);
+  }
+}
+
+QString LithofractionVisualisationController::currentlyDisplayedLithotype() const
+{
+  QString curLithotype = "";
+
+  //Get the name of the currently displayed lithotype:
+  const size_t layerID = scenario_.projectReader().getLayerID(activeLayer_.toStdString());
+  const QStringList lithologyTypes = obtainLithologyTypes(layerID);
+  const int idx = lithofractionVisualisation_->lithotypeSelection()->currentIndex();
+
+  if (idx != -1)
+  {
+    curLithotype = lithologyTypes.at(idx);
+  }
+
+  return curLithotype;
 }
 
 std::vector<double> LithofractionVisualisationController::getLithopercentagesAtLocation(const QPointF& point) const

@@ -70,6 +70,7 @@ public:
   void updateT2zLastSurface();
 
   void wellPrepToSAC();
+  void updateWellsForProject3D();
 
 private:
   QString stateFileNameSAC_;

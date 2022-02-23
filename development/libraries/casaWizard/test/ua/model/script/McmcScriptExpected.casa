@@ -1,4 +1,4 @@
-base_project ""
+base_project "projStub.project3d"
 loadstate "CaseSet/Iteration_1/stateFileTestCasaScriptQC.txt" "txt"
 montecarlo "proxySecondOrderGlobalKriging" MCMC 500 100 Polynomial NoPrior 1.6
 exportDataTxt "DoEParameters" "doeResults.txt" "Tornado"

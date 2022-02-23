@@ -69,6 +69,7 @@ public:
 
   void setWellMetaData(const int wellIndex, const QString& metaData);
 
+  void scaleData(const QStringList& selectedProperties, const double scalingFactor);
   void smoothenData(const QStringList& selectedProperties, const double radius);
   void subsampleData(const QStringList& selectedProperties, const double length);
   void applyCutOff(const QMap<QString,QPair<double,double>>& propertiesWithCutOfRanges);

@@ -22,12 +22,12 @@ namespace sac
 
 class LithofractionTable;
 
-class SACtab : public QWidget
+class InputTab : public QWidget
 {
   Q_OBJECT
 
 public:
-  explicit SACtab(QWidget* parent = 0);
+  explicit InputTab(QWidget* parent = 0);
 
   CalibrationTargetTable* calibrationTargetTable() const;
   LithofractionTable* lithofractionTable() const;

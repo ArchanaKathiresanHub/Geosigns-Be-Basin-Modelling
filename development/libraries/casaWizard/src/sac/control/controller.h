@@ -13,7 +13,7 @@ namespace sac
 
 class MapsController;
 class ResultsController;
-class SACcontroller;
+class InputController;
 class T2Zcontroller;
 class WellPrepSACcontroller;
 
@@ -31,7 +31,7 @@ private:
   SACScenario scenario_;
 
   WellPrepSACcontroller* wellPrepSACcontroller_;
-  SACcontroller* sacController_;  
+  InputController* inputController_;
   MapsController* mapsController_;
   T2Zcontroller* t2zController_;
   ResultsController* resultsController_;

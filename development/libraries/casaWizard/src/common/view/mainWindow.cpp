@@ -23,7 +23,6 @@ MainWindow::MainWindow(QWidget* parent) :
 
   setStatusBar(new QStatusBar(this));
 
-  resize(1600, 900);
   QSizePolicy sizePolicyNew(QSizePolicy::Expanding, QSizePolicy::Expanding);
   sizePolicyNew.setHorizontalStretch(1);
   sizePolicyNew.setVerticalStretch(1);
@@ -32,6 +31,8 @@ MainWindow::MainWindow(QWidget* parent) :
 
   QVBoxLayout* layout = new QVBoxLayout(centralWidget);
   layout->addWidget(tabWidget_);
+
+  logDisplay_->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding));
   layout->addWidget(logDisplay_);
 }
 

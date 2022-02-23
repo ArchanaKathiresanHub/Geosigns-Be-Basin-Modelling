@@ -11,6 +11,7 @@
 #include "scriptRunController.h"
 #include "calibrationTargetWellPrepController.h"
 
+#include "control/applySmoothingThread.h"
 #include "control/importWellPopupLASController.h"
 #include "control/importWellPopupVSETController.h"
 #include "control/importWellPopupXlsxController.h"
@@ -65,6 +66,7 @@ WellPrepController::WellPrepController(WellPrepTab* wellPrepTab,
 
   connect(wellPrepTab->buttonApplySmoothing(), SIGNAL(clicked()), this, SLOT(slotSelectPropertiesForSmoothing()));
   connect(wellPrepTab->buttonApplySubsampling(), SIGNAL(clicked()), this, SLOT(slotSelectPropertiesForSubsampling()));
+  connect(wellPrepTab->buttonApplyScaling(), SIGNAL(clicked()), this, SLOT(slotSelectPropertiesForScaling()));
   connect(wellPrepTab->buttonApplyCutOff(), SIGNAL(clicked()), this, SLOT(slotSelectPropertiesForCutOff()));
 
   connect(calibrationTargetController_, SIGNAL(wellSelectionChanged()), this, SLOT(slotWellSelectionChanged()));
@@ -138,13 +140,19 @@ void WellPrepController::slotSelectPropertiesForSmoothing()
 
 void WellPrepController::slotApplySmoothing()
 {
+  waitingDialog_.setWindowTitle("Smoothing well data");
+  waitingDialog_.setText("Please wait while smoothing is performed.");
+
   const double radius = wellPrepTab_->smoothingLength();
   const QStringList selectedProperties = userPropertyChoicePopup_->selectedProperties();
-
   CalibrationTargetManager& calibrationManager = calibrationTargetController_->calibrationTargetManager();
-  calibrationManager.smoothenData(selectedProperties, radius);
-
   userPropertyChoicePopup_->done(0);
+
+  ApplySmoothingThread* applySmoothingThread = new ApplySmoothingThread(calibrationManager,radius,selectedProperties,this);
+  connect (applySmoothingThread, &ApplySmoothingThread::finished, this, &WellPrepController::slotCloseWaitingDialog);
+  connect (applySmoothingThread, &ApplySmoothingThread::finished, applySmoothingThread, &ApplySmoothingThread::deleteLater);
+  applySmoothingThread->start();
+  waitingDialog_.exec();
 }
 
 void WellPrepController::slotSelectPropertiesForSubsampling()
@@ -167,6 +175,28 @@ void WellPrepController::slotApplySubsampling()
   CalibrationTargetManager& calibrationManager = calibrationTargetController_->calibrationTargetManager();
   calibrationManager.subsampleData(selectedProperties, length);
 
+  userPropertyChoicePopup_->done(0);
+}
+
+void WellPrepController::slotSelectPropertiesForScaling()
+{
+  const CalibrationTargetManager& calibrationManager = calibrationTargetController_->calibrationTargetManager();
+  const QStringList activePropertyUserNames = calibrationManager.activePropertyUserNames();
+
+  userPropertyChoicePopup_->updateTable(activePropertyUserNames);
+
+  connect(userPropertyChoicePopup_, SIGNAL(acceptedClicked()), this, SLOT(slotApplyScaling()) );
+  userPropertyChoicePopup_->exec();
+  disconnect(userPropertyChoicePopup_, SIGNAL(acceptedClicked()), this, SLOT(slotApplyScaling()) );
+}
+
+void WellPrepController::slotApplyScaling()
+{
+  const double scalingFactor = wellPrepTab_->scalingFactor();
+  const QStringList selectedProperties = userPropertyChoicePopup_->selectedProperties();
+
+  CalibrationTargetManager& calibrationManager = calibrationTargetController_->calibrationTargetManager();
+  calibrationManager.scaleData(selectedProperties, scalingFactor);
   userPropertyChoicePopup_->done(0);
 }
 
@@ -221,23 +251,17 @@ void WellPrepController::checkEnabledStateButtons() const
 
   wellPrepTab_->buttonCropOutline()->setEnabled(hasProject);
   wellPrepTab_->buttonCropBasement()->setEnabled(hasProject);
-  wellPrepTab_->buttonToSAC()->setEnabled(hasProject);
+
+  const bool hasImportedWells = (casaScenario_.calibrationTargetManagerWellPrep().wells().size() > 0);
+  wellPrepTab_->buttonToSAC()->setEnabled(hasImportedWells);
 }
 
 void WellPrepController::slotPushSelectCalibrationClicked()
 {
-  QFileDialog dialog(wellPrepTab_);
-  dialog.setFileMode(QFileDialog::ExistingFiles);
-  dialog.setNameFilter("Well-data files (*.xlsx *.las *.vs)");
-  QStringList fileNames;
-  if (dialog.exec())
-  {
-    fileNames = dialog.selectedFiles();
-  }
-  else
-  {
-    return;
-  }
+  QStringList fileNames = QFileDialog::getOpenFileNames(wellPrepTab_,
+                                                  "Add well data",
+                                                  QDir::currentPath(),
+                                                  "Well data files (*.xlsx *.las *.vs)");
 
   if (importWellPopupController_)
   {

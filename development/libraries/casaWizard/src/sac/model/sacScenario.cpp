@@ -296,11 +296,19 @@ void SACScenario::updateT2zLastSurface()
 void SACScenario::wellPrepToSAC()
 {
   calibrationTargetManager().appendFrom(calibrationTargetManagerWellPrep());
-  calibrationTargetManager().disableInvalidWells(project3dPath().toStdString(), projectReader().getDepthGridName(0).toStdString());
-  calibrationTargetManager().setWellHasDataInLayer(project3dPath().toStdString(), projectReader().layerNames());
-
   updateObjectiveFunctionFromTargets();
   wellTrajectoryManager_.updateWellTrajectories(calibrationTargetManager());
+
+  if (!project3dPath().isEmpty())
+  {
+    updateWellsForProject3D();
+  }
+}
+
+void SACScenario::updateWellsForProject3D()
+{
+  calibrationTargetManager().disableInvalidWells(project3dPath().toStdString(), projectReader().getDepthGridName(0).toStdString());
+  calibrationTargetManager().setWellHasDataInLayer(project3dPath().toStdString(), projectReader().layerNames());
 }
 
 } // namespace sac

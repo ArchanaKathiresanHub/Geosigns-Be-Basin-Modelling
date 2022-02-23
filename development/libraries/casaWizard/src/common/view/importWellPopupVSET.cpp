@@ -8,6 +8,8 @@
 
 #include "importWellPopupVSET.h"
 
+#include "view/components/customComboBox.h"
+
 #include <QComboBox>
 #include <QDialogButtonBox>
 #include <QFileDialog>
@@ -35,7 +37,7 @@ ImportWellPopupVSET::ImportWellPopupVSET(QWidget *parent) :
 {
   setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
-  filterOptions_->addItems({"None", "Every x wells", "Minimum distance between wells", "Get well locations from file"});
+  filterOptions_->addItems({"None", "Every x vset entry", "Minimum pseudo well extraction distance", "Get well locations from file"});
   connect(filterOptions_, SIGNAL(currentIndexChanged(int)), this, SLOT(slotHandleFilterOptionChanged(int)));
   filterLayout_->addWidget(new QWidget(this));
   filterLayout_->addWidget(createSkipWidget());
@@ -65,7 +67,23 @@ ImportWellPopupVSET::ImportWellPopupVSET(QWidget *parent) :
 void ImportWellPopupVSET::updateTableUsingOptions(const ImportOptionsVSET& importOptions)
 {
   importOptions_ = importOptions;
-  updateTable({"Depth variable"}, {importOptions_.depthNotTWT?"Depth":"TwoWayTime"}, {"Depth", "TwoWayTime"});
+
+  propertyMappingTable_->clearContents();
+  propertyMappingTable_->setColumnCount(2);
+  propertyMappingTable_->setHorizontalHeaderItem(0, new QTableWidgetItem("Vertical domain"));
+  propertyMappingTable_->setHorizontalHeaderItem(1, new QTableWidgetItem("Velocity"));
+  propertyMappingTable_->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+
+  propertyMappingTable_->setRowCount(1);
+  propertyMappingTable_->setItem(0, 1, new QTableWidgetItem("Vint"));
+
+  QComboBox* propertySelector = new CustomComboBox();
+
+  propertySelector->addItems({"Depth", "TwoWayTime"});
+  propertySelector->setCurrentText({"Depth"});
+  propertyMappingTable_->setCellWidget(0, 0, propertySelector);
+
+  update();
 }
 
 QLineEdit* ImportWellPopupVSET::createWellIdentifierWidget(QLabel* wellNameLabel)
@@ -175,7 +193,7 @@ ImportOptionsVSET ImportWellPopupVSET::getImportOptions()
   if (filterLayout_->currentIndex() != 2) importOptions_.distance = 0.0;
   if (filterLayout_->currentIndex() != 3) importOptions_.xyPairs.clear();
 
-  importOptions_.depthNotTWT = (static_cast<QComboBox*>(propertyMappingTable_->cellWidget(0,1))->currentText() == "Depth");
+  importOptions_.depthNotTWT = (static_cast<QComboBox*>(propertyMappingTable_->cellWidget(0,0))->currentText() == "Depth");
 
   return importOptions_;
 }

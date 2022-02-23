@@ -22,6 +22,7 @@ TEST(CauldronScriptTest, testInitialization)
   // Given
   casaWizard::sac::SACScenario scenario{new casaWizard::StubProjectReader()};
   scenario.setWorkingDirectory(".");
+  scenario.setProject3dFileNameAndLoadFile("projStub.project3d");
   casaWizard::sac::CauldronScript script(scenario, "baseDirectory");
 
   // Then
@@ -36,6 +37,7 @@ TEST(CauldronScriptTest, testWriteScript)
   // Given
   casaWizard::sac::SACScenario scenario{new casaWizard::StubProjectReader()};
   scenario.setWorkingDirectory(".");
+  scenario.setProject3dFileNameAndLoadFile("projStub.project3d");
   scenario.setNumberCPUs(10);
   casaWizard::sac::CauldronScript script(scenario, "");
 

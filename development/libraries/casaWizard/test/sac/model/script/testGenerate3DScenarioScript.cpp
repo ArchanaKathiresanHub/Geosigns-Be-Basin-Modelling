@@ -17,6 +17,7 @@ TEST(Generate3DScenarioScriptTest, testWriteScript)
   // Given
   casaWizard::sac::SACScenario scenario{new casaWizard::StubProjectReader()};
   scenario.setWorkingDirectory(".");
+  scenario.setProject3dFileNameAndLoadFile("projStub.project3d");
 
   CalibrationTargetManager& ctManager = scenario.calibrationTargetManager();
   ctManager.addWell("Well 1", 1.0, 1.0); // sorted index = 0 and disabled
@@ -50,6 +51,7 @@ TEST(Generate3DScenarioScriptTest, testWriteScriptIDWGaussian)
 {
   casaWizard::sac::SACScenario scenario{new casaWizard::StubProjectReader()};
   scenario.setWorkingDirectory(".");
+  scenario.setProject3dFileNameAndLoadFile("projStub.project3d");
   scenario.setSmoothingOption(1);
   scenario.setPIDW(3);
   const std::string expectedFile{"generate3DScenarioScript_IDW_GaussianExpected.casa"};
@@ -67,6 +69,7 @@ TEST(Generate3DScenarioScriptTest, testWriteScriptNNMovingAverage)
 {
   casaWizard::sac::SACScenario scenario{new casaWizard::StubProjectReader()};
   scenario.setWorkingDirectory(".");
+  scenario.setProject3dFileNameAndLoadFile("projStub.project3d");
   scenario.setSmoothingOption(2);
   scenario.setRadiusSmoothing(3500);
   scenario.setInterpolationMethod(1);

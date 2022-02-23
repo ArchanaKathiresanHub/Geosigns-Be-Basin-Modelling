@@ -118,6 +118,9 @@ int CalibrationTargetManager::addWell(Well well)
       well.setX(presentWell.x());
       well.setY(presentWell.y());
       wells_.replace(index, well);
+
+      Logger::log() << "Well: " << well.name() << " is overwritten by the newly imported well with the same name." << Logger::endl();
+
       return index;
     }
     index++;
@@ -156,6 +159,54 @@ double CalibrationTargetManager::getShiftToAvoidOverlap(const QString& wellName,
 void CalibrationTargetManager::setWellMetaData(const int wellIndex, const QString& metaData)
 {
   wells_[wellIndex].setMetaData(metaData);
+}
+
+void CalibrationTargetManager::scaleData(const QStringList& selectedProperties, const double scalingFactor)
+{
+  for (Well& well : wells_)
+  {
+    if (!well.isActive()) continue;
+
+    for ( const QString& property : selectedProperties )
+    {
+      // Get calibration targets for the selected property
+      QVector<const CalibrationTarget*> targets = well.calibrationTargetsWithPropertyUserName(property);
+
+      QVector<double> scaledValues;
+      QVector<double> scaledStandardDeviations;
+      for (const CalibrationTarget* target : targets)
+      {
+        scaledStandardDeviations.push_back(target->standardDeviation()*scalingFactor);
+        scaledValues.push_back(target->value()*scalingFactor);
+      }
+
+      // Create new targets with the new data
+      int i=0;
+      QVector<CalibrationTarget> newTargets;
+      for (const CalibrationTarget* target : targets)
+      {
+        CalibrationTarget newTarget(target->name(), target->propertyUserName(), target->z(), scaledValues.at(i), scaledStandardDeviations.at(i), target->uaWeight());
+        newTargets.push_back(newTarget);
+        ++i;
+      }
+
+      // Delete the old calibration targets
+      well.removeCalibrationTargetsWithPropertyUserName(property);
+
+      // Add the new targets
+      for( const CalibrationTarget& newTarget : newTargets)
+      {
+        well.addCalibrationTarget(newTarget);
+      }
+
+      // Set metadata
+      const QString message("Scaling with scaling factor " + QString::number(scalingFactor) + " applied to " + property + " targets");
+      well.appendMetaData(message);
+
+      // Log info
+      Logger::log() << well.name() << ": " << message << Logger::endl();
+    }
+  }
 }
 
 void CalibrationTargetManager::smoothenData(const QStringList& selectedProperties, const double radius)

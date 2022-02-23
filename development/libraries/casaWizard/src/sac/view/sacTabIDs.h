@@ -10,7 +10,7 @@ namespace sac
 enum class TabID
 {
   WellPrep = 0,
-  SAC,
+  Input,
   Results,
   Maps,
   T2Z,

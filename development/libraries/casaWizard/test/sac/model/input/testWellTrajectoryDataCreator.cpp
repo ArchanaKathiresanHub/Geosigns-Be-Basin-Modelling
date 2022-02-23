@@ -9,7 +9,7 @@
 TEST( WellTrajectoryDataCreatorTest, testReadTrack1DFile )
 {
   casaWizard::sac::SACScenario scenario{new casaWizard::StubProjectReader()};
-  scenario.setProject3dFilePath("bestMatchedCase.project3d");
+  scenario.setProject3dFileNameAndLoadFile("bestMatchedCase.project3d");
 
   casaWizard::CalibrationTargetManager& ctManager = scenario.calibrationTargetManager();
   const int wellIndex = ctManager.addWell("Well1", 0, 0);

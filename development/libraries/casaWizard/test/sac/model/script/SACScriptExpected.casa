@@ -1,5 +1,5 @@
 app 1 fastcauldron "-itcoupled" "-allproperties" "-onlyat 0"
-base_project ""
+base_project "projStub.project3d"
 varprm "StratIoTbl:Percent1" "Layer 1" 0 100 "Normal"
 varprm "StratIoTbl:Percent1" "Layer 2" 0 100 "Normal" "StratIoTbl:Percent3" 0 1
 target "0_TwoWayTime" WellTraj "./wells/Well1_TWTT_TwoWayTime.in" "TwoWayTime" 0 0.0 1.0 1.0

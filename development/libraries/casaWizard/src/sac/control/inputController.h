@@ -29,15 +29,15 @@ namespace sac
 class CaseExtractor;
 class DataExtractionController;
 class SACScenario;
-class SACtab;
+class InputTab;
 class LithofractionController;
 
-class SACcontroller : public QObject
+class InputController : public QObject
 {
   Q_OBJECT
 
 public:
-  SACcontroller(SACtab* sacTab,
+  InputController(InputTab* inputTab,
                 SACScenario& casaScenario,
                 ScriptRunController& scriptRunController,
                 QObject* parent);
@@ -62,7 +62,7 @@ private:
   void refreshGUI();  
   void renameCaseFolders(const QString& pathName);
 
-  SACtab* sacTab_;
+  InputTab* inputTab_;
   SACScenario& casaScenario_;
   ScriptRunController& scriptRunController_;
 

@@ -14,7 +14,7 @@ TEST(DepthConversionScriptTest, testGenerateCommandsLocal)
   casaWizard::sac::SACScenario scenario{new casaWizard::StubProjectReader()};
   scenario.setWorkingDirectory(".");
   scenario.setClusterName("LOCAL");
-  scenario.setProject3dFilePath("./Project.project3d");
+  scenario.setProject3dFileNameAndLoadFile("./Project.project3d");
   scenario.setT2zNumberCPUs(10);
   scenario.setApplicationName("fastcauldron \"-temperature\"");
   std::unique_ptr<casaWizard::RunScript> script(new casaWizard::sac::DepthConversionScript(scenario, scenario.workingDirectory() + "/T2Z_step2", workloadmanagers::WorkLoadManagerType::AUTO));
@@ -38,7 +38,7 @@ TEST(DepthConversionScriptTest, testGenerateCommandsClusterSLURM)
   casaWizard::sac::SACScenario scenario{new casaWizard::StubProjectReader()};
   scenario.setWorkingDirectory(".");
   scenario.setClusterName("Cluster");
-  scenario.setProject3dFilePath("./Project.project3d");
+  scenario.setProject3dFileNameAndLoadFile("./Project.project3d");
   scenario.setApplicationName("fastcauldron \"-temperature\"");
   std::unique_ptr<casaWizard::RunScript> script(new casaWizard::sac::DepthConversionScript(scenario, scenario.workingDirectory() + "/T2Z_step2", workloadmanagers::WorkLoadManagerType::SLURM));
 
@@ -58,7 +58,7 @@ TEST(DepthConversionScriptTest, testGenerateCommandsClusterLSF)
   casaWizard::sac::SACScenario scenario{new casaWizard::StubProjectReader()};
   scenario.setWorkingDirectory(".");
   scenario.setClusterName("Cluster");
-  scenario.setProject3dFilePath("./Project.project3d");
+  scenario.setProject3dFileNameAndLoadFile("./Project.project3d");
   scenario.setApplicationName("fastcauldron \"-temperature\"");
   std::unique_ptr<casaWizard::RunScript> script(new casaWizard::sac::DepthConversionScript(scenario, scenario.workingDirectory() + "/T2Z_step2", workloadmanagers::WorkLoadManagerType::IBM_LSF));
 

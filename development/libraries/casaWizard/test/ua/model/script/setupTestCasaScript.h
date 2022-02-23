@@ -20,6 +20,7 @@ public:
   void SetUp() override
   {
     scenario.setWorkingDirectory(".");
+    scenario.setProject3dFileNameAndLoadFile("projStub.project3d");
     scenario.setStateFileNameDoE(QString(stateFile_.c_str()));
 
     casaWizard::ua::InfluentialParameterManager& ipManager = scenario.influentialParameterManager();

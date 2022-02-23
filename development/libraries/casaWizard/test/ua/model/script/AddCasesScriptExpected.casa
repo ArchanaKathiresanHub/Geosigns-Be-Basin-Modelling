@@ -1,4 +1,4 @@
-base_project ""
+base_project "projStub.project3d"
 loadstate "CaseSet/Iteration_1/stateFileTestCasaScriptDoE.txt" "txt"
 addDesignPoint 1.4
 location "CaseSet" "append"

@@ -12,6 +12,7 @@
 
 class QPushButton;
 class QSpinBox;
+class QDoubleSpinBox;
 class EmphasisButton;
 
 namespace casaWizard
@@ -35,6 +36,9 @@ public:
 
   int subsamplingDistance() const;
   const QPushButton* buttonApplySubsampling() const;
+
+  double scalingFactor() const;
+  const QPushButton* buttonApplyScaling() const;
 
   const QPushButton* buttonApplyCutOff() const;
 
@@ -60,6 +64,9 @@ private:
 
   QSpinBox* subsamplingDistance_;
   QPushButton* buttonApplySubsampling_;
+
+  QDoubleSpinBox* scalingFactor_;
+  QPushButton* buttonApplyScaling_;
 
   QPushButton* buttonApplyCutOff_;
 

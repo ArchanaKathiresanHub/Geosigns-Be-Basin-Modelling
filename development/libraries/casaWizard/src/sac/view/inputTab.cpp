@@ -1,4 +1,4 @@
-#include "sacTab.h"
+#include "inputTab.h"
 
 #include "view/calibrationTargetTable.h"
 #include "view/objectiveFunctionTableSAC.h"
@@ -22,7 +22,7 @@ namespace casaWizard
 namespace sac
 {
 
-SACtab::SACtab(QWidget* parent) :
+InputTab::InputTab(QWidget* parent) :
   QWidget(parent),
   pushSelectProject3D_{new QPushButton("Select", this)},
   lineEditProject3D_{new QLineEdit(this)},
@@ -104,62 +104,62 @@ SACtab::SACtab(QWidget* parent) :
   verticalLayoutTab->addLayout(layoutTablesAndOptions);  
 }
 
-CalibrationTargetTable* SACtab::calibrationTargetTable() const
+CalibrationTargetTable* InputTab::calibrationTargetTable() const
 {
   return calibrationTargetTable_;
 }
 
-LithofractionTable* SACtab::lithofractionTable() const
+LithofractionTable* InputTab::lithofractionTable() const
 {
   return lithofractionTable_;
 }
 
-ObjectiveFunctionTableSAC* SACtab::objectiveFunctionTable() const
+ObjectiveFunctionTableSAC* InputTab::objectiveFunctionTable() const
 {
   return objectiveFunctionTable_;
 }
 
-QLineEdit* SACtab::lineEditProject3D() const
+QLineEdit* InputTab::lineEditProject3D() const
 {
   return lineEditProject3D_;
 }
 
-const QPushButton* SACtab::pushSelectProject3D() const
+const QPushButton* InputTab::pushSelectProject3D() const
 {
   return pushSelectProject3D_;
 }
 
-QComboBox* SACtab::comboBoxApplication() const
+QComboBox* InputTab::comboBoxApplication() const
 {
   return comboBoxApplication_;
 }
 
-QComboBox* SACtab::comboBoxCluster() const
+QComboBox* InputTab::comboBoxCluster() const
 {
   return comboBoxCluster_;
 }
 
-const QPushButton*SACtab::pushSelectAllWells() const
+const QPushButton*InputTab::pushSelectAllWells() const
 {
   return pushSelectAllWells_;
 }
 
-const QPushButton*SACtab::pushClearSelection() const
+const QPushButton*InputTab::pushClearSelection() const
 {
   return pushClearSelection_;
 }
 
-const QPushButton* SACtab::pushButtonSACrunCASA() const
+const QPushButton* InputTab::pushButtonSACrunCASA() const
 {
   return pushButtonSACrunCASA_;
 }
 
-const QPushButton* SACtab::buttonRunOriginal1D() const
+const QPushButton* InputTab::buttonRunOriginal1D() const
 {
   return buttonRunOriginal1D_;
 }
 
-const QPushButton* SACtab::buttonRunOriginal3D() const
+const QPushButton* InputTab::buttonRunOriginal3D() const
 {
   return buttonRunOriginal3D_;
 }

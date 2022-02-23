@@ -48,6 +48,7 @@ TEST( CasaScenarioTest, testSetScenarioProperties)
 
   // Then
   EXPECT_EQ(scenario.workingDirectory().toStdString(), "workdir");
+  EXPECT_EQ(scenario.project3dPath().toStdString(), "");
   EXPECT_EQ(scenario.expertUser(), true);
   EXPECT_EQ(scenario.numberCPUs(), 10);
   EXPECT_EQ(scenario.applicationName().toStdString(), "fastcauldron");
@@ -65,6 +66,7 @@ TEST( CasaScenarioTest, testClearScenario )
   scenario.clear();
 
   // Then
+  EXPECT_EQ(scenario.project3dPath().toStdString(), "");
   EXPECT_EQ(scenario.workingDirectory().toStdString(), "");
   EXPECT_EQ(scenario.expertUser(), false);
   EXPECT_EQ(scenario.numberCPUs(), 1);

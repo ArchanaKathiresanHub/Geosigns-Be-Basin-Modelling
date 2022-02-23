@@ -6,7 +6,8 @@
 // Do not distribute without written permission from Shell.
 //
 
-#include "sacController.h"
+#include "inputController.h"
+#include "workspaceGenerationController.h"
 
 #include "control/calibrationTargetController.h"
 #include "control/casaScriptWriter.h"
@@ -28,7 +29,7 @@
 #include "model/script/depthConversionScript.h"
 #include "model/script/sacScript.h"
 #include "model/functions/sortedByXWellIndices.h"
-#include "view/sacTab.h"
+#include "view/inputTab.h"
 #include "view/sacTabIDs.h"
 #include "view/workspaceDialog.h"
 
@@ -52,48 +53,48 @@ namespace casaWizard
 namespace sac
 {
 
-SACcontroller::SACcontroller(SACtab* sacTab,
+InputController::InputController(InputTab* inputTab,
                              SACScenario& casaScenario,
                              ScriptRunController& scriptRunController,
                              QObject* parent) :
   QObject(parent),
-  sacTab_{sacTab},
+  inputTab_{inputTab},
   casaScenario_{casaScenario},
   scriptRunController_{scriptRunController},  
-  calibrationTargetController_{new CalibrationTargetController(sacTab->calibrationTargetTable(), casaScenario_, this)},
+  calibrationTargetController_{new CalibrationTargetController(inputTab->calibrationTargetTable(), casaScenario_, this)},
   dataExtractionController_{new DataExtractionController(casaScenario_, scriptRunController_, this)},
-  lithofractionController_{new LithofractionController(sacTab->lithofractionTable(), casaScenario_, this)},
-  objectiveFunctionController_{new ObjectiveFunctionControllerSAC(sacTab->objectiveFunctionTable(), casaScenario_, this)}
+  lithofractionController_{new LithofractionController(inputTab->lithofractionTable(), casaScenario_, this)},
+  objectiveFunctionController_{new ObjectiveFunctionControllerSAC(inputTab->objectiveFunctionTable(), casaScenario_, this)}
 {
-  sacTab_->lineEditProject3D()->setText("");
-  sacTab_->comboBoxCluster()->setCurrentText(casaScenario_.clusterName());
+  inputTab_->lineEditProject3D()->setText("");
+  inputTab_->comboBoxCluster()->setCurrentText(casaScenario_.clusterName());
 
   connect( parent, SIGNAL(signalReload1Ddata()), this, SLOT(slotExtractData()));
 
-  connect(sacTab_->pushButtonSACrunCASA(),  SIGNAL(clicked()),    this, SLOT(slotPushButtonSACrunCasaClicked()));
-  connect(sacTab_->pushSelectProject3D(),   SIGNAL(clicked()),    this, SLOT(slotPushSelectProject3dClicked()));  
-  connect(sacTab_->pushSelectAllWells(), SIGNAL(clicked()),       calibrationTargetController_, SLOT(slotSelectAllWells()));
-  connect(sacTab_->pushClearSelection(), SIGNAL(clicked()),       calibrationTargetController_, SLOT(slotClearWellSelection()));
+  connect(inputTab_->pushButtonSACrunCASA(),  SIGNAL(clicked()),    this, SLOT(slotPushButtonSACrunCasaClicked()));
+  connect(inputTab_->pushSelectProject3D(),   SIGNAL(clicked()),    this, SLOT(slotPushSelectProject3dClicked()));
+  connect(inputTab_->pushSelectAllWells(), SIGNAL(clicked()),       calibrationTargetController_, SLOT(slotSelectAllWells()));
+  connect(inputTab_->pushClearSelection(), SIGNAL(clicked()),       calibrationTargetController_, SLOT(slotClearWellSelection()));
 
-  connect(sacTab_->buttonRunOriginal1D(),     SIGNAL(clicked()), this, SLOT(slotRunOriginal1D()));
-  connect(sacTab_->buttonRunOriginal3D(),     SIGNAL(clicked()), this, SLOT(slotRunOriginal3D()));
+  connect(inputTab_->buttonRunOriginal1D(),     SIGNAL(clicked()), this, SLOT(slotRunOriginal1D()));
+  connect(inputTab_->buttonRunOriginal3D(),     SIGNAL(clicked()), this, SLOT(slotRunOriginal3D()));
 
-  connect(sacTab_->comboBoxCluster(),       SIGNAL(currentTextChanged(QString)), this, SLOT(slotComboBoxClusterCurrentTextChanged(QString)));
-  connect(sacTab_->comboBoxApplication(),   SIGNAL(currentTextChanged(QString)), this, SLOT(slotComboBoxApplicationChanged(QString)));
+  connect(inputTab_->comboBoxCluster(),       SIGNAL(currentTextChanged(QString)), this, SLOT(slotComboBoxClusterCurrentTextChanged(QString)));
+  connect(inputTab_->comboBoxApplication(),   SIGNAL(currentTextChanged(QString)), this, SLOT(slotComboBoxApplicationChanged(QString)));
 }
 
-void SACcontroller::refreshGUI()
+void InputController::refreshGUI()
 {
-  sacTab_->lineEditProject3D()->setText(casaScenario_.project3dPath());  
-  sacTab_->comboBoxCluster()->setCurrentText(casaScenario_.clusterName());
+  inputTab_->lineEditProject3D()->setText(casaScenario_.project3dPath());
+  inputTab_->comboBoxCluster()->setCurrentText(casaScenario_.clusterName());
 
   if (casaScenario_.applicationName() == "fastcauldron \"-itcoupled\"")
   {
-    sacTab_->comboBoxApplication()->setCurrentText("Iteratively Coupled");
+    inputTab_->comboBoxApplication()->setCurrentText("Iteratively Coupled");
   }
   else if (casaScenario_.applicationName() == "fastcauldron \"-temperature\"")
   {
-    sacTab_->comboBoxApplication()->setCurrentText("Hydrostatic");
+    inputTab_->comboBoxApplication()->setCurrentText("Hydrostatic");
   }
 
   lithofractionController_->updateLithofractionTable();
@@ -101,9 +102,9 @@ void SACcontroller::refreshGUI()
   emit signalRefreshChildWidgets();
 }
 
-void SACcontroller::slotUpdateTabGUI(int tabID)
+void InputController::slotUpdateTabGUI(int tabID)
 {
-  if (tabID != static_cast<int>(TabID::SAC))
+  if (tabID != static_cast<int>(TabID::Input))
   {
     return;
   }
@@ -111,7 +112,7 @@ void SACcontroller::slotUpdateTabGUI(int tabID)
   refreshGUI();
 }
 
-void SACcontroller::slotExtractData()
+void InputController::slotExtractData()
 {
   if (casaScenario_.project3dPath().isEmpty())
   {
@@ -123,7 +124,7 @@ void SACcontroller::slotExtractData()
   scenarioBackup::backup(casaScenario_);
 }
 
-void SACcontroller::slotPushButtonSACrunCasaClicked()
+void InputController::slotPushButtonSACrunCasaClicked()
 {
   wellTrajectoryWriter::writeTrajectories(casaScenario_);
 
@@ -190,7 +191,7 @@ void SACcontroller::slotPushButtonSACrunCasaClicked()
   scenarioBackup::backup(casaScenario_);
 }
 
-void SACcontroller::renameCaseFolders(const QString& pathName)
+void InputController::renameCaseFolders(const QString& pathName)
 {
   const CalibrationTargetManager& ctManager = casaScenario_.calibrationTargetManager();
   const QVector<const Well*>& wells = ctManager.wells();
@@ -208,7 +209,7 @@ void SACcontroller::renameCaseFolders(const QString& pathName)
   }
 }
 
-void SACcontroller::slotRunOriginal1D()
+void InputController::slotRunOriginal1D()
 {
   wellTrajectoryWriter::writeTrajectories(casaScenario_);
 
@@ -269,7 +270,7 @@ void SACcontroller::slotRunOriginal1D()
   scenarioBackup::backup(casaScenario_);
 }
 
-void SACcontroller::slotRunOriginal3D()
+void InputController::slotRunOriginal3D()
 {
   if (casaScenario_.project3dPath().isEmpty())
   {
@@ -303,11 +304,11 @@ void SACcontroller::slotRunOriginal3D()
   }
 }
 
-void SACcontroller::slotPushSelectProject3dClicked()
+void InputController::slotPushSelectProject3dClicked()
 {
-  const QString fileName = QFileDialog::getOpenFileName(sacTab_,
+  const QString fileName = QFileDialog::getOpenFileName(inputTab_,
                                                         "Select project file",
-                                                        casaScenario_.project3dPath(),
+                                                        QDir::currentPath(),
                                                         "Project files (*.project3d)");
   if (fileName == "")
   {
@@ -328,40 +329,35 @@ void SACcontroller::slotPushSelectProject3dClicked()
     return;
   }
 
-  WorkspaceDialog popupWorkspace{originalWorkspaceLocation, casaWizard::workspaceGenerator::getSuggestedWorkspace(fileName)};
-  if (popupWorkspace.exec() != QDialog::Accepted)
+  if (casaScenario_.workingDirectory().isEmpty() || !casaScenario_.project3dPath().isEmpty())
   {
-    return;
+    casaScenario_.clear();
+    if (!workspaceGenerationController::generateWorkSpace(originalWorkspaceLocation,casaScenario_))
+    {
+      return;
+    }
+  }
+  else
+  {
+    workspaceGenerator::copyDir(originalWorkspaceLocation,casaScenario_.workingDirectory());
   }
 
-  const QString workingDirectory = popupWorkspace.optionSelected();
-  if (!functions::overwriteIfDirectoryExists(workingDirectory))
-  {
-    return;
-  }
-
-  if (!casaWizard::workspaceGenerator::createWorkspace(originalWorkspaceLocation, workingDirectory))
-  {
-    Logger::log() << "Unable to create workspace, do you have write access to: " << workingDirectory << Logger::endl();
-    return;
-  }
-
-  casaScenario_.clear();
-  casaScenario_.setWorkingDirectory(workingDirectory);  
-  casaScenario_.setProject3dFilePath(fileName);  
+  casaScenario_.setProject3dFileNameAndLoadFile(fileName);
   casaScenario_.updateT2zLastSurface();
-  lithofractionController_->loadLayersFromProject();  
+  lithofractionController_->loadLayersFromProject();
+
+  casaScenario_.updateWellsForProject3D();
 
   scenarioBackup::backup(casaScenario_);
   refreshGUI();
 }
 
-void SACcontroller::slotComboBoxClusterCurrentTextChanged(QString clusterName)
+void InputController::slotComboBoxClusterCurrentTextChanged(QString clusterName)
 {
   casaScenario_.setClusterName(clusterName);
 }
 
-void SACcontroller::slotComboBoxApplicationChanged(QString application)
+void InputController::slotComboBoxApplicationChanged(QString application)
 {
   if (application == "Iteratively Coupled")
   {

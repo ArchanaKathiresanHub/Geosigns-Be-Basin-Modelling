@@ -469,6 +469,30 @@ TEST(CalibrationTargetManagerTest, testSmoothenData)
   EXPECT_DOUBLE_EQ(targets[3]->value(), 361.99914465090529);
 }
 
+
+TEST(CalibrationTargetManagerTest, testScaleData)
+{
+  // Given
+  casaWizard::CalibrationTargetManager manager;
+  manager.addWell("well_1", 184550, 608300);
+  manager.addCalibrationTarget("target_1", "TwoWayTime", 0, 100, 100);
+  manager.addCalibrationTarget("target_2", "TwoWayTime", 0, 150, 200);
+  manager.addCalibrationTarget("target_3", "TwoWayTime", 0, 300, 130);
+  manager.addCalibrationTarget("target_4", "TwoWayTime", 0, 700, 400);
+
+  // When
+  manager.scaleData({"TwoWayTime"}, 0.1);
+
+  // Then
+  const QVector<const casaWizard::CalibrationTarget*> targets = manager.well(0).calibrationTargets();
+  ASSERT_EQ(targets.size(), 4);
+  EXPECT_DOUBLE_EQ(targets[0]->value(), 10.0);
+  EXPECT_DOUBLE_EQ(targets[1]->value(), 20.0);
+  EXPECT_DOUBLE_EQ(targets[2]->value(), 13.0);
+  EXPECT_DOUBLE_EQ(targets[3]->value(), 40.0);
+}
+
+
 TEST(CalibrationTargetManagerTest, testSubsampleData)
 {
   // Given

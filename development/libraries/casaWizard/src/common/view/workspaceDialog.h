@@ -17,7 +17,7 @@ class WorkspaceDialog : public QDialog
   Q_OBJECT
 
 public:
-  explicit WorkspaceDialog(const QString originalPath, const QString sugestedPath, const QString& windowTitle = "", QWidget* parent = 0);
+  explicit WorkspaceDialog(const QString originalPath, const QString sugestedPath, const QString& windowTitle = "", QWidget* parent = nullptr);
 
   QString optionSelected() const;
   QString userWorkspaceLocation() const;
