@@ -12,7 +12,7 @@
 
 include(cmake/AddPackage.cmake)
 
-set(DOXYGEN_EXECUTABLE "DOXYGEN_EXECUTABLE-NOTFOUND" CACHE PATH "Path to doxygen executable")
+
 
 if (WIN32)
 	message(WARNING "this is the DOXY_ROOT ${DOXYGEN_EXECUTABLE}")
@@ -20,6 +20,7 @@ if (WIN32)
 endif()
 
 if (UNIX)
+ ## For Linux assume no doxy exe is set to begin with, its set by loading the latest Doxygen module
 	find_package(Doxygen)
 endif()
 

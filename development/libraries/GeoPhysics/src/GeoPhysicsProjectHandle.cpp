@@ -484,7 +484,7 @@ bool GeoPhysics::ProjectHandle::createPaleoBathymetry () {
    //Create 2D Array of Polyfunction for sea bottom depth.
    m_seaBottomDepth.reallocate ( getActivityOutputGrid ());
 
-   Interface::PaleoPropertyList* surfaceDepthHistory = getSurfaceDepthHistory ();
+   std::unique_ptr< Interface::PaleoPropertyList> surfaceDepthHistory (getSurfaceDepthHistory ());
 
    if ( surfaceDepthHistory != nullptr ) {
 
@@ -499,6 +499,11 @@ bool GeoPhysics::ProjectHandle::createPaleoBathymetry () {
          } else {
             // The present-day depth-map is obtained from the top surface of the sediments.
             surfaceDepthMap = dynamic_cast<const Interface::GridMap*>((*m_surfaces.begin ())->getInputDepthMap ());
+         }
+
+         if (surfaceDepthMap==nullptr)
+         {
+             throw (std::invalid_argument("check SurfaceDepthIoTbl for missing entries"));
          }
 
          // This should be with ghost nodes.
@@ -520,7 +525,7 @@ bool GeoPhysics::ProjectHandle::createPaleoBathymetry () {
          surfaceDepthMap->release();
       }
 
-      delete surfaceDepthHistory;
+      //delete surfaceDepthHistory;
       status = true;
    } else {
       status = false;

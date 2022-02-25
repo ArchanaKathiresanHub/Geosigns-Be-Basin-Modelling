@@ -124,7 +124,12 @@ if (IS_DIRECTORY "${BM_EXTERNAL_COMPONENTS_DIR}/HYPRE/lib" )
 	mark_as_advanced(HYPRE_LIBRARIES)
 endif()
 
-if(BM_BUILD_DOCS)
-   set(DOXYGEN_EXECUTABLE "${CBM_HOME}/3rdparty/doxygen-1.9.2.windows.x64.bin/doxygen.exe")
+## cant check this, BM_BUILD_DOCS, variable here cause its set later in the root CMakeLists.
+if (IS_DIRECTORY "${CBM_HOME}/3rdparty/doxygen-1.9.2.windows.x64.bin")
+   message(STATUS "doxygen.exe found, Cauldron Doc will be built...")
+   set(DOXYGEN_EXECUTABLE "${CBM_HOME}/3rdparty/doxygen-1.9.2.windows.x64.bin/doxygen.exe" CACHE PATH "Path to doxygen executable")
+else()
+	message(WARNING "${CBM_HOME}/3rdparty/doxygen-1.9.2.windows.x64.bin DOES NOT EXIST, PLEASE DOWNLOAD THE LATEST BASIN-MODELLING-WINDOWS-3RDPARTY FROM REPOS.")
+	set(DOXYGEN_EXECUTABLE "")
 endif()
 

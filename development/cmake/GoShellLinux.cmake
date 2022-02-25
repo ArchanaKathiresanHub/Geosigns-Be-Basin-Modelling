@@ -44,10 +44,17 @@ set(BLA_VENDOR "MKL")
 # Flexlm setup
 set(FLEXLM_ROOT "/apps/3rdparty/EPTFlexLm/v9.2" CACHE PATH "Path to FlexLM directory" )
 set(FLEXLM_LIBRARY "${FLEXLM_ROOT}/LinuxRHEL_i686_30WS/lib64/EPTFlexLm.o" CACHE FILEPATH "Path of FlexLM libraries" )
+
+# Doxygen
 execute_process(
     COMMAND bash "-c" "printf `which doxygen`" 
-    OUTPUT_VARIABLE NEWDOXYGEN_EXECUTABLE
+	RESULT_VARIABLE result_NEWDOXYGEN_EXECUTABLE
+    OUTPUT_VARIABLE output_NEWDOXYGEN_EXECUTABLE
 )
-
-message(STATUS "This is the doxy exe ${NEWDOXYGEN_EXECUTABLE}")
-set(DOXYGEN_EXECUTABLE "${NEWDOXYGEN_EXECUTABLE}" CACHE PATH "Path to doxygen executable")
+if( result_NEWDOXYGEN_EXECUTABLE MATCHES "0$")
+   message(STATUS "This is the doxy exe ${output_NEWDOXYGEN_EXECUTABLE}")
+   set(DOXYGEN_EXECUTABLE "${output_NEWDOXYGEN_EXECUTABLE}" CACHE PATH "Path to doxygen executable")
+else()
+   message(WARNING "DOXYGEN NOT FOND for BM_BUILD_DOCS!")
+   set(DOXYGEN_EXECUTABLE "")
+endif()
