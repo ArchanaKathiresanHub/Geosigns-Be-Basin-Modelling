@@ -40,11 +40,10 @@ printHelp()
 buildAndAnalyze()
 {
   cd $BUILD_LOCATION
-  make rebuild_cache
   $BRANCH_LOCATION/makeAll.sh
   make test
   profmerge
-  codecov -spi pgopti.spi -dpi pgopti.dpi -xmlbcvrgfull BasinModelling_fcvrg.xml -counts -comp includedFiles.txt
+  codecov -spi pgopti.spi -dpi pgopti.dpi -xmlbcvrgfull BasinModelling_fcvrg.xml -counts -comp includedFiles.txt -nopartial
 }
 
 moveResultsToFolder()
@@ -83,7 +82,7 @@ then
   mkdir $BUILD_LOCATION
   cd $BUILD_LOCATION
   $BRANCH_LOCATION/bootstrap.sh -DBM_CODE_COVERAGE_ENABLE=ON -DCMAKE_BUILD_TYPE=CodeCoverage
-fi 
+fi
 
 # Load necessary modules
 cd $BRANCH_LOCATION
@@ -123,6 +122,8 @@ git checkout master
 git pull
 
 # Install binaries master and running analysis
+cd $BUILD_LOCATION
+make rebuild_cache
 buildAndAnalyze
 moveResultsToFolder CC_MasterBranch
 
@@ -162,6 +163,10 @@ echo "Passed: Code coverage of your development branch is higher than or equal t
 echo "-------------------------------------------------------------"
 echo ""
 
+# Firefox cannot open with the current modules loaded
+module purge
+firefox $BUILD_LOCATION/CC_MasterBranch/CODE_COVERAGE.HTML &
+firefox $BUILD_LOCATION/CC_DevelopmentBranch/CODE_COVERAGE.HTML &
 tput sgr0
 
 
