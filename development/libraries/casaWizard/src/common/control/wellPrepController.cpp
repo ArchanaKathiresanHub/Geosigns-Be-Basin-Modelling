@@ -346,7 +346,7 @@ void WellPrepController::slotExportXYasciiClicked()
     return;
   }
 
-  const QString fileName = QFileDialog::getSaveFileName(wellPrepTab_, "Save as", "", "All files (*.*)");
+  const QString fileName = QFileDialog::getSaveFileName(wellPrepTab_, "Save as", QDir::currentPath(), "All files (*.*)");
   if (fileName == "")
   {
     return;
@@ -367,7 +367,7 @@ void WellPrepController::slotPushSaveDataClicked()
     return;
   }
 
-  QString fileName = QFileDialog::getSaveFileName(wellPrepTab_, "Save as", "", "Spreadsheet (*.xlsx)");
+  QString fileName = QFileDialog::getSaveFileName(wellPrepTab_, "Save as", QDir::currentPath(), "Spreadsheet (*.xlsx)");
   if (fileName == "")
   {
     return;

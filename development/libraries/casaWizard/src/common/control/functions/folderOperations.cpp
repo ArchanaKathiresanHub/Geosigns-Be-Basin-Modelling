@@ -142,7 +142,7 @@ void exportScenarioToZip(const QDir& sourceDir, const QString& workingDirectory,
     return;
   }
 
-  QString targetPath = QFileDialog::getExistingDirectory(nullptr, "Choose a location for the exported scenario", workingDirectory,
+  QString targetPath = QFileDialog::getExistingDirectory(nullptr, "Choose a location for the exported scenario", QDir::currentPath(),
                                                            QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
 
   QDir targetDir(targetPath);
@@ -183,7 +183,7 @@ void exportScenarioToZip(const QDir& sourceDir, const QString& workingDirectory,
   ProjectTXTManipulator manipulator(tmpdir.absolutePath() + "/" + projectTextFile);
   manipulator.appendStampToScenarioName(timeStamp);
 
-  cleanFolder(tmpdir, projectFile);
+  cleanFolder(tmpdir);
 
   zipFolderContent(tmpdir, targetDir.absolutePath(), timeStamp);
 
@@ -192,7 +192,7 @@ void exportScenarioToZip(const QDir& sourceDir, const QString& workingDirectory,
   Logger::log() << "Finished exporting the scenario to .zip" << Logger::endl();
 }
 
-void cleanFolder(const QDir& folder, const QString& projectFile)
+void cleanFolder(const QDir& folder)
 {
   QString path = folder.absolutePath();
   QFile(path + "/CalibratedInputs.HDF").remove();

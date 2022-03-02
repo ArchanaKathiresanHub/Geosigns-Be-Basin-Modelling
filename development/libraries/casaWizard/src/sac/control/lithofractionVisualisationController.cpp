@@ -65,6 +65,7 @@ void LithofractionVisualisationController::slotUpdatePlots(const QString& layerN
   }
 
   const QString curLithotype = currentlyDisplayedLithotype();
+  const int curIndex = lithofractionVisualisation_->lithotypeSelection()->currentIndex();
 
   activeLayer_ = layerName;
   const int layerID = scenario_.projectReader().getLayerID(layerName.toStdString());
@@ -119,10 +120,14 @@ void LithofractionVisualisationController::slotUpdatePlots(const QString& layerN
   updateBirdsView();
 
   //If present, set lithotype to lithotype used in previous plot.
-  int idxOfPreviousLithotype = lithologyTypes.indexOf(curLithotype);
-  if (idxOfPreviousLithotype != -1)
+  int idxOfPreviousLithotypeInNewLayer = lithologyTypes.indexOf(curLithotype);
+  if (idxOfPreviousLithotypeInNewLayer != -1)
   {
-    lithofractionVisualisation_->lithotypeSelection()->setCurrentIndex(idxOfPreviousLithotype);
+    lithofractionVisualisation_->lithotypeSelection()->setCurrentIndex(idxOfPreviousLithotypeInNewLayer);
+  }
+  else if (curIndex != -1 && curIndex < lithologyTypes.size() && !lithologyTypes.at(curIndex).isEmpty())
+  {
+    lithofractionVisualisation_->lithotypeSelection()->setCurrentIndex(curIndex);
   }
 }
 

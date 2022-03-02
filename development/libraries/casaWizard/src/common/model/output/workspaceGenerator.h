@@ -13,6 +13,7 @@ QString getTimeStamp(const QString& prefix = "");
 bool createWorkspace(const QString& rootPath,const QString& newFolder );
 bool copyDir(const QString& currentPath,const QString& newWorkspace);
 QString getSuggestedWorkspace(const QString& currentPath);
+QString getSuggestedWorkspaceCurrentDirectory();
 
 } // namespace workspaceGenerator
 

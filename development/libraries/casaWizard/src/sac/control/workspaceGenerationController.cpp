@@ -25,7 +25,7 @@ namespace workspaceGenerationController
 
 bool generateWorkSpace(QString directory, sac::SACScenario& scenario)
 {
-  WorkspaceDialog popupWorkspace{directory, workspaceGenerator::getSuggestedWorkspace(directory)};
+  WorkspaceDialog popupWorkspace{QDir::currentPath(), workspaceGenerator::getSuggestedWorkspaceCurrentDirectory()};
   if (popupWorkspace.exec() != QDialog::Accepted)
   {
     return false;

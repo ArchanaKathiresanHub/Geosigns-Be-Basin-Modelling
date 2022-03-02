@@ -25,6 +25,12 @@ QString getSuggestedWorkspace(const QString &currentPath)
   return rootPath + workspaceName;
 }
 
+QString getSuggestedWorkspaceCurrentDirectory()
+{
+  const QString workspaceName = "/casaWorkspace-" + getTimeStamp();
+  return QDir::currentPath() + workspaceName;
+}
+
 bool createWorkspace(const QString& currentPath, const QString& newFolderPath)
 {    
   QDir originalWorkspacelocation{currentPath};

@@ -23,7 +23,7 @@ void exportScenarioToZip(const QDir& sourceDir, const QString& workingDirectory,
 
 void processCommand(QProcess& process, const QString& command);
 
-void cleanFolder(const QDir& folder, const QString& projectFile);
+void cleanFolder(const QDir& folder);
 
 } // namespace functions
 

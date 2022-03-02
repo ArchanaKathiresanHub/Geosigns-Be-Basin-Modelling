@@ -17,10 +17,10 @@ class WorkspaceDialog : public QDialog
   Q_OBJECT
 
 public:
-  explicit WorkspaceDialog(const QString originalPath, const QString sugestedPath, const QString& windowTitle = "", QWidget* parent = nullptr);
+  WorkspaceDialog(const QString originalPath, const QString suggestedPath, const QString& windowTitle = "Select workspace", QWidget* parent = nullptr);
 
   QString optionSelected() const;
-  QString userWorkspaceLocation() const;
+  QString userWorkspaceLocation(const QString startingPath = "") const;
 
   void addOption(const QString& variableName, const double value = 0);
   void addComboBox(const QString& variableName, const QStringList& options, const QString& selectedOption = "");

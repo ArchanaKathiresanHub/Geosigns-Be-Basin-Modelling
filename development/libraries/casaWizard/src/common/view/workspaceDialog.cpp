@@ -37,7 +37,7 @@ WorkspaceDialog::WorkspaceDialog(const QString originalPath, const QString sugge
   radio2_ = new CustomRadioButton("Option 2.- Current working directory: \n\n " + originalPath + "\n");
   radio2_->setProperty("id", originalPath);
   radio3_ = new CustomRadioButton("Option 3.- Select new directory");
-  radio3_->setProperty("id", "");
+  radio3_->setProperty("id", originalPath);
 
   radio1_->setChecked(true);
 
@@ -72,7 +72,7 @@ void WorkspaceDialog::accept()
   }
   else
   {
-    optionSelected_ = userWorkspaceLocation();
+    optionSelected_ = userWorkspaceLocation(radio3_->property("id").toString());
   }
 }
 
@@ -81,9 +81,9 @@ QString WorkspaceDialog::optionSelected() const
   return optionSelected_;
 }
 
-QString WorkspaceDialog::userWorkspaceLocation() const
+QString WorkspaceDialog::userWorkspaceLocation(const QString startingPath) const
 {
-  const QDir casaCaseDir(QFileDialog::getExistingDirectory(0, "Save CASA case to directory","",
+  const QDir casaCaseDir(QFileDialog::getExistingDirectory(nullptr, "Save CASA case to directory",startingPath,
                                                            QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks));
 
   return casaCaseDir.absolutePath();
