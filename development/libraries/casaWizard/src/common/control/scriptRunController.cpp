@@ -19,7 +19,7 @@ ScriptRunController::ScriptRunController(QObject* parent) :
   dialog_{},
   process_{new QProcess(this)},
   baseDirectory_{""},
-  script_{}
+  script_{nullptr}
 {
   dialog_.close();
   dialog_.setModal(false);
@@ -49,6 +49,10 @@ bool ScriptRunController::processCommand(const RunCommand& command)
 
   while (!process_->waitForFinished(100))
   {
+    if (!processCancelled_ && dialog_.isHidden())
+    {
+      dialog_.show(); //Only show waiting dialog if process takes longer than 100 ms.
+    }
     qApp->processEvents();
   }  
 
@@ -84,8 +88,6 @@ bool ScriptRunController::runScript(RunScript& script, QObject * receiver, const
   QTime time;
   time.start();
   Logger::log() << "Start processing: " << time.currentTime().toString() << Logger::endl();
-
-  dialog_.show();
 
   for (const RunCommand& command : script.commands())
   {
@@ -127,6 +129,7 @@ bool ScriptRunController::runScript(RunScript& script, QObject * receiver, const
 
   emit runEnded();
 
+  script_ = nullptr;
   return !processCancelled_;
 }
 
@@ -139,7 +142,7 @@ void ScriptRunController::killProcess()
 {
   processCancelled_ = true;
   Logger::log() << "Preparing interruption ... "  << Logger::endl();
-  if (script_->killAsync())
+  if (script_ != nullptr && script_->killAsync())
   {
     Logger::log() << "Interrupting running process" << Logger::endl();
   }
