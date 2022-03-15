@@ -20,32 +20,18 @@ namespace DataAccess
   {
 
     DecompositionCalculator::DecompositionCalculator(const std::vector<std::vector<int>>& domainShape, const int numCores, const int numIGlobal, const int numJGlobal,
-                                                     const int lowResI, const int lowResJ) :
+                                                     const double maxDeviationFromAverage, const int lowResI, const int lowResJ) :
       m_domainShape{domainShape},
       m_numberOfCores{numCores},
       m_totalNumberOfRemainingValidNodes{0},
       m_minimumNumberOfRowsPerCore{2},
       m_maximumNumberOfRowsPerCore{INT_MAX},
-      m_maxPercentageDeviationFromAverage{-1},
-      m_lowResIGlobal{lowResI},
-      m_lowResJGlobal{lowResJ},
+      m_maxPercentageDeviationFromAverage{maxDeviationFromAverage},
+      m_lowResNumIGlobal{lowResI},
+      m_lowResNumJGlobal{lowResJ},
       m_numIGlobal{numIGlobal},
       m_numJGlobal{numJGlobal}
     {
-      char* dynamicDecomposition = getenv("DYNAMIC_DECOMPOSITION_MAX_DEVIATION");
-      if (dynamicDecomposition)
-      {
-        std::string dynamicDecompositionString(dynamicDecomposition);
-        try
-        {
-          m_maxPercentageDeviationFromAverage = std::stod(dynamicDecompositionString);
-        }
-        catch (...)
-        {
-        }
-      }
-
-      LogHandler(LogHandler::DEBUG_SEVERITY) << "The Maximum deviation used for dynamic decomposition = " << m_maxPercentageDeviationFromAverage;
     }
 
     bool DecompositionCalculator::calculateDecomposition(int& m, int& n, std::vector<int>& cellSizesI, std::vector<int>& cellSizesJ)
@@ -92,12 +78,13 @@ namespace DataAccess
         n = 1;
       }
 
-      if (lowResDefinedAndValid())
+      if (!highResCellSizesAreValid(cellSizesILocal, cellSizesJLocal))
       {
-        if (!cellSizesAreValid(cellSizesILocal, cellSizesJLocal))
-        {
-          return false;
-        }
+        return false;
+      }
+      if (lowResDefinedAndValid() && !lowResCellSizesAreValid(cellSizesILocal, cellSizesJLocal))
+      {
+        return false;
       }
 
       cellSizesI = cellSizesILocal;
@@ -148,7 +135,7 @@ namespace DataAccess
       cellSizesI.push_back(numberOfLocalNodesI() - currentRow); // Remainder is for the last cell
     }
 
-    bool DecompositionCalculator::percentageValidNodesHigherThan80()
+    bool DecompositionCalculator::percentageValidNodesHigherThan80() const
     {
       double totalNumberOfValidNodes = 0.0;
       for (const auto& row : m_domainShape)
@@ -222,7 +209,7 @@ namespace DataAccess
       return numberOfRowsForCurrentCore;
     }
 
-    int DecompositionCalculator::getNumberOfValidDomainNodesInRow(const size_t currentRow)
+    int DecompositionCalculator::getNumberOfValidDomainNodesInRow(const size_t currentRow) const
     {
       int numberOfValidDomainNodesInRow = 0;
       for (size_t j = 0; j < numberOfLocalNodesJ(); j++)
@@ -233,28 +220,39 @@ namespace DataAccess
       return numberOfValidDomainNodesInRow;
     }
 
-    size_t DecompositionCalculator::numberOfLocalNodesI()
+    size_t DecompositionCalculator::numberOfLocalNodesI() const
     {
       return m_domainShape.size();
     }
 
-    size_t DecompositionCalculator::numberOfLocalNodesJ()
+    size_t DecompositionCalculator::numberOfLocalNodesJ() const
     {
       return m_domainShape[0].size();
     }
 
-    bool DecompositionCalculator::cellSizesAreValid(const std::vector<int>& cellSizesILocal,  const std::vector<int>& cellSizesJLocal)
+    bool DecompositionCalculator::lowResCellSizesAreValid(const std::vector<int>& cellSizesILocal,  const std::vector<int>& cellSizesJLocal) const
     {
-      for (const int cellSize : cellSizesILocal)
+      int scalingI = m_numIGlobal/m_lowResNumIGlobal;
+      int scalingJ = m_numJGlobal/m_lowResNumJGlobal;
+
+      // Add one to the scaling to be on the safe side when division does not have modulo 0
+      if (m_numIGlobal % m_lowResNumIGlobal != 0)
       {
-        if (cellSize/(m_numIGlobal/m_lowResIGlobal) < 2)
-        {
-          return false;
-        }
+        scalingI++;
       }
-      for (const int cellSize : cellSizesJLocal)
+      if (m_numJGlobal % m_lowResNumJGlobal != 0)
       {
-        if (cellSize/(m_numJGlobal/m_lowResJGlobal) < 2)
+        scalingJ++;
+      }
+
+      return (cellSizesAreValid(cellSizesILocal, scalingI) && cellSizesAreValid(cellSizesJLocal, scalingJ));
+    }
+
+    bool DecompositionCalculator::cellSizesAreValid(const std::vector<int>& cellSizes, const int scaling) const
+    {
+      for (const int cellSize : cellSizes)
+      {
+        if (static_cast<int>(cellSize/scaling) < m_minimumNumberOfRowsPerCore)
         {
            return false;
         }
@@ -263,18 +261,23 @@ namespace DataAccess
       return true;
     }
 
-    bool DecompositionCalculator::lowResDefinedAndValid()
+    bool DecompositionCalculator::highResCellSizesAreValid(const std::vector<int>& cellSizesILocal,  const std::vector<int>& cellSizesJLocal) const
     {
-      return (m_lowResIGlobal > 0 && m_lowResJGlobal > 0) && (m_lowResIGlobal != m_numIGlobal || m_lowResJGlobal != m_numJGlobal);
+      return (cellSizesAreValid(cellSizesILocal) && cellSizesAreValid(cellSizesJLocal));
     }
 
-    bool DecompositionCalculator::fallbackToStaticDecomposition(int& m, int& n)
+    bool DecompositionCalculator::lowResDefinedAndValid()
+    {
+      return (m_lowResNumIGlobal > 0 && m_lowResNumJGlobal > 0) && (m_lowResNumIGlobal != m_numIGlobal || m_lowResNumJGlobal != m_numJGlobal);
+    }
+
+    bool DecompositionCalculator::fallbackToStaticDecomposition(int& m, int& n) const
     {
       bool checkHighRes = calculateStaticDecomposition(m_numIGlobal, m_numJGlobal, m, n, m_numberOfCores);
       bool checkLowRes = true;
-      if (m_lowResIGlobal > 0 && m_lowResJGlobal > 0)
+      if (m_lowResNumIGlobal > 0 && m_lowResNumJGlobal > 0)
       {
-        checkLowRes = calculateStaticDecomposition(m_lowResIGlobal, m_lowResJGlobal, m, n, m_numberOfCores);
+        checkLowRes = calculateStaticDecomposition(m_lowResNumIGlobal, m_lowResNumJGlobal, m, n, m_numberOfCores);
       }
 
       return checkHighRes && checkLowRes;

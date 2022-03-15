@@ -34,6 +34,7 @@
 #include "DistributedMessageHandler.h"
 #include "DistributedApplicationGlobalOperations.h"
 #include "domainShapeReader.h"
+#include "LogHandler.h"
 
 #include "cauldronschemafuncs.h"
 #include "h5_parallel_file_types.h"
@@ -97,10 +98,19 @@ void ProjectHandle::mapFileCacheCloseFiles(void)
 
 void ProjectHandle::getDomainShape(const int numI, const int numJ, std::vector<std::vector<int> >& domainShape ) const
 {
-  char* dynamicDecomposition = getenv("DYNAMIC_DECOMPOSITION_MAX_DEVIATION");
-  if (!dynamicDecomposition)
+  char* dynamicDecomposition = getenv("DECOMPOSITION_METHOD");
+  if (dynamicDecomposition && std::string(dynamicDecomposition) == "static")
   {
+    LogHandler(LogHandler::INFO_SEVERITY) << "The Decomposition method in the Configuration is set to Static Domain Decomposition.";
     return;
+  }
+  else if (dynamicDecomposition && std::string(dynamicDecomposition) == "dynamic")
+  {
+    LogHandler(LogHandler::INFO_SEVERITY) << "The Decomposition method in the Configuration is set to Dynamic Domain Decomposition, which will be used if applicable.";
+  }
+  else
+  {
+    LogHandler(LogHandler::INFO_SEVERITY) << "The Decomposition method is not set in the Configuration, therefore the default Dynamic Domain Decomposition is used if applicable.";
   }
 
   if (m_rank == 0)
@@ -111,9 +121,6 @@ void ProjectHandle::getDomainShape(const int numI, const int numJ, std::vector<s
     {
       DomainShapeReader reader(getMapFileName(record));
       reader.readShape(numI, numJ, domainShape);
-    }
-    if (domainShape.empty())
-    {
     }
   }
 }

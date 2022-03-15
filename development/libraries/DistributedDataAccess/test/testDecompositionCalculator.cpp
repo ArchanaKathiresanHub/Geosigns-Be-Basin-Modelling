@@ -46,27 +46,38 @@ public:
     subdomainWidths_.clear();
     subdomainHeights_.clear();
     numberOfCores_ = 0;
-#ifdef WIN32
-    _putenv_s("DYNAMIC_DECOMPOSITION_MAX_DEVIATION", "1e10");
-#else
-    putenv("DYNAMIC_DECOMPOSITION_MAX_DEVIATION=1e10");
-#endif
-  }
+}
 
   void TearDown() override
   {
-#ifdef WIN32
-	  _putenv_s("DYNAMIC_DECOMPOSITION_MAX_DEVIATION","");
-#else
-	  putenv("DYNAMIC_DECOMPOSITION_MAX_DEVIATION=");
-#endif
   }
 
-  void calculateDomain(const std::vector<std::vector<int>>& domainShape)
+  bool calculateDomain(const std::vector<std::vector<int>>& domainShape, const double maxDeviationFromAverage = 1e10)
   {
-    DecompositionCalculator calculator(domainShape, numberOfCores_, domainShape.size(), domainShape[0].size());
-    calculator.calculateDecomposition(m_, n_, subdomainWidths_, subdomainHeights_);
+    DecompositionCalculator calculator(domainShape, numberOfCores_, domainShape.size(), domainShape[0].size(), maxDeviationFromAverage);
+    return calculator.calculateDecomposition(m_, n_, subdomainWidths_, subdomainHeights_);
   }
+
+  bool calculateDomainLowRes(const std::vector<std::vector<int>>& domainShape, const int lowResNumI, const int lowResNumJ, const double maxDeviationFromAverage = 1e10)
+  {
+    DecompositionCalculator calculator(domainShape, numberOfCores_, domainShape.size(), domainShape[0].size(), maxDeviationFromAverage, lowResNumI, lowResNumJ);
+    return calculator.calculateDecomposition(m_, n_, subdomainWidths_, subdomainHeights_);
+  }
+
+  std::vector<std::vector<int>> getLargeCShapedModel()
+  {
+    return {{1, 1, 1, 1, 1, 1, 1, 1},
+            {1, 0, 0, 0, 0, 0, 0, 0},
+            {1, 0, 0, 0, 0, 0, 0, 0},
+            {1, 0, 0, 0, 0, 0, 0, 0},
+            {1, 0, 0, 0, 0, 0, 0, 0},
+            {1, 0, 0, 0, 0, 0, 0, 0},
+            {1, 0, 0, 0, 0, 0, 0, 0},
+            {1, 0, 0, 0, 0, 0, 0, 0},
+            {1, 0, 0, 0, 0, 0, 0, 0},
+            {1, 1, 1, 1, 1, 1, 1, 1}};
+  }
+
 
   int m_;
   int n_;
@@ -94,7 +105,7 @@ TEST_F(DecompositionCalculatorTest, testDecompose)
   EXPECT_EQ(n_, 1);
 }
 
-TEST_F(DecompositionCalculatorTest, testDecomposeTransposed)
+TEST_F(DecompositionCalculatorTest, testDecomposeRotated)
 {
   // Given
   std::vector<std::vector<int>> domainShape = {{1, 1, 1, 1},
@@ -202,16 +213,8 @@ TEST_F(DecompositionCalculatorTest, testDecomposeWithInvalidPoints3)
 
 TEST_F(DecompositionCalculatorTest, testDecomposeWithInvalidPointsWithoutRestriction)
 {
-  std::vector<std::vector<int>> domainShape = {{1, 1, 1, 1, 1, 1, 1, 1},
-                                               {1, 0, 0, 0, 0, 0, 0, 0},
-                                               {1, 0, 0, 0, 0, 0, 0, 0},
-                                               {1, 0, 0, 0, 0, 0, 0, 0},
-                                               {1, 0, 0, 0, 0, 0, 0, 0},
-                                               {1, 0, 0, 0, 0, 0, 0, 0},
-                                               {1, 0, 0, 0, 0, 0, 0, 0},
-                                               {1, 0, 0, 0, 0, 0, 0, 0},
-                                               {1, 0, 0, 0, 0, 0, 0, 0},
-                                               {1, 1, 1, 1, 1, 1, 1, 1}};
+  std::vector<std::vector<int>> domainShape = getLargeCShapedModel();
+
   numberOfCores_ = 3;
   calculateDomain(domainShape);
 
@@ -226,23 +229,11 @@ TEST_F(DecompositionCalculatorTest, testDecomposeWithInvalidPointsWithoutRestric
 
 TEST_F(DecompositionCalculatorTest, testDecomposeWithInvalidPointsWithRestriction)
 {
-  std::vector<std::vector<int>> domainShape = {{1, 1, 1, 1, 1, 1, 1, 1},
-                                               {1, 0, 0, 0, 0, 0, 0, 0},
-                                               {1, 0, 0, 0, 0, 0, 0, 0},
-                                               {1, 0, 0, 0, 0, 0, 0, 0},
-                                               {1, 0, 0, 0, 0, 0, 0, 0},
-                                               {1, 0, 0, 0, 0, 0, 0, 0},
-                                               {1, 0, 0, 0, 0, 0, 0, 0},
-                                               {1, 0, 0, 0, 0, 0, 0, 0},
-                                               {1, 0, 0, 0, 0, 0, 0, 0},
-                                               {1, 1, 1, 1, 1, 1, 1, 1}};
+  std::vector<std::vector<int>> domainShape = getLargeCShapedModel();
+
   numberOfCores_ = 3;
-#ifdef WIN32
-  _putenv_s("DYNAMIC_DECOMPOSITION_MAX_DEVIATION","30");
-#else
-  putenv("DYNAMIC_DECOMPOSITION_MAX_DEVIATION=30");
-#endif
-  calculateDomain(domainShape);
+
+  calculateDomain(domainShape, 30);
 
   testInternalConsistencyNewMethod(domainShape);
 
@@ -255,23 +246,10 @@ TEST_F(DecompositionCalculatorTest, testDecomposeWithInvalidPointsWithRestrictio
 
 TEST_F(DecompositionCalculatorTest, testDecomposeWithInvalidPointsWithRestriction2)
 {
-  std::vector<std::vector<int>> domainShape = {{1, 1, 1, 1, 1, 1, 1, 1},
-                                               {1, 0, 0, 0, 0, 0, 0, 0},
-                                               {1, 0, 0, 0, 0, 0, 0, 0},
-                                               {1, 0, 0, 0, 0, 0, 0, 0},
-                                               {1, 0, 0, 0, 0, 0, 0, 0},
-                                               {1, 0, 0, 0, 0, 0, 0, 0},
-                                               {1, 0, 0, 0, 0, 0, 0, 0},
-                                               {1, 0, 0, 0, 0, 0, 0, 0},
-                                               {1, 0, 0, 0, 0, 0, 0, 0},
-                                               {1, 1, 1, 1, 1, 1, 1, 1}};
+  std::vector<std::vector<int>> domainShape = getLargeCShapedModel();
+
   numberOfCores_ = 3;
-#ifdef WIN32
-  _putenv_s("DYNAMIC_DECOMPOSITION_MAX_DEVIATION","0");
-#else
-  putenv("DYNAMIC_DECOMPOSITION_MAX_DEVIATION=0");
-#endif
-  calculateDomain(domainShape);
+  calculateDomain(domainShape, 0);
 
   testInternalConsistencyNewMethod(domainShape);
 
@@ -308,6 +286,85 @@ TEST_F(DecompositionCalculatorTest, testDecomposeLargerModel)
 
   testInternalConsistencyNewMethod(domainShape);
 }
+
+TEST_F(DecompositionCalculatorTest, testDecomposeWithTooManyCoresForDynamicMethodHighRes)
+{
+  std::vector<std::vector<int>> domainShape = {{1, 1, 1, 1},
+                                               {1, 0, 0, 0},
+                                               {1, 0, 0, 0},
+                                               {1, 0, 0, 0},
+                                               {1, 0, 0, 0}};
+
+  numberOfCores_ = 4;
+
+  calculateDomain(domainShape);
+
+  // Then it takes the old method.
+  EXPECT_TRUE(subdomainWidths_.empty());
+  EXPECT_TRUE(subdomainHeights_.empty());
+  EXPECT_EQ(m_, 2);
+  EXPECT_EQ(n_, 2);
+}
+
+TEST_F(DecompositionCalculatorTest, testDecomposeWithTooManyCoresForDynamicMethodLowRes)
+{
+
+  std::vector<std::vector<int>> domainShape = getLargeCShapedModel();
+
+  numberOfCores_ = 4;
+
+  calculateDomainLowRes(domainShape, 4, 4);
+
+  // Then it takes the old method.
+  EXPECT_TRUE(subdomainWidths_.empty());
+  EXPECT_TRUE(subdomainHeights_.empty());
+  EXPECT_EQ(m_, 2);
+  EXPECT_EQ(n_, 2);
+}
+
+TEST_F(DecompositionCalculatorTest, testDecomposeWithTooManyCoresForBothMethodsHighRes)
+{
+  std::vector<std::vector<int>> domainShape = {{1, 0},
+                                               {1, 1}};
+
+
+  numberOfCores_ = 5;
+
+  EXPECT_FALSE(calculateDomain(domainShape));
+}
+
+TEST_F(DecompositionCalculatorTest, testDecomposeWithTooManyCoresForBothMethodsLowRes)
+{
+  std::vector<std::vector<int>> domainShape = getLargeCShapedModel();
+
+  numberOfCores_ = 5;
+
+  EXPECT_TRUE(calculateDomain(domainShape));
+  EXPECT_FALSE(calculateDomainLowRes(domainShape, 2, 2));
+}
+
+TEST_F(DecompositionCalculatorTest, testDecomposeForWhichDynamicMethodIsJustAllowedDueToSubsampling)
+{
+  std::vector<std::vector<int>> domainShape = {{1, 1, 1, 1},
+                                               {1, 0, 0, 0},
+                                               {1, 0, 0, 0},
+                                               {1, 0, 0, 0},
+                                               {1, 0, 0, 0},
+                                               {1, 0, 0, 0},
+                                               {1, 0, 0, 0},
+                                               {1, 0, 0, 0},
+                                               {1, 1, 1, 1}};
+
+
+
+  numberOfCores_ = 2;
+
+  calculateDomainLowRes(domainShape, 5, 3);
+
+  testInternalConsistencyNewMethod(domainShape);
+}
+
+
 
 
 

@@ -58,7 +58,8 @@ DistributedGrid::DistributedGrid(double minI, double minJ,
 	int foundValidDecomposition = 0;
 	if (mpiRank == 0)
 	{
-		DecompositionCalculator decompositionCalculator(domainShape, totalNumberOfCores, numIGlobal(), numJGlobal(), lowResNumI, lowResNumJ);
+		double maxWidthDeviationPercentageForDynamicDecomposition = 25.0;
+		DecompositionCalculator decompositionCalculator(domainShape, totalNumberOfCores, numIGlobal(), numJGlobal(), maxWidthDeviationPercentageForDynamicDecomposition, lowResNumI, lowResNumJ);
 		foundValidDecomposition = decompositionCalculator.calculateDecomposition(numICores, numJCores, cellSizesI, cellSizesJ);
 		dynamicDecomposition = !cellSizesI.empty() && !cellSizesJ.empty();
 	}
@@ -111,7 +112,7 @@ DistributedGrid::DistributedGrid(double minI, double minJ,
 
 PetscErrorCode DistributedGrid::createPETSCDynamicDecomposition(int& numICores, int& numJCores, std::vector<int>& cellSizesI, std::vector<int>& cellSizesJ)
 {
-	LogHandler(LogHandler::DEBUG_SEVERITY) << "Dynamic Decomposition is used";
+	LogHandler(LogHandler::INFO_SEVERITY) << "Dynamic Domain Decomposition is used to distribute the model over the cores";
 	int lxSize = cellSizesI.size();
 	int lySize = cellSizesJ.size();
 
@@ -136,7 +137,7 @@ PetscErrorCode DistributedGrid::createPETSCDynamicDecomposition(int& numICores, 
 
 PetscErrorCode DistributedGrid::createPETSCStaticDecomposition(int& numICores, int& numJCores)
 {
-	LogHandler(LogHandler::DEBUG_SEVERITY) << "Static Decomposition is used";
+	LogHandler(LogHandler::INFO_SEVERITY) << "Static Domain Decomposition is used to distribute the model over the cores";
 	MPI_Barrier(PETSC_COMM_WORLD);
 	MPI_Bcast(&numICores, 1, MPI_INT, 0, PETSC_COMM_WORLD);
 	MPI_Bcast(&numJCores, 1, MPI_INT, 0, PETSC_COMM_WORLD);
