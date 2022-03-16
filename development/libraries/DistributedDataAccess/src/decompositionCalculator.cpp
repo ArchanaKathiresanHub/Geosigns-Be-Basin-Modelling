@@ -252,7 +252,7 @@ namespace DataAccess
     {
       for (const int cellSize : cellSizes)
       {
-        if (static_cast<int>(cellSize/scaling) < m_minimumNumberOfRowsPerCore)
+        if (static_cast<int>(cellSize/scaling) < 2) // Have a width (after scaling) of at least two grid-points for each core
         {
            return false;
         }
