@@ -23,7 +23,7 @@ CtcScenario::CtcScenario()
 
 bool CtcScenario::isCorrect() const
 {
-  if(project3dPath_.isEmpty())
+  if(m_project3dPath.isEmpty())
   {
     QMessageBox messageBox;
     messageBox.setText("Please provide the path to the project 3D file");
@@ -79,12 +79,12 @@ void CtcScenario::setCtcFilePathCTC(const QString& ctcFilePathCTC)
 
 QString CtcScenario::project3dPath() const
 {
-  return project3dPath_;
+  return m_project3dPath;
 }
 
 void CtcScenario::setProject3dPath(const QString& project3dPath)
 {
-  project3dPath_ = project3dPath;
+  m_project3dPath = project3dPath;
 }
 
 QString CtcScenario::numProc() const

@@ -21,7 +21,7 @@ namespace qtutils {
 	QString ExportApplicationPath(void);
 
 	QString IsValidNoOfProcs(QString noOfProcs);
-
+	QString getOutpurDirNameFromP3FileName(QString pathToP3File);
 	bool delay(int secs);
 
 	class FileLogger

@@ -63,6 +63,13 @@ QString qtutils::IsValidNoOfProcs(QString noOfProcs)
 	return ErrMsg;
 }
 
+QString qtutils::getOutpurDirNameFromP3FileName(QString pathToP3File)
+{
+	QFileInfo info(pathToP3File);
+	QStringList strLst = info.fileName().simplified().split(".");
+	return info.dir().absolutePath() + "/" + strLst[0] + "_CauldronOutputDir";
+}
+
 bool qtutils::delay(int secs)
 {
 	QTime dieTime = QTime::currentTime().addSecs(secs);

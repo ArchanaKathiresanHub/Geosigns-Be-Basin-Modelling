@@ -19,6 +19,8 @@
 #include "Qt_Utils.h"					 
 namespace ctcWizard
 {
+	const int Controller::MaxDirCount = 100;
+
 
 	Controller::Controller() : QObject(),
 		ui_(),
@@ -109,8 +111,7 @@ namespace ctcWizard
 		connect(&timer2, &QTimer::timeout, this, [&] { myLogger.logFromFile(info.absoluteDir().path() + "/" + fileToLog, ui_.lineEditLog()); });
 		timer2.start(WAITTIME);
 
-		QStringList strLst = info.fileName().simplified().split(".");
-		QDir dir(info.dir().absolutePath() + "/" + strLst[0] + "_CauldronOutputDir");
+		QDir dir(info.dir().absolutePath() + "/" + m_originalP3FileName.split(".project3d")[0] + "_CauldronOutputDir");
 		if (dir.exists())
 		{
 			log("BE WARNED YOUR PREVIOUS PRESSURE CALCULATION RUNS WILL BE DELETED!");
@@ -129,7 +130,7 @@ namespace ctcWizard
 		/// Define the Usual environment Variables in the VS project and also add the following the the PATH of fastcaulron.exe
 		QString CLDRN_BIN = getenv("CLDRN_BIN");
 		if (CLDRN_BIN.isEmpty()) {
-			std::cerr << "no CLDRN_BIN defined!" << std::endl;
+			qDebug() << "no CLDRN_BIN defined!";
 		}
 		else
 		{
@@ -152,24 +153,24 @@ namespace ctcWizard
 		auto wlm = workloadmanagers::WorkLoadManager::Create(cwd.toStdString() + "/cldrn.sh", workloadmanagers::WorkLoadManagerType::AUTO);
 		connect(&process, static_cast<void (QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished),
 			this, [&] {Controller::processFinished(process.exitCode(), process.exitStatus(), myLogger, info.absoluteDir().path() + "/" + fileToLog
-				, ui_.lineEditLog(),wlm->getWlmType()); });
+				, ui_.lineEditLog(), wlm->getWlmType()); });
 		QString runPT = QString::fromStdString
 		(
 			wlm->JobSubmissionCommand
 			(
 				"cldrn", "", 1800, "ctcPressureJob", fileToLog.toStdString(),
 				"", numProc.toStdString(), "", "", qtutils::AddDoubleQuotes(process.workingDirectory()).toStdString(), false, false,
-				(	qtutils::AddDoubleQuotes(MPI_BIN).toStdString() + " -n " +
+				(qtutils::AddDoubleQuotes(MPI_BIN).toStdString() + " -n " +
 					numProc.toStdString() + ' ' + (MPI_OPTIONS).toStdString() + ' ' + qtutils::AddDoubleQuotes(CLDRN_BIN).toStdString() + fpp +
 					" -project " + qtutils::AddDoubleQuotes(filePath).toStdString() + " " + cldrnRunMode.toStdString()
-				),
+					),
 				true
 			)
 		);
 
 		log("- The CWD is: " + process.workingDirectory());
 
-#ifdef DEBUG_CTC_OTHERS
+#ifdef FUTURE_USE
 		// processCommand does not work for //bsub <myJobs.sh, because i/o redirection is handled by a shell, not by QProcess or the external exe
 		auto isOk = processShCommand(process, runPT);
 #else
@@ -181,7 +182,7 @@ namespace ctcWizard
 		loop.exec(QEventLoop::ProcessEventsFlag::ExcludeUserInputEvents);
 	}
 
-	//================================
+	//=============================================================
 	void Controller::executeCtcScript(const QString& ctcFilenameWithPath, const QString numProc) const
 	{
 		log("- Start running ctc");
@@ -204,55 +205,33 @@ namespace ctcWizard
 
 		QDir scenarioDirec(info.absoluteDir().path());
 
-		QStringList fileList = baseDir.entryList(QStringList() << "*.*", QDir::Files);
+		QStringList fileList = baseDir.entryList(QStringList() << "Project.txt" << "*.hdf" << "*.HDF", QDir::Files);
 		foreach(QString file, fileList)
 		{
-			QFileInfo fileInfo(file);
-			if (!((fileInfo.completeSuffix().contains("log")) ||
-				(fileInfo.completeSuffix().contains("zip")) ||
-				(fileInfo.completeSuffix().contains("sh")) ||
-				(fileInfo.completeSuffix().contains("project3d"))))
-			{
+			if (file.compare("Inputs.HDF"))
 				QFile::copy(baseDir.path() + "/" + file, scenarioDirec.path() + "/" + file);
-			}
 		}
 		QStringList strList = info.fileName().simplified().split(".");
 
 		//Create Project_CauldronOutputDir in the CTC scenario working dir to copy the fastcauldron output files
 		QString fastCtcOutputDirPath = scenarioDirec.path() + "/" + strList[0] + "_CauldronOutputDir";
 		QDir fastCtcOutputDir(fastCtcOutputDirPath);
-		if (fastCtcOutputDir.exists())//not absolutely needed 
+		if (!fastCtcOutputDir.exists())//not absolutely needed 
 		{
-			//remove it
-			fastCtcOutputDir.removeRecursively();
-		}
-		else {
 			//create it
 			fastCtcOutputDir.mkpath(fastCtcOutputDirPath);
 		}
 
-		//Copy the fastcauldron output dir (Project_CauldronOutputDir) content to the CTC scenario working dir
 		QString fastcauldronOutputDirPath = baseDir.path() + "/" + strList[0] + "_CauldronOutputDir";
 		QDir fastcauldronOutputDir(fastcauldronOutputDirPath);
-
-		QStringList fastcbmOutputDirFileList = fastcauldronOutputDir.entryList(QStringList() << "*.*", QDir::Files);
-		foreach(QString file1, fastcbmOutputDirFileList)
-		{
-			if (fastcauldronOutputDir.entryInfoList(QDir::NoDotAndDotDot | QDir::AllEntries).count() != 0)
-			{
-				QFileInfo fileInfo(file1);
-				QFile::copy(fastcauldronOutputDirPath + "/" + file1, fastCtcOutputDirPath + "/" + file1);
-			}
-			else {
-				log("- fastcauldron output dir is empty");
-			}
-		}
-
+		// Some files, whether they are all that we meed? I dunno.
+		if (fastcauldronOutputDir.entryInfoList(QDir::NoDotAndDotDot | QDir::AllEntries).count() == 0)
+			log("- fastcauldron output dir is empty");
 #ifdef Q_OS_WIN
 		/// Define the Usual environment Variables in the VS project and also add the following the the PATH of fastctc.exe
 		QString CTC_BIN = getenv("CTC_BIN");
 		if (CTC_BIN.isEmpty()) {
-			std::cerr << "no CTC_BIN defined!" << std::endl;
+			qDebug() << "no CTC_BIN defined!";
 		}
 		else
 		{
@@ -270,9 +249,9 @@ namespace ctcWizard
 		std::string fpp = "-noofpp";
 		QString MPI_OPTIONS = "";//"-outfile-pattern 'ctc-mpi-output-rank-%r.log'";
 #endif // WIN32
-		QProcess process;		
+		QProcess process;
 		/// ctc runs too fast for log to get updated in the UI.
-		QEventLoop loop;		
+		QEventLoop loop;
 		connect(&process, static_cast<void (QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished), &loop, &QEventLoop::quit);
 
 		process.setWorkingDirectory(scenarioDirec.path());
@@ -285,30 +264,30 @@ namespace ctcWizard
 
 		auto cwd = process.workingDirectory();
 		auto wlm = workloadmanagers::WorkLoadManager::Create(cwd.toStdString() + "/cldrn.sh", workloadmanagers::WorkLoadManagerType::AUTO);
-		auto saveP3 = qtutils::AddDoubleQuotes(info.absoluteDir().path() + "/" + strList[0] + "_ctc_out.project3d").toStdString();
+		auto saveP3 = qtutils::AddDoubleQuotes(info.absoluteDir().path() + "/" + strList[0] + "_OUT.project3d").toStdString();
 
 		connect(&process, static_cast<void (QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished),
 			this, [&] {Controller::processFinished(process.exitCode(), process.exitStatus(), myLogger, info.absoluteDir().path() + "/" + fileToLog
-				, ui_.lineEditLog(),wlm->getWlmType()); });
+				, ui_.lineEditLog(), wlm->getWlmType()); });
 
 		QString runCTC = QString::fromStdString
 		(
 			wlm->JobSubmissionCommand
-			(	"cldrn", "", 1800, "ctcCalcJob", outLog.toStdString(),"", numProc.toStdString(), "", "", 
+			("cldrn", "", 1800, "ctcCalcJob", outLog.toStdString(), "", numProc.toStdString(), "", "",
 				qtutils::AddDoubleQuotes(process.workingDirectory()).toStdString(), false, false,
 				(
 					qtutils::AddDoubleQuotes(MPI_BIN).toStdString() + " -n " +
 					numProc.toStdString() + ' ' + (MPI_OPTIONS).toStdString() + ' ' + qtutils::AddDoubleQuotes(CTC_BIN).toStdString() +
 					" -merge " + fpp + " -project " + qtutils::AddDoubleQuotes(ctcFilenameWithPath).toStdString() + (" -save ") + saveP3
-				),
+					),
 				true
 			)
 		);
 
 		log("- The CWD is: " + process.workingDirectory());
 
-#ifdef DEBUG_CTC_OTHERS
-		// processCommand does not work for //bsub <myJobs.sh, because i/o redirection is handled by a shell, not by QProcess or the external exe
+#ifdef FUTURE_USE
+		// processCommand does not work for //bsub/sbatch <myJobs.sh, because i/o redirection is handled by a shell, not by QProcess or the external exe
 		auto isOk = processShCommand(process, runCTC);
 #else
 		auto isOk = processCommand(process, runCTC);
@@ -322,24 +301,21 @@ namespace ctcWizard
 
 	QString Controller::createCTCscenarioFolder(const QString& filePath) const
 	{
-		QString scenarioFolderPath;
-		QString ctcFileName = filePath;
-		int iMaxFldrCnt = 100;
-
-		QFileInfo info1(filePath);
-		QStringList strList = info1.completeSuffix().simplified().split(".");
-
-		if (strList.size() == 1)
-			ctcFileName = filePath + ".CTC";
-
-		QFileInfo info(ctcFileName);
-		QDir baseDir(info.absoluteDir().path());
-		if (info.exists())
-		{
-			baseDir.cdUp();
+		//assume the directory exists and contains some files and you want all project3d and PROJECT3D files
+		QDir directory(QFileInfo(filePath).absoluteDir().path());
+		QDir baseDir(directory);
+		QStringList project3d = directory.entryList(QStringList() << "*.project3d" << "*.PROJECT3D", QDir::Files);
+		foreach(QString filename, project3d) {
+			//do whatever you need to do
+			QFileInfo fInfo(filename);
+			if (fInfo.baseName().contains("CTC")) {
+				baseDir.cdUp();
+				break;
+			}
 		}
 
-		for (int i = 0; i < iMaxFldrCnt; ++i)
+		QString scenarioFolderPath;
+		for (int i = 0; i < MaxDirCount; ++i)
 		{
 			QString fldrName = "/" + QString::number(i + 1);
 			scenarioFolderPath = baseDir.path().append(fldrName);
@@ -371,7 +347,7 @@ namespace ctcWizard
 		return scenarioFolderPath;
 	}
 
-	void ctcWizard::Controller::FinalizeProject3dFile(const QString& oldp3file, const QString& newp3file)const
+	void ctcWizard::Controller::finalizeProject3dFile(const QString& oldp3file, const QString& newp3file) const
 	{
 		QFile oldFile(oldp3file);
 		QFile newFile(newp3file);
@@ -439,14 +415,14 @@ namespace ctcWizard
 					{
 						if (list[1].compare("")) {
 							line.replace(list[1], QString("")); // replace text in string
-#ifdef DEBUG_CTC
+#ifdef FUTURE_USE
 							qDebug() << line;
 #endif
 						}
 						if (list[2].compare(""))
 						{
 							line.replace(list[2], QString("")); // replace text in string
-#ifdef DEBUG_CTC
+#ifdef FUTURE_USE
 							qDebug() << line;
 #endif
 						}
@@ -460,7 +436,7 @@ namespace ctcWizard
 	}
 
 	// This function will delete the CTC scenario folder from which scenario for ALC has been created
-	void Controller::deleteCTCscenario(const QString& scenarioFolder)
+	void Controller::deleteCTCscenario(const QString& scenarioFolder) const
 	{
 		QTimer timer;
 		timer.start(100);
@@ -469,12 +445,13 @@ namespace ctcWizard
 			qApp->processEvents(QEventLoop::ProcessEventsFlag::ExcludeUserInputEvents);
 		}
 
-		QProcess process ;
+		QProcess process;
 		connect(&process, &QProcess::readyReadStandardOutput, [&]() {log(QString(process.readAllStandardOutput())); });
 
 
 		QDir baseDir(scenarioFolder);
 		if (baseDir.exists()) {
+
 			bool isOk = baseDir.removeRecursively();
 
 			if (isOk) {
@@ -486,7 +463,7 @@ namespace ctcWizard
 		}
 	}
 
-	void Controller::createScenarioForALC(const QString& scenarioFolder)
+	bool Controller::createScenarioForALC(const QString& scenarioFolder) const
 	{
 		QString prefix_ = "CTCv2-";
 		QString folderNameForALCscenario = "ALC_Scenario_" + qtutils::getTimeStamp(prefix_);
@@ -511,14 +488,14 @@ namespace ctcWizard
 
 		foreach(QString file, fileList1) {
 			QFileInfo fileInfo(file);
-
-			if (!fileInfo.completeSuffix().compare("project3d", Qt::CaseInsensitive))
+			auto baseName = fileInfo.baseName();
+			auto extension = fileInfo.completeSuffix();
+			if (baseName.contains("_OUT", Qt::CaseInsensitive) && !extension.compare("project3d", Qt::CaseInsensitive))
 			{
-				QStringList strLst = file.split("_");
 				QString source = scenarioFolder + "/" + file;
-				QString target = scenarioFolder + "/" + folderNameForALCscenario + "/" + strLst[0] + ".project3d";
-
-				FinalizeProject3dFile(source, target);
+				// always name the zipped p3 file as Project.project3d, import will complain otherwise 
+				QString target = scenarioFolder + "/" + folderNameForALCscenario + "/" + "Project.project3d";
+				finalizeProject3dFile(source, target);
 			}
 			else if (!file.compare("Inputs.HDF", Qt::CaseInsensitive)
 				|| !fileInfo.completeSuffix().compare("txt", Qt::CaseInsensitive)
@@ -536,12 +513,10 @@ namespace ctcWizard
 		QStringList fileList2 = cpyScenarioDirec.entryList(QStringList() << "*.*", QDir::Files);
 
 		bool success = false;
-
-
 #ifdef Q_OS_WIN
 		foreach(QString file, fileList2) {
 			success = processCommand(process, QString("zip " + folderNameForALCscenario + ".zip " + file));
-			
+
 #else
 		foreach(QString file, fileList2) {
 			success = processCommand(process, QString("zip -u " + folderNameForALCscenario + ".zip " + file));
@@ -567,9 +542,11 @@ namespace ctcWizard
 		else {
 			log("- Scenario for ALC workflow \"" + folderNameForALCscenario + ".zip\" not created, something went wrong!");
 		}
+
+		return success;
 	}
 
-	void Controller::launchCauldronMapsTool(const QString& filePath)
+	void Controller::launchCauldronMapsTool(const QString & filePath) const
 	{
 		log("- Launching cauldronmaps tool to view CTC output maps");
 
@@ -578,9 +555,7 @@ namespace ctcWizard
 		connect(&myProcs, &QProcess::readyReadStandardOutput, [&]() {log(QString(myProcs.readAllStandardOutput())); });
 		processCommand(myProcs, QString("which cauldronmaps"));
 #endif
-
 		QFileInfo info(filePath);
-
 		QTimer timer;
 		timer.start(100);
 		while (timer.remainingTime() > 0)
@@ -600,17 +575,12 @@ namespace ctcWizard
 	}
 
 
-	void Controller::mapOutputCtcScript(const QString& filePath) const
+	void Controller::mapOutputCtcScript(const QString & filePath) const
 	{
-
 		QFileInfo info(filePath);
-
 		auto cwd = info.absoluteDir().path();
-
-
 		QStringList strList = info.fileName().simplified().split(".");
-
-		if (QFileInfo(cwd + "/" + strList[0] + "_ctc_out.project3d").exists())
+		if (QFileInfo(cwd + "/" + strList[0] + "_OUT.project3d").exists())
 		{
 			QTimer timer;
 			timer.start(100);
@@ -618,29 +588,28 @@ namespace ctcWizard
 			{
 				qApp->processEvents(QEventLoop::ProcessEventsFlag::ExcludeUserInputEvents);
 			}
-			QString ctcDirName = strList[0] + "_ctc_out_CauldronOutputDir";
+			QString ctcDirName = strList[0] + "_OUT_CauldronOutputDir";
 			QDir sourceDir(cwd + "/" + strList[0] + "_CauldronOutputDir");
 			QDir destDir(cwd + "/" + ctcDirName);
 			if (!destDir.exists()) {
-				makeDirSymLinks(sourceDir, destDir);
+				if (!makeDirSymLinks(sourceDir, destDir)) qDebug() << "Can't create symlink";
 			}
 			else {
 				destDir.removeRecursively();
 				QString name = destDir.absolutePath();
 				log("deleted " + name);
-				makeDirSymLinks(sourceDir, destDir);
+				if (!makeDirSymLinks(sourceDir, destDir)) qDebug() << "Can't create symlink";
 			}
 			log("- CTC Scenario: " + info.absoluteDir().path());
 			log("- Successfully Completed!!!");
 			log("- To visualize CTC output use the button: View CTC Output Maps");
-			log("- And select project3d file: \"" + strList[0] + "_ctc_out.project3d\" from \"" + info.absoluteDir().path() + "\" to view CTC output maps");
+			log("- And select project3d file: \"" + strList[0] + "_OUT.project3d\" from \"" + info.absoluteDir().path() + "\" to view CTC output maps");
 		}
 		else
 			log("- CTC run not Successfully Completed!!!");
-
 	}
 
-	bool Controller::processCommand(QProcess& process, const QString& command) const
+	bool Controller::processCommand(QProcess & process, const QString & command) const
 	{
 		log("- Executing: " + command);
 		if (process.state() == QProcess::NotRunning)//Its not running if this is true
@@ -659,47 +628,22 @@ namespace ctcWizard
 			return false;
 		}
 		auto exitCode = process.exitCode();
-#ifdef DEBUG_CTC
+#ifdef FUTURE_USE
 		auto exitStatus = process.exitStatus();
 		qDebug() << "Exit code:" << exitCode << ' ' << exitStatus;
 #endif
 		return !exitCode;
+		}
+
+	bool ctcWizard::Controller::makeDirSymLinks(const QDir & src, const QDir & desti) const
+	{
+		QFile dir(src.absolutePath());
+		bool ok = dir.link(desti.absolutePath());
+
+		return ok;
 	}
 
-#ifdef DEBUG_CTC_OTHERS
-	bool ctcWizard::Controller::processShCommand(QProcess& process, const QString& command) const
-	{
-		log("- Executing: " + command);
-		process.start("sh", QStringList() << "-c" << command);
-		if (!process.waitForStarted()) //default wait time 30 sec
-		{
-			process.kill();
-			log("- Process stopped, did not start within 30 seconds");
-			return false;
-		}
-#if 0
-		///Warning: Calling this function from the main (GUI) thread might cause your user interface to freeze.
-		while (!process.waitForFinished(WAITTIME))
-		{
-			qApp->processEvents(QEventLoop::ProcessEventsFlag::ExcludeUserInputEvents);
-		}
-#endif
-		auto exitStatus = process.exitCode();
-		log("Exited with code:" + QString(exitStatus));
-		return true;
-	}
-#endif
-	bool ctcWizard::Controller::makeDirSymLinks(const QDir& src, const QDir& desti) const
-	{
-#ifdef Q_OS_UNIX
-		QFile::link(src.absolutePath(), desti.absolutePath());
-#else
-		boost::filesystem::create_directory_symlink(src.absolutePath().toStdString(), desti.absolutePath().toStdString());
-#endif
-		return false;
-	}
-
-	void Controller::log(const QString& text) const
+	void Controller::log(const QString & text) const
 	{
 		ui_.lineEditLog()->append(text);
 		ui_.lineEditLog()->verticalScrollBar()->setSliderPosition(
@@ -716,10 +660,10 @@ namespace ctcWizard
 		qWarning() << "error in process! " << error;
 	}
 
-	void ctcWizard::Controller::processFinished(int exitCode, QProcess::ExitStatus exitStatus, const qtutils::FileLogger& fl,
-		const QString& logFilePath, QTextEdit* theText, workloadmanagers::WorkLoadManagerType wlmType) const
+	void ctcWizard::Controller::processFinished(int exitCode, QProcess::ExitStatus exitStatus, const qtutils::FileLogger & fl,
+		const QString & logFilePath, QTextEdit * theText, workloadmanagers::WorkLoadManagerType wlmType) const
 	{
-		qDebug() << "WARNING: is the run LOCAL? " <<(wlmType == workloadmanagers::WorkLoadManagerType::LOCAL);
+		qDebug() << "WARNING: is the run LOCAL? " << (wlmType == workloadmanagers::WorkLoadManagerType::LOCAL);
 #ifdef Q_OS_UNIX
 		if (wlmType != workloadmanagers::WorkLoadManagerType::LOCAL) {
 			fl.finishupLogging(logFilePath, theText);
@@ -730,8 +674,8 @@ namespace ctcWizard
 		QString theBig = QVariant::fromValue(exitStatus).toString();
 		QString status = exitCode != 0 ? "Processing crashed" : "Processing completed successfully";
 		/// when it Crashes, the error code should help us
-		log(status + "! with " + theBig + " status & error code, " + QVariant::fromValue(exitCode).toString()+".");
+		log(status + "! with " + theBig + " status & error code, " + QVariant::fromValue(exitCode).toString() + ".");
 		log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
 	}
 
-} // namespace ctcWizard
+	} // namespace ctcWizard

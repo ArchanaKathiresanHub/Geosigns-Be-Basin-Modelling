@@ -9,7 +9,7 @@ class QPushButton;
 
 namespace ctcWizard
 {
-	constexpr const char* CTCUI_VERSION = " 1.7.2";
+	constexpr const char* CTCUI_VERSION = " 1.8";
 	class CTCtab;
 
 	class MainWindow : public QMainWindow
@@ -34,7 +34,7 @@ namespace ctcWizard
 		void slotLineEditProject3dTextChanged(const QString& project3dPath);
 
 	private:
-		QString project3dPath_;
+		QString m_project3dPath;
 		QAction* actionExit_;
 		QAction* actionOpenFile_;
 

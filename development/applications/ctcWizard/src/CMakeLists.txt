@@ -6,5 +6,12 @@ set_target_properties( ${CTCWIZARD_TARGETNAME} PROPERTIES SUFFIX ".exe" )
 target_link_libraries( ${CTCWIZARD_TARGETNAME} 
   ctcwiz
   WorkLoadManagers
+  cmbapi
+  utilities
+  DataAccess
+  TableIO
+  DataModel
+  Serial_Hdf5
+  SerialDataAccess
   )
 install_ctcwizard_application( ${CTCWIZARD_TARGETNAME} )

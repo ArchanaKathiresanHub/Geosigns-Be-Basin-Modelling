@@ -21,6 +21,7 @@ namespace ctcWizard
 	const QString outLog("out.log");
 	const QString errLog("err.log");
 
+
 	class Controller : public QObject
 	{
 		Q_OBJECT
@@ -31,15 +32,21 @@ namespace ctcWizard
 		void executeCtcScript(const QString& filePath, const QString numProc = "1") const;
 		QString createCTCscenarioFolder(const QString& filePath) const;
 		void mapOutputCtcScript(const QString& filePath) const;
-		void launchCauldronMapsTool(const QString& filePath);
+		void launchCauldronMapsTool(const QString& filePath) const;
 
 		void log(const QString& text)const;
+		QString m_originalP3FileName;
+		QString m_ctcP3FileName;
+		QString m_ctcDirName;
+		QString m_ctcOutputFileName;
+		QString m_ctcOutputDirName;
 
-
-		void createScenarioForALC(const QString& folderPath);
-		void FinalizeProject3dFile(const QString& oldFile, const QString& newFile)const;
-		void deleteCTCscenario(const QString& folderPath);
+		bool createScenarioForALC(const QString& folderPath) const;
+		/// clean the RDA and Basalt Maps from p3 file since BPA2-Basin does not have map-type for the same import will fail
+		void finalizeProject3dFile(const QString& oldFile, const QString& newFile)const;
+		void deleteCTCscenario(const QString& folderPath) const;
 		void showUI();
+		static const int MaxDirCount;
 
 	private slots:
 		void slotActionExitTriggered();
@@ -52,7 +59,7 @@ namespace ctcWizard
 	private:
 		void createConnections() const;
 		bool processCommand(QProcess& process, const QString& command) const;
-#ifdef DEBUG_CTC_OTHERS
+#ifdef FUTURE_USE
 		bool processShCommand(QProcess& process, const QString& command) const;
 #endif
 		bool makeDirSymLinks(const QDir& src, const QDir& desti) const;
@@ -62,7 +69,7 @@ namespace ctcWizard
 		// This is a new CTCcontroller
 		QVector<QObject*> subControllers_;
 
-		signals:
+	signals:
 	};
 
 } // namespace ctcWizard

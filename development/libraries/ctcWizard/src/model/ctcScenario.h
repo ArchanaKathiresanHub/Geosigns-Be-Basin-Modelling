@@ -52,7 +52,7 @@ public:
 
 private:
   QString ctcFilePathCTC_="";
-  QString project3dPath_="";
+  QString m_project3dPath="";
   QString numProc_= "1";
   QString runMode_="Decompaction";
   QVector<LithosphereParameter> lithosphereParameters_;
