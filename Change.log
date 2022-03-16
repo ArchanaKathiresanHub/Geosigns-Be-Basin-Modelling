@@ -36,6 +36,17 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2022-03-16  arijit.khan Khan  <arijit.khan@shell.com>
+
+	dev: chg: Introduction of CMB api with ctcwiz library !wip.
+	 * Introduction of CMBapi wrapper with ctcwiz library for cosistency
+     * ctcwiard version upgraded to 1.8 from 1.7.2	 
+
+	Related work items: #425341
+	================== COMMIT-END ========================
+	Commit-ID:<95b4a4485341db8b708d300b071f8d65d0987533>	  (refs/heads/master, refs/heads/Developers/Arijit.Khan/ctcwizardChangeLogUpdate)
+
+++
 2022-02-10  Richard Faasse  <Richard.Faasse@shell.com>
 
 	new: dev: usr: Implement Dynamic Decomposition !major.
