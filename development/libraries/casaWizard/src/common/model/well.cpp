@@ -58,7 +58,7 @@ void Well::readFromFile(const ScenarioReader& reader)
   y_ = reader.readDouble(wellName + "y");
   isActive_ = reader.readBool(wellName + "isActive");
   isExcluded_ = reader.readBool(wellName+ "isExcluded");
-  calibrationTargets_ = reader.readVector<CalibrationTarget>(wellName + "targets");  
+  calibrationTargets_ = reader.readVector<CalibrationTarget>(wellName + "targets");
 
   const int version = reader.readInt(wellName + "version");
   if (version > 3)
@@ -239,11 +239,11 @@ bool Well::removeCalibrationTargetsWithPropertyUserName(const QString& propertyU
 {
   QVector<CalibrationTarget> targets;
   bool removedTargets = false;
-  for (int i = calibrationTargets_.size() - 1; i >= 0  ; i--)
+  for (const CalibrationTarget& target : calibrationTargets_)
   {
-    if (calibrationTargets_[i].propertyUserName() != propertyUserName)
+    if (target.propertyUserName() != propertyUserName)
     {
-      targets.push_back(calibrationTargets_[i]);
+      targets.push_back(target);
     }
     else
     {

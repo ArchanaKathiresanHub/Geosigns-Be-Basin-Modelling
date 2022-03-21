@@ -1,7 +1,7 @@
 #include "calibrationTargetManager.h"
 
 #include "logger.h"
-#include "model/dtToTwoWayTimeConverter.h"
+#include "model/DTToTwoWayTimeConverter.h"
 #include "model/functions/filterData.h"
 #include "model/input/cmbMapReader.h"
 #include "model/oneDModelDataExtractor.h"
@@ -806,8 +806,6 @@ void CalibrationTargetManager::convertDTtoTWT(const std::string& iterationFolder
   const OneDModelDataExtractor extractor(*this, iterationFolder, project3dFilename);
   const ModelDataPropertyMap data = extractor.extract("TwoWayTime");
 
-  const DTToTwoWayTimeConverter converter;
-
   const QString convertedTWTName = "TWT_FROM_DT";
   const QString sonicSlownessUserName = "SonicSlowness";
 
@@ -845,7 +843,7 @@ void CalibrationTargetManager::convertDTtoTWT(const std::string& iterationFolder
         depth.push_back(target->z());
       }
 
-      const std::vector<double> twt = converter.convertToTWT(sonicSlowness, depth, modelDataForWell.second, modelDataForWell.first);
+      const std::vector<double> twt = DTToTwoWayTimeConverter::convertToTWT(sonicSlowness, depth, modelDataForWell.second, modelDataForWell.first);
 
       for (int i = 0; i < twt.size(); i++)
       {
