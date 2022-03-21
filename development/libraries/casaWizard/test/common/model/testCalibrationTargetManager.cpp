@@ -358,31 +358,35 @@ TEST(CalibrationTargetManagerTest, testConvertDTtoTWT)
   casaWizard::CalibrationTargetManager manager;
   manager.addWell("10_AML2_AV", 184550, 608300);
   manager.addCalibrationTarget("Test", "SonicSlowness", 0, 100, 100);
+  manager.addCalibrationTarget("Test", "SonicSlowness", 0, 200, 200);
   manager.addWell("11_AMN1_AV", 192000, 615000);
   manager.addCalibrationTarget("Test", "SonicSlowness", 1, 100, 100);
+  manager.addCalibrationTarget("Test", "SonicSlowness", 1, 200, 200);
   manager.setWellIsActive(false, 1);
   manager.addToMapping("SonicSlowness", "SonicSlowness");
 
   manager.convertDTtoTWT("./original1d/CaseSet/Iteration_1/", "Project.project3d");
 
-  EXPECT_EQ(manager.well(0).calibrationTargets().size(), 2);
-  EXPECT_EQ(manager.well(1).calibrationTargets().size(), 1);
+  EXPECT_EQ(manager.well(0).calibrationTargets().size(), 4);
+  EXPECT_EQ(manager.well(1).calibrationTargets().size(), 2);
 }
 
 TEST(CalibrationTargetManagerTest, testConvertDTfromVPtoTWT)
 {
   casaWizard::CalibrationTargetManager manager;
   manager.addWell("10_AML2_AV", 184550, 608300);
-  manager.addCalibrationTarget("Test", "DT_FROM_VP", 0, 100, 100);
+  manager.addCalibrationTarget("Test", "SonicSlowness", 0, 100, 100);
+  manager.addCalibrationTarget("Test", "SonicSlowness", 0, 200, 200);
   manager.addWell("11_AMN1_AV", 192000, 615000);
-  manager.addCalibrationTarget("Test", "DT_FROM_VP", 1, 100, 100);
+  manager.addCalibrationTarget("Test", "SonicSlowness", 1, 100, 100);
+  manager.addCalibrationTarget("Test", "SonicSlowness", 1, 200, 200);
   manager.setWellIsActive(false, 1);
   manager.addToMapping("DT_FROM_VP", "SonicSlowness");
 
   manager.convertDTtoTWT("./original1d/CaseSet/Iteration_1/", "Project.project3d");
 
-  EXPECT_EQ(manager.well(0).calibrationTargets().size(), 2);
-  EXPECT_EQ(manager.well(1).calibrationTargets().size(), 1);
+  EXPECT_EQ(manager.well(0).calibrationTargets().size(), 4);
+  EXPECT_EQ(manager.well(1).calibrationTargets().size(), 2);
 }
 
 TEST(CalibrationTargetManagerTest, testConvertDTtoTWTWithoutDTData)
@@ -405,8 +409,12 @@ TEST(CalibrationTargetManagerTest, testConvertDTtoTWT_MultipleTimes)
   casaWizard::CalibrationTargetManager manager;
   manager.addWell("10_AML2_AV", 184550, 608300);
   manager.addCalibrationTarget("Test", "SonicSlowness", 0, 100, 100);
+  manager.addCalibrationTarget("Test", "SonicSlowness", 0, 200, 200);
+
   manager.addWell("11_AMN1_AV", 192000, 615000);
   manager.addCalibrationTarget("Test", "SonicSlowness", 1, 100, 100);
+  manager.addCalibrationTarget("Test", "SonicSlowness", 1, 200, 200);
+
   manager.setWellIsActive(false, 1);
   manager.addToMapping("SonicSlowness", "SonicSlowness");
 
@@ -414,8 +422,8 @@ TEST(CalibrationTargetManagerTest, testConvertDTtoTWT_MultipleTimes)
   manager.convertDTtoTWT("./original1d/CaseSet/Iteration_1/", "Project.project3d");
   manager.convertDTtoTWT("./original1d/CaseSet/Iteration_1/", "Project.project3d");
 
-  EXPECT_EQ(manager.well(0).calibrationTargets().size(), 2);
-  EXPECT_EQ(manager.well(1).calibrationTargets().size(), 1);
+  EXPECT_EQ(manager.well(0).calibrationTargets().size(), 4);
+  EXPECT_EQ(manager.well(1).calibrationTargets().size(), 2);
 }
 
 TEST(CalibrationTargetManagerTest, testConvertVPtoDT)
