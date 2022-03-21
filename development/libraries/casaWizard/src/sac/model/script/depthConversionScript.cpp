@@ -96,7 +96,7 @@ void DepthConversionScript::writeScriptContents(QFile& file) const
 
   out << QString::fromStdString(workloadManager_->JobSubmissionCommand("cldrn", "", -1, "\"Fastcauldron T2Z conversion run\"", "output.log",
                                                                    "err.log", std::to_string(scenario_.t2zNumberCPUs()), "", "", baseDirectory().toStdString(), false, true,
-                                                                   getDepthConversionCommand().toStdString())) << "\n";
+                                                                   getDepthConversionCommand().toStdString(), true)) << "\n";
 }
 
 QString DepthConversionScript::getDepthConversionCommand() const
