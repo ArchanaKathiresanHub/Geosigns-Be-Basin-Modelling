@@ -55,7 +55,7 @@ void ObjectiveFunctionManager::setVariables(const QStringList& variables, const 
   {
     for (ObjectiveFunctionValue& val : values_)
     {
-      val.setWeight(1.0/values_.size());
+      val.setWeight(1.0);
     }
   }
 }
@@ -195,7 +195,7 @@ ObjectiveFunctionValue ObjectiveFunctionManager::createObjectiveFunctionValue(co
   defaultValueMap.insert(QString("SonicSlowness"), {0.0, 0.05});
   defaultValueMap.insert(QString("Pressure"), {0.0, 0.01});
   defaultValueMap.insert(QString("Temperature"), {10.0, 0.0});
-  defaultValueMap.insert(QString("VRe"), {0.1, 0.0});
+  defaultValueMap.insert(QString("VRe"), {0.2, 0.0});
   defaultValueMap.insert(QString("Velocity"), {0.0, 0.1});
 
   const QString variableCauldronName = userNameToCauldronNameMapping_.value(variableUserName, "Unknown");

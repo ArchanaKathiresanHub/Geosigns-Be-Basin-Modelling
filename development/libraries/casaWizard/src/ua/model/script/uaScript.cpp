@@ -131,7 +131,7 @@ void UAScript::writeTargets(QTextStream& out, bool prediction) const
   const CalibrationTargetManager& calibrationTargetManager = scenario_.calibrationTargetManager();
   for (const Well* well : calibrationTargetManager.activeWells())
   {
-    for (const CalibrationTarget* calibrationTarget : well->calibrationTargets())
+    for (const CalibrationTarget* calibrationTarget : well->activePropertyTargets())
     {
       out << writeCalibrationTarget(*calibrationTarget, well);
     }

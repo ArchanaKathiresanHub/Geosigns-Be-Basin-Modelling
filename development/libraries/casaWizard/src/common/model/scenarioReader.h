@@ -22,12 +22,16 @@ public:
   template <typename Type>
   QVector<Type> readVector(const QString& key) const;
 
+  template <typename Type, typename Type2>
+  QMap<Type, Type2> readMap(const QString& key) const;
+
+
   template <typename Type>
   QVector<Type*> readAndCreateVector(const QString& key) const;
 
 private:
   template<typename Type>
-  Type createVectorEntry(const QString& entry) const;
+  Type createEntry(const QString& entry) const;
 
   int extractVersion(QStringList& parameters) const;
 
@@ -36,6 +40,7 @@ private:
   QMap<QString, double> doubles_;
   QMap<QString, QString> strings_;
   QMap<QString, QStringList> vectors_;
+  QMap<QString, QMap<QString, QString>> maps_;
 };
 
 template<typename Type>
@@ -47,10 +52,21 @@ QVector<Type> ScenarioReader::readVector(const QString& key) const
     if (!entry.isEmpty())
     {
 
-      values.append(createVectorEntry<Type>(entry));
+      values.append(createEntry<Type>(entry));
     }
   }
   return values;
+}
+
+template<typename Type, typename Type2>
+QMap<Type, Type2> ScenarioReader::readMap(const QString& key1) const
+{
+  QMap<Type, Type2> valuesTest;
+  for (const auto& mapKey : maps_[key1].keys())
+  {
+    valuesTest.insert(createEntry<Type>(mapKey), createEntry<Type2>(maps_[key1][mapKey]));
+  }
+  return valuesTest;
 }
 
 template<typename Type>
@@ -71,16 +87,17 @@ QVector<Type*> ScenarioReader::readAndCreateVector(const QString& key) const
 }
 
 template<typename Type>
-Type ScenarioReader::createVectorEntry(const QString& entry) const
+Type ScenarioReader::createEntry(const QString& entry) const
 {
   QStringList parameters = entry.split(scenarioIO::separator);
   const int version = extractVersion(parameters);
   return Type::read(version, parameters);
 }
 
-template<> bool ScenarioReader::createVectorEntry<bool>(const QString& entry) const;
-template<> int ScenarioReader::createVectorEntry<int>(const QString& entry) const;
-template<> double ScenarioReader::createVectorEntry<double>(const QString& entry) const;
-template<> QVector<double> ScenarioReader::createVectorEntry<QVector<double>>(const QString& entry) const;
+template<> bool ScenarioReader::createEntry<bool>(const QString& entry) const;
+template<> int ScenarioReader::createEntry<int>(const QString& entry) const;
+template<> double ScenarioReader::createEntry<double>(const QString& entry) const;
+template<> QString ScenarioReader::createEntry<QString>(const QString& entry) const;
+template<> QVector<double> ScenarioReader::createEntry<QVector<double>>(const QString& entry) const;
 
 } // namespace casaWizard

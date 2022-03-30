@@ -38,6 +38,9 @@ TargetController::TargetController(TargetTab* targetTab,
   connect(parent, SIGNAL(signalUpdateTabGUI(int)), this, SLOT(slotUpdateTabGUI(int)));
 
   connect(targetTab_->pushSelectCalibration(), SIGNAL(clicked()),                   this, SLOT(slotPushSelectCalibrationClicked()));
+  connect(targetTab_->pushSelectAllVRe(), SIGNAL(clicked()),                   this, SLOT(slotPushSelectAllVReClicked()));
+  connect(targetTab_->pushSelectAllTemperatures(), SIGNAL(clicked()),                   this, SLOT(slotPushSelectAllTemperaturesClicked()));
+
   connect(targetTab_->lineEditCalibration(),   SIGNAL(textChanged(const QString&)), this, SLOT(slotLineEditCalibrationTextChanged(const QString&)));
 }
 
@@ -70,6 +73,18 @@ void TargetController::slotUpdateTabGUI(int tabID)
   refreshGUI();
 }
 
+void TargetController::slotPushSelectAllVReClicked()
+{
+   scenario_.calibrationTargetManager().setPropertyActiveForAllWells("VRe");
+   calibrationTargetController_->slotRefresh();
+}
+
+void TargetController::slotPushSelectAllTemperaturesClicked()
+{
+   scenario_.calibrationTargetManager().setPropertyActiveForAllWells("Temperature");
+   calibrationTargetController_->slotRefresh();
+}
+
 void TargetController::slotPushSelectCalibrationClicked()
 {
   QString fileName = QFileDialog::getOpenFileName(targetTab_,
@@ -82,8 +97,23 @@ void TargetController::slotPushSelectCalibrationClicked()
 
 void TargetController::slotLineEditCalibrationTextChanged(const QString& calibrationTargetsFilename)
 {
-  scenario_.clearWellsAndCalibrationTargets();
-  ImportWellPopupXlsxController controller(this, scenario_);
+   if (!scenario_.calibrationTargetManager().wells().empty())
+   {
+     QMessageBox overwriteData(QMessageBox::Icon::Information,
+                               "UA already has wells",
+                               "Would you like to overwrite or append the new wells?");
+     QPushButton* appendButton = overwriteData.addButton("Append", QMessageBox::RejectRole);
+     QPushButton* overwriteButton =overwriteData.addButton("Overwrite", QMessageBox::AcceptRole);
+     connect(appendButton, SIGNAL(clicked()), &overwriteData, SLOT(reject()));
+     connect(overwriteButton, SIGNAL(clicked()), &overwriteData, SLOT(accept()));
+
+     if (overwriteData.exec() == QDialog::Accepted)
+     {
+       scenario_.clearWellsAndCalibrationTargets();
+     }
+   }
+
+  ImportWellPopupXlsxController controller(this, scenario_, {"Temperature", "VRe", "Unknown"});
   controller.importWellsToCalibrationTargetManager({calibrationTargetsFilename}, scenario_.calibrationTargetManager());
 
   scenario_.updateObjectiveFunctionFromTargets();

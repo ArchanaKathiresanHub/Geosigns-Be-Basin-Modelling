@@ -15,7 +15,8 @@ ScenarioReader::ScenarioReader(const QString& filename) :
   ints_{},
   doubles_{},
   strings_{},
-  vectors_{}
+  vectors_{},
+  maps_{}
 {
   QFile file{filename};
   if (file.isOpen())
@@ -67,6 +68,23 @@ ScenarioReader::ScenarioReader(const QString& filename) :
       }
       vectors_.insert(list[0], entries);
     }
+    else if (list[1] == "map")
+    {
+       const int nEntries = list[2].toInt();
+       QMap<QString, QString> entries;
+       for (int i=0; i<nEntries; ++i)
+       {
+         const QString entry{in.readLine()};
+         QStringList l = entry.split(scenarioIO::separator);
+         if (l[0] != list[0])
+         {
+           throw std::runtime_error("Unexpected line for reading " + list[1].toStdString());
+         }
+         l.removeFirst();
+         entries.insert(l[0], l[1]);
+       }
+       maps_.insert(list[0], entries);
+    }
   }
 
   file.close();
@@ -104,25 +122,31 @@ int ScenarioReader::extractVersion(QStringList& parameters) const
 }
 
 template <>
-bool ScenarioReader::createVectorEntry<bool>(const QString& entry) const
+bool ScenarioReader::createEntry<bool>(const QString& entry) const
 {
   return entry=="1";
 }
 
 template <>
-int ScenarioReader::createVectorEntry<int>(const QString& entry) const
+int ScenarioReader::createEntry<int>(const QString& entry) const
 {
   return entry.toInt();
 }
 
 template <>
-double ScenarioReader::createVectorEntry<double>(const QString& entry) const
+double ScenarioReader::createEntry<double>(const QString& entry) const
 {
   return entry.toDouble();
 }
 
 template <>
-QVector<double> ScenarioReader::createVectorEntry<QVector<double>>(const QString& entry) const
+QString ScenarioReader::createEntry<QString>(const QString& entry) const
+{
+  return entry;
+}
+
+template <>
+QVector<double> ScenarioReader::createEntry<QVector<double>>(const QString& entry) const
 {
   QVector<double> value;
   for (const QString& v : entry.split(scenarioIO::listSeparator))

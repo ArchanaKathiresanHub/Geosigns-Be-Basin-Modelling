@@ -24,13 +24,18 @@ Well::Well(const int id, const QString& name, const double x, const double y, co
   isInvalid_{false},
   calibrationTargets_{calibrationTargets},
   hasDataInLayer_{},
-  metaData_{}
+  metaData_{},
+  propertyActiveState_{}
 {
+   for (const CalibrationTarget& target : calibrationTargets_)
+   {
+      propertyActiveState_[target.propertyUserName()] = true;
+   }
 }
 
 int Well::version() const
 {
-  return 4;
+  return 5;
 }
 
 void Well::writeToFile(ScenarioWriter& writer) const
@@ -47,6 +52,7 @@ void Well::writeToFile(ScenarioWriter& writer) const
   writer.writeValue(wellName + "targets", calibrationTargets_);
   writer.writeValue(wellName + "hasDataInLayer", hasDataInLayer_);
   writer.writeValue(wellName + "metaData", metaData_);
+  writer.writeValue(wellName + "activeProperties", propertyActiveState_);
 }
 
 void Well::readFromFile(const ScenarioReader& reader)
@@ -61,6 +67,10 @@ void Well::readFromFile(const ScenarioReader& reader)
   calibrationTargets_ = reader.readVector<CalibrationTarget>(wellName + "targets");
 
   const int version = reader.readInt(wellName + "version");
+  if (version > 4)
+  {
+    propertyActiveState_ = reader.readMap<QString, bool>(wellName + "activeProperties");
+  }
   if (version > 3)
   {
     metaData_ = reader.readString(wellName + "metaData");
@@ -166,7 +176,17 @@ QVector<bool> Well::hasDataInLayer() const
 
 void Well::setHasDataInLayer(QVector<bool> hasDataInLayer)
 {
-  hasDataInLayer_ = hasDataInLayer;
+   hasDataInLayer_ = hasDataInLayer;
+}
+
+QMap<QString, bool> Well::propertyActiveState() const
+{
+   return propertyActiveState_;
+}
+
+void Well::setPropertyActive(const QString& property, const bool active)
+{
+   propertyActiveState_[property] = active;
 }
 
 QVector<const CalibrationTarget*> Well::calibrationTargetsWithPropertyUserName(const QString& propertyUserName) const
@@ -189,6 +209,20 @@ QVector<const CalibrationTarget*> Well::calibrationTargets() const
   {
     targets.push_back(&target);
   }
+  return targets;
+}
+
+QVector<const CalibrationTarget*> Well::activePropertyTargets() const
+{
+  QVector<const CalibrationTarget*> targets;
+  for (const CalibrationTarget& target: calibrationTargets_)
+  {
+    if (propertyActiveState_.value(target.propertyUserName(), true))
+    {
+       targets.push_back(&target);
+    }
+  }
+
   return targets;
 }
 

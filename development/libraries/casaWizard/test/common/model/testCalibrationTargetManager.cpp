@@ -7,6 +7,8 @@
 
 #include "expectFileEq.h"
 
+#include <QSet>
+
 #include <gtest/gtest.h>
 
 TEST(CalibrationTargetManagerTest, testWriteToFile)
@@ -21,14 +23,16 @@ TEST(CalibrationTargetManagerTest, testWriteToFile)
   const int expectedIDWell0 = 0;
   const int expectedIDWell1 = 1;
   const int actualIDWell0 = manager.addWell("testWell0", 0.0, 1.0);
-  manager.addCalibrationTarget("Target1", "Temperature", actualIDWell0, 2.0, 3.0);  
+  manager.addCalibrationTarget("Target1", "Temperature", actualIDWell0, 2.0, 3.0);
   const int actualIDWell1 = manager.addWell("testWell1", 4.0, 5.0);
-  manager.addCalibrationTarget("Target2", "VReUserName", actualIDWell1, 6.0, 7.0);  
+  manager.addCalibrationTarget("Target2", "VReUserName", actualIDWell1, 6.0, 7.0);
   EXPECT_EQ(expectedIDWell0, actualIDWell0);
   EXPECT_EQ(expectedIDWell1, actualIDWell1);
 
   manager.setWellIsActive(false, 0);
   manager.setWellIsExcluded(false, 0);
+  manager.setWellActiveProperty("Temperature", false, 0);
+  manager.setWellActiveProperty("VRe", true, 0);
   manager.setWellIsActive(true, 1);
   manager.setWellIsExcluded(true, 1);
 
@@ -466,7 +470,9 @@ TEST(CalibrationTargetManagerTest, testSmoothenData)
   manager.addCalibrationTarget("target_4", "TwoWayTime", 0, 700, 400);
 
   // When
-  manager.smoothenData({"TwoWayTime"}, 200);
+  double radius = 200.0;
+  QString property = "TwoWayTime";
+  manager.smoothenData({property}, radius);
 
   // Then
   const QVector<const casaWizard::CalibrationTarget*> targets = manager.well(0).calibrationTargets();
@@ -475,6 +481,8 @@ TEST(CalibrationTargetManagerTest, testSmoothenData)
   EXPECT_DOUBLE_EQ(targets[1]->value(), 147.13859153244337);
   EXPECT_DOUBLE_EQ(targets[2]->value(), 158.51092271014977);
   EXPECT_DOUBLE_EQ(targets[3]->value(), 361.99914465090529);
+  QString expectedMetaData = "Gaussian smoothing with radius " + QString::number(radius) + " applied to " + property + " targets";
+  EXPECT_EQ(expectedMetaData, manager.well(0).metaData());
 }
 
 
@@ -489,7 +497,9 @@ TEST(CalibrationTargetManagerTest, testScaleData)
   manager.addCalibrationTarget("target_4", "TwoWayTime", 0, 700, 400);
 
   // When
-  manager.scaleData({"TwoWayTime"}, 0.1);
+  const double scalingFactor = 0.1;
+  const QString property = "TwoWayTime";
+  manager.scaleData({property}, scalingFactor);
 
   // Then
   const QVector<const casaWizard::CalibrationTarget*> targets = manager.well(0).calibrationTargets();
@@ -498,6 +508,8 @@ TEST(CalibrationTargetManagerTest, testScaleData)
   EXPECT_DOUBLE_EQ(targets[1]->value(), 20.0);
   EXPECT_DOUBLE_EQ(targets[2]->value(), 13.0);
   EXPECT_DOUBLE_EQ(targets[3]->value(), 40.0);
+  const QString expectedMetaData = "Scaling with scaling factor " + QString::number(scalingFactor) + " applied to " + property + " targets";
+  EXPECT_EQ(expectedMetaData, manager.well(0).metaData());
 }
 
 
@@ -516,11 +528,16 @@ TEST(CalibrationTargetManagerTest, testSubsampleData)
   manager.addCalibrationTarget("target_8", "TwoWayTime", 0, 1700, 400);
 
   // When
-  manager.subsampleData({"TwoWayTime"}, 200);
+  const double length = 200.0;
+  const QString property = "TwoWayTime";
+  manager.subsampleData({property}, length);
 
   // Then
   const QVector<const casaWizard::CalibrationTarget*> targets = manager.well(0).calibrationTargets();
   EXPECT_EQ(targets.size(), 4);
+
+  QString expectedMetaData = "Subsampling with length " + QString::number(length) + " applied to " + property + " targets";
+  EXPECT_EQ(expectedMetaData, manager.well(0).metaData());
 }
 
 TEST(CalibrationTargetManagerTest, testApplyCutOff)
@@ -538,7 +555,8 @@ TEST(CalibrationTargetManagerTest, testApplyCutOff)
   manager.addCalibrationTarget("target_8", "TwoWayTime", 0, 1700, 400);
 
   QMap<QString,QPair<double,double>> propertiesWithCutOffRanges;
-  propertiesWithCutOffRanges["TwoWayTime"] = {110,300};
+  const QString property = "TwoWayTime";
+  propertiesWithCutOffRanges[property] = {110,300};
 
   // When
   manager.applyCutOff(propertiesWithCutOffRanges);
@@ -546,6 +564,15 @@ TEST(CalibrationTargetManagerTest, testApplyCutOff)
   // Then
   const QVector<const casaWizard::CalibrationTarget*> targets = manager.well(0).calibrationTargets();
   EXPECT_EQ(targets.size(), 4);
+  const QString expectedMetaData = "Cut off " + QString::number(4) + " targets of property " + property + " outside the range [" +
+        QString::number(propertiesWithCutOffRanges[property].first) + ", " +
+        QString::number(propertiesWithCutOffRanges[property].second) + "]";
+
+  EXPECT_EQ(expectedMetaData, manager.well(0).metaData());
+
+  // When applying again, metadata should not be changed
+  manager.applyCutOff(propertiesWithCutOffRanges);
+  EXPECT_EQ(expectedMetaData, manager.well(0).metaData());
 }
 
 TEST(CalibrationTargetManagerTest, testRenamePropertiesAfterImport)
@@ -564,4 +591,28 @@ TEST(CalibrationTargetManagerTest, testRenamePropertiesAfterImport)
 
   EXPECT_EQ(manager.calibrationTargets()[0]->propertyUserName(), "TwoWayTime");
   EXPECT_EQ(manager.calibrationTargets()[1]->propertyUserName(), "TWT_FROM_DT");
+}
+
+TEST(CalibrationTargetManagerTest, test)
+{
+   casaWizard::CalibrationTargetManager manager;
+   manager.addWell("Well_1", 0, 0);
+   manager.addCalibrationTarget("test", "TwoWayTime", 0, 100, 200);
+   manager.addCalibrationTarget("test", "VRe", 0, 100, 200);
+   manager.addCalibrationTarget("test", "Temperature", 0, 100, 200);
+   manager.addWell("Well_2", 0, 0);
+   manager.addCalibrationTarget("test", "TwoWayTime", 1, 100, 200);
+   manager.addWell("Well_3", 0, 0);
+   manager.addCalibrationTarget("test", "TwoWayTime", 2, 100, 200);
+   manager.addCalibrationTarget("test", "VRe", 2, 100, 200);
+
+   QMap<QString, QSet<int>> propertyNamesPerWell = manager.getPropertyNamesPerWellForTargetTable();
+   EXPECT_EQ(propertyNamesPerWell.size(), 3);
+   EXPECT_EQ(propertyNamesPerWell["TwoWayTime"].size(), 3);
+   EXPECT_EQ(propertyNamesPerWell["VRe"].size(), 2);
+   EXPECT_EQ(propertyNamesPerWell["Temperature"].size(), 1);
+
+   manager.setShowPropertiesInTable(false);
+   propertyNamesPerWell = manager.getPropertyNamesPerWellForTargetTable();
+   EXPECT_EQ(propertyNamesPerWell.size(), 0);
 }

@@ -13,7 +13,7 @@ class CalibrationTargetTable : public QTableWidget
 public:
   explicit CalibrationTargetTable(QWidget* parent = nullptr);
 
-  void updateTable(const QVector<const Well *> wells, const QMap<QString, QSet<int>>& propertyNamesPerWell);
+  virtual void updateTable(const QVector<const Well *> wells, const QMap<QString, QSet<int>>& propertyNamesPerWell);
 
   void selectAllWells();
   void clearWellSelection();
@@ -22,7 +22,16 @@ public:
 
 signals:
   void checkBoxChanged(int, int);
+  void activePropertyCheckBoxChanged(int, int, QString);
 
+protected:
+  void updateTableBase(const QVector<const Well*> wells, const QMap<QString, QSet<int> >& propertyNamesPerWell);
+
+private:
+  virtual bool addEnabledCheckBox();
+  virtual int wellNameColumn();
+  virtual int wellXColumn();
+  virtual int wellYColumn();
 };
 
 }  // namespace casaWizard

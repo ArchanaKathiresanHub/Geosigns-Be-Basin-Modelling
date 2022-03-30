@@ -76,6 +76,13 @@ QString ScenarioWriter::writeVectorEntry<double>(const double& value)
 }
 
 template <>
+QString ScenarioWriter::writeVectorEntry<QString>(const QString& value)
+{
+  return value;
+}
+
+
+template <>
 QString ScenarioWriter::writeVectorEntry<QVector<double>>(const QVector<double>& value)
 {
   QStringList list;

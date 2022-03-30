@@ -82,3 +82,23 @@ TEST(WellTest, testCalibrationTargetsWithPropertyUserName)
   // Then
   EXPECT_EQ(targets.size(), 3);
 }
+
+
+TEST(WellTest, testGetActivePropertyTargets)
+{
+  // Given
+  Well well(0, "Well1", 0.0, 0.0);
+  well.addCalibrationTarget("target1", "Temperature", 600, 300);
+  well.addCalibrationTarget("target2", "Temperature", 700, 300);
+  well.addCalibrationTarget("target3", "Temperature", 500, 300);
+  well.addCalibrationTarget("otherTarget", "VRe", 800, 300);
+  well.addCalibrationTarget("otherTarget", "VRe", 900, 300);
+
+  EXPECT_EQ(well.calibrationTargets().size(), 5);
+
+  well.setPropertyActive("VRe", false);
+
+  // Then
+  EXPECT_EQ(well.activePropertyTargets().size(), 3);
+}
+

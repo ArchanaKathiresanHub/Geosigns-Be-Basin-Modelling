@@ -1,5 +1,5 @@
 CalibrationTargetManagerVersion|int|2
-well0version|int|4
+well0version|int|5
 well0id|int|0
 well0name|string|testWell0
 well0x|double|0.000000
@@ -11,7 +11,10 @@ well0targets|vector|1
 well0targets|0|Target1|Temperature|2|3|0|1
 well0hasDataInLayer|vector|0
 well0metaData|string|
-well1version|int|4
+well0activeProperties|map|2
+well0activeProperties|Temperature|0
+well0activeProperties|VRe|1
+well1version|int|5
 well1id|int|1
 well1name|string|testWell1
 well1x|double|4.000000
@@ -23,6 +26,7 @@ well1targets|vector|1
 well1targets|0|Target2|VReUserName|6|7|0|1
 well1hasDataInLayer|vector|0
 well1metaData|string|
+well1activeProperties|map|0
 wellIndices|vector|2
 wellIndices|0
 wellIndices|1

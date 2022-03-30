@@ -1,8 +1,9 @@
 #include "targetTab.h"
 
-#include "view/calibrationTargetTable.h"
-#include "view/objectiveFunctionTable.h"
+#include "view/CalibrationTargetTableUA.h"
+#include "view/components/customtitle.h"
 #include "view/depthTargetTable.h"
+#include "view/objectiveFunctionTable.h"
 #include "view/surfaceTargetTable.h"
 
 #include <QHBoxLayout>
@@ -20,38 +21,42 @@ namespace ua
 TargetTab::TargetTab(QWidget* parent) :
   QWidget(parent),
   depthTargetTable_{new DepthTargetTable(this)},
-  calibrationTargetTable_{new CalibrationTargetTable(this)},
+  calibrationTargetTable_{new CalibrationTargetTableUA(this)},
   objectiveFunctionTable_{new ObjectiveFunctionTable(this)},
   surfaceTargetTable_{new SurfaceTargetTable(this)},
   lineEditCalibration_{new QLineEdit(this)},
-  pushSelectCalibration_{new QPushButton("Select", this)}
+  pushSelectCalibration_{new QPushButton("Select", this)},
+  pushSelectAllTemperatures_{new QPushButton("Select all temperatures", this)},
+  pushSelectAllVRe_{new QPushButton("Select all VRe's", this)}
 {
   QHBoxLayout* selectionLayout = new QHBoxLayout();
-  selectionLayout->addWidget(new QLabel("Calibration targets", this));
+  selectionLayout->addWidget(new QLabel("Well Data upload", this));
   selectionLayout->addWidget(lineEditCalibration_);
   selectionLayout->addWidget(pushSelectCalibration_);
 
-  QGridLayout* tablesLayout = new QGridLayout();
-  tablesLayout->addWidget(new QLabel("Wells", this), 0, 0);
-  tablesLayout->addWidget(new QLabel("Prediction targets", this), 0, 1);
-  tablesLayout->addWidget(new QLabel("Objective function", this), 0, 2);
-  tablesLayout->setColumnStretch(0, 2);
-  tablesLayout->setColumnStretch(1, 3);
-  tablesLayout->setColumnStretch(2, 2);
+  QHBoxLayout* tmpLayout = new QHBoxLayout();
+  tmpLayout->addWidget(new CustomTitle("Well Data", this), 0);
+  tmpLayout->addWidget(new QWidget(this), 1);
+  tmpLayout->addWidget(pushSelectAllTemperatures_);
+  tmpLayout->addWidget(pushSelectAllVRe_);
 
-  QVBoxLayout* predictionTargetTables = new QVBoxLayout();
-  predictionTargetTables->addWidget(depthTargetTable_);
-  predictionTargetTables->addWidget(surfaceTargetTable_);
-
+  QVBoxLayout* wellsLayout = new QVBoxLayout();
+  wellsLayout->addLayout(selectionLayout);
+  wellsLayout->addLayout(tmpLayout);
+  wellsLayout->addWidget(calibrationTargetTable_);
+  wellsLayout->setStretch(2, 100);
+  wellsLayout->addWidget(new CustomTitle("Data series and uncertainty ranges", this));
   objectiveFunctionTable_->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-  tablesLayout->addWidget(calibrationTargetTable_, 1, 0);
-  tablesLayout->addLayout(predictionTargetTables, 1, 1);
-  //tablesLayout->addWidget(depthTargetTable_,  1, 1);
-  tablesLayout->addWidget(objectiveFunctionTable_, 1, 2);
+  wellsLayout->addWidget(objectiveFunctionTable_);
 
-  QVBoxLayout* layout = new QVBoxLayout(this);
-  layout->addLayout(selectionLayout);
-  layout->addLayout(tablesLayout);
+  QVBoxLayout* predictionTargetsLayout = new QVBoxLayout();
+  predictionTargetsLayout->addWidget(new CustomTitle("Prediction targets", this));
+  predictionTargetsLayout->addWidget(depthTargetTable_);
+  predictionTargetsLayout->addWidget(surfaceTargetTable_);
+
+  QHBoxLayout* layout = new QHBoxLayout(this);
+  layout->addLayout(wellsLayout);
+  layout->addLayout(predictionTargetsLayout);
 }
 
 CalibrationTargetTable* TargetTab::calibrationTargetTable() const
@@ -81,7 +86,17 @@ QLineEdit* TargetTab::lineEditCalibration() const
 
 const QPushButton* TargetTab::pushSelectCalibration() const
 {
-  return pushSelectCalibration_;
+   return pushSelectCalibration_;
+}
+
+const QPushButton* TargetTab::pushSelectAllTemperatures() const
+{
+   return pushSelectAllTemperatures_;
+}
+
+const QPushButton* TargetTab::pushSelectAllVRe() const
+{
+   return pushSelectAllVRe_;
 }
 
 } // namespace ua

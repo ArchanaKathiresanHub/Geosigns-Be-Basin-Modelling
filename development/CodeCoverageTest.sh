@@ -112,6 +112,8 @@ excludeFromAnalysis libraries/casaWizard/src/common/view
 excludeFromAnalysis libraries/casaWizard/src/common/control
 excludeFromAnalysis libraries/casaWizard/src/sac/control
 excludeFromAnalysis libraries/casaWizard/src/sac/view
+excludeFromAnalysis libraries/casaWizard/src/ua/view
+excludeFromAnalysis libraries/casaWizard/src/ua/control
 
 # Install binaries and run the codecov tool using the text file as argument value for -comp 
 buildAndAnalyze

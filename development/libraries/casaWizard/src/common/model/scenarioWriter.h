@@ -4,6 +4,7 @@
 #include "scenarioIO.h"
 
 #include <QFile>
+#include <QString>
 #include <QStringList>
 #include <QTextStream>
 
@@ -24,6 +25,9 @@ public:
 
   template<typename Type>
   void writeValue(const QString& key, const QVector<Type>& values);
+
+  template <typename Type, typename Type2>
+  void writeValue(const QString& key, const QMap<Type, Type2>& values);
 
   void close();
 
@@ -60,6 +64,17 @@ void ScenarioWriter::writeValue(const QString& key, const QVector<Type>& values)
   }
 }
 
+template <typename Type, typename Type2>
+void ScenarioWriter::writeValue(const QString& key, const QMap<Type, Type2>& map)
+{
+  out_ << formatLine(key, "map", QString::number(map.size()));
+  for (const Type& mapKey: map.keys())
+  {
+    out_ << key << scenarioIO::separator
+         << writeVectorEntry(mapKey) << scenarioIO::separator << writeVectorEntry(map[mapKey]) << scenarioIO::newline;
+  }
+}
+
 template<typename Type>
 QString ScenarioWriter::writeVectorEntry(const Type& value)
 {
@@ -71,6 +86,7 @@ QString ScenarioWriter::writeVectorEntry(const Type& value)
 template <> QString ScenarioWriter::writeVectorEntry<bool>(const bool& value);
 template <> QString ScenarioWriter::writeVectorEntry<int>(const int& value);
 template <> QString ScenarioWriter::writeVectorEntry<double>(const double& value);
+template <> QString ScenarioWriter::writeVectorEntry<QString>(const QString& value);
 template <> QString ScenarioWriter::writeVectorEntry<QVector<double>>(const QVector<double>& value);
 
 } // namespace casaWizard

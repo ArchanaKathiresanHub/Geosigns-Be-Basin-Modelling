@@ -85,3 +85,12 @@ TEST( ScenarioReaderTest, testQVectorQVectorDoubleRead )
     }
   }
 }
+
+TEST( ScenarioReaderTest, testQMapStringBoolRead )
+{
+  casaWizard::ScenarioReader reader{"scenarioQMap.dat"};
+  const QMap<QString, bool> matrixActual{reader.readMap<QString, bool>("testStringBoolMap")};
+
+  EXPECT_EQ(matrixActual.size(), 3);
+
+}

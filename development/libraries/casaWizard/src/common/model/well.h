@@ -14,6 +14,7 @@
 
 #include <QStringList>
 #include <QVector>
+#include <QMap>
 
 class QString;
 class QStringList;
@@ -60,6 +61,9 @@ public:
   QVector<bool> hasDataInLayer() const;
   void setHasDataInLayer(QVector<bool> hasDataInLayer);
 
+  QMap<QString, bool> propertyActiveState() const;
+  void setPropertyActive(const QString& property, const bool active);
+
   void addCalibrationTarget(const CalibrationTarget& newTarget);
   void addCalibrationTarget(const QString& name, const QString& propertyUserName, const double z, const double value, double standardDeviation = 0.0, double uaWeight = 1.0);
   void applyObjectiveFunction(const ObjectiveFunctionManager& objectiveFunction);
@@ -73,6 +77,7 @@ public:
   void setMetaData(const QString& metaData);
   void appendMetaData(const QString& metaData);
 
+  QVector<const CalibrationTarget*> activePropertyTargets() const;
 private:
   int id_;
   QString name_;
@@ -84,6 +89,7 @@ private:
   QVector<CalibrationTarget> calibrationTargets_;
   QVector<bool> hasDataInLayer_;
   QString metaData_;
+  QMap<QString, bool> propertyActiveState_;
 };
 
 

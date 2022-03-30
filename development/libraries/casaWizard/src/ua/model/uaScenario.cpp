@@ -42,11 +42,6 @@ UAScenario::UAScenario(ProjectReader* projectReader) :
   isQcDoeOptionSelected_{},
   isStageComplete_{}
 {
-  objectiveFunctionManager().setVariables(predictionTargetManager_.predictionTargetOptions(), calibrationTargetManager().userNameToCauldronNameMapping());
-  objectiveFunctionManager().setValue(0, 1, 5);
-  objectiveFunctionManager().setValue(0, 2, 0.05);
-  objectiveFunctionManager().setValue(1, 1, 0.1);
-  applyObjectiveFunctionOnCalibrationTargets();
 }
 
 UAScenario::~UAScenario()

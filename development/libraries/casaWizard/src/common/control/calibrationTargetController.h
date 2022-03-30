@@ -23,7 +23,6 @@ public:
 
   virtual CalibrationTargetManager& calibrationTargetManager();
   virtual const CalibrationTargetManager& calibrationTargetManager() const;
-  virtual QMap<QString, QSet<int>> getPropertyNamesPerWell() const;
 
   CasaScenario& casaScenario() const;
 
@@ -37,6 +36,7 @@ public slots:
 private slots:
   void slotCalibrationTargetCheckBoxStateChanged(int state, int wellIndex);
 
+  void slotCalibrationTargetCheckBoxStateChanged(int state, int wellIndex, QString property);
 signals:
   void wellSelectionChanged();
 

@@ -30,7 +30,7 @@ Window::Window(QWidget* parent) :
   setWindowTitle("CASA Thermal Wizard");
 
   tabWidget()->addTab(doeTab_, "DoE");
-  tabWidget()->addTab(targetTab_, "Targets");
+  tabWidget()->addTab(targetTab_, "Data and prediction targets");
   tabWidget()->addTab(qcTab_, "QC");
   tabWidget()->addTab(mcmcTab_, "MCMC");
   tabWidget()->addTab(correlationsTab_, "Correlations");

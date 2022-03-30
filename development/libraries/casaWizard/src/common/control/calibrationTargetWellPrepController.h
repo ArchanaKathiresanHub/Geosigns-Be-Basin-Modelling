@@ -30,8 +30,6 @@ public:
   const CalibrationTargetManager& calibrationTargetManager() const override;
   CalibrationTargetManager& calibrationTargetManager() override;
 
-  QMap<QString, QSet<int>> getPropertyNamesPerWell() const override;
-
 public slots:
   void slotDeleteSelectedWells();
 

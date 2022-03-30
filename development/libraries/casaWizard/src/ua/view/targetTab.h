@@ -31,6 +31,8 @@ public:
   SurfaceTargetTable* surfaceTargetTable() const;
   QLineEdit* lineEditCalibration() const;
   const QPushButton* pushSelectCalibration() const;
+  const QPushButton* pushSelectAllTemperatures() const;
+  const QPushButton* pushSelectAllVRe() const;
 
 private:
   DepthTargetTable* depthTargetTable_;
@@ -40,7 +42,8 @@ private:
 
   QLineEdit* lineEditCalibration_;
   QPushButton* pushSelectCalibration_;
-
+  QPushButton* pushSelectAllTemperatures_;
+  QPushButton* pushSelectAllVRe_;
 };
 
 } // namespace ua

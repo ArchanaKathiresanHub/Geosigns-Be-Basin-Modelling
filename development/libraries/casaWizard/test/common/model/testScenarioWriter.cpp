@@ -85,3 +85,14 @@ TEST( ScenarioWriterTest,  testQVectorQVectorDoubleWrite )
   expectFileEq("scenarioMatrix.dat", "scenarioMatrixActual.dat");
 }
 
+TEST( ScenarioWriterTest,  testQMapStringBoolWrite )
+{
+  casaWizard::ScenarioWriter writer{"scenarioQMapActual.dat"};
+  const QMap<QString, bool> map{{"test1", false}, {"test2", true}, {"test3", false}};
+
+  writer.writeValue("testStringBoolMap", map);
+  writer.close();
+
+  expectFileEq("scenarioQMap.dat", "scenarioQMapActual.dat");
+}
+

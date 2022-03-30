@@ -32,20 +32,6 @@ const CalibrationTargetManager& CalibrationTargetWellPrepController::calibration
   return casaScenario().calibrationTargetManagerWellPrep();
 }
 
-QMap<QString, QSet<int>> CalibrationTargetWellPrepController::getPropertyNamesPerWell() const
-{
-  QMap<QString, QSet<int>> propertyNamesPerWell;
-  for (const Well* well :  calibrationTargetManager().wells())
-  {
-    const int wellId = well->id();
-    for ( const QString& propertyUserName : calibrationTargetManager().getPropertyUserNamesForWell(wellId))
-    {
-      propertyNamesPerWell[propertyUserName].insert(wellId);
-    }
-  }
-  return propertyNamesPerWell;
-}
-
 void CalibrationTargetWellPrepController::slotDeleteSelectedWells()
 {
   const QVector<int> wellSelection = calibrationTable()->getWellSelection();

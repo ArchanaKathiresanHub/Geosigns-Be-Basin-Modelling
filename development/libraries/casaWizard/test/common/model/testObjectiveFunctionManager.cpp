@@ -32,9 +32,9 @@ TEST(ObjectiveFunctionTest, testDefaultVector)
   QStringList values = objectiveFunction.variablesCauldronNames();
 
   const int expectedSize{variables.size()};
-  const std::vector<double> expectedAbsErr{10.0, 0.1, 0.0};
+  const std::vector<double> expectedAbsErr{10.0, 0.2, 0.0};
   const std::vector<double> expectedRelErr{0.0, 0.0, 0.01};
-  const double expectedWeight{1.0/3.0};
+  const double expectedWeight{1.0};
 
   ASSERT_EQ(values.size(), expectedSize);
   for (int i = 0; i<expectedSize; ++i)

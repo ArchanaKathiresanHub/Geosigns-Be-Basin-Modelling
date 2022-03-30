@@ -19,7 +19,8 @@ CalibrationTargetController::CalibrationTargetController(CalibrationTargetTable*
 {
   connect(calibrationTargetTable_, SIGNAL(checkBoxChanged(int, int)),
           this, SLOT(slotCalibrationTargetCheckBoxStateChanged(int, int)));
-
+  connect(calibrationTargetTable_, SIGNAL(activePropertyCheckBoxChanged(int, int, QString)),
+          this, SLOT(slotCalibrationTargetCheckBoxStateChanged(int, int, QString)));
   connect(parent, SIGNAL(signalRefreshChildWidgets()), this, SLOT(slotRefresh()));
 }
 
@@ -33,11 +34,6 @@ const CalibrationTargetManager& CalibrationTargetController::calibrationTargetMa
   return casaScenario_.calibrationTargetManager();
 }
 
-QMap<QString, QSet<int>> CalibrationTargetController::getPropertyNamesPerWell() const
-{
-  return {};
-}
-
 void CalibrationTargetController::slotSelectAllWells()
 {
   calibrationTargetTable_->selectAllWells();
@@ -49,8 +45,8 @@ void CalibrationTargetController::slotClearWellSelection()
 }
 
 void CalibrationTargetController::slotRefresh()
-{  
-  calibrationTargetTable_->updateTable(calibrationTargetManager().wells(), getPropertyNamesPerWell());
+{
+   calibrationTargetTable_->updateTable(calibrationTargetManager().wells(), calibrationTargetManager().getPropertyNamesPerWellForTargetTable());
 }
 
 CalibrationTargetTable* CalibrationTargetController::calibrationTable() const
@@ -66,6 +62,12 @@ CasaScenario& CalibrationTargetController::casaScenario() const
 void CalibrationTargetController::slotCalibrationTargetCheckBoxStateChanged(int state, int wellIndex)
 {  
   calibrationTargetManager().setWellIsActive(state == Qt::Checked, wellIndex);
+  emit wellSelectionChanged();
+}
+
+void CalibrationTargetController::slotCalibrationTargetCheckBoxStateChanged(int state, int wellIndex, QString property)
+{
+  calibrationTargetManager().setWellActiveProperty(property, state == Qt::Checked, wellIndex);
   emit wellSelectionChanged();
 }
 

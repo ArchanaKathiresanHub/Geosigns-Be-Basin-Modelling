@@ -19,7 +19,9 @@ class ImportWellPopupXlsxController : public ImportWellPopupController
 {
   Q_OBJECT
 public:
-  ImportWellPopupXlsxController(QObject* parent, CasaScenario& casaScenario);
+   ImportWellPopupXlsxController(QObject* parent, CasaScenario& casaScenario, const QStringList& allowedProperties = {"TwoWayTime", "GammaRay", "BulkDensity", "SonicSlowness",
+                                                                                                                      "Pressure", "Temperature", "VRe", "Velocity", "DT_FROM_VP",
+                                                                                                                      "TWT_FROM_DT", "Unknown"});
   ~ImportWellPopupXlsxController() final;
 
   int executeImportWellPopup(const QStringList& propertyUserNames, const QStringList& defaultCauldronNames);
@@ -31,6 +33,7 @@ private slots:
 
 private:
   ImportWellPopupXlsx* importWellPopup_;
+  QStringList allowedProperties_;
 };
 
 } // namespace casaWizard

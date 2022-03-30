@@ -14,9 +14,11 @@
 namespace casaWizard
 {
 
-ImportWellPopupXlsxController::ImportWellPopupXlsxController(QObject* parent, CasaScenario& casaScenario) :
+ImportWellPopupXlsxController::ImportWellPopupXlsxController(QObject* parent, CasaScenario& casaScenario, const QStringList& allowedProperties) :
   ImportWellPopupController(parent, casaScenario),
-  importWellPopup_(new ImportWellPopupXlsx())
+  importWellPopup_(new ImportWellPopupXlsx()),
+  allowedProperties_{allowedProperties}
+
 {
   connect(importWellPopup_, SIGNAL(acceptedClicked()), this, SLOT(slotAcceptedClicked()));
 }
@@ -29,13 +31,11 @@ ImportWellPopupXlsxController::~ImportWellPopupXlsxController()
 
 int ImportWellPopupXlsxController::executeImportWellPopup(const QStringList& propertyUserNames, const QStringList& defaultCauldronNames)
 {  
-  importWellPopup_->updateTable(propertyUserNames, defaultCauldronNames,
-                                {"TwoWayTime", "GammaRay", "BulkDensity", "SonicSlowness",
-                                 "Pressure", "Temperature", "VRe", "Velocity", "DT_FROM_VP", "TWT_FROM_DT", "Unknown"});
+  importWellPopup_->updateTable(propertyUserNames, defaultCauldronNames, allowedProperties_);
   return importWellPopup_->exec();
 }
 
-ImportWellPopup*ImportWellPopupXlsxController::importWellPopup() const
+ImportWellPopup* ImportWellPopupXlsxController::importWellPopup() const
 {
   return importWellPopup_;
 }
@@ -50,6 +50,14 @@ void ImportWellPopupXlsxController::importWellsToCalibrationTargetManager(const 
   QStringList defaultCauldronNames;
   QStringList units;
   targetCreator.getNamesAndUnits("", propertyUserNames, defaultCauldronNames, units);
+
+  for (auto& name : defaultCauldronNames)
+  {
+     if (!allowedProperties_.contains(name))
+     {
+        name = "Unknown";
+     }
+  }
 
   if (executeImportWellPopup(propertyUserNames, defaultCauldronNames) != QDialog::Accepted)
   {

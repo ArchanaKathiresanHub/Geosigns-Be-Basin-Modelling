@@ -39,6 +39,8 @@ SACScenario::SACScenario(ProjectReader* projectReader) :
 {
   activePlots_[2] = false;
   activePlots_[3] = false;
+
+  calibrationTargetManager().setShowPropertiesInTable(false);
 }
 
 QString SACScenario::stateFileNameSAC() const

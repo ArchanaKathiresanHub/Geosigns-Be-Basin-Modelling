@@ -33,6 +33,9 @@ private slots:
   void refreshGUI();
   void slotUpdateTabGUI(int tabID);
 
+  void slotPushSelectAllVReClicked();
+  void slotPushSelectAllTemperaturesClicked();
+
 signals:
   void signalRefreshChildWidgets();
 
