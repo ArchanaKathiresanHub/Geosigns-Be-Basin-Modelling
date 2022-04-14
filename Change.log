@@ -36,6 +36,27 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2022-04-14  Marnix.vandenBerg  <Marnix.vandenBerg@shell.com>
+
+	chg: usr: Option for mcmc result export in ThermalWizard mcmc tab.
+	 * Added export button for mcmc result export in mcmc tab.
+	 * Added export functionality.
+
+	Related work items: #460924
+
+	================== COMMIT-END ========================
+	Commit-ID:<4ccef73be5cf6b698785959651e2aa5145df6dbb>	  (refs/heads/master)
+
+++
+2022-03-30  Richard Faasse  <Richard.Faasse@shell.com>
+
+	chg: UA thermal wizard: General Targets tab improvements as per user feedback
+	 * Includes layout changes on the targets tab of the UA thermal wizard
+	 * Includes workflow changes in choosing the properties for the calibration targets
+	================== COMMIT-END ========================
+	Commit-ID:<eb11910f91c341f44a21a6166d9aa9434d67ff5b>	  (refs/heads/master)
+
+++
 2022-03-16  arijit.khan Khan  <arijit.khan@shell.com>
 
 	dev: chg: Introduction of CMB api with ctcwiz library !wip.
