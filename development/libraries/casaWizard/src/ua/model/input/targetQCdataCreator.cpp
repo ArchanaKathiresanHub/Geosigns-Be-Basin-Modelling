@@ -106,7 +106,6 @@ void readTargetQCs(UAScenario& scenario)
     targetIndex++;
   }
 
-  int rowInPredictionTargetTable = 0;
   for (const PredictionTarget* const predictionTarget : predictionTargetManager.predictionTargetsIncludingTimeSeries())
   {
     TargetQC targetQC(targetIndex,
@@ -122,7 +121,6 @@ void readTargetQCs(UAScenario& scenario)
                       proxyEvaluationObservables[targetIndex]);
     targetQCs.push_back(targetQC);
     targetIndex++;
-    ++rowInPredictionTargetTable;
   }
 
   std::sort(targetQCs.begin(), targetQCs.end(), [](const TargetQC& a, const TargetQC& b)

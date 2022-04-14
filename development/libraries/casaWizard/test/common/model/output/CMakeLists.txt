@@ -6,6 +6,8 @@ add_casawizard_common_gtest( NAME CMBProjectWriter
                              SOURCES testCMBProjectWriter.cpp )
 add_casawizard_common_gtest( NAME ProjectTXTManipulator
                              SOURCES testProjectTXTManipulator.cpp )
+add_casawizard_common_gtest( NAME StringSanitizer
+                             SOURCES TestStringSanitizer.cpp )
 
 add_casawizard_common_gtest( NAME ZycorWriter
                              SOURCES testZycorWriter.cpp )

@@ -14,7 +14,6 @@ class PredictionTarget
 public:
   PredictionTarget() = default;
   explicit PredictionTarget(const QString& property, const double x, const double y, const double age);
-  static PredictionTarget read(const int version, const QStringList& parameters);
   virtual ~PredictionTarget() = default;
 
   virtual int version() const = 0;

@@ -180,7 +180,6 @@ void UAScenario::setIsDoeOptionSelected(const int row, const bool isSelected)
   isDoeOptionSelected_[row] = isSelected;
 
   isQcDoeOptionSelected_.clear();
-  int i = 0;
   for (const bool& isDoeInDoeTabSelected : isDoeOptionSelected_)
   {
     if (isDoeInDoeTabSelected)
@@ -365,6 +364,48 @@ QVector<double> UAScenario::calibrationTargetDataBestMC() const
   return calibrationTargetBestMCData;
 }
 
+// This method returns the prediction target values of best matching MCMC data point (which is the first one)
+QVector<double> UAScenario::predictionTargetDataBestMC() const
+{
+  QVector<double> predictionTargetBestMCData;
+  const QVector<QVector<double>> mcDataPrediction = monteCarloDataManager_.predictionTargetMatrix();
+  const int amountOfPredictionTargets = predictionTargetManager_.amountIncludingTimeSeries();
+  if (mcDataPrediction.isEmpty() || mcDataPrediction.size() != amountOfPredictionTargets)
+  {
+    return predictionTargetBestMCData;
+  }
+
+  for (int i = 0; i < amountOfPredictionTargets; ++i)
+  {
+    predictionTargetBestMCData.push_back(mcDataPrediction[i][0]);
+  }
+  return predictionTargetBestMCData;
+}
+
+QVector<int> UAScenario::predictionDataObservablesIndexRange() const
+{
+   const int endCalibration = calibrationTargetManager().amountOfActiveCalibrationTargets();
+   const int endPrediction = endCalibration + predictionTargetManager().predictionTargetsIncludingTimeSeries().size();
+
+   QVector<int> range;
+   for (int i = endCalibration; i < endPrediction; i++)
+   {
+      range.push_back(i);
+   }
+   return range;
+}
+
+QVector<int> UAScenario::calibrationDataObservablesIndexRange() const
+{
+   const int endCalibration = calibrationTargetManager().amountOfActiveCalibrationTargets();
+
+   QVector<int> range;
+   for (int i = 0; i < endCalibration; i++)
+   {
+      range.push_back(i);
+   }
+   return range;
+}
 
 const QString UAScenario::mcTextFileName() const
 {

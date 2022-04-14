@@ -17,7 +17,7 @@ QVector<double> getPercentileValues(const QVector<double>& values, const QVector
   for (const double& p : pTargets)
   {
     const double target{s*p - 0.5};
-    const int iLow{target};
+    const int iLow{int(target)};
     const int iHigh{iLow + 1};
     if (target<1.0/s) // For very small vectors
     {

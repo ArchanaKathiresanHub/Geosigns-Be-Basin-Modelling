@@ -24,6 +24,7 @@ namespace ua
 MCMCTab::MCMCTab(QWidget* parent) :
   QWidget(parent),
   pushButtonUArunCASA_{new QPushButton("Run MCMC", this)},
+  pushButtonExportMcmcResults_{new QPushButton("Export MCMC results", this)},
   pushButtonExportOptimalCase_{new QPushButton("Export optimal settings", this)},
   pushButtonRunOptimalCase_{new QPushButton("Run optimal settings", this)},
   pushButtonAddOptimalDesignPoint_{new QPushButton("Add optimal sample as design point", this)},
@@ -38,6 +39,7 @@ MCMCTab::MCMCTab(QWidget* parent) :
   layoutStackedPlots_{new QStackedLayout{}}
 {
   pushButtonUArunCASA_->setFixedHeight(30);
+  pushButtonExportMcmcResults_->setFixedHeight(30);
   pushButtonExportOptimalCase_->setFixedHeight(30);
   pushButtonRunOptimalCase_->setFixedHeight(30);
   lineEditTimeSeries_->setReadOnly(true);
@@ -55,12 +57,13 @@ MCMCTab::MCMCTab(QWidget* parent) :
   gridLayout->addWidget(pushButtonUArunCASA_, 0, 0);
   gridLayout->addWidget(new QLabel("L2 norm", this), 0, 1);
   gridLayout->addWidget(lineEditL2normRS_, 0, 2);
-  gridLayout->addWidget(pushButtonExportOptimalCase_, 1, 0);
+  gridLayout->addWidget(pushButtonExportMcmcResults_, 1, 0);
+  gridLayout->addWidget(pushButtonExportOptimalCase_, 2, 0);
 
-  gridLayout->addWidget(pushButtonRunOptimalCase_, 2, 0);
-  gridLayout->addWidget(new QLabel("L2 norm", this), 2, 1);
-  gridLayout->addWidget(lineEditL2norm_, 2, 2);
-  gridLayout->addWidget(checkBoxHistoryPlotsMode_, 3, 0);
+  gridLayout->addWidget(pushButtonRunOptimalCase_, 3, 0);
+  gridLayout->addWidget(new QLabel("L2 norm", this), 3, 1);
+  gridLayout->addWidget(lineEditL2norm_, 3, 2);
+  gridLayout->addWidget(checkBoxHistoryPlotsMode_, 4, 0);
 
   gridLayout->addWidget(pushButtonAddOptimalDesignPoint_);
 
@@ -94,6 +97,11 @@ MCMCTab::MCMCTab(QWidget* parent) :
 const QPushButton* MCMCTab::pushButtonUArunCASA() const
 {
   return pushButtonUArunCASA_;
+}
+
+const QPushButton* MCMCTab::pushButtonExportMcmcResults() const
+{
+  return pushButtonExportMcmcResults_;
 }
 
 const QPushButton* MCMCTab::pushButtonExportOptimalCase() const

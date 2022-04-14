@@ -3,5 +3,14 @@ base_project "./CaseSet/Calibrated_calibrated/calibrated.project3d"
 doe "BaseCase"
 location "CaseSet"
 run "LOCAL" "Default"
+target XYZPoint "T" 1000 1500 100 0.0 1.0 1.0
+target XYZPoint "T" 1000 1500 100 23.0 1.0 1.0
+target XYZPoint "T" 1000 1500 100 66.0 1.0 1.0
+target XYZPoint "T" 1000 1500 100 100.0 1.0 1.0
+target XYZPoint "T" 1000 1500 100 201.0 1.0 1.0
+target XYZPoint "T" 1000 1500 100 252.0 1.0 1.0
+target XYZPoint "T" 1000 1500 100 255.0 1.0 1.0
+target XYZPoint "T" 1000 1500 100 299.0 1.0 1.0
+target XYZPoint "V" 1000 1500 400 0.0 1.0 1.0
 runDataDigger
 exportDataTxt "RunCasesObservables" "runCasesObservables.txt"

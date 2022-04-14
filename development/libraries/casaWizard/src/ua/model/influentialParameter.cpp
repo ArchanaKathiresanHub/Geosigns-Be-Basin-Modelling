@@ -19,11 +19,11 @@ namespace ua
 {
 
 InfluentialParameter::InfluentialParameter(const QString& name, const QString& casaName, const QString& label, const QString& unitSI, const int totalNumberOfParameters) :
+  arguments_{},
   name_{name},
   casaName_{casaName},
   labelName_{label},
   unitSI_{unitSI},
-  arguments_{},
   totalNumberOfParameters_{totalNumberOfParameters}
 {
 }
@@ -168,7 +168,7 @@ QString InfluentialParameter::labelName() const
 
 QString InfluentialParameter::unitSI() const
 {
-  return unitSI_;
+   return unitSI_;
 }
 
 int InfluentialParameter::totalNumberOfParameters() const

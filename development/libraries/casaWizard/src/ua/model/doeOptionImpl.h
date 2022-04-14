@@ -67,7 +67,7 @@ public:
   DoeSpaceFilling();
   QString name() const override;
   bool hasCalculatedDesignPoints() const override;
-  void calculateNDesignPoints(const int nArbitraryDesignPoints) override;
+  void calculateNDesignPoints(const int) override;
   void setArbitraryNDesignPoints(const int nArbitraryDesignPoints) override;
 };
 

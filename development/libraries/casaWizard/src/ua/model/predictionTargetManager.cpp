@@ -33,7 +33,7 @@ void addTargets(QVector<const PredictionTarget*>& allTargets, QVector<TargetType
   }
 
   int i = 0;
-  for (const TargetType target : typeTargets)
+  for (const TargetType& target : typeTargets)
   {
     if (hasTimeSeries[i])
     {

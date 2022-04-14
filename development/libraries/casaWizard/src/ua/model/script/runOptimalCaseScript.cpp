@@ -48,7 +48,7 @@ void RunOptimalCaseScript::writeScriptContents(QFile& file) const
   out << writeLocation(scenario_.runLocation());
   out << writeRun(scenario_.clusterName());
 
-  writeTargets(out, false); // Do not write the prediction targets
+  writeTargets(out, true);
   out << "exportDataTxt \"RunCasesObservables\" \"" + scenario_.runCasesObservablesTextFileName() + "\"\n";
 }
 

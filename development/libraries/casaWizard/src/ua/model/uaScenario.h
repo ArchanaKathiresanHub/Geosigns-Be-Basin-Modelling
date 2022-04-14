@@ -58,6 +58,9 @@ public:
   PredictionTargetManager& predictionTargetManager();
   const PredictionTargetManager& predictionTargetManager() const;
 
+  QVector<int> predictionDataObservablesIndexRange() const;
+  QVector<int> calibrationDataObservablesIndexRange() const;
+
   MonteCarloDataManager& monteCarloDataManager();
   const MonteCarloDataManager& monteCarloDataManager() const;
 
@@ -71,6 +74,7 @@ public:
   void setTargetQCs(const QVector<TargetQC>& targetQCs);
 
   QVector<double> calibrationTargetDataBestMC() const;
+  QVector<double> predictionTargetDataBestMC() const;
   QVector<InfluentialParameter*> influentialParametersWithRunData();
 
   QVector<bool> isDoeOptionSelected() const;

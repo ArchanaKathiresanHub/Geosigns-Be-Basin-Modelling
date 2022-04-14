@@ -68,7 +68,7 @@ void DoeTornado::calculateNDesignPoints(const int nInfluentialParameters)
   }
 }
 
-void DoeTornado::setArbitraryNDesignPoints(const int nArbitraryDesignPoints)
+void DoeTornado::setArbitraryNDesignPoints(const int /*nArbitraryDesignPoints*/)
 {
   // Nothing to be done.
 }
@@ -114,7 +114,7 @@ void DoeBoxBehnken::calculateNDesignPoints(const int nInfluentialParameters)
   }
 }
 
-void DoeBoxBehnken::setArbitraryNDesignPoints(const int nArbitraryDesignPoints)
+void DoeBoxBehnken::setArbitraryNDesignPoints(const int /*nArbitraryDesignPoints*/)
 {
   // Nothing to be done.
 }
@@ -155,7 +155,7 @@ void DoePlackettBurman::calculateNDesignPoints(const int nInfluentialParameters)
   }
 }
 
-void DoePlackettBurman::setArbitraryNDesignPoints(const int nArbitraryDesignPoints)
+void DoePlackettBurman::setArbitraryNDesignPoints(const int /*nArbitraryDesignPoints*/)
 {
   // Nothing to be done.
 }
@@ -205,7 +205,7 @@ void DoePlackettBurmanMirror::calculateNDesignPoints(const int nInfluentialParam
   }
 }
 
-void DoePlackettBurmanMirror::setArbitraryNDesignPoints(const int nArbitraryDesignPoints)
+void DoePlackettBurmanMirror::setArbitraryNDesignPoints(const int /*nArbitraryDesignPoints*/)
 {
   // Nothing to be done.
 }
@@ -235,11 +235,11 @@ void DoeFullFactorial::calculateNDesignPoints(const int nInfluentialParameters)
   }
   else
   {
-    setNDesignPoints(std::pow(2, nInfluentialParameters) + 1);
+    setNDesignPoints(int(std::pow(2, nInfluentialParameters)) + 1);
   }
 }
 
-void DoeFullFactorial::setArbitraryNDesignPoints(const int nArbitraryDesignPoints)
+void DoeFullFactorial::setArbitraryNDesignPoints(const int /*nArbitraryDesignPoints*/)
 {
   // Nothing to be done.
 }
@@ -261,7 +261,7 @@ bool DoeSpaceFilling::hasCalculatedDesignPoints() const
   return false;
 }
 
-void DoeSpaceFilling::calculateNDesignPoints(const int nArbitraryDesignPoints)
+void DoeSpaceFilling::calculateNDesignPoints(const int /*nArbitraryDesignPoints*/)
 {
   // Nothing to be done.
 }
@@ -288,7 +288,7 @@ bool DoeUserDefined::hasCalculatedDesignPoints() const
   return true;
 }
 
-void DoeUserDefined::calculateNDesignPoints(const int nArbitraryDesignPoints)
+void DoeUserDefined::calculateNDesignPoints(const int /*nArbitraryDesignPoints*/)
 {
   // Nothing to be done.
 }

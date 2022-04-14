@@ -23,6 +23,7 @@ public:
   QString name() const;
   QString labelName() const;
   QString unitSI() const;
+
   virtual void fillArguments(const ProjectReader& projectReader) = 0;
 
   int totalNumberOfParameters() const;

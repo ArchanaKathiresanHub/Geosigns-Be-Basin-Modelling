@@ -14,6 +14,7 @@ class DoeOption
 {
 public:
   DoeOption();
+  virtual ~DoeOption() = default;
   virtual QString name() const = 0;
   virtual bool hasCalculatedDesignPoints() const = 0;
   virtual void calculateNDesignPoints(const int nInfluentialParameters) = 0;

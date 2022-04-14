@@ -61,7 +61,7 @@ QString DoEScript::writeInfluentialParameter(const InfluentialParameter* influen
 
 QString DoEScript::writeDOE(const QVector<DoeOption*>& doeOptions) const
 {
-  QString doeOutput;
+  QString doeOutput;  
   for (const DoeOption* doe : doeOptions)
   {
     if (doe->name() == "UserDefined")

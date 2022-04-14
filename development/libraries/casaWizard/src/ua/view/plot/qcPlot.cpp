@@ -65,15 +65,15 @@ void QCPlot::paintEvent(QPaintEvent* event)
 
   if (hasCalibrationValue_)
   {
-    // Draw green box bottom to top, 2x standerd deviation wide
+    // Draw green box bottom to top, 2x standard deviation wide
     painter.setPen(Qt::green);
-    painter.setBrush(QColor(0.8*255, 255, 0.8*255));
+    painter.setBrush(QColor(int(0.8*255), 255, int(0.8*255)));
     QPointF p1 = valToPoint(targetValue_ - targetStandardDeviation_, minV);
     QPointF p2 = valToPoint(targetValue_ + targetStandardDeviation_, maxV);
     painter.drawRect(QRectF(p1, p2));
 
-    // Draw green box 2x standerd deviation wide and heigh
-    painter.setBrush(QColor(0.5*255, 255, 0.5*255));
+    // Draw green box 2x standard deviation wide and heigh
+    painter.setBrush(QColor(int(0.5*255), 255, int(0.5*255)));
     p1 = valToPoint(targetValue_ - targetStandardDeviation_, targetValue_ - targetStandardDeviation_);
     p2 = valToPoint(targetValue_ + targetStandardDeviation_, targetValue_ + targetStandardDeviation_);
     painter.drawRect(QRectF(p1, p2));

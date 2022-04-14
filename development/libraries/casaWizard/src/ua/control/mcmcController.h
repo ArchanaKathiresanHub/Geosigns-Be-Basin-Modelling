@@ -29,6 +29,7 @@ public:
 private slots:
   void slotPushButtonMCMCrunCasaClicked();
   void slotTablePredictionTargetClicked(int row, int column);
+  void slotPushButtonExportMcmcOutputClicked();
   void slotPushButtonExportOptimalCasesClicked();
   void slotPushButtonRunOptimalCasesClicked();
   void slotSliderHistogramsChanged(int indexTime);
