@@ -956,7 +956,7 @@ namespace DataAccess
          std::set<std::string> m_primaryList;
 
          friend class migration::Migrator;
-         void getDomainShape(const int numI, const int numJ, std::vector<std::vector<int> >& domainShape) const;
+         void getDomainShape(const int windowMinI, const int windowMaxI, const int windowMinJ, const int windowMaxJ, std::vector<std::vector<int> >& domainShape) const;
 
       };
    }

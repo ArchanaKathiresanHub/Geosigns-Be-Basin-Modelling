@@ -152,7 +152,7 @@ const std::string ProjectHandle::getFullOutputDir() const
    return ppath.path();
 }
 
-void ProjectHandle::getDomainShape( const int numI, const int numJ, std::vector<std::vector<int>>& domainShape ) const
+void ProjectHandle::getDomainShape( const int /*windowMinI*/, const int /*windowMaxI*/, const int /*windowMinJ*/, const int /*windowMaxJ*/, std::vector<std::vector<int>>& /*domainShape*/ ) const
 {
 }
 

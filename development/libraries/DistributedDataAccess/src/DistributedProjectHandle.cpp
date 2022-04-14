@@ -96,7 +96,7 @@ void ProjectHandle::mapFileCacheCloseFiles(void)
     }
 }
 
-void ProjectHandle::getDomainShape(const int numI, const int numJ, std::vector<std::vector<int> >& domainShape ) const
+void ProjectHandle::getDomainShape(const int windowMinI, const int windowMaxI, const int windowMinJ, const int windowMaxJ, std::vector<std::vector<int> >& domainShape ) const
 {
   char* dynamicDecomposition = getenv("DECOMPOSITION_METHOD");
   if (dynamicDecomposition && std::string(dynamicDecomposition) == "static")
@@ -120,7 +120,8 @@ void ProjectHandle::getDomainShape(const int numI, const int numJ, std::vector<s
     if (record)
     {
       DomainShapeReader reader(getMapFileName(record));
-      reader.readShape(numI, numJ, domainShape);
+      Window window(windowMinI, windowMaxI, windowMinJ, windowMaxJ);
+      reader.readShape(window, domainShape);
     }
   }
 }

@@ -59,6 +59,7 @@ copy_test_file(FaultFileTest.charisma)
 copy_test_file(FaultEmptyFileTest.charisma)
 copy_test_file(FaultIntersect.charisma)
 copy_test_file(FaultNoIntersect.charisma)
+copy_test_file(testDomainShapeReader.h5)
 
 add_gtest( NAME DA::TriangleTest
   SOURCES test/TriangleTest.cpp
@@ -85,6 +86,13 @@ add_gtest( NAME DA::FaultFileReaderFactoryTest
   SOURCES test/FaultFileReaderFactoryTest.cpp
   INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/../SerialDataAccess/src/Interface/
   LIBRARIES ${LIB_NAME} SerialDataAccess FileSystem
+  FOLDER "${BASE_FOLDER}/${TARGET_NAME}"
+)
+
+add_gtest( NAME DA::DomainShapeReaderTest
+  SOURCES test/domainShapeReaderTest.cpp
+  INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/../SerialDataAccess/src/Interface/
+  LIBRARIES ${LIB_NAME} SerialDataAccess
   FOLDER "${BASE_FOLDER}/${TARGET_NAME}"
 )
 

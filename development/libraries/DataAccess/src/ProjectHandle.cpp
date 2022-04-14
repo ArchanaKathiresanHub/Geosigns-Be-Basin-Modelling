@@ -3813,8 +3813,14 @@ const Interface::Grid * ProjectHandle::getHighResolutionOutputGrid() const
       double minI, minJ;
       double maxI, maxJ;
 
-      numI = database::getWindowXMax( projectIoRecord ) - database::getWindowXMin( projectIoRecord ) + 1;
-      numJ = database::getWindowYMax( projectIoRecord ) - database::getWindowYMin( projectIoRecord ) + 1;
+      const int windowXMin = database::getWindowXMin( projectIoRecord );
+      const int windowXMax = database::getWindowXMax( projectIoRecord );
+      const int windowYMin = database::getWindowYMin( projectIoRecord );
+      const int windowYMax = database::getWindowYMax( projectIoRecord );
+
+
+      numI = windowXMax - windowXMin + 1;
+      numJ = windowYMax - windowYMin + 1;
 
       deltaI = database::getDeltaX( projectIoRecord );
       deltaJ = database::getDeltaY( projectIoRecord );
@@ -3837,7 +3843,7 @@ const Interface::Grid * ProjectHandle::getHighResolutionOutputGrid() const
       scaleJ = database::getScaleY( projectIoRecord );
 
       std::vector<std::vector<int>> domain;
-      getDomainShape(numI, numJ, domain);
+      getDomainShape(windowXMin, windowXMax, windowYMin, windowYMax, domain);
 
       lowResNumI = ( numI - offsetI - 1 ) / scaleI + 1;
       lowResNumJ = ( numJ - offsetJ - 1 ) / scaleJ + 1;
