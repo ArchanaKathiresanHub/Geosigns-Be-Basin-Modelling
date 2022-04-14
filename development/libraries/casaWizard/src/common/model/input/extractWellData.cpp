@@ -7,6 +7,7 @@
 //
 
 #include "extractWellData.h"
+#include "model/logger.h"
 #include "model/wellData.h"
 
 namespace casaWizard
@@ -138,6 +139,26 @@ void ExtractWellData::mapTargetVarNames()
   {
     wellData_->calibrationTargetVarsCauldronName_.push_back(calibrationTargetVariableMaps_.value(calTargetVar, QString("Unknown")));
   }
+}
+
+void ExtractWellData::removeSpecialCharactersFromWellName()
+{
+   const QString wellNameIn = wellData_->wellName_;
+   QString& wellName = wellData_->wellName_;
+
+   //: \ / ? * [ ]
+   wellName = wellName.replace("\\","_")
+         .replace(":","_")
+         .replace("/","_")
+         .replace("?","_")
+         .replace("*","_")
+         .replace("[","_")
+         .replace("]","_");
+
+   if (wellName != wellNameIn)
+   {
+      Logger::log() << "Warning: characters :, \\, /, ?, *, [, or ] in the well name are replaced by _" << Logger::endl();
+   }
 }
 
 } // namespace casaWizard

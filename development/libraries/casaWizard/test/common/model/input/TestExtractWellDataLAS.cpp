@@ -14,7 +14,7 @@
 
 using namespace casaWizard;
 
-TEST(LASReaderTest, testReadFile)
+TEST(ExtractWellDataLAS, testReadFile)
 {
   ImportOptionsLAS options;
   ExtractWellDataLAS reader({"./Test1.las"}, options);
@@ -33,7 +33,27 @@ TEST(LASReaderTest, testReadFile)
   }
 }
 
-TEST(LASReaderTest, testReadMultipleFiles)
+TEST(ExtractWellDataLASTest, testSpecialCharactersWellName )
+{
+   const QString inputFileName{"./specialCharactersInWellName.las"};
+
+   casaWizard::ImportOptionsLAS options;
+   options.depthUserPropertyName = "DEPT";
+   QStringList names = {inputFileName};
+   casaWizard::ExtractWellDataLAS wellDataExtract{names,options};
+
+   wellDataExtract.resetExtractor();
+
+   while (wellDataExtract.hasNextWell())
+   {
+     wellDataExtract.extractDataNextWell();
+     QString wellName = wellDataExtract.wellName();
+     EXPECT_EQ(wellName,"S_A_P_E_L_E_1ST");
+   }
+
+}
+
+TEST(ExtractWellDataLAS, testReadMultipleFiles)
 {
   ImportOptionsLAS options;
   ExtractWellDataLAS reader({"./Test1.las", "./testWrap.las"}, options);
@@ -62,7 +82,7 @@ TEST(LASReaderTest, testReadMultipleFiles)
   EXPECT_TRUE(options.allLasFilesAreTheCorrectVersion);
 }
 
-TEST(LASReaderTest, testReadMultipleFilesWithDifferentVersionsResultsInCorrectBoolean)
+TEST(ExtractWellDataLAS, testReadMultipleFilesWithDifferentVersionsResultsInCorrectBoolean)
 {
   ImportOptionsLAS options;
   ExtractWellDataLAS reader({"./Test1.las", "./Version3.las"}, options);

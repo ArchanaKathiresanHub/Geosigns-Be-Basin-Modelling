@@ -49,6 +49,8 @@ void ExtractWellDataLAS::extractDataNextWell()
   readSections();
 
   currentWell_++;
+
+  removeSpecialCharactersFromWellName();
 }
 
 void ExtractWellDataLAS::extractMetaDataNextWell()

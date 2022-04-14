@@ -47,6 +47,7 @@ public:
 
 protected:
   void mapTargetVarNames();
+  void removeSpecialCharactersFromWellName();
 
   WellData* wellData_;
   QMap<QString, QString> calibrationTargetVariableMaps_;
