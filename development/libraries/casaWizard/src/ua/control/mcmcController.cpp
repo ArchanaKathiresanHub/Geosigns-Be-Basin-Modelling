@@ -237,8 +237,7 @@ void MCMCController::slotPushButtonExportMcmcOutputClicked()
      Logger::log() << "No data to export." << Logger::endl();
      return;
    }
-
-   QString fileName = QFileDialog::getSaveFileName(mcmcTab_, "Save as", QDir::currentPath(), "comma seperated file (*.csv)");
+   QString fileName = QFileDialog::getSaveFileName(mcmcTab_, "Save as", QDir::currentPath(), "comma separated file (*.csv)");
    if (fileName == "")
    {
      return;

@@ -24,7 +24,7 @@ namespace ua
 MCMCTab::MCMCTab(QWidget* parent) :
   QWidget(parent),
   pushButtonUArunCASA_{new QPushButton("Run MCMC", this)},
-  pushButtonExportMcmcResults_{new QPushButton("Export MCMC results", this)},
+  pushButtonExportMcmcResults_{new QPushButton("Export uncertainty results", this)},
   pushButtonExportOptimalCase_{new QPushButton("Export optimal settings", this)},
   pushButtonRunOptimalCase_{new QPushButton("Run optimal settings", this)},
   pushButtonAddOptimalDesignPoint_{new QPushButton("Add optimal sample as design point", this)},
