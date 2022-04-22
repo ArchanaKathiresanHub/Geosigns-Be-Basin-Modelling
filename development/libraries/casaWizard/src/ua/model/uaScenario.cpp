@@ -5,7 +5,9 @@
 #include "model/calibrationTargetManager.h"
 #include "model/doeOptionImpl.h"
 #include "model/functions/rmseCalibrationTargets.h"
+#include "model/input/cmbMapReader.h"
 #include "model/input/projectReader.h"
+#include "model/SurfaceToDepthConverter.h"
 #include "model/logger.h"
 #include "model/output/runCaseSetFileManager.h"
 
@@ -31,8 +33,10 @@ UAScenario::UAScenario(ProjectReader* projectReader) :
   doeTextFileName_{"doeResults.txt"},
   mcTextFileName_{"mcResults.txt"},
   proxy_{},
+  cmbMapReader_(new CMBMapReader()),
+  m_toDepthConverter(new SurfaceToDepthConverter(CasaScenario::projectReader(),*cmbMapReader_)),
   influentialParameterManager_{CasaScenario::projectReader()},
-  predictionTargetManager_{CasaScenario::projectReader()},
+  predictionTargetManager_{CasaScenario::projectReader(),*m_toDepthConverter},
   monteCarloDataManager_{},
   manualDesignPointManager_{},
   runCaseSetFileManager_{},
@@ -91,7 +95,7 @@ void UAScenario::changeUserDefinedPointStatus(const bool status)
     return;
   }
 
-  unsigned int pos = 0;
+  int pos = 0;
 
   for (DoeOption* option : doeOptions_)
   {
@@ -102,6 +106,63 @@ void UAScenario::changeUserDefinedPointStatus(const bool status)
     }
     pos++;
   }
+}
+
+void UAScenario::obtainTimeSeriesMonteCarloData(const int targetIndex, QVector<double>& snapshotAges,
+                                          QMap<QString,QVector<double> >& bestMatchedValuesPerProperty,
+                                          QMap<QString,QVector<QVector<double>>>& currentPredTargetMatrixPerProperty) const
+{
+   snapshotAges = projectReader().agesFromMajorSnapshots();
+
+   const MonteCarloDataManager& monteCarloData = monteCarloDataManager();
+   const QVector<QVector<double>>& predTargetMatrix = monteCarloData.predictionTargetMatrix();
+   const QVector<const PredictionTarget*> targets = predictionTargetManager().predictionTargets();
+
+   int propertyCount = 0;
+   for (const QString& propertyName : predictionTargetManager().predictionTargetOptions())
+   {
+      if (targets[targetIndex]->properties().contains(propertyName))
+      {
+         for (int snapshotIndex = 0; snapshotIndex < snapshotAges.size(); snapshotIndex++)
+         {
+            const int matrixIndex = predictionTargetManager().getIndexInPredictionTargetMatrix(targetIndex, snapshotIndex, propertyName);
+            currentPredTargetMatrixPerProperty[propertyName].append(predTargetMatrix[matrixIndex]);
+         }
+      }
+      propertyCount++;
+   }
+
+   for (const QString& propertyName : predictionTargetManager().predictionTargetOptions())
+   {
+      if (targets[targetIndex]->properties().contains(propertyName))
+      {
+         for (const QVector<double>& predTarget : currentPredTargetMatrixPerProperty[propertyName])
+         {
+            bestMatchedValuesPerProperty[propertyName].push_back(predTarget[0]);
+         }
+      }
+   }
+}
+
+void UAScenario::obtainMonteCarloDataForTimeStep(const int targetIndex, const int timeStep, QVector<QVector<double> >& data) const
+{
+   const MonteCarloDataManager& monteCarloData = monteCarloDataManager();
+   const PredictionTarget* targetAtIndex = predictionTargetManager().predictionTargets()[targetIndex];
+
+   int propertyCounter = 0;
+   for (const QString& predictionTargetOption : predictionTargetManager().predictionTargetOptions())
+   {
+      if (targetAtIndex->properties().contains(predictionTargetOption))
+      {
+         const int matrixIndex = predictionTargetManager().getIndexInPredictionTargetMatrix(targetIndex, timeStep, predictionTargetOption);
+         data.append(monteCarloData.predictionTargetMatrix()[matrixIndex]);
+         propertyCounter++;
+      }
+      else
+      {
+         data.append(QVector<double>());
+      }
+   }
 }
 
 void UAScenario::setProxyOrder(int order)
@@ -369,7 +430,7 @@ QVector<double> UAScenario::predictionTargetDataBestMC() const
 {
   QVector<double> predictionTargetBestMCData;
   const QVector<QVector<double>> mcDataPrediction = monteCarloDataManager_.predictionTargetMatrix();
-  const int amountOfPredictionTargets = predictionTargetManager_.amountIncludingTimeSeries();
+  const int amountOfPredictionTargets = predictionTargetManager_.amountOfPredictionTargetWithTimeSeriesAndProperties();
   if (mcDataPrediction.isEmpty() || mcDataPrediction.size() != amountOfPredictionTargets)
   {
     return predictionTargetBestMCData;
@@ -385,7 +446,7 @@ QVector<double> UAScenario::predictionTargetDataBestMC() const
 QVector<int> UAScenario::predictionDataObservablesIndexRange() const
 {
    const int endCalibration = calibrationTargetManager().amountOfActiveCalibrationTargets();
-   const int endPrediction = endCalibration + predictionTargetManager().predictionTargetsIncludingTimeSeries().size();
+   const int endPrediction = endCalibration + predictionTargetManager().amountOfPredictionTargetWithTimeSeriesAndProperties();
 
    QVector<int> range;
    for (int i = endCalibration; i < endPrediction; i++)
@@ -536,7 +597,7 @@ QString UAScenario::iterationDirName() const
   QDateTime dateTime;
   QString dirName{""};
   bool first{true};
-  for (const QString entry : dir.entryList())
+  for (const QString& entry : dir.entryList())
   {
     if (entry.toStdString().find("Iteration_") == 0)
     {
@@ -551,6 +612,20 @@ QString UAScenario::iterationDirName() const
   }
 
   return dirName;
+}
+
+void UAScenario::loadProject3dFile() const
+{
+  if (cmbMapReader_)
+  {
+     cmbMapReader_->load(project3dPath().toStdString());
+  }
+  CasaScenario::loadProject3dFile();
+}
+
+const CMBMapReader& UAScenario::mapReader() const
+{
+  return *cmbMapReader_;
 }
 
 bool UAScenario::isStageComplete(const StageTypesUA& stageType) const

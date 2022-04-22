@@ -10,6 +10,8 @@ class ScenarioWriter;
 class Writable
 {
 public:
+  virtual ~Writable() = default;
+
   virtual void writeToFile(ScenarioWriter& writer) const = 0;
   virtual void readFromFile(const ScenarioReader& reader) = 0;
   virtual void clear() = 0;

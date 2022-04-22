@@ -95,9 +95,19 @@ public:
     return surfaceID == 0;
   }
 
+  double getDepth(int surfaceID) const override
+  {
+     return 0.0;
+  }
+
   QString getDepthGridName(int surfaceID) const override
   {
     return "";
+  }
+
+  double getThickness(int surfaceID) const override
+  {
+    return 0.0;
   }
 
   bool hasDepthDefinedInAllLayers() const override
@@ -108,6 +118,11 @@ public:
   QStringList mapNamesT2Z() const override
   {
     return {};
+  }
+
+  QString getLayerUnderSurface(const QString &/*surfaceName*/) const override
+  {
+     return "Layer";
   }
 };
 

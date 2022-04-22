@@ -29,7 +29,7 @@ TEST(McmcDataCollector, testCollecting )
    EXPECT_TRUE(exportData.targetData.size()==0);
 
    PredictionTargetManager& ptManager = scenario.predictionTargetManager();
-   ptManager.addDepthTarget("VRe", 4.0, 5.0, 6.0,0.0);
+   ptManager.addDepthTarget(4.0, 5.0, 6.0, {"VRe"}, 0.0);
 
    MonteCarloDataManager& mcManager = scenario.monteCarloDataManager();
    mcManager.setPredictionTargetMatrix({{55, 56, 57}});
@@ -44,7 +44,7 @@ TEST(McmcDataCollector, testCollecting )
    mcManager.setInfluentialParameterMatrix({{33, 34, 35}, {43, 44, 35}});
    mcManager.setPredictionTargetMatrix({{55, 56, 57}, {65, 66, 67}});
 
-   ptManager.addDepthTarget("Temperature", 4.0, 5.0, 6.0,0.0);
+   ptManager.addDepthTarget(4.0, 5.0, 6.0,{"Temperature"},0.0);
    exportData = McmcOutputDataCollector::collectMcmcOutputData(scenario);
 
    //Expect Temperature to be there

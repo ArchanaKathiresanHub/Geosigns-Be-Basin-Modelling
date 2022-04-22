@@ -21,6 +21,7 @@ add_casawizard_ua_gtest( NAME ManualDesignPointManager
                          SOURCES testManualDesignPointManager.cpp )
 
 configure_file( predictionTargetManager.dat predictionTargetManager.dat )
+configure_file( predictionTargetManagerv2.dat predictionTargetManagerv2.dat )
 configure_file( influentialParameterManager.dat influentialParameterManager.dat )
 configure_file( monteCarloDataManager.dat monteCarloDataManager.dat )
 configure_file( manualDesignPointManager.dat manualDesignPointManager.dat )

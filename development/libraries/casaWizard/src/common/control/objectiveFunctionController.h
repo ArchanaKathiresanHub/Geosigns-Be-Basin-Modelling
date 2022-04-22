@@ -29,9 +29,11 @@ public:
                               CasaScenario& casaScenario,
                               QObject* parent);  
 
+signals:
+  void dataChanged();
+
 private slots:
   void slotTableObjectiveFunctionChanged(QTableWidgetItem* item);
-
   void slotRefresh();
 
 private:

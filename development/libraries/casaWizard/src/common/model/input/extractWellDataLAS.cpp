@@ -13,6 +13,9 @@
 #include "lasSectionReader.h"
 #include "lasVersionInfoSectionReader.h"
 #include "lasWellInfoSectionReader.h"
+#include "model/logger.h"
+
+#include "Qt_Utils.h"
 
 #include <fstream>
 
@@ -50,7 +53,12 @@ void ExtractWellDataLAS::extractDataNextWell()
 
   currentWell_++;
 
-  removeSpecialCharactersFromWellName();
+  QString cleanedWellName = qtutils::replaceCharsNotAllowedInExcelTabsBy_(wellData_->wellName_);
+  if (cleanedWellName != wellData_->wellName_)
+  {
+     wellData_->wellName_ = cleanedWellName;
+     Logger::log() << "Warning: characters :, \\, /, ?, *, [, or ] in the well name are replaced by _" << Logger::endl();
+  }
 }
 
 void ExtractWellDataLAS::extractMetaDataNextWell()

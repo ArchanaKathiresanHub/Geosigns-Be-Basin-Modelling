@@ -1,3 +1,12 @@
+//
+// Copyright (C) 2022 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
+
 // Manager for the prediction targets
 #pragma once
 
@@ -7,10 +16,13 @@
 
 #include <QVector>
 
+#include <memory>
+
 namespace casaWizard
 {
 
 class ProjectReader;
+class ToDepthConverter;
 
 namespace ua
 {
@@ -18,58 +30,62 @@ namespace ua
 class PredictionTargetManager : public Writable
 {
 public:
-  explicit PredictionTargetManager(const ProjectReader& projectReader);
-  ~PredictionTargetManager();
+   PredictionTargetManager(const ProjectReader& projectReader, const ToDepthConverter& toDepthConverter);
+   ~PredictionTargetManager() override;
 
-  QVector<PredictionTargetDepth> depthTargets() const;
-  QVector<PredictionTargetSurface> surfaceTargets() const;
+   const QVector<const PredictionTarget*> predictionTargets() const;
+   const QVector<const PredictionTarget*> predictionTargetsIncludingTimeSeries() const;
+   const QVector<const PredictionTarget*> predictionTargetInTimeSeries(const int row) const;
 
-  QVector<const PredictionTarget*> predictionTargets() const;
-  QVector<const PredictionTarget*> predictionTargetsIncludingTimeSeries() const;
-  QVector<const PredictionTarget*> predictionTargetInTimeSeries(const int row) const;
+   void addDepthTarget(const double x, const double y, const double z, const QVector<QString>& properties = s_targetVariables, const double age = 0.0);
+   void addSurfaceTarget(const double x, const double y, QString layer = "", const QVector<QString>& properties = s_targetVariables, const double age = 0.0);
 
-  void addDepthTarget(const QString& property, const double x, const double y, const double z, const double age = 0.0);
-  void setDepthTarget(int row, int column, const QString& text);
-  void copyDepthTarget(int index);
-  void removeDepthTarget(int index);
+   void copyTargets(const QVector<int>& indices);
+   void removeTargets(const QVector<int>& indices);
+   void setTarget(int row, int column, const QString& text);
 
-  void addSurfaceTarget(const QString& property, const double x, const double y, QString layer = "", const double age = 0.0);
-  void setSurfaceTarget(int row, int column, const QString& text);
-  void copySurfaceTarget(int index);
-  void removeSurfaceTarget(int index);
+   static QVector<QString> predictionTargetOptions();
+   void writeToFile(ScenarioWriter& writer) const override;
+   void readFromFile(const ScenarioReader& reader) override;
+   void clear() override;
 
-  static QStringList predictionTargetOptions();
-  void writeToFile(ScenarioWriter& writer) const override;
-  void readFromFile(const ScenarioReader& reader) override;
-  void clear() override;
+   void setTargetHasTimeSeries(const int row, const bool isSelected);
 
-  QVector<bool> depthTargetHasTimeSeries() const;  
-  QVector<bool> surfaceTargetHasTimeSeries() const;
-  void setDepthTargetHasTimeSeries(const int row, const bool isSelected);
-  void setSurfaceTargetHasTimeSeries(const int row, const bool isSelected);
+   int amountAtAge0() const;
+   int sizeOfPredictionTargetWithTimeSeries(const int row) const;
+   int indexCumulativePredictionTarget(const int row) const;
 
-  int amountAtAge0() const;
-  int amountIncludingTimeSeries() const;
-  int sizeOfPredictionTargetWithTimeSeries(const int row) const;
-  int indexCumulativePredictionTarget(const int row) const;
+   void setTargetActiveProperty(const bool active, const int row, const QString& property);
 
-  QStringList validLayerNames() const;
+   QStringList validSurfaceNames() const;
 
+   QVector<bool> targetHasTimeSeries() const;
+   int amountOfPredictionTargetWithTimeSeriesAndProperties() const;
+
+   void setPropertyActiveForAllTargets(const QString& propertyName);
+   void setTimeSeriesActiveForAllTargets();
+
+   int getIndexInPredictionTargetMatrix(const int predictionTargetRow, const int snapshotIndex, const QString& propertyName) const;
 private:
-  PredictionTargetManager(const PredictionTargetManager&) = delete;
-  PredictionTargetManager& operator=(PredictionTargetManager) = delete;
+   PredictionTargetManager(const PredictionTargetManager&) = delete;
+   PredictionTargetManager& operator=(PredictionTargetManager) = delete;
 
-  QVector<int> sizeOfPredictionTargetsWithTimeSeries() const;
-  void setPredictionTargetsAllTimes();
-  void clearMemory();
+   int indexCumulativePredictionTargetIncludingProperties(const int row) const;
+   int sizeOfPredictionTargetsWithTimeSeriesIncludingProperties(const int row) const;
+   QVector<int> sizeOfPredictionTargetsWithTimeSeriesIncludingProperties() const;
+   QVector<int> sizeOfPredictionTargetsWithTimeSeries() const;
+   void setPredictionTargetsAllTimes();
+   void clearMemory();
+   void addTargets(QVector<double> snapshots);
 
-  QVector<PredictionTargetDepth> depthTargets_;
-  QVector<PredictionTargetSurface> surfaceTargets_;
-  QVector<const PredictionTarget*> predictionTargetsAllTimes_;
-  static QStringList targetVariables_;
-  QVector<bool> depthTargetHasTimeSeries_;
-  QVector<bool> surfaceTargetHasTimeSeries_;
-  const ProjectReader& projectReader_;
+   static QVector<QString> s_targetVariables;
+
+   QVector<std::shared_ptr<PredictionTarget>> m_predictionTargets;
+   QVector<const PredictionTarget*> predictionTargetsAllTimes_;
+   QVector<bool> m_targetHasTimeSeries;
+   const ProjectReader& m_projectReader;
+   const ToDepthConverter& m_toDepthConverter;
+   int m_identifier;
 };
 
 } // namespace ua

@@ -27,6 +27,8 @@ public:
   CasaScenario& casaScenario() const;
 
   CalibrationTargetTable* calibrationTable() const;
+  void refreshAndEmitDataChanged();
+
 
 public slots:
   void slotSelectAllWells();

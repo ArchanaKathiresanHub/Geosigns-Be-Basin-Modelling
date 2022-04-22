@@ -2,6 +2,7 @@
 #pragma once
 
 #include "predictionTarget.h"
+#include <memory>
 
 namespace casaWizard
 {
@@ -13,21 +14,18 @@ class PredictionTargetDepth : public PredictionTarget
 {
 public:
   PredictionTargetDepth() = default;
-  explicit PredictionTargetDepth(const QString& property, const double x, const double y, const double z, const double age);
+  explicit PredictionTargetDepth(const QVector<QString>& properties, const double x, const double y, const double z, const double age, const QString& locationName = "");
+
   static PredictionTargetDepth read(const int version, const QStringList& parameters);
 
   int version() const override;
   QStringList write() const override;
-  QString name() const override;
+  QString name(const QString& property) const override;
   QString nameWithoutAge() const override;
   QString variable() const override;
   QString typeName() const override;
 
-  double z() const;
-  void setZ(double z);
-
-private:
-  double z_;
+  PredictionTarget* createCopy() const override;
 };
 
 } // namespace ua

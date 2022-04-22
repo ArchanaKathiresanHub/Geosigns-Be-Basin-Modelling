@@ -51,7 +51,13 @@ void CalibrationTargetController::slotRefresh()
 
 CalibrationTargetTable* CalibrationTargetController::calibrationTable() const
 {
-  return calibrationTargetTable_;
+   return calibrationTargetTable_;
+}
+
+void CalibrationTargetController::refreshAndEmitDataChanged()
+{
+   slotRefresh();
+   emit wellSelectionChanged();
 }
 
 CasaScenario& CalibrationTargetController::casaScenario() const

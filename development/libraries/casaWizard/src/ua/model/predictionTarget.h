@@ -2,6 +2,7 @@
 #pragma once
 
 #include <QStringList>
+#include <QVector>
 
 namespace casaWizard
 {
@@ -13,35 +14,46 @@ class PredictionTarget
 {
 public:
   PredictionTarget() = default;
-  explicit PredictionTarget(const QString& property, const double x, const double y, const double age);
+  PredictionTarget(const QVector<QString>& properties, const double x, const double y, const double age, const QString& locationName, const double z = 0.0);
+  static PredictionTarget* createFromList(const int version, const QStringList& list);
   virtual ~PredictionTarget() = default;
 
   virtual int version() const = 0;
   virtual QStringList write() const = 0;
-  virtual QString name() const = 0;
+  virtual QString name(const QString& property) const = 0;
   virtual QString nameWithoutAge() const = 0;
   virtual QString variable() const = 0;
   virtual QString typeName() const = 0;
+  virtual QString surfaceName() const;
 
-  QString property() const;
-  void setProperty(const QString& property);
+  virtual PredictionTarget* createCopy() const = 0;
+
+  QVector<QString> properties() const;
+  void setProperties(const QVector<QString>& properties);
+  void setPropertyActive(const bool active, const QString& property);
 
   double x() const;
-  void setX(double x);
+  virtual void setX(double x);
 
   double y() const;
-  void setY(double y);
+  virtual void setY(double y);
+
+  double z() const;
+  virtual void setZ(double z);
 
   double age() const;
   void setAge(double age);
 
-  QString unitSI() const;
+  QString locationName() const;
+  void setLocationName(const QString& locationName);
 
 private:
-  QString property_;
-  double x_;
-  double y_;
-  double age_;
+  QVector<QString> m_properties;
+  double m_x;
+  double m_y;
+  double m_z;
+  double m_age;
+  QString m_locationName;
 };
 
 } // namespace ua

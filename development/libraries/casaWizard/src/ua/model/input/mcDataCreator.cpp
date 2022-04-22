@@ -40,7 +40,7 @@ void setData(UAScenario& scenario)
   const int endCalibration = endInfluential + ctManager.amountOfActiveCalibrationTargets();
 
   const PredictionTargetManager& ptManager = scenario.predictionTargetManager();
-  const int endPrediction = endCalibration + ptManager.predictionTargetsIncludingTimeSeries().size();
+  const int endPrediction = endCalibration + ptManager.amountOfPredictionTargetWithTimeSeriesAndProperties();
   for (int i = 2; i < mcSampleData.size(); ++i)
   {
     if (i < endInfluential)

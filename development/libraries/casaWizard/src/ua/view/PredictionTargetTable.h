@@ -1,4 +1,11 @@
-// Table for surface target, i.e., x,y, name of layer and checkbox for time series
+//
+// Copyright (C) 2022 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #pragma once
 
 #include <QWidget>
@@ -12,17 +19,17 @@ namespace casaWizard
 namespace ua
 {
 
-class PredictionTargetSurface;
+class PredictionTarget;
 
-class SurfaceTargetTable : public QWidget
+class PredictionTargetTable : public QWidget
 {
   Q_OBJECT
 
 public:
-  explicit SurfaceTargetTable(QWidget* parent = 0);
+  explicit PredictionTargetTable(QWidget* parent = 0);
 
-  void updateTable(const QVector<PredictionTargetSurface> depthTargets,
-                   const QStringList predictionTargetOptions,
+  void updateTable(const QVector<const PredictionTarget*> predictionTargets,
+                   const QVector<QString>& predictionTargetOptions,
                    const QVector<bool>& hasTimeSeriesForPredictionTargets,
                    const QStringList validLayerNames);
 
@@ -33,12 +40,17 @@ public:
 
   int checkBoxColumnNumber() const;
 
+signals:
+  void activePropertyCheckBoxChanged(int, int, QString);
+  void targetHasTimeSeriesChanged(int, int);
+
 private:
   QTableWidget* tableWidgetTargets_;
   QPushButton* pushButtonAddTarget_;
   QPushButton* pushButtonDelTarget_;
   QPushButton* pushButtonCopyTarget_;
-  const int checkBoxColumnNumber_;
+  int checkBoxColumnNumber_;
+  QVector<int> propertyColumns_;
 };
 
 } // namespace ua

@@ -308,8 +308,6 @@ int Model::tableSize( const std::string & tableName )
    try { return m_pimpl->tableSize( tableName ); }
    catch ( const Exception & ex ) { return reportError( ex.errorCode(), ex.what() ); }
    catch ( ... )                  { return reportError( UnknownError, "Unknown error" ); }
-
-   return Utilities::Numerical::NoDataIntValue;
 }
 
 // Get value from the table

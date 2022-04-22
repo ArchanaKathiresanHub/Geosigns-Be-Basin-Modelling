@@ -12,8 +12,7 @@ class ObjectiveFunctionController;
 namespace ua
 {
 
-class DepthTargetController;
-class SurfaceTargetController;
+class PredictionTargetController;
 class TargetTab;
 class UAScenario;
 
@@ -36,6 +35,10 @@ private slots:
   void slotPushSelectAllVReClicked();
   void slotPushSelectAllTemperaturesClicked();
 
+  void slotPushSelectAllTemperaturePredictionTargetsClicked();
+  void slotPushSelectAllVRePredictionTargetsClicked();
+  void slotPushSelectAllTimeSeriesPredictionTargetsClicked();
+  void slotDataChanged();
 signals:
   void signalRefreshChildWidgets();
 
@@ -43,8 +46,7 @@ private:
   UAScenario& scenario_;
   TargetTab* targetTab_;
 
-  DepthTargetController* depthTargetController_;
-  SurfaceTargetController* surfaceTargetController_;
+  PredictionTargetController* predictionTargetController_;
   CalibrationTargetController* calibrationTargetController_;
   ObjectiveFunctionController* objectiveFunctionController_;
 };

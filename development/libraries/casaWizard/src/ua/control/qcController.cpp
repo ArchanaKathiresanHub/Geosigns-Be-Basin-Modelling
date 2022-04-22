@@ -81,6 +81,7 @@ void QCController::slotUpdateTabGUI(int tabID)
   }
   else if (!casaScenario_.isStageComplete(StageTypesUA::qc))
   {
+    slotModelChange();
     Logger::log() << "QC stage is not completed! Run CASA to complete it." << Logger::endl();
   }
   else

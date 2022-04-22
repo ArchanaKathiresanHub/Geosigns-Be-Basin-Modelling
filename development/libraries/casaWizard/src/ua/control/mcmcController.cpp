@@ -41,40 +41,40 @@ MCMCController::MCMCController(MCMCTab* mcmcTab,
                                ScriptRunController& scriptRunController,
                                QObject* parent) :
    QObject(parent),
-   mcmcTab_{mcmcTab},
-   casaScenario_{casaScenario},
-   scriptRunController_{scriptRunController}
+   m_mcmcTab{mcmcTab},
+   m_casaScenario{casaScenario},
+   m_scriptRunController{scriptRunController}
 {
    connect(parent, SIGNAL(signalUpdateTabGUI(int)), this, SLOT(slotUpdateTabGUI(int)));
 
-   connect(mcmcTab_->pushButtonUArunCASA(),             SIGNAL(clicked()),            this, SLOT(slotPushButtonMCMCrunCasaClicked()));
-   connect(mcmcTab_->tablePredictionTargets(),          SIGNAL(cellClicked(int,int)), this, SLOT(slotTablePredictionTargetClicked(int, int)));
-   connect(mcmcTab_->pushButtonExportOptimalCase(),     SIGNAL(clicked()),            this, SLOT(slotPushButtonExportOptimalCasesClicked()));
-   connect(mcmcTab_->pushButtonExportMcmcResults(),     SIGNAL(clicked()),            this, SLOT(slotPushButtonExportMcmcOutputClicked()));
-   connect(mcmcTab_->pushButtonRunOptimalCase(),        SIGNAL(clicked()),            this, SLOT(slotPushButtonRunOptimalCasesClicked()));
-   connect(mcmcTab_->pushButtonAddOptimalDesignPoint(), SIGNAL(clicked()),            this, SLOT(slotPushButtonAddOptimalDesignPointClicked()));
-   connect(mcmcTab_->sliderHistograms(),                SIGNAL(valueChanged(int)),    this, SLOT(slotSliderHistogramsChanged(int)));
-   connect(mcmcTab_->checkBoxHistoryPlotsMode(),        SIGNAL(stateChanged(int)),    this, SLOT(slotCheckBoxHistoryPlotModeChanged(int)));
+   connect(m_mcmcTab->pushButtonUArunCASA(),             SIGNAL(clicked()),            this, SLOT(slotPushButtonMCMCrunCasaClicked()));
+   connect(m_mcmcTab->tablePredictionTargets(),          SIGNAL(cellClicked(int,int)), this, SLOT(slotTablePredictionTargetClicked(int, int)));
+   connect(m_mcmcTab->pushButtonExportOptimalCase(),     SIGNAL(clicked()),            this, SLOT(slotPushButtonExportOptimalCasesClicked()));
+   connect(m_mcmcTab->pushButtonRunOptimalCase(),        SIGNAL(clicked()),            this, SLOT(slotPushButtonRunOptimalCasesClicked()));
+   connect(m_mcmcTab->pushButtonExportMcmcResults(),     SIGNAL(clicked()),            this, SLOT(slotPushButtonExportMcmcOutputClicked()));
+   connect(m_mcmcTab->pushButtonAddOptimalDesignPoint(), SIGNAL(clicked()),            this, SLOT(slotPushButtonAddOptimalDesignPointClicked()));
+   connect(m_mcmcTab->sliderHistograms(),                SIGNAL(valueChanged(int)),    this, SLOT(slotSliderHistogramsChanged(int)));
+   connect(m_mcmcTab->checkBoxHistoryPlotsMode(),        SIGNAL(stateChanged(int)),    this, SLOT(slotCheckBoxHistoryPlotModeChanged(int)));
 }
 
 void MCMCController::refreshGUI()
 {
-   const PredictionTargetManager& predictionTargetManager = casaScenario_.predictionTargetManager();
-   const MonteCarloDataManager& monteCarloData = casaScenario_.monteCarloDataManager();
+   const PredictionTargetManager& predictionTargetManager = m_casaScenario.predictionTargetManager();
+   const MonteCarloDataManager& monteCarloData = m_casaScenario.monteCarloDataManager();
 
-   if (casaScenario_.isStageComplete(StageTypesUA::mcmc))
+   if (m_casaScenario.isStageComplete(StageTypesUA::mcmc))
    {
-      mcmcTab_->setL2norm(monteCarloData.rmseOptimalRunCase());
-      mcmcTab_->setL2normRS(casaScenario_.responseSurfacesL2NormBestMC());
-      mcmcTab_->fillPredictionTargetTable(predictionTargetManager.predictionTargets());
+      m_mcmcTab->setL2norm(monteCarloData.rmseOptimalRunCase());
+      m_mcmcTab->setL2normRS(m_casaScenario.responseSurfacesL2NormBestMC());
+      m_mcmcTab->fillPredictionTargetTable(predictionTargetManager.predictionTargets());
    }
    else
    {
-      mcmcTab_->setL2norm(-9999);
-      mcmcTab_->setL2normRS(-9999);
-      mcmcTab_->fillPredictionTargetTable({});
+      m_mcmcTab->setL2norm(-9999);
+      m_mcmcTab->setL2normRS(-9999);
+      m_mcmcTab->fillPredictionTargetTable({});
    }
-   mcmcTab_->updateHistogram(nullptr, {0});
+   m_mcmcTab->updateHistogram(nullptr, {{0}}, {});
 }
 
 void MCMCController::slotUpdateTabGUI(int tabID)
@@ -84,14 +84,14 @@ void MCMCController::slotUpdateTabGUI(int tabID)
       return;
    }
 
-   mcmcTab_->setEnabled(casaScenario_.isStageComplete(StageTypesUA::doe) &&
-                        casaScenario_.isStageComplete(StageTypesUA::qc));
+   m_mcmcTab->setEnabled(m_casaScenario.isStageComplete(StageTypesUA::doe) &&
+                         m_casaScenario.isStageComplete(StageTypesUA::qc));
 
-   if (!casaScenario_.isStageComplete(StageTypesUA::qc))
+   if (!m_casaScenario.isStageComplete(StageTypesUA::qc))
    {
       Logger::log() << "QC data is not available! Complete QC stage in QC tab first." << Logger::endl();
    }
-   else if (!casaScenario_.isStageComplete(StageTypesUA::mcmc))
+   else if (!m_casaScenario.isStageComplete(StageTypesUA::mcmc))
    {
       Logger::log() << "MCMC data creation stage is not completed! Run MCMC to complete it." << Logger::endl();
    }
@@ -101,21 +101,21 @@ void MCMCController::slotUpdateTabGUI(int tabID)
 
 void MCMCController::slotPushButtonMCMCrunCasaClicked()
 {
-   scenarioBackup::backup(casaScenario_);
-   McmcScript mcmc{casaScenario_};
+   scenarioBackup::backup(m_casaScenario);
+   McmcScript mcmc{m_casaScenario};
    if (!casaScriptWriter::writeCasaScript(mcmc))
    {
       return;
    }
-   if (scriptRunController_.runScript(mcmc))
+   if (m_scriptRunController.runScript(mcmc))
    {
       try
       {
-         mcDataCreator::setData(casaScenario_);
-         const PredictionTargetManager& manager = casaScenario_.predictionTargetManager();
-         mcmcTab_->fillPredictionTargetTable(manager.predictionTargets());
-         mcmcTab_->setL2normRS(casaScenario_.responseSurfacesL2NormBestMC());
-         scenarioBackup::backup(casaScenario_);
+         mcDataCreator::setData(m_casaScenario);
+         const PredictionTargetManager& manager = m_casaScenario.predictionTargetManager();
+         m_mcmcTab->fillPredictionTargetTable(manager.predictionTargets());
+         m_mcmcTab->setL2normRS(m_casaScenario.responseSurfacesL2NormBestMC());
+         scenarioBackup::backup(m_casaScenario);
       }
       catch (const std::exception& e)
       {
@@ -127,27 +127,27 @@ void MCMCController::slotPushButtonMCMCrunCasaClicked()
       }
    }
 
-   if (QFile::copy(casaScenario_.workingDirectory() + "/" + casaScenario_.stateFileNameMCMC() ,
-                   casaScenario_.workingDirectory() + "/" + casaScenario_.runLocation() + "/" + casaScenario_.iterationDirName() + "/" + casaScenario_.stateFileNameMCMC()))
+   if (QFile::copy(m_casaScenario.workingDirectory() + "/" + m_casaScenario.stateFileNameMCMC() ,
+                   m_casaScenario.workingDirectory() + "/" + m_casaScenario.runLocation() + "/" + m_casaScenario.iterationDirName() + "/" + m_casaScenario.stateFileNameMCMC()))
    {
-      if (!QFile::remove( casaScenario_.workingDirectory() + "/" + casaScenario_.stateFileNameMCMC()))
+      if (!QFile::remove( m_casaScenario.workingDirectory() + "/" + m_casaScenario.stateFileNameMCMC()))
       {
-         Logger::log() << "There was a problem while moving " << casaScenario_.stateFileNameMCMC() << " file to " << casaScenario_.iterationDirName() << " Folder." << Logger::endl();
+         Logger::log() << "There was a problem while moving " << m_casaScenario.stateFileNameMCMC() << " file to " << m_casaScenario.iterationDirName() << " Folder." << Logger::endl();
       }
    }
 
-   casaScenario_.setStageComplete(StageTypesUA::mcmc);
+   m_casaScenario.setStageComplete(StageTypesUA::mcmc);
 
-   scenarioBackup::backup(casaScenario_);
+   scenarioBackup::backup(m_casaScenario);
 
    slotUpdateTabGUI(static_cast<int>(TabID::MCMC));
 }
 
 void MCMCController::slotPushButtonExportOptimalCasesClicked()
 {
-   scenarioBackup::backup(casaScenario_);
+   scenarioBackup::backup(m_casaScenario);
 
-   OptimalCaseScript optimal{casaScenario_};
+   OptimalCaseScript optimal{m_casaScenario};
    const QString directory{optimal.optimalCaseDirectory()};
 
    if (QDir(directory).exists())
@@ -162,30 +162,30 @@ void MCMCController::slotPushButtonExportOptimalCasesClicked()
       }
    }
 
-   const RunCaseSetFileManager& rcsFileManager = casaScenario_.runCaseSetFileManager();
+   const RunCaseSetFileManager& rcsFileManager = m_casaScenario.runCaseSetFileManager();
    if (!casaScriptWriter::writeCasaScriptFilterOutDataDir(optimal, rcsFileManager.caseSetDirPath()) ||
-       !scriptRunController_.runScript(optimal))
+       !m_scriptRunController.runScript(optimal))
    {
       return;
    }
-   scenarioBackup::backup(casaScenario_);
+   scenarioBackup::backup(m_casaScenario);
 }
 
 void MCMCController::slotPushButtonRunOptimalCasesClicked()
 {
-   scenarioBackup::backup(casaScenario_);
+   scenarioBackup::backup(m_casaScenario);
 
-   RunOptimalCaseScript optimal{casaScenario_};
+   RunOptimalCaseScript optimal{m_casaScenario};
    if (!casaScriptWriter::writeCasaScript(optimal) ||
-       !scriptRunController_.runScript(optimal))
+       !m_scriptRunController.runScript(optimal))
    {
       return;
    }
 
-   DataFileParser<double> fileParser(optimal.absoluteDirectory() + casaScenario_.runCasesObservablesTextFileName());
+   DataFileParser<double> fileParser(optimal.absoluteDirectory() + m_casaScenario.runCasesObservablesTextFileName());
 
    const QVector<double> observableValues = fileParser.rowDominantMatrix()[0];
-   QVector<int> calibrationTargetIndices = casaScenario_.calibrationDataObservablesIndexRange();
+   QVector<int> calibrationTargetIndices = m_casaScenario.calibrationDataObservablesIndexRange();
    if (calibrationTargetIndices.back()-1 > observableValues.size())
    {
       Logger::log() << "Calculation of RMSE failed due to insufficient calibration targets." << Logger::endl();
@@ -197,17 +197,17 @@ void MCMCController::slotPushButtonRunOptimalCasesClicked()
       calibrationTargets.push_back(observableValues.at(idx));
    }
 
-   const double L2norm = functions::rmseCalibrationTargets(calibrationTargets, casaScenario_.calibrationTargetManager());
-   MonteCarloDataManager& manager = casaScenario_.monteCarloDataManager();
+   const double L2norm = functions::rmseCalibrationTargets(calibrationTargets, m_casaScenario.calibrationTargetManager());
+   MonteCarloDataManager& manager = m_casaScenario.monteCarloDataManager();
    manager.setRmseOptimalRunCase(L2norm);
-   mcmcTab_->setL2norm(L2norm);
-   scenarioBackup::backup(casaScenario_);
+   m_mcmcTab->setL2norm(L2norm);
+   scenarioBackup::backup(m_casaScenario);
 }
 
 void MCMCController::slotPushButtonAddOptimalDesignPointClicked()
 {
-   ManualDesignPointManager& manualDesignPointManager = casaScenario_.manualDesignPointManager();
-   const MonteCarloDataManager& monteCarloDataManager = casaScenario_.monteCarloDataManager();
+   ManualDesignPointManager& manualDesignPointManager = m_casaScenario.manualDesignPointManager();
+   const MonteCarloDataManager& monteCarloDataManager = m_casaScenario.monteCarloDataManager();
 
    QVector<double> optimalMCPoint = monteCarloDataManager.getPoint(0);
    manualDesignPointManager.addDesignPoint(optimalMCPoint);
@@ -219,25 +219,25 @@ void MCMCController::slotPushButtonAddOptimalDesignPointClicked()
    }
    Logger::log() << ") as a manual design point. The additional case needs to be run in design of experiment." << Logger::endl();
 
-   casaScenario_.setNumberOfManualDesignPoints();
-   casaScenario_.changeUserDefinedPointStatus(true);
-   casaScenario_.setStageComplete(StageTypesUA::doe, false);
-   casaScenario_.setStageComplete(StageTypesUA::qc, false);
-   casaScenario_.setStageComplete(StageTypesUA::mcmc, false);
+   m_casaScenario.setNumberOfManualDesignPoints();
+   m_casaScenario.changeUserDefinedPointStatus(true);
+   m_casaScenario.setStageComplete(StageTypesUA::doe, false);
+   m_casaScenario.setStageComplete(StageTypesUA::qc, false);
+   m_casaScenario.setStageComplete(StageTypesUA::mcmc, false);
 
-   scenarioBackup::backup(casaScenario_);
+   scenarioBackup::backup(m_casaScenario);
 }
 
 void MCMCController::slotPushButtonExportMcmcOutputClicked()
 {
-   McmcTargetExportData exportData = McmcOutputDataCollector::collectMcmcOutputData(casaScenario_);
+   McmcTargetExportData exportData = McmcOutputDataCollector::collectMcmcOutputData(m_casaScenario);
 
    if (exportData.targetData.empty())
    {
      Logger::log() << "No data to export." << Logger::endl();
      return;
    }
-   QString fileName = QFileDialog::getSaveFileName(mcmcTab_, "Save as", QDir::currentPath(), "comma separated file (*.csv)");
+   QString fileName = QFileDialog::getSaveFileName(m_mcmcTab, "Save as", QDir::currentPath(), "comma separated file (*.csv)");
    if (fileName == "")
    {
      return;
@@ -258,54 +258,61 @@ void MCMCController::slotTablePredictionTargetClicked(int row, int /*column*/)
       return;
    }
 
-   const MonteCarloDataManager& monteCarloData = casaScenario_.monteCarloDataManager();
+   const MonteCarloDataManager& monteCarloData = m_casaScenario.monteCarloDataManager();
 
    if (!monteCarloData.predictionTargetMatrix().empty())
    {
-      const PredictionTargetManager& predictionTargetManager = casaScenario_.predictionTargetManager();
-      const PredictionTarget* const targetTimeSeries = predictionTargetManager.predictionTargetInTimeSeries(row)[0];
-
-      if (mcmcTab_->checkBoxHistoryPlotsMode()->checkState() == Qt::CheckState::Checked)
+      if (m_mcmcTab->checkBoxHistoryPlotsMode()->checkState() == Qt::CheckState::Checked)
       {
-         const ProjectReader& projReader = casaScenario_.projectReader();
-         const QVector<QVector<double>>& predTargetMatrix = monteCarloData.predictionTargetMatrix();
-         const QVector<QVector<double>> currentPredTargetMatrix = predTargetMatrix.mid(predictionTargetManager.indexCumulativePredictionTarget(row)
-                                                                                       , predictionTargetManager.sizeOfPredictionTargetWithTimeSeries(row));
-         QVector<double> bestMatchedValues;
-         for (const QVector<double>& predTarget : currentPredTargetMatrix)
+         const PredictionTargetManager& predictionTargetManager = m_casaScenario.predictionTargetManager();
+         if (!predictionTargetManager.targetHasTimeSeries()[row])
          {
-            bestMatchedValues.push_back(predTarget[0]);
+            Logger::log() << "This target does not have a time series, so the time series plot is empty";
+            m_mcmcTab->clearTimeSeriesPlots();
+            return;
          }
 
-         mcmcTab_->updateTimeSeriesPlot(*targetTimeSeries, projReader.agesFromMajorSnapshots(), currentPredTargetMatrix, bestMatchedValues);
+         QVector<double> snapshotAges;
+         QMap<QString,QVector<double>> bestMatchedValuesPerProperty; // Initialize one best matched values vector per property
+         QMap<QString,QVector<QVector<double>>> currentPredTargetMatrixPerProperty; // Initialize one prediction matrix per property, indexed in a map
+         m_casaScenario.obtainTimeSeriesMonteCarloData(row, snapshotAges, bestMatchedValuesPerProperty, currentPredTargetMatrixPerProperty);
+
+         m_mcmcTab->updateTimeSeriesPlot(snapshotAges, currentPredTargetMatrixPerProperty, bestMatchedValuesPerProperty, predictionTargetManager.predictionTargetOptions());
       }
       else
       {
-         mcmcTab_->updateHistogram(targetTimeSeries, monteCarloData.predictionTargetMatrix()[predictionTargetManager.indexCumulativePredictionTarget(row)]);
-         mcmcTab_->updateSliderHistograms(predictionTargetManager.sizeOfPredictionTargetWithTimeSeries(row));
+         QVector<QVector<double>> data;
+         m_casaScenario.obtainMonteCarloDataForTimeStep(row, 0.0, data);
+
+         const PredictionTargetManager& predictionTargetManager = m_casaScenario.predictionTargetManager();
+         const PredictionTarget* const targetTimeSeries = predictionTargetManager.predictionTargetInTimeSeries(row)[0];
+         m_mcmcTab->updateHistogram(targetTimeSeries, data, predictionTargetManager.predictionTargetOptions());
+         m_mcmcTab->updateSliderHistograms(predictionTargetManager.targetHasTimeSeries()[row] ? m_casaScenario.projectReader().agesFromMajorSnapshots().size() : 0);
       }
-      scenarioBackup::backup(casaScenario_);
    }
 }
 
 void MCMCController::slotSliderHistogramsChanged(int indexTime)
 {
-   const MonteCarloDataManager& monteCarloData = casaScenario_.monteCarloDataManager();
+   const MonteCarloDataManager& monteCarloData = m_casaScenario.monteCarloDataManager();
 
    if (!monteCarloData.predictionTargetMatrix().empty())
    {
-      const int row = mcmcTab_->tablePredictionTargets()->currentRow();
-      const PredictionTargetManager& predictionTargetManager = casaScenario_.predictionTargetManager();
+      const int row = m_mcmcTab->tablePredictionTargets()->currentRow();
+      QVector<QVector<double>> data;
+      m_casaScenario.obtainMonteCarloDataForTimeStep(row, indexTime, data);
+
+      const PredictionTargetManager& predictionTargetManager = m_casaScenario.predictionTargetManager();
       const PredictionTarget* const targetTimeSeries = predictionTargetManager.predictionTargetInTimeSeries(row)[indexTime];
 
-      mcmcTab_->updateHistogram(targetTimeSeries, monteCarloData.predictionTargetMatrix()[predictionTargetManager.indexCumulativePredictionTarget(row) + indexTime]);
+      m_mcmcTab->updateHistogram(targetTimeSeries, data, predictionTargetManager.predictionTargetOptions());
    }
 }
 
 void MCMCController::slotCheckBoxHistoryPlotModeChanged(const int checkState)
 {
-   mcmcTab_->setEnableTimeSeries(checkState);
-   slotTablePredictionTargetClicked(mcmcTab_->tablePredictionTargets()->currentRow(), 0);
+   m_mcmcTab->setEnableTimeSeries(checkState);
+   slotTablePredictionTargetClicked(m_mcmcTab->tablePredictionTargets()->currentRow(), 0);
 }
 
 } // namespace ua

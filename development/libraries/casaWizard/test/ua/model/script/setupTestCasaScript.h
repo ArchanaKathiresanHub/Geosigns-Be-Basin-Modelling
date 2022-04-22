@@ -27,9 +27,9 @@ public:
     ipManager.add();
 
     casaWizard::ua::PredictionTargetManager& ptManager = scenario.predictionTargetManager();
-    ptManager.addDepthTarget("T", 1000.0, 1500.0, 100.0); // With time series
-    ptManager.setDepthTargetHasTimeSeries(0, true);
-    ptManager.addDepthTarget("V", 1000.0, 1500.0, 400.0); // Without time series (present day only)
+    ptManager.addDepthTarget(1000.0, 1500.0, 100.0, {"T"}); // With time series
+    ptManager.setTargetHasTimeSeries(0, true);
+    ptManager.addDepthTarget(1000.0, 1500.0, 400.0, {"V"}); // Without time series (present day only)
 
     // Tornado doe
     scenario.setIsDoeOptionSelected(0, true);

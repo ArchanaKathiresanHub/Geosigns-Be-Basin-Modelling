@@ -16,6 +16,9 @@
 namespace casaWizard
 {
 
+class ToDepthConverter;
+class CMBMapReader;
+
 namespace ua
 {
 
@@ -99,11 +102,19 @@ public:
   void clear() override;
   QString iterationDirName() const override;
 
+  void loadProject3dFile() const override;
+  const CMBMapReader& mapReader() const;
+
   void setStageComplete(const StageTypesUA& stageType, bool isComplete = true);
   bool isStageComplete(const StageTypesUA& stageType) const;
 
   void changeUserDefinedPointStatus(const bool status);
 
+  void obtainTimeSeriesMonteCarloData(const int targetIndex, QVector<double>& snapshotAges,
+                                QMap<QString, QVector<double>>& bestMatchedValuesPerProperty,
+                                QMap<QString, QVector<QVector<double>>>& currentPredTargetMatrixPerProperty) const;
+
+  void obtainMonteCarloDataForTimeStep(const int targetIndex, const int timeStep, QVector<QVector<double> >& data) const;
 private:
   QString stateFileNameDoE_;
   QString stateFileNameQC_;
@@ -115,6 +126,8 @@ private:
   QString doeTextFileName_;
   QString mcTextFileName_;
   Proxy proxy_;
+  std::unique_ptr<CMBMapReader> cmbMapReader_;
+  std::unique_ptr<ToDepthConverter> m_toDepthConverter;
   InfluentialParameterManager influentialParameterManager_;
   PredictionTargetManager predictionTargetManager_;
   MonteCarloDataManager monteCarloDataManager_;

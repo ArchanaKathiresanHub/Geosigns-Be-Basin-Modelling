@@ -45,11 +45,15 @@ public:
   double initialLithosphericMantleThickness() const override;
   double equilibriumOceanicLithosphereThickness() const override;
   bool hasTWTData(int surfaceID) const override;
+
+  double getDepth(int surfaceID) const override;
   QString getDepthGridName(int surfaceID) const override;
+  double getThickness(int surfaceID) const override;
 
   int lowestSurfaceWithTWTData() const override;
   bool basementSurfaceHasTWT() const override;  
   bool hasDepthDefinedInAllLayers() const override;
+  QString getLayerUnderSurface(const QString& surfaceName) const override;
 
 private:
   std::unique_ptr<mbapi::Model> cmbModel_;

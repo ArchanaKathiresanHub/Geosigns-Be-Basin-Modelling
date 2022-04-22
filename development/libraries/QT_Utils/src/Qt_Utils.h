@@ -1,26 +1,39 @@
-#ifndef Qt_Utils_h__
-#define Qt_Utils_h__
+//
+// Copyright (C) 2022 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
+#pragma once
 
 #include <QDateTime>
 #include <QDir>
 #include <QFile>
 #include <QTextStream>
 #include <QTextEdit>
-
+#include <QString>
 
 namespace qtutils {
 	constexpr int MAX_PROCS = 1000;
 	QString getTimeStamp(const QString& prefix);
 	QTextStream& qStdOut();
+
 	/// <summary>
 	/// Put a string between double quotes.
 	/// </summary>
 	/// <param name="value">Value to be put between double quotes ex: foo</param>
 	/// <returns>double quoted string ex: "foo"</returns>
-	QString AddDoubleQuotes(QString value);
-	QString ExportApplicationPath(void);
+   QString addDoubleQuotes(QString value);
+   QString exportApplicationPath(void);
 
-	QString IsValidNoOfProcs(QString noOfProcs);
+   /// <summary>
+   ///Escapes the special characters, such that they are written out as text
+   QString escapeSpecialCharacters(QString str);
+   QString replaceCharsNotAllowedInExcelTabsBy_(QString str);
+
+   QString isValidNoOfProcs(QString noOfProcs);
 	QString getOutpurDirNameFromP3FileName(QString pathToP3File);
 	bool delay(int secs);
 
@@ -41,9 +54,4 @@ namespace qtutils {
 		int lineNr_ = 0;
 		const int maxRetryCount = 600;// approx 1 min
 	};
-
-	
-
 }
-
-#endif // Qt_Utils_h__

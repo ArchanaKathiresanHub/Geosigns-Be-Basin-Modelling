@@ -1,0 +1,10 @@
+PredictionTargetManagerVersion|int|2
+predictionTargets|vector|3
+predictionTargets|1|depth|2|Temperature|VRe|1.000000|2.000000|3.000000|11.000000|Loc_1
+predictionTargets|1|depth|1|VRe|4.000000|5.000000|6.000000|12.000000|Loc_2
+predictionTargets|1|surface|1|Temperature|7.000000|8.000000|Water_Bottom|10.000000|0.000000|Loc_3
+predictionTargetHasTimeSeries|vector|3
+predictionTargetHasTimeSeries|0
+predictionTargetHasTimeSeries|0
+predictionTargetHasTimeSeries|0
+targetIdentifier|int|4

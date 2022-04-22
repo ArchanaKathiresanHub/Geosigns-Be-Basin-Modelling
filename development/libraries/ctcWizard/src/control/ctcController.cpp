@@ -539,7 +539,7 @@ namespace ctcWizard
 			else
 				fastcldrnRunMode = ctcScenario_.runMode();
 
-			auto check = qtutils::IsValidNoOfProcs(ctcScenario_.numProc());
+			auto check = qtutils::isValidNoOfProcs(ctcScenario_.numProc());
 
 			if (check.compare("Ok"))
 			{
@@ -667,7 +667,7 @@ namespace ctcWizard
 			else
 				fastcldrnRunMode = ctcScenario_.runMode();
 
-			auto check = qtutils::IsValidNoOfProcs(ctcScenario_.numProc());
+			auto check = qtutils::isValidNoOfProcs(ctcScenario_.numProc());
 
 			if (check.compare("Ok"))
 			{

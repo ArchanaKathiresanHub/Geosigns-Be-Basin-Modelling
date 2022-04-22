@@ -141,24 +141,4 @@ void ExtractWellData::mapTargetVarNames()
   }
 }
 
-void ExtractWellData::removeSpecialCharactersFromWellName()
-{
-   const QString wellNameIn = wellData_->wellName_;
-   QString& wellName = wellData_->wellName_;
-
-   //: \ / ? * [ ]
-   wellName = wellName.replace("\\","_")
-         .replace(":","_")
-         .replace("/","_")
-         .replace("?","_")
-         .replace("*","_")
-         .replace("[","_")
-         .replace("]","_");
-
-   if (wellName != wellNameIn)
-   {
-      Logger::log() << "Warning: characters :, \\, /, ?, *, [, or ] in the well name are replaced by _" << Logger::endl();
-   }
-}
-
 } // namespace casaWizard

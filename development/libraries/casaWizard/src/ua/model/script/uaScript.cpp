@@ -152,13 +152,18 @@ void UAScript::writeTargets(QTextStream& out, bool prediction) const
 
 QString UAScript::writePredictionTarget(const PredictionTarget& predictionTarget) const
 {
-  return QString("target " + predictionTarget.typeName() + " \""
-                 + mapWizardToCasaName(predictionTarget.property()) + "\" "
-                 + doubleToQString(predictionTarget.x()) + " "
-                 + doubleToQString(predictionTarget.y()) + " "
-                 + predictionTarget.variable() + " "
-                 + doubleOneDigitToQString(predictionTarget.age())
-                 + " 1.0 1.0\n");
+   QString out;
+   for (const QString& property : predictionTarget.properties())
+   {
+      out += QString("target " + predictionTarget.typeName() + " \""
+                     + mapWizardToCasaName(property) + "\" "
+                     + doubleToQString(predictionTarget.x()) + " "
+                     + doubleToQString(predictionTarget.y()) + " "
+                     + predictionTarget.variable() + " "
+                     + doubleOneDigitToQString(predictionTarget.age())
+                     + " 1.0 1.0\n");
+   }
+   return out;
 }
 
 

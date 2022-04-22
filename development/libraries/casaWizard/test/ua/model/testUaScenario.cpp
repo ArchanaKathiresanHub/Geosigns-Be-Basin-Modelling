@@ -7,6 +7,9 @@
 
 #include <gtest/gtest.h>
 
+using namespace casaWizard;
+using namespace ua;
+
 TEST( UAScenarioTest, TestWriteReadVersion0 )
 {
   casaWizard::ua::UAScenario writeScenario{new casaWizard::StubProjectReader()};
@@ -16,8 +19,8 @@ TEST( UAScenarioTest, TestWriteReadVersion0 )
   ipManagerWrite.setArguments(0, {10, 11}, {});
 
   casaWizard::ua::PredictionTargetManager& ptManagerWrite = writeScenario.predictionTargetManager();
-  ptManagerWrite.addDepthTarget("Temperature", 1.0, 2.0, 3.0);
-  ptManagerWrite.addDepthTarget("VRe", 4.0, 5.0, 6.0);
+  ptManagerWrite.addDepthTarget(1.0, 2.0, 3.0, {"Temperature"});
+  ptManagerWrite.addDepthTarget(4.0, 5.0, 6.0, {"VRe"});
 
   casaWizard::ua::MonteCarloDataManager& mcManagerWrite = writeScenario.monteCarloDataManager();
   mcManagerWrite.setRmse({1, 2});
@@ -42,17 +45,17 @@ TEST( UAScenarioTest, TestWriteReadVersion0 )
   EXPECT_DOUBLE_EQ(params[0]->arguments().getDoubleArgument(1), 11);
 
   const casaWizard::ua::PredictionTargetManager& ptManagerRead = readScenario.predictionTargetManager();
-  const QVector<casaWizard::ua::PredictionTargetDepth> targets = ptManagerRead.depthTargets();
+  const QVector<const casaWizard::ua::PredictionTarget*> targets = ptManagerRead.predictionTargets();
 
   ASSERT_EQ(targets.size(), 2);
 
-  EXPECT_DOUBLE_EQ(targets[0].x(), 1);
-  EXPECT_DOUBLE_EQ(targets[0].y(), 2);
-  EXPECT_DOUBLE_EQ(targets[0].z(), 3);
+  EXPECT_DOUBLE_EQ(targets[0]->x(), 1);
+  EXPECT_DOUBLE_EQ(targets[0]->y(), 2);
+  EXPECT_DOUBLE_EQ(targets[0]->z(), 3);
 
-  EXPECT_DOUBLE_EQ(targets[1].x(), 4);
-  EXPECT_DOUBLE_EQ(targets[1].y(), 5);
-  EXPECT_DOUBLE_EQ(targets[1].z(), 6);
+  EXPECT_DOUBLE_EQ(targets[1]->x(), 4);
+  EXPECT_DOUBLE_EQ(targets[1]->y(), 5);
+  EXPECT_DOUBLE_EQ(targets[1]->z(), 6);
 
   const casaWizard::ua::MonteCarloDataManager& mcManagerRead = readScenario.monteCarloDataManager();
 
@@ -117,4 +120,73 @@ TEST( UAScenarioTest, TestWriteReadVersion1 )
   EXPECT_EQ(21, designPoint1[0]);
   EXPECT_EQ(22, designPoint1[1]);
   EXPECT_EQ(23, designPoint1[2]);
+}
+
+void initializeScenarioWithPredictionTargets(UAScenario& scenario)
+{
+   MonteCarloDataManager& mcManager = scenario.monteCarloDataManager();
+   PredictionTargetManager& predictionTargetManager = scenario.predictionTargetManager();
+   predictionTargetManager.addDepthTarget(0, 0, 0, {"VRe"}); // First target without time series
+   predictionTargetManager.addDepthTarget(0, 0, 0, {"Temperature", "VRe"}); // Second target with time series
+   predictionTargetManager.setTargetHasTimeSeries(1, true);
+
+   QVector<QVector<double>> predMatrix;
+
+   // Add data for first target
+   predMatrix.push_back({0.4, 0.8, 0.5});
+
+   // Add matrix data for second target with time series
+   for (int i = 0; i < scenario.projectReader().agesFromMajorSnapshots().size(); i++)
+   {
+      predMatrix.push_back({i + 0.1, i - 0.1, i * 1.0}); // add one entry for Temperature for every time-step
+      predMatrix.push_back({0.01* (i + 0.1), 0.01*(i - 0.1), i * 0.01}); // add one entry for VRe for every time-step
+   }
+
+   mcManager.setPredictionTargetMatrix(predMatrix);
+   mcManager.setRmse({1.0}); // Putting Rmse to non-empty, to enable manager to return predictionTargetMatrix
+}
+
+TEST(UAScenarioTest, TestGetTimeSeriesData)
+{
+   UAScenario scenario(new casaWizard::StubProjectReader());
+   initializeScenarioWithPredictionTargets(scenario);
+
+   QVector<double> snapshotAges;
+   QMap<QString,QVector<double>> bestMatchedValuesPerProperty; // Initialize one best matched values vector per property
+   QMap<QString,QVector<QVector<double>>> currentPredTargetMatrixPerProperty; // Initialize one prediction matrix per property, indexed in a map
+   scenario.obtainTimeSeriesMonteCarloData(1, snapshotAges, bestMatchedValuesPerProperty, currentPredTargetMatrixPerProperty);
+
+   EXPECT_TRUE(bestMatchedValuesPerProperty["Non-existentProperty"].empty());
+   ASSERT_EQ(snapshotAges.size(), bestMatchedValuesPerProperty["VRe"].size());
+   ASSERT_EQ(snapshotAges.size(), bestMatchedValuesPerProperty["Temperature"].size());
+   EXPECT_DOUBLE_EQ(1.1, bestMatchedValuesPerProperty["Temperature"][1]);
+   EXPECT_DOUBLE_EQ(0.021, bestMatchedValuesPerProperty["VRe"][2]);
+
+   EXPECT_TRUE(currentPredTargetMatrixPerProperty["Non-existentProperty"].empty());
+   ASSERT_EQ(snapshotAges.size(), currentPredTargetMatrixPerProperty["VRe"].size());
+   ASSERT_EQ(snapshotAges.size(), currentPredTargetMatrixPerProperty["Temperature"].size());
+   EXPECT_DOUBLE_EQ(0.9, currentPredTargetMatrixPerProperty["Temperature"][1][1]);
+   EXPECT_DOUBLE_EQ(0.02, currentPredTargetMatrixPerProperty["VRe"][2][2]);
+}
+
+TEST(UAScenarioTest, TestGetDataAtTimeStep)
+{
+   UAScenario scenario(new casaWizard::StubProjectReader());
+   initializeScenarioWithPredictionTargets(scenario);
+
+   QVector<QVector<double>> data;
+   scenario.obtainMonteCarloDataForTimeStep(0, 0, data);
+
+   EXPECT_TRUE(data[0].empty()); // No Temperature data in the first target
+   EXPECT_EQ(3, data[1].size());
+   EXPECT_DOUBLE_EQ(0.8, data[1][1]); // data was initialized as predMatrix.push_back({0.4, 0.8, 0.5});
+
+   data.clear();
+   scenario.obtainMonteCarloDataForTimeStep(1, 4, data);
+
+   EXPECT_EQ(3, data[0].size());
+   EXPECT_EQ(3, data[1].size());
+
+   EXPECT_DOUBLE_EQ(4.1, data[0][0]);
+   EXPECT_DOUBLE_EQ(0.039, data[1][1]);
 }

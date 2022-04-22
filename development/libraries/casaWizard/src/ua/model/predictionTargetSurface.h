@@ -6,6 +6,8 @@
 namespace casaWizard
 {
 
+class ToDepthConverter;
+
 namespace ua
 {
 
@@ -13,21 +15,31 @@ class PredictionTargetSurface : public PredictionTarget
 {
 public:
   PredictionTargetSurface() = default;
-  explicit PredictionTargetSurface(const QString& property, const double x, const double y, const QString& layerName, const double age);
+  PredictionTargetSurface(const QVector<QString>& properties, const double x, const double y, const QString& surfaceName, const double age, const ToDepthConverter* todepthConverter = nullptr, const QString& locationName = "");
   static PredictionTargetSurface read(const int version, const QStringList& parameters);
 
   int version() const override;
   QStringList write() const override;
-  QString name() const override;
+  QString name(const QString& property) const override;
   QString nameWithoutAge() const override;
   QString variable() const override;
   QString typeName() const override;
 
-  QString layerName() const;
-  void setLayerName(const QString& layerName);
+  void setToDepthConverterAndCalcDepth(const ToDepthConverter* todepthConverter);
+
+  QString surfaceName() const override;
+
+  void setSurfaceAndLayerName(const QString& surfaceName, const QString layerName);
+
+  void setX(double x) override;
+  void setY(double y) override;
+
+  PredictionTarget* createCopy() const override;
 
 private:
-  QString layerName_;
+  QString m_surface;
+  QString m_layer;
+  const ToDepthConverter* m_toDepthConverter;
 };
 
 } // namespace ua

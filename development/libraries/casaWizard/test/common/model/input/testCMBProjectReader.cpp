@@ -85,6 +85,32 @@ TEST_F( CMBProjectReaderTest, testLithologyNames )
   }
 }
 
+TEST_F( CMBProjectReaderTest, testReadDepth )
+{
+   //not loaded
+   casaWizard::CMBProjectReader readerNotLoaded{};
+   EXPECT_EQ(readerNotLoaded.getDepth(4),Utilities::Numerical::IbsNoDataValue);
+
+   //Read from table
+   EXPECT_EQ(reader_.getDepth(4),Utilities::Numerical::IbsNoDataValue);
+
+   //Out of table range
+   EXPECT_EQ(readerNotLoaded.getDepth(20),Utilities::Numerical::IbsNoDataValue);
+}
+
+TEST_F( CMBProjectReaderTest, testreadThickness )
+{
+   //not loaded
+   casaWizard::CMBProjectReader readerNotLoaded{};
+   EXPECT_EQ(readerNotLoaded.getThickness(4),Utilities::Numerical::IbsNoDataValue);
+
+   //Read from table
+   EXPECT_EQ(reader_.getThickness(4),Utilities::Numerical::IbsNoDataValue);
+
+   //Out of table range
+   EXPECT_EQ(readerNotLoaded.getThickness(20),Utilities::Numerical::IbsNoDataValue);
+}
+
 TEST_F( CMBProjectReaderTest, testLayerNames )
 {
   const QStringList layerNamesActual = reader_.layerNames();
@@ -130,6 +156,13 @@ TEST_F( CMBProjectReaderTest, testSurfaceNames )
   {
     EXPECT_EQ(surfaceNamesExpected[i], surfaceNamesActual[i]) << "Mismatch at entry [" << i << "]";
   }
+}
+
+TEST_F( CMBProjectReaderTest, testGetLayerUnderSurface )
+{
+   EXPECT_EQ(reader_.getLayerUnderSurface("Water bottom"), "Miocene-Quaternary");
+   EXPECT_EQ(reader_.getLayerUnderSurface("45_TR_T_TDinput_SD"), "Triassic");
+   EXPECT_EQ(reader_.getLayerUnderSurface("Nr_Base_Rotliegend"), ""); // Layer under basement surface does not exist
 }
 
 TEST_F( CMBProjectReaderTest, testGetLayerID )

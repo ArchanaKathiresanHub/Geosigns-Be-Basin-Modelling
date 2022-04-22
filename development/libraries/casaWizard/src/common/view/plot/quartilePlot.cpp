@@ -38,6 +38,12 @@ void QuartilePlot::clearData()
 void QuartilePlot::setData(const QVector<double>& xAxisValuesSorted, const QVector<QVector<double>>& valuesMatrix, const QVector<double> sampleCoords)
 {
   clearData();
+
+  if (xAxisValuesSorted.empty() || valuesMatrix.empty() || sampleCoords.empty())
+  {
+     return;
+  }
+
   quartileSpacing_ = (xAxisValuesSorted.last() - xAxisValuesSorted[0])/(xAxisValuesSorted.size() - 1)*0.3;
 
   int i = 0;

@@ -10,8 +10,9 @@
 #include "McmcTargetExportData.h"
 
 #include "model/logger.h"
-#include "model/output/StringSanitizer.h"
 #include "model/targetParameterMapCreator.h"
+
+#include "Qt_Utils.h"
 
 #include <QFile>
 
@@ -70,7 +71,7 @@ bool McmcOutputWriter::writeData()
 
 bool McmcOutputWriter::writeTarget(const McmcSingleTargetExportData& d)
 {
-   m_writeData += stringSanitizer::escapeSpecialCharacters(d.locationName) + "; "
+   m_writeData += qtutils::escapeSpecialCharacters(d.locationName) + "; "
          + QString::number(d.xCor)  + "; "
          + QString::number(d.yCor)  + "; "
          + QString::number(d.zCor)  + "; "
@@ -121,7 +122,7 @@ bool McmcOutputWriter::writeHeader()
 
    for (const QString& pn : allPropNames)
    {
-      const QString propName = stringSanitizer::escapeSpecialCharacters(pn);
+      const QString propName = qtutils::escapeSpecialCharacters(pn);
       const QString propUnit = targetParameterMapCreator::lookupSIUnit(propName);
 
       m_writeData += propName + " P10 " + propUnit + "; "

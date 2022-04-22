@@ -143,7 +143,7 @@ namespace ctcWizard
 		fileToLog = "cauldron-mpi-output-rank-0.log";
 #else
 		//The following will now call whatever is loaded in the OS PATH variable
-		QString CLDRN_BIN = qtutils::ExportApplicationPath() + '/' + "fastcauldron";
+		QString CLDRN_BIN = qtutils::exportApplicationPath() + '/' + "fastcauldron";
 		QString MPI_BIN = "mpirun";
 		std::string fpp = " -noofpp";
 		QString MPI_OPTIONS = "";//"-outfile-pattern 'cauldron-mpi-output-rank-%r.log'";
@@ -159,10 +159,10 @@ namespace ctcWizard
 			wlm->JobSubmissionCommand
 			(
 				"cldrn", "", 1800, "ctcPressureJob", fileToLog.toStdString(),
-				"", numProc.toStdString(), "", "", qtutils::AddDoubleQuotes(process.workingDirectory()).toStdString(), false, false,
-				(qtutils::AddDoubleQuotes(MPI_BIN).toStdString() + " -n " +
-					numProc.toStdString() + ' ' + (MPI_OPTIONS).toStdString() + ' ' + qtutils::AddDoubleQuotes(CLDRN_BIN).toStdString() + fpp +
-					" -project " + qtutils::AddDoubleQuotes(filePath).toStdString() + " " + cldrnRunMode.toStdString()
+				"", numProc.toStdString(), "", "", qtutils::addDoubleQuotes(process.workingDirectory()).toStdString(), false, false,
+				(qtutils::addDoubleQuotes(MPI_BIN).toStdString() + " -n " +
+					numProc.toStdString() + ' ' + (MPI_OPTIONS).toStdString() + ' ' + qtutils::addDoubleQuotes(CLDRN_BIN).toStdString() + fpp +
+					" -project " + qtutils::addDoubleQuotes(filePath).toStdString() + " " + cldrnRunMode.toStdString()
 					),
 				true
 			)
@@ -244,7 +244,7 @@ namespace ctcWizard
 		fileToLog = "ctc-mpi-output-rank-0.log";
 #else
 		//The following will now call whatever is loaded in the OS PATH variable
-		QString CTC_BIN = qtutils::ExportApplicationPath() + '/' + "fastctc";
+		QString CTC_BIN = qtutils::exportApplicationPath() + '/' + "fastctc";
 		QString MPI_BIN = "mpirun";
 		std::string fpp = "-noofpp";
 		QString MPI_OPTIONS = "";//"-outfile-pattern 'ctc-mpi-output-rank-%r.log'";
@@ -264,7 +264,7 @@ namespace ctcWizard
 
 		auto cwd = process.workingDirectory();
 		auto wlm = workloadmanagers::WorkLoadManager::Create(cwd.toStdString() + "/cldrn.sh", workloadmanagers::WorkLoadManagerType::AUTO);
-		auto saveP3 = qtutils::AddDoubleQuotes(info.absoluteDir().path() + "/" + strList[0] + "_OUT.project3d").toStdString();
+		auto saveP3 = qtutils::addDoubleQuotes(info.absoluteDir().path() + "/" + strList[0] + "_OUT.project3d").toStdString();
 
 		connect(&process, static_cast<void (QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished),
 			this, [&] {Controller::processFinished(process.exitCode(), process.exitStatus(), myLogger, info.absoluteDir().path() + "/" + fileToLog
@@ -274,11 +274,11 @@ namespace ctcWizard
 		(
 			wlm->JobSubmissionCommand
 			("cldrn", "", 1800, "ctcCalcJob", outLog.toStdString(), "", numProc.toStdString(), "", "",
-				qtutils::AddDoubleQuotes(process.workingDirectory()).toStdString(), false, false,
+				qtutils::addDoubleQuotes(process.workingDirectory()).toStdString(), false, false,
 				(
-					qtutils::AddDoubleQuotes(MPI_BIN).toStdString() + " -n " +
-					numProc.toStdString() + ' ' + (MPI_OPTIONS).toStdString() + ' ' + qtutils::AddDoubleQuotes(CTC_BIN).toStdString() +
-					" -merge " + fpp + " -project " + qtutils::AddDoubleQuotes(ctcFilenameWithPath).toStdString() + (" -save ") + saveP3
+					qtutils::addDoubleQuotes(MPI_BIN).toStdString() + " -n " +
+					numProc.toStdString() + ' ' + (MPI_OPTIONS).toStdString() + ' ' + qtutils::addDoubleQuotes(CTC_BIN).toStdString() +
+					" -merge " + fpp + " -project " + qtutils::addDoubleQuotes(ctcFilenameWithPath).toStdString() + (" -save ") + saveP3
 					),
 				true
 			)

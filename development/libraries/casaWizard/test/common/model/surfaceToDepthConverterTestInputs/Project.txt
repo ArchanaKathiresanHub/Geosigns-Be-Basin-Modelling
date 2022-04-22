@@ -1,0 +1,24 @@
+Project: Basin_of_domes
+Coord Ref System: Amersfoort / RD New [28992]
+Transform: Amersfoort to WGS 84 (2) [1672]
+Is Projected CRS: Yes
+Map Set Associated: MigrationDemo_BasinOfDomes_CMB_20211116
+Well Set Associated: 
+Scenario: ModelWithResults_20220325-112458_20220401-092410
+Description: subsampled_SR2_Mesozoic Shale
+Created by: EUROPE\Marnix.vandenBerg 
+Created on: 4/1/2022 9:24:10 AM 
+Last Modified by: EUROPE\Marnix.vandenBerg 
+Last Modified on: 4/1/2022 9:25:32 AM 
+Well ID: 
+General Run Parameters: Default General Run Parameters
+Thermal/Pressure Run Parameters: Default T/P Run Parameters 
+Petroleum System Run Parameters: Default Petroleum System Run Parameters
+Stratigraphy: Default Stratigraphy
+Top Boundary Conditions: Default Top Boundary Conditions
+Confidence: 1
+Bottom Boundary Conditions: Default Bottom Boundary Conditions
+Simulation Type: PressureAndTemperature
+Pressure Mode: Hydrostatic
+Basin Module Version: 2022.1
+Cauldron Version: v2019.01

@@ -37,14 +37,16 @@ public:
 
    void setL2normRS(const double l2norm) const;
    void setL2norm(const double l2norm) const;
-   void updateHistogram(const PredictionTarget* const predictionTarget, const QVector<double>& values);
+   void updateHistogram(const PredictionTarget* const predictionTarget, const QVector<QVector<double> >& values, const QVector<QString>& predictionProperties);
+   void updateTimeSeriesPlot(const QVector<double>& timeSeries, const QMap<QString, QVector<QVector<double>>>& valuesMatrices, const QMap<QString,QVector<double>>& sampleCoordinatesPerProperty, const QVector<QString>& predictionProperties);
    void fillPredictionTargetTable(const QVector<const PredictionTarget*> predictionTargets);
    void setEnableTimeSeries(const bool checkState);
-   void updateTimeSeriesPlot(const PredictionTarget& predictionTarget, const QVector<double>& timeSeries, const QVector<QVector<double>>& valuesMatrix, const QVector<double>& sampleCoordinates);
 
    QSlider* sliderHistograms() const;
    void updateSliderHistograms(const int timeSeriesSize);
    QCheckBox* checkBoxHistoryPlotsMode() const;
+
+   void clearTimeSeriesPlots();
 
 private:
    QPushButton* pushButtonUArunCASA_;
@@ -55,7 +57,8 @@ private:
    QLineEdit*   lineEditL2normRS_;
    QLineEdit*   lineEditL2norm_;
    QTableWidget* tablePredictionTargets_;
-   Histogram* histogramPredictionTarget_;
+   QWidget* histogramsPredictionTarget_;
+   QWidget* timeSeriesPlots_;
    QSlider* sliderHistograms_;
    QLineEdit* lineEditTimeSeries_;
    QCheckBox* checkBoxHistoryPlotsMode_;

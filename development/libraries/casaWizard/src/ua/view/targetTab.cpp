@@ -2,9 +2,8 @@
 
 #include "view/CalibrationTargetTableUA.h"
 #include "view/components/customtitle.h"
-#include "view/depthTargetTable.h"
 #include "view/objectiveFunctionTable.h"
-#include "view/surfaceTargetTable.h"
+#include "view/PredictionTargetTable.h"
 
 #include <QHBoxLayout>
 #include <QHeaderView>
@@ -20,14 +19,16 @@ namespace ua
 
 TargetTab::TargetTab(QWidget* parent) :
   QWidget(parent),
-  depthTargetTable_{new DepthTargetTable(this)},
   calibrationTargetTable_{new CalibrationTargetTableUA(this)},
   objectiveFunctionTable_{new ObjectiveFunctionTable(this)},
-  surfaceTargetTable_{new SurfaceTargetTable(this)},
+  predictionTargetTable_{new PredictionTargetTable(this)},
   lineEditCalibration_{new QLineEdit(this)},
   pushSelectCalibration_{new QPushButton("Select", this)},
   pushSelectAllTemperatures_{new QPushButton("Select all temperatures", this)},
-  pushSelectAllVRe_{new QPushButton("Select all VRe's", this)}
+  pushSelectAllVRe_{new QPushButton("Select all VRe's", this)},
+  pushSelectAllTargetTemperatures_{new QPushButton("Select all temperatures", this)},
+  pushSelectAllTargetVRe_{new QPushButton("Select all VRe's", this)},
+  pushSelectAllTargetTimeSeries_{new QPushButton("Select all time series", this)}
 {
   QHBoxLayout* selectionLayout = new QHBoxLayout();
   selectionLayout->addWidget(new QLabel("Well Data upload", this));
@@ -50,9 +51,14 @@ TargetTab::TargetTab(QWidget* parent) :
   wellsLayout->addWidget(objectiveFunctionTable_);
 
   QVBoxLayout* predictionTargetsLayout = new QVBoxLayout();
-  predictionTargetsLayout->addWidget(new CustomTitle("Prediction targets", this));
-  predictionTargetsLayout->addWidget(depthTargetTable_);
-  predictionTargetsLayout->addWidget(surfaceTargetTable_);
+  QHBoxLayout* tmpLayout2 = new QHBoxLayout();
+  tmpLayout2->addWidget(new CustomTitle("Prediction targets", this), 0);
+  tmpLayout2->addWidget(new QWidget(this), 1);
+  tmpLayout2->addWidget(pushSelectAllTargetTemperatures_);
+  tmpLayout2->addWidget(pushSelectAllTargetVRe_);
+  tmpLayout2->addWidget(pushSelectAllTargetTimeSeries_);
+  predictionTargetsLayout->addLayout(tmpLayout2);
+  predictionTargetsLayout->addWidget(predictionTargetTable_);
 
   QHBoxLayout* layout = new QHBoxLayout(this);
   layout->addLayout(wellsLayout);
@@ -69,14 +75,9 @@ ObjectiveFunctionTable* TargetTab::objectiveFunctionTable() const
   return objectiveFunctionTable_;
 }
 
-DepthTargetTable* TargetTab::depthTargetTable() const
+PredictionTargetTable* TargetTab::surfaceTargetTable() const
 {
-  return depthTargetTable_;
-}
-
-SurfaceTargetTable*TargetTab::surfaceTargetTable() const
-{
-  return surfaceTargetTable_;
+  return predictionTargetTable_;
 }
 
 QLineEdit* TargetTab::lineEditCalibration() const
@@ -97,6 +98,21 @@ const QPushButton* TargetTab::pushSelectAllTemperatures() const
 const QPushButton* TargetTab::pushSelectAllVRe() const
 {
    return pushSelectAllVRe_;
+}
+
+const QPushButton* TargetTab::pushSelectAllTargetTemperatures() const
+{
+   return pushSelectAllTargetTemperatures_;
+}
+
+const QPushButton* TargetTab::pushSelectAllTargetVRe() const
+{
+   return pushSelectAllTargetVRe_;
+}
+
+const QPushButton* TargetTab::pushSelectAllTargetTimeSeries() const
+{
+   return pushSelectAllTargetTimeSeries_;
 }
 
 } // namespace ua

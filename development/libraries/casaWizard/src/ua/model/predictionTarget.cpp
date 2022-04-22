@@ -2,63 +2,107 @@
 
 #include "model/targetParameterMapCreator.h"
 
+#include "model/PredictionTargetReader.h"
+
 namespace casaWizard
 {
 
 namespace ua
 {
 
-PredictionTarget::PredictionTarget(const QString& property, const double x, const double y, const double age) :
-  property_{property},
-  x_{x},
-  y_{y},
-  age_{age}
+PredictionTarget::PredictionTarget(const QVector<QString>& properties, const double x, const double y, const double age, const QString& locationName, const double z) :
+  m_properties{properties},
+  m_x{x},
+  m_y{y},
+  m_z{z},
+  m_age{age},
+  m_locationName(locationName)
 {
 }
 
-QString PredictionTarget::property() const
+PredictionTarget* PredictionTarget::createFromList(const int version, const QStringList& list)
 {
-  return property_;
+   return PredictionTargetReader::readTarget(version, list);
 }
 
-void PredictionTarget::setProperty(const QString& property)
+QString PredictionTarget::surfaceName() const
 {
-  property_ = property;
+   return "";
+}
+
+double PredictionTarget::z() const
+{
+   return m_z;
+}
+
+void PredictionTarget::setZ(double z)
+{
+   m_z = z;
+}
+
+QVector<QString> PredictionTarget::properties() const
+{
+  return m_properties;
+}
+
+void PredictionTarget::setProperties(const QVector<QString>& properties)
+{
+   m_properties = properties;
+}
+
+void PredictionTarget::setPropertyActive(const bool active, const QString& property)
+{
+   if (active)
+   {
+      if (!m_properties.contains(property))
+      {
+         m_properties.append(property);
+      }
+   }
+   else
+   {
+      m_properties.removeAll(property);
+   }
 }
 
 double PredictionTarget::x() const
 {
-  return x_;
+  return m_x;
 }
 
 void PredictionTarget::setX(double x)
 {
-  x_ = x;
+  m_x = x;
 }
 
 double PredictionTarget::y() const
 {
-  return y_;
+   return m_y;
 }
 
 void PredictionTarget::setY(double y)
 {
-  y_ = y;
+   m_y = y;
 }
 
 double PredictionTarget::age() const
 {
-    return age_;
+   return m_age;
 }
 
 void PredictionTarget::setAge(double age)
 {
-    age_ = age;
+   m_age = age;
 }
 
-QString PredictionTarget::unitSI() const
+QString PredictionTarget::locationName() const
 {
-  return targetParameterMapCreator::lookupSIUnit(property_);
+   return m_locationName;
+}
+
+void PredictionTarget::setLocationName(const QString& locationName)
+{
+   m_locationName = locationName;
 }
 
 } // namespace ua

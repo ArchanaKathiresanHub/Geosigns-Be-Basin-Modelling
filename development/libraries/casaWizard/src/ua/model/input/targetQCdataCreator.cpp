@@ -79,7 +79,7 @@ void readTargetQCs(UAScenario& scenario)
   const PredictionTargetManager& predictionTargetManager = scenario.predictionTargetManager();
 
   const int nActiveCalibrationTargets = calibrationTargetManager.activeCalibrationTargets().size();
-  const int nRequired = nActiveCalibrationTargets + predictionTargetManager.amountIncludingTimeSeries();
+  const int nRequired = nActiveCalibrationTargets + predictionTargetManager.amountOfPredictionTargetWithTimeSeriesAndProperties();
   if (nTargets != nRequired)
   {
     Logger::log() << "Incompatible size of observable imported (" << nTargets << ") and specified (" << nRequired << ")." << Logger::endl();
@@ -108,19 +108,22 @@ void readTargetQCs(UAScenario& scenario)
 
   for (const PredictionTarget* const predictionTarget : predictionTargetManager.predictionTargetsIncludingTimeSeries())
   {
-    TargetQC targetQC(targetIndex,
-                      predictionTarget->property(),
-                      predictionTarget->name(),
-                      false, // is not calibration
-                      0.0, // value
-                      0.0, // standard deviation
-                      proxyQualityEvaluation[targetIndex][0], // R2
-                      proxyQualityEvaluation[targetIndex][1], // R2Adj
-                      proxyQualityEvaluation[targetIndex][2], // Q2
-                      runCasesObservablesOfTargetQC[targetIndex],
-                      proxyEvaluationObservables[targetIndex]);
-    targetQCs.push_back(targetQC);
-    targetIndex++;
+     for (const QString& property : predictionTarget->properties())
+     {
+        TargetQC targetQC(targetIndex,
+                          property,
+                          predictionTarget->name(property),
+                          false, // is not calibration
+                          0.0, // value
+                          0.0, // standard deviation
+                          proxyQualityEvaluation[targetIndex][0], // R2
+                          proxyQualityEvaluation[targetIndex][1], // R2Adj
+                          proxyQualityEvaluation[targetIndex][2], // Q2
+                          runCasesObservablesOfTargetQC[targetIndex],
+                          proxyEvaluationObservables[targetIndex]);
+        targetQCs.push_back(targetQC);
+        targetIndex++;
+     }
   }
 
   std::sort(targetQCs.begin(), targetQCs.end(), [](const TargetQC& a, const TargetQC& b)

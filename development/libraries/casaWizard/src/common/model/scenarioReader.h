@@ -6,6 +6,8 @@
 #include <QMap>
 #include <QString>
 
+#include <memory>
+
 namespace casaWizard
 {
 
@@ -29,6 +31,8 @@ public:
   template <typename Type>
   QVector<Type*> readAndCreateVector(const QString& key) const;
 
+  template<typename Type>
+  QVector<std::shared_ptr<Type>> readAndCreateVectorOfSharedPtrs(const QString& key) const;
 private:
   template<typename Type>
   Type createEntry(const QString& entry) const;
@@ -81,6 +85,22 @@ QVector<Type*> ScenarioReader::readAndCreateVector(const QString& key) const
       const int version = extractVersion(parameters);
       Type* t(Type::createFromList(version, parameters));
       values.append(t);
+    }
+  }
+  return values;
+}
+
+template<typename Type>
+QVector<std::shared_ptr<Type>> ScenarioReader::readAndCreateVectorOfSharedPtrs(const QString& key) const
+{
+  QVector<std::shared_ptr<Type>> values;
+  for (const QString& entry : vectors_[key] )
+  {
+    if (!entry.isEmpty())
+    {
+      QStringList parameters = entry.split(scenarioIO::separator);
+      const int version = extractVersion(parameters);
+      values.append(std::shared_ptr<Type>(Type::createFromList(version, parameters)));
     }
   }
   return values;

@@ -28,6 +28,10 @@ Histogram::Histogram(QWidget* parent) :
 void Histogram::setData(const QVector<double>& values, int bins)
 {
   clearData();
+  if (values.empty())
+  {
+     return;
+  }
   minValue_ = *std::min_element(values.constBegin(), values.constEnd());
   maxValue_ = *std::max_element(values.constBegin(), values.constEnd());
 

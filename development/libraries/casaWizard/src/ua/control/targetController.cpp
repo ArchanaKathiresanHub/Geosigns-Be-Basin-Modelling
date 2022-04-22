@@ -1,10 +1,9 @@
 #include "targetController.h"
 
 #include "control/calibrationTargetController.h"
-#include "control/depthTargetController.h"
 #include "control/importWellPopupXlsxController.h"
 #include "control/objectiveFunctionController.h"
-#include "control/surfaceTargetController.h"
+#include "control/PredictionTargetController.h"
 #include "model/input/extractWellDataXlsx.h"
 #include "model/input/calibrationTargetCreator.h"
 #include "model/logger.h"
@@ -30,8 +29,7 @@ TargetController::TargetController(TargetTab* targetTab,
   QObject(parent),
   scenario_{scenario},
   targetTab_{targetTab},
-  depthTargetController_{new DepthTargetController(targetTab_->depthTargetTable(), scenario_.predictionTargetManager(), this)},
-  surfaceTargetController_{new SurfaceTargetController(targetTab_->surfaceTargetTable(), scenario_.predictionTargetManager(), this)},
+  predictionTargetController_{new PredictionTargetController(targetTab_->surfaceTargetTable(), scenario_.predictionTargetManager(), this)},
   calibrationTargetController_{new CalibrationTargetController(targetTab_->calibrationTargetTable(), scenario_, this)},
   objectiveFunctionController_{new ObjectiveFunctionController(targetTab_->objectiveFunctionTable(), scenario_, this)}
 {
@@ -40,6 +38,15 @@ TargetController::TargetController(TargetTab* targetTab,
   connect(targetTab_->pushSelectCalibration(), SIGNAL(clicked()),                   this, SLOT(slotPushSelectCalibrationClicked()));
   connect(targetTab_->pushSelectAllVRe(), SIGNAL(clicked()),                   this, SLOT(slotPushSelectAllVReClicked()));
   connect(targetTab_->pushSelectAllTemperatures(), SIGNAL(clicked()),                   this, SLOT(slotPushSelectAllTemperaturesClicked()));
+
+  connect(targetTab_->pushSelectAllTargetVRe(), SIGNAL(clicked()),                   this, SLOT(slotPushSelectAllVRePredictionTargetsClicked()));
+  connect(targetTab_->pushSelectAllTargetTemperatures(), SIGNAL(clicked()),                   this, SLOT(slotPushSelectAllTemperaturePredictionTargetsClicked()));
+  connect(targetTab_->pushSelectAllTargetTimeSeries(), SIGNAL(clicked()),                   this, SLOT(slotPushSelectAllTimeSeriesPredictionTargetsClicked()));
+
+  connect(predictionTargetController_, SIGNAL(dataChanged()), this, SLOT(slotDataChanged()));
+  connect(calibrationTargetController_, SIGNAL(wellSelectionChanged()), this, SLOT(slotDataChanged()));
+  connect(objectiveFunctionController_, SIGNAL(dataChanged()), this, SLOT(slotDataChanged()));
+
 
   connect(targetTab_->lineEditCalibration(),   SIGNAL(textChanged(const QString&)), this, SLOT(slotLineEditCalibrationTextChanged(const QString&)));
 }
@@ -76,13 +83,37 @@ void TargetController::slotUpdateTabGUI(int tabID)
 void TargetController::slotPushSelectAllVReClicked()
 {
    scenario_.calibrationTargetManager().setPropertyActiveForAllWells("VRe");
-   calibrationTargetController_->slotRefresh();
+   calibrationTargetController_->refreshAndEmitDataChanged();
 }
 
 void TargetController::slotPushSelectAllTemperaturesClicked()
 {
    scenario_.calibrationTargetManager().setPropertyActiveForAllWells("Temperature");
-   calibrationTargetController_->slotRefresh();
+   calibrationTargetController_->refreshAndEmitDataChanged();
+}
+
+void TargetController::slotPushSelectAllVRePredictionTargetsClicked()
+{
+   scenario_.predictionTargetManager().setPropertyActiveForAllTargets("VRe");
+   predictionTargetController_->refreshAndEmitDataChanged();
+}
+
+void TargetController::slotPushSelectAllTemperaturePredictionTargetsClicked()
+{
+   scenario_.predictionTargetManager().setPropertyActiveForAllTargets("Temperature");
+   predictionTargetController_->refreshAndEmitDataChanged();
+}
+
+void TargetController::slotPushSelectAllTimeSeriesPredictionTargetsClicked()
+{
+   scenario_.predictionTargetManager().setTimeSeriesActiveForAllTargets();
+   predictionTargetController_->refreshAndEmitDataChanged();
+}
+
+void TargetController::slotDataChanged()
+{
+   scenario_.setStageComplete(StageTypesUA::qc, false);
+   scenario_.setStageComplete(StageTypesUA::mcmc, false);
 }
 
 void TargetController::slotPushSelectCalibrationClicked()

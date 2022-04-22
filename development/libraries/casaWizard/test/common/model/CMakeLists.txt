@@ -1,7 +1,10 @@
 add_casawizard_common_gtest( NAME CalibrationTargetManager SOURCES testCalibrationTargetManager.cpp )
 add_casawizard_common_gtest( NAME CasaScenario             SOURCES testCasaScenario.cpp )
 add_casawizard_common_gtest( NAME HistogramGenerator       SOURCES testHistogramGenerator.cpp )
-add_casawizard_common_gtest( NAME PercentileGenerator       SOURCES testPercentileGenerator.cpp )
+add_casawizard_common_gtest( NAME SurfaceToDepthConverter  SOURCES TestSurfaceToDepthConverter.cpp )
+file( COPY ${CMAKE_CURRENT_SOURCE_DIR}/surfaceToDepthConverterTestInputs DESTINATION ${CMAKE_CURRENT_BINARY_DIR} )
+
+add_casawizard_common_gtest( NAME PercentileGenerator      SOURCES testPercentileGenerator.cpp )
 add_casawizard_common_gtest( NAME ObjectiveFunctionManager SOURCES testObjectiveFunctionManager.cpp )
 add_casawizard_common_gtest( NAME ScenarioReader           SOURCES testScenarioReader.cpp )
 add_casawizard_common_gtest( NAME ScenarioWriter           SOURCES testScenarioWriter.cpp )

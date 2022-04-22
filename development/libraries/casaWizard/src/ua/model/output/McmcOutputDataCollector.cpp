@@ -176,15 +176,16 @@ void McmcOutputDataCollector::collectPredictionTargetData()
    const QVector<double>& optimalValuesProxy = m_scenario.predictionTargetDataBestMC();
 
    //Only write the data that could be collected (enables data writing before performing MCMC):
-   const bool writeOptimalValuesProxy = optimalValuesProxy.size() == predictionTargets.size();
-   const bool writePercentiles = predictionTargetMatrix.size() == predictionTargets.size();
-   const bool writeValOptimalSim = m_optimalCaseSimValues.size() == predictionTargets.size();
-   const bool writeValBaseSim = m_baseCaseSimValues.size() == predictionTargets.size();
-   const bool writeValBaseProxy = m_baseCaseProxyValues.size() == predictionTargets.size();
+   const int numberOfMatrixRows = predictionTargetManager.amountOfPredictionTargetWithTimeSeriesAndProperties();
+   const bool writeOptimalValuesProxy = optimalValuesProxy.size() == numberOfMatrixRows;
+   const bool writePercentiles = predictionTargetMatrix.size() == numberOfMatrixRows;
+   const bool writeValOptimalSim = m_optimalCaseSimValues.size() == numberOfMatrixRows;
+   const bool writeValBaseSim = m_baseCaseSimValues.size() == numberOfMatrixRows;
+   const bool writeValBaseProxy = m_baseCaseProxyValues.size() == numberOfMatrixRows;
 
    QMap<QString,McmcSingleTargetExportData>& targetToDataMap = m_mcmcTargetExportData.targetData;
    std::set<QString>& allPropNames = m_mcmcTargetExportData.allPropNames;
-
+   int indexInPredictionTargetMatrix = 0;
    for (int i = 0; i < predictionTargets.size(); i++)
    {
       const PredictionTarget* target = predictionTargets.at(i);
@@ -201,53 +202,48 @@ void McmcOutputDataCollector::collectPredictionTargetData()
       }
       else
       {
+         expData.locationName = target->locationName();
          expData.age = target->age();
          expData.xCor = target->x();
          expData.yCor = target->y();
+         expData.zCor = target->z();
       }
 
       const QString typeName = target->typeName();
-      if (typeName == "XYZPoint")
+      if(typeName == "XYPointLayerTopSurface")
       {
-         expData.zCor = target->variable().toDouble();
-      }
-      else if(typeName == "XYPointLayerTopSurface")
-      {
-         expData.stratigraphicSurface = target->variable();
-      }
-      else
-      {
-         Logger::log() << "Export MCMC data: Unknown target type for prediction target with index: "
-                       << QString::number(i)
-                       << "Target might not be exported correctly." << Logger::endl();
+         expData.stratigraphicSurface = target->surfaceName();
       }
 
-      const QString propName = target->property();
-      allPropNames.insert(propName);
-
-      TargetDataSingleProperty targetData;
-      if (expData.targetOutputs.contains(propName))
+      for (const QString& propertyName : target->properties())
       {
-         targetData = expData.targetOutputs.value(propName);
+         allPropNames.insert(propertyName);
+
+         TargetDataSingleProperty targetData;
+         if (expData.targetOutputs.contains(propertyName))
+         {
+            targetData = expData.targetOutputs.value(propertyName);
+         }
+
+         if (writePercentiles)
+         {
+            const QVector<double>& targetValues = predictionTargetMatrix.at(indexInPredictionTargetMatrix);
+            const QVector<double> quartileTargets{0.1, 0.5, 0.9};
+            const QVector<double> percentiles = percentileGenerator::getPercentileValues(targetValues, quartileTargets);
+            targetData.p10 = *percentiles.begin();
+            targetData.p50 = percentiles.at(1);
+            targetData.p90 = percentiles.back();
+         }
+
+         if (writeOptimalValuesProxy)  targetData.optimalProxy = optimalValuesProxy.at(indexInPredictionTargetMatrix);
+         if (writeValOptimalSim)       targetData.optimalSim = m_optimalCaseSimValues.at(indexInPredictionTargetMatrix);
+         if (writeValBaseSim)          targetData.baseSim = m_baseCaseSimValues.at(indexInPredictionTargetMatrix);
+         if (writeValBaseProxy)        targetData.baseProxy = m_baseCaseProxyValues.at(indexInPredictionTargetMatrix);
+
+         expData.targetOutputs[propertyName] = targetData;
+         targetToDataMap[targetHash] = expData;
+         indexInPredictionTargetMatrix++;
       }
-
-      if (writePercentiles)
-      {
-         const QVector<double>& targetValues = predictionTargetMatrix.at(i);
-         const QVector<double> quartileTargets{0.1, 0.5, 0.9};
-         const QVector<double> percentiles = percentileGenerator::getPercentileValues(targetValues, quartileTargets);
-         targetData.p10 = *percentiles.begin();
-         targetData.p50 = percentiles.at(1);
-         targetData.p90 = percentiles.back();
-      }
-
-      if (writeOptimalValuesProxy)  targetData.optimalProxy = optimalValuesProxy.at(i);
-      if (writeValOptimalSim)       targetData.optimalSim = m_optimalCaseSimValues.at(i);
-      if (writeValBaseSim)          targetData.baseSim = m_baseCaseSimValues.at(i);
-      if (writeValBaseProxy)        targetData.baseProxy = m_baseCaseProxyValues.at(i);
-
-      expData.targetOutputs[propName] = targetData;
-      targetToDataMap[targetHash] = expData;
    }
 }
 

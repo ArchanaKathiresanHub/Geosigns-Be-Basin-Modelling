@@ -40,6 +40,7 @@ void ObjectiveFunctionController::slotTableObjectiveFunctionChanged(QTableWidget
 {
   casaScenario_.objectiveFunctionManager().setValue(item->row(), item->column() - offsetColumnToObjectiveFunctionManagerValue(), item->data(0).toDouble());
   casaScenario_.applyObjectiveFunctionOnCalibrationTargets();
+  emit dataChanged();
 }
 
 int ObjectiveFunctionController::offsetColumnToObjectiveFunctionManagerValue() const

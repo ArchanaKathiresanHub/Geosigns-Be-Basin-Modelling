@@ -1,6 +1,16 @@
+//
+// Copyright (C) 2022 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
+
 #include "predictionTargetManager.h"
 
 #include "model/input/projectReader.h"
+#include "model/logger.h"
 #include "model/scenarioReader.h"
 #include "model/scenarioWriter.h"
 #include "model/targetParameterMapCreator.h"
@@ -14,408 +24,488 @@ namespace casaWizard
 namespace ua
 {
 
-namespace
+QVector<QString> PredictionTargetManager::s_targetVariables{"Temperature","VRe"};
+
+
+PredictionTargetManager::PredictionTargetManager(const ProjectReader& projectReader, const ToDepthConverter& toDepthConverter) :
+   m_predictionTargets{},
+   predictionTargetsAllTimes_{},
+   m_projectReader{projectReader},
+   m_toDepthConverter(toDepthConverter),
+   m_identifier{1}
+{}
+
+void PredictionTargetManager::addTargets(QVector<double> snapshots)
 {
+   if (m_targetHasTimeSeries.isEmpty())
+   {
+      return;
+   }
 
-template <class TargetType>
-void addTargets(QVector<const PredictionTarget*>& allTargets, QVector<TargetType> typeTargets, QVector<bool> hasTimeSeries, QVector<double> snapshots)
-{
-  if (hasTimeSeries.isEmpty())
-  {
-    return;
-  }
+   assert(m_targetHasTimeSeries.size() == m_predictionTargets.size());
 
-  assert(hasTimeSeries.size() == typeTargets.size());
+   if (m_targetHasTimeSeries.size() != m_predictionTargets.size())
+   {
+      return;
+   }
 
-  if (hasTimeSeries.size() != typeTargets.size())
-  {
-    return;
-  }
-
-  int i = 0;
-  for (const TargetType& target : typeTargets)
-  {
-    if (hasTimeSeries[i])
-    {
-      for (const double age : snapshots)
+   int i = 0;
+   for (auto target : m_predictionTargets)
+   {
+      if (m_targetHasTimeSeries[i])
       {
-        TargetType* tmpPredTar = new TargetType(target);
-        tmpPredTar->setAge(age);
-        allTargets.push_back(tmpPredTar);
+         for (const double age : snapshots)
+         {
+            PredictionTarget* newTarget = target->createCopy();
+            newTarget->setAge(age);
+            predictionTargetsAllTimes_.push_back(newTarget);
+         }
       }
-    }
-    else
-    {
-      TargetType* newTarget = new TargetType(target);
-      allTargets.push_back(newTarget);
-    }
-    ++i;
-  }
-}
-
-}
-
-
-QStringList PredictionTargetManager::targetVariables_{"Temperature","VRe"};
-
-PredictionTargetManager::PredictionTargetManager(const ProjectReader& projectReader) :
-  depthTargets_{},
-  surfaceTargets_{},
-  predictionTargetsAllTimes_{},
-  depthTargetHasTimeSeries_{},
-  surfaceTargetHasTimeSeries_{},
-  projectReader_{projectReader}
-{
+      else
+      {
+         PredictionTarget* newTarget = target->createCopy();
+         predictionTargetsAllTimes_.push_back(newTarget);
+      }
+      ++i;
+   }
 }
 
 PredictionTargetManager::~PredictionTargetManager()
 {
-  clearMemory();
+   clearMemory();
 }
 
-QVector<PredictionTargetDepth> PredictionTargetManager::depthTargets() const
+const QVector<const PredictionTarget*> PredictionTargetManager::predictionTargets() const
 {
-  return depthTargets_;
+   QVector<const PredictionTarget*> allTargets;
+   for (auto target : m_predictionTargets)
+   {
+      allTargets.push_back(target.get());
+   }
+   return allTargets;
 }
 
-QVector<PredictionTargetSurface> PredictionTargetManager::surfaceTargets() const
+const QVector<const PredictionTarget*> PredictionTargetManager::predictionTargetInTimeSeries(const int row) const
 {
-  return surfaceTargets_;
-}
-
-QVector<const PredictionTarget*> PredictionTargetManager::predictionTargets() const
-{
-  QVector<const PredictionTarget*> allTargets;
-  for (const PredictionTargetDepth& target : depthTargets_)
-  {
-    allTargets.push_back(&target);
-  }
-  for (const PredictionTargetSurface& target : surfaceTargets_)
-  {
-    allTargets.push_back(&target);
-  }
-  return allTargets;
-}
-
-QVector<const PredictionTarget*> PredictionTargetManager::predictionTargetInTimeSeries(const int row) const
-{
-  return predictionTargetsIncludingTimeSeries().mid(indexCumulativePredictionTarget(row), sizeOfPredictionTargetWithTimeSeries(row));
+   return predictionTargetsIncludingTimeSeries().mid(indexCumulativePredictionTarget(row), sizeOfPredictionTargetWithTimeSeries(row));
 }
 
 int PredictionTargetManager::indexCumulativePredictionTarget(const int row) const
 {
-  const QVector<int> sizesPredTargets = sizeOfPredictionTargetsWithTimeSeries();
+   const QVector<int> sizesPredTargets = sizeOfPredictionTargetsWithTimeSeries();
 
-  return (row > 0
-          ? std::accumulate(sizesPredTargets.begin(), sizesPredTargets.begin() + row, 0)
-          : 0);
+   return (row > 0
+           ? std::accumulate(sizesPredTargets.begin(), sizesPredTargets.begin() + row, 0)
+           : 0);
 }
 
-QStringList PredictionTargetManager::validLayerNames() const
+int PredictionTargetManager::indexCumulativePredictionTargetIncludingProperties(const int row) const
 {
-  return projectReader_.layerNames();
+   const QVector<int> sizesPredTargets = sizeOfPredictionTargetsWithTimeSeriesIncludingProperties();
+
+   return (row > 0
+           ? std::accumulate(sizesPredTargets.begin(), sizesPredTargets.begin() + row, 0)
+           : 0);
 }
 
-QVector<const PredictionTarget*> PredictionTargetManager::predictionTargetsIncludingTimeSeries() const
+void PredictionTargetManager::setTargetActiveProperty(const bool active, const int row, const QString& property)
 {
-  return predictionTargetsAllTimes_;
+   m_predictionTargets[row]->setPropertyActive(active, property);
+   setPredictionTargetsAllTimes();
+}
+
+QStringList PredictionTargetManager::validSurfaceNames() const
+{
+   QStringList validSurfaceNames = m_projectReader.surfaceNames();
+   if (!validSurfaceNames.empty())
+   {
+      validSurfaceNames.removeLast(); // Remove basement, since that is not supported yet
+      validSurfaceNames.insert(0, ""); // Add empty entry to be able to deselect the surface in the predictionTargetTable
+   }
+
+   return validSurfaceNames;
+}
+
+const QVector<const PredictionTarget*> PredictionTargetManager::predictionTargetsIncludingTimeSeries() const
+{
+   return predictionTargetsAllTimes_;
 }
 
 void PredictionTargetManager::setPredictionTargetsAllTimes()
 {
-  for (const PredictionTarget* target : predictionTargetsAllTimes_)
-  {
-    delete target;
-  }
-  predictionTargetsAllTimes_.clear();
+   for (const PredictionTarget* target : predictionTargetsAllTimes_)
+   {
+      delete target;
+   }
+   predictionTargetsAllTimes_.clear();
 
-  QVector<double> snapshots = projectReader_.agesFromMajorSnapshots();
+   QVector<double> snapshots = m_projectReader.agesFromMajorSnapshots();
 
-  addTargets<PredictionTargetDepth>(predictionTargetsAllTimes_, depthTargets_, depthTargetHasTimeSeries_, snapshots);
-  addTargets<PredictionTargetSurface>(predictionTargetsAllTimes_, surfaceTargets_, surfaceTargetHasTimeSeries_, snapshots);
+   addTargets(snapshots);
 }
 
 void PredictionTargetManager::clearMemory()
 {
-  for (const PredictionTarget* targetTime : predictionTargetsAllTimes_)
-  {
-    delete targetTime;
-  }
+   for (const PredictionTarget* targetTime : predictionTargetsAllTimes_)
+   {
+      delete targetTime;
+   }
 }
 
-void PredictionTargetManager::setDepthTarget(int row, int column, const QString& text)
+void PredictionTargetManager::setTarget(int row, int column, const QString& text)
 {
-  if (text.isEmpty() || row < 0 || row >= depthTargets_.size())
-  {
-    return;
-  }
-
-  switch(column)
-  {
-    case 0:
-    {
-      depthTargets_[row].setProperty(text);
-      break;
-    }
-    case 1:
-    {
-      depthTargets_[row].setX(text.toDouble());
-      break;
-    }
-    case 2:
-    {
-      depthTargets_[row].setY(text.toDouble());
-      break;
-    }
-    case 3:
-    {
-      depthTargets_[row].setZ(text.toDouble());
-      break;
-    }
-  }
-  setPredictionTargetsAllTimes();
-}
-
-void PredictionTargetManager::setSurfaceTarget(int row, int column, const QString& text)
-{
-  if (text.isEmpty())
-  {
-    return;
-  }
-  if (row < 0 || row >= surfaceTargets_.size())
-  {
-    return;
-  }
-  switch(column)
-  {
-    case 0:
-    {
-      surfaceTargets_[row].setProperty(text);
-      break;
-    }
-    case 1:
-    {
-      surfaceTargets_[row].setX(text.toDouble());
-      break;
-    }
-    case 2:
-    {
-      surfaceTargets_[row].setY(text.toDouble());
-      break;
-    }
-    case 3:
-    {
-      surfaceTargets_[row].setLayerName(text);
-      break;
-    }
-  }
-  setPredictionTargetsAllTimes();
-}
-
-
-void PredictionTargetManager::addDepthTarget(const QString& property, const double x, const double y, const double z, const double age)
-{
-  PredictionTargetDepth target(property, x, y, z, age);
-  depthTargets_.append(target);
-  depthTargetHasTimeSeries_.push_back(false);
-  setPredictionTargetsAllTimes();
-}
-
-void PredictionTargetManager::addSurfaceTarget(const QString& property, const double x, const double y, QString layer, const double age)
-{  
-  const QStringList layers = projectReader_.layerNames();
-  if (!layers.contains(layer))
-  {
-    if (layers.empty())
-    {
+   if (row < 0 || row >= m_predictionTargets.size())
+   {
       return;
-    }
-    else
-    {
-      layer = layers[0];
-    }
-  }
-  PredictionTargetSurface target(property, x, y, layer, age);
-  surfaceTargets_.append(target);
-  surfaceTargetHasTimeSeries_.push_back(false);
-  setPredictionTargetsAllTimes();
+   }
+   switch(column)
+   {
+   case 0:
+   {
+      break;
+   }
+   case 1:
+   {
+      m_predictionTargets[row]->setX(text.toDouble());
+      break;
+   }
+   case 2:
+   {
+      m_predictionTargets[row]->setY(text.toDouble());
+      break;
+   }
+   case 3:
+   {
+      PredictionTargetDepth* depthTarget = dynamic_cast<PredictionTargetDepth*>(m_predictionTargets[row].get());
+      if (depthTarget != nullptr)
+      {
+         depthTarget->setZ(text.toDouble());
+      }
+
+      break;
+   }
+   case 4:
+   {
+      PredictionTargetSurface* surfaceTarget = dynamic_cast<PredictionTargetSurface*>(m_predictionTargets[row].get());
+      if (surfaceTarget != nullptr && text != "")
+      {
+         surfaceTarget->setSurfaceAndLayerName(text, m_projectReader.getLayerUnderSurface(text));
+      }
+      else
+      {
+         const PredictionTarget& target = *m_predictionTargets[row];
+         const double x = target.x();
+         const double y = target.y();
+         const double age = target.age();
+         const QString locationName = target.locationName();
+         QVector<QString> properties = target.properties();
+
+         if (text == "")
+         {
+            m_predictionTargets[row].reset(new PredictionTargetDepth(properties, x, y, 0, age, locationName));
+         }
+         else
+         {
+            PredictionTargetSurface* surfaceTarget = new PredictionTargetSurface(properties, x, y, text, age, &m_toDepthConverter, locationName);
+            surfaceTarget->setSurfaceAndLayerName(text, m_projectReader.getLayerUnderSurface(text));
+            m_predictionTargets[row].reset(surfaceTarget);
+         }
+      }
+      break;
+   }
+   }
+   setPredictionTargetsAllTimes();
 }
 
-void PredictionTargetManager::copyDepthTarget(int index)
+void PredictionTargetManager::addDepthTarget(const double x, const double y, const double z, const QVector<QString>& properties, const double age)
 {
-  if (index<0 || index>=depthTargets_.size())
-  {
-    return;
-  }
-  depthTargets_.append(depthTargets_[index]);
-  depthTargetHasTimeSeries_.push_back(depthTargetHasTimeSeries_[index]);
-  setPredictionTargetsAllTimes();
+   m_predictionTargets.push_back(std::make_shared<PredictionTargetDepth>(properties, x, y, z, age, "Loc_" + QString::number(m_identifier)));
+   m_targetHasTimeSeries.push_back(false);
+   m_identifier++;
+
+   setPredictionTargetsAllTimes();
 }
 
-void PredictionTargetManager::copySurfaceTarget(int index)
-{
-  if (index<0 || index>=surfaceTargets_.size())
-  {
-    return;
-  }
-  surfaceTargets_.append(surfaceTargets_[index]);
-  surfaceTargetHasTimeSeries_.push_back(surfaceTargetHasTimeSeries_[index]);
-  setPredictionTargetsAllTimes();
+void PredictionTargetManager::addSurfaceTarget(const double x, const double y, QString layer, const QVector<QString>& properties, const double age)
+{  
+   const QStringList layers = m_projectReader.surfaceNames();
+   if (!layers.contains(layer))
+   {
+      if (layers.empty())
+      {
+         return;
+      }
+      else
+      {
+         layer = layers[0];
+      }
+   }
+
+   m_predictionTargets.push_back(std::make_shared<PredictionTargetSurface>(properties, x, y, layer, age, &m_toDepthConverter, "Loc_" + QString::number(m_identifier)));
+   m_identifier++;
+
+   m_targetHasTimeSeries.push_back(false);
+   setPredictionTargetsAllTimes();
 }
 
-void PredictionTargetManager::removeDepthTarget(int index)
+void PredictionTargetManager::copyTargets(const QVector<int>& indices)
 {
-  if (index<0 || index>=depthTargets_.size())
-  {
-    return;
-  }
-  depthTargets_.remove(index);
-  depthTargetHasTimeSeries_.remove(index);
-  setPredictionTargetsAllTimes();
+   for (int index : indices)
+   {
+      if (index<0 || index>=m_predictionTargets.size())
+      {
+         return;
+      }
+
+      if (dynamic_cast<PredictionTargetDepth*>(m_predictionTargets[index].get()))
+      {
+         m_predictionTargets.push_back(std::make_shared<PredictionTargetDepth>(*dynamic_cast<PredictionTargetDepth*>(m_predictionTargets[index].get())));
+      }
+      if (dynamic_cast<PredictionTargetSurface*>(m_predictionTargets[index].get()))
+      {
+         m_predictionTargets.push_back(std::make_shared<PredictionTargetSurface>(*dynamic_cast<PredictionTargetSurface*>(m_predictionTargets[index].get())));
+      }
+
+      m_targetHasTimeSeries.push_back(m_targetHasTimeSeries[index]);
+   }
+
+   setPredictionTargetsAllTimes();
 }
 
-void PredictionTargetManager::removeSurfaceTarget(int index)
+void PredictionTargetManager::removeTargets(const QVector<int>& indices)
 {
-  if (index<0 || index>=surfaceTargets_.size())
-  {
-    return;
-  }
-  surfaceTargets_.remove(index);
-  surfaceTargetHasTimeSeries_.remove(index);
-  setPredictionTargetsAllTimes();
+   for (int i = indices.size() - 1; i >= 0; i--)
+   {
+      const int index = indices[i];
+      if (index < 0 || index>=m_predictionTargets.size())
+      {
+         return;
+      }
+      m_predictionTargets.remove(index);
+      m_targetHasTimeSeries.remove(index);
+   }
+
+   setPredictionTargetsAllTimes();
 }
 
-QStringList PredictionTargetManager::predictionTargetOptions()
+void PredictionTargetManager::setPropertyActiveForAllTargets(const QString& propertyName)
 {
-  return targetVariables_;
+   bool allTargetsSelected = true;
+   for (auto target : m_predictionTargets)
+   {
+      if (!target->properties().contains(propertyName)) // Check if the property in this target is active
+      {
+         allTargetsSelected = false;
+         break;
+      }
+   }
+
+   // If the property is active for all targets, set property inactive for all targets.
+   // Otherwise, set property active for all targets.
+   for (auto target : m_predictionTargets)
+   {
+      target->setPropertyActive(!allTargetsSelected, propertyName);
+   }
+}
+
+void PredictionTargetManager::setTimeSeriesActiveForAllTargets()
+{
+   bool allTargetsHaveTimeSeries = true;
+   for (const bool hasTimeSeries : m_targetHasTimeSeries)
+   {
+      if (!hasTimeSeries) // Check if this prediction target has time series selected
+      {
+         allTargetsHaveTimeSeries = false;
+         break;
+      }
+   }
+
+   // If the property is active for all wells, set property inactive for all wells.
+   // Otherwise, set property active for all wells.
+   for (bool& hasTimeSeries : m_targetHasTimeSeries)
+   {
+      hasTimeSeries = !allTargetsHaveTimeSeries;
+   }
+}
+
+int PredictionTargetManager::getIndexInPredictionTargetMatrix(const int predictionTargetRow, const int snapshotIndex, const QString& propertyName) const
+{
+   const QVector<QString> propertiesInTarget = m_predictionTargets[predictionTargetRow]->properties();
+
+   return indexCumulativePredictionTargetIncludingProperties(predictionTargetRow) // Starting point in the matrix
+          + snapshotIndex * propertiesInTarget.size() // Multiply snapshot index with number of properties, since the matrices of different properties are stored per snapshot
+          + propertiesInTarget.indexOf(propertyName); // Add the index of the property
+}
+
+
+QVector<QString> PredictionTargetManager::predictionTargetOptions()
+{
+   return s_targetVariables;
 }
 
 void PredictionTargetManager::writeToFile(ScenarioWriter& writer) const
 {
-  const int version = 1;
-  writer.writeValue("PredictionTargetManagerVersion", version);
-  writer.writeValue("depthTarget", depthTargets_);
-  writer.writeValue("depthTargetHasTimeSeries", depthTargetHasTimeSeries_);
-  writer.writeValue("surfaceTarget", surfaceTargets_);
-  writer.writeValue("surfaceTargetHasTimeSeries", surfaceTargetHasTimeSeries_);
+   const int version = 2;
+   writer.writeValue("PredictionTargetManagerVersion", version);
+   writer.writeValue("predictionTargets", predictionTargets());
+   writer.writeValue("predictionTargetHasTimeSeries", m_targetHasTimeSeries);
+   writer.writeValue("targetIdentifier", m_identifier);
 }
 
 void PredictionTargetManager::readFromFile(const ScenarioReader& reader)
 {
-  const int version = reader.readInt("PredictionTargetManagerVersion");
-  depthTargets_ = reader.readVector<PredictionTargetDepth>("depthTarget");
+   const int version = reader.readInt("PredictionTargetManagerVersion");
 
-  if (version > 0)
-  {
-    depthTargetHasTimeSeries_ = reader.readVector<bool>("depthTargetHasTimeSeries");
-    surfaceTargets_ = reader.readVector<PredictionTargetSurface>("surfaceTarget");
-    surfaceTargetHasTimeSeries_ = reader.readVector<bool>("surfaceTargetHasTimeSeries");
-    setPredictionTargetsAllTimes();
-  }
+   if (version < 2)
+   {
+      QVector<PredictionTargetDepth> depthTargets = reader.readVector<PredictionTargetDepth>("depthTarget");
+
+      if (version > 0)
+      {
+         QVector<bool> depthTargetHasTimeSeries = reader.readVector<bool>("depthTargetHasTimeSeries");
+         QVector<PredictionTargetSurface> surfaceTargets = reader.readVector<PredictionTargetSurface>("surfaceTarget");
+         QVector<bool> surfaceTargetHasTimeSeries = reader.readVector<bool>("surfaceTargetHasTimeSeries");
+
+         for (const PredictionTargetDepth& target : depthTargets)
+         {
+            m_predictionTargets.append(std::make_shared<PredictionTargetDepth>(target));
+         }
+         for (bool hasTimeSeries : depthTargetHasTimeSeries)
+         {
+            m_targetHasTimeSeries.push_back(hasTimeSeries);
+         }
+         for (const PredictionTargetSurface& target : surfaceTargets)
+         {
+            m_predictionTargets.append(std::make_shared<PredictionTargetSurface>(target));
+         }
+         for (bool hasTimeSeries : surfaceTargetHasTimeSeries)
+         {
+            m_targetHasTimeSeries.push_back(hasTimeSeries);
+         }
+      }
+   }
+   else
+   {
+      m_predictionTargets = reader.readAndCreateVectorOfSharedPtrs<PredictionTarget>("predictionTargets");
+      for (auto target : m_predictionTargets)
+      {
+         // Set the depth converters & set layerNames
+         if (dynamic_cast<PredictionTargetSurface*>(target.get()))
+         {
+            PredictionTargetSurface* surfaceTarget = dynamic_cast<PredictionTargetSurface*>(target.get());
+            surfaceTarget->setToDepthConverterAndCalcDepth(&m_toDepthConverter);
+
+            const QString layerName = m_projectReader.getLayerUnderSurface(surfaceTarget->surfaceName());
+            surfaceTarget->setSurfaceAndLayerName(surfaceTarget->surfaceName(), layerName);
+         }
+      }
+
+      m_targetHasTimeSeries = reader.readVector<bool>("predictionTargetHasTimeSeries");
+      m_identifier = reader.readInt("targetIdentifier");
+   }
+
+   setPredictionTargetsAllTimes();
 }
 
 void PredictionTargetManager::clear()
 {
-  clearMemory();
-  depthTargets_.clear();
-  surfaceTargets_.clear();
-  predictionTargetsAllTimes_.clear();
-  depthTargetHasTimeSeries_.clear();
-  surfaceTargetHasTimeSeries_.clear();
+   clearMemory();
+   predictionTargetsAllTimes_.clear();
+   m_predictionTargets.clear();
 }
 
-QVector<bool> PredictionTargetManager::depthTargetHasTimeSeries() const
+QVector<bool> PredictionTargetManager::targetHasTimeSeries() const
 {
-  return depthTargetHasTimeSeries_;
+   return m_targetHasTimeSeries;
 }
 
-QVector<bool> PredictionTargetManager::surfaceTargetHasTimeSeries() const
+void PredictionTargetManager::setTargetHasTimeSeries(const int row, const bool isSelected)
 {
-  return surfaceTargetHasTimeSeries_;
-}
-
-void PredictionTargetManager::setDepthTargetHasTimeSeries(const int row, const bool isSelected)
-{
-  if (row < 0 || row >= depthTargetHasTimeSeries_.size())
-  {
-    return;
-  }
-  depthTargetHasTimeSeries_[row] = isSelected;
-  setPredictionTargetsAllTimes();
-}
-
-void PredictionTargetManager::setSurfaceTargetHasTimeSeries(const int row, const bool isSelected)
-{
-  if (row < 0 || row >= surfaceTargetHasTimeSeries_.size())
-  {
-    return;
-  }
-  surfaceTargetHasTimeSeries_[row] = isSelected;
-  setPredictionTargetsAllTimes();
+   if (row < 0 || row >= m_targetHasTimeSeries.size())
+   {
+      return;
+   }
+   m_targetHasTimeSeries[row] = isSelected;
+   setPredictionTargetsAllTimes();
 }
 
 int PredictionTargetManager::amountAtAge0() const
 {
-  return depthTargets_.size() + surfaceTargets_.size();
-}
-
-int PredictionTargetManager::amountIncludingTimeSeries() const
-{
-  const int nMajorSnapShots = projectReader_.agesFromMajorSnapshots().size();
-  int sizeTotalPredTargets = 0;
-  for (const bool hasTimeSeries : depthTargetHasTimeSeries_)
-  {
-    sizeTotalPredTargets += hasTimeSeries ? nMajorSnapShots : 1;
-  }
-
-  for (const bool hasTimeSeries : surfaceTargetHasTimeSeries_)
-  {
-    sizeTotalPredTargets += hasTimeSeries ? nMajorSnapShots : 1;
-  }
-
-  return sizeTotalPredTargets;
+   return m_predictionTargets.size();
 }
 
 int PredictionTargetManager::sizeOfPredictionTargetWithTimeSeries(const int row) const
 {
-  QVector<int> sizes = sizeOfPredictionTargetsWithTimeSeries();
-  const int n = sizes.size();
-  if (n == 0 || row < 0 || row >= n )
-  {
-    return 0;
-  }
+   QVector<int> sizes = sizeOfPredictionTargetsWithTimeSeries();
+   const int n = sizes.size();
+   if (n == 0 || row < 0 || row >= n )
+   {
+      return 0;
+   }
 
-  return sizeOfPredictionTargetsWithTimeSeries()[row];
+   return sizeOfPredictionTargetsWithTimeSeries()[row];
+}
+
+int PredictionTargetManager::sizeOfPredictionTargetsWithTimeSeriesIncludingProperties(const int row) const
+{
+   QVector<int> sizes = sizeOfPredictionTargetsWithTimeSeries();
+   const int n = sizes.size();
+   if (n == 0 || row < 0 || row >= n )
+   {
+      return 0;
+   }
+
+   return sizeOfPredictionTargetsWithTimeSeriesIncludingProperties()[row];
+}
+
+int PredictionTargetManager::amountOfPredictionTargetWithTimeSeriesAndProperties() const
+{
+   int totalTargets = 0;
+   for (const int numTargetsPerRow : sizeOfPredictionTargetsWithTimeSeriesIncludingProperties())
+   {
+      totalTargets+=numTargetsPerRow;
+   }
+
+   return totalTargets;
 }
 
 // Returning vector contains 1 by default and the number of snapshots if the prediction target has a time series
 QVector<int> PredictionTargetManager::sizeOfPredictionTargetsWithTimeSeries() const
 {
-  const int numberSnapshots = projectReader_.agesFromMajorSnapshots().size();
-  const int numberDepthTargets = depthTargets_.size();
-  const int numberSurfaceTargets = surfaceTargets_.size();
+   const int numberSnapshots = m_projectReader.agesFromMajorSnapshots().size();
 
-  assert(numberDepthTargets == depthTargetHasTimeSeries_.size());
-  assert(numberSurfaceTargets == surfaceTargetHasTimeSeries_.size());
+   QVector<int> sizePredTargets(m_predictionTargets.size(), 1);
 
-  QVector<int> sizePredTargets(numberDepthTargets + numberSurfaceTargets, 1);
+   for (int i = 0; i < m_predictionTargets.size(); ++i)
+   {
+      if (m_targetHasTimeSeries[i])
+      {
+         sizePredTargets[i] = numberSnapshots;
+      }
+   }
 
-  for (int i = 0; i < numberDepthTargets; ++i)
-  {
-    if (depthTargetHasTimeSeries_[i])
-    {
-      sizePredTargets[i] = numberSnapshots;
-    }
-  }
+   return sizePredTargets;
+}
 
-  for (int j = 0; j < numberSurfaceTargets; ++j)
-  {
-    if (surfaceTargetHasTimeSeries_[j])
-    {
-      sizePredTargets[j + numberDepthTargets] = numberSnapshots;
-    }
-  }
-  return sizePredTargets;
+QVector<int> PredictionTargetManager::sizeOfPredictionTargetsWithTimeSeriesIncludingProperties() const
+{
+   const int numberSnapshots = m_projectReader.agesFromMajorSnapshots().size();
+
+   QVector<int> sizePredTargets(m_predictionTargets.size(), 1);
+
+   for (int i = 0; i < m_predictionTargets.size(); ++i)
+   {
+      if (m_targetHasTimeSeries[i])
+      {
+         sizePredTargets[i] = numberSnapshots * m_predictionTargets[i]->properties().size();
+      }
+      else
+      {
+         sizePredTargets[i] = m_predictionTargets[i]->properties().size();
+      }
+   }
+
+   return sizePredTargets;
 }
 
 } // namespace ua

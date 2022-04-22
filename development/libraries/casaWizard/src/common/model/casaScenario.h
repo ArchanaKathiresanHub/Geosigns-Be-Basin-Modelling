@@ -20,7 +20,7 @@ class CasaScenario : public Writable
 {
 public:
   CasaScenario(ProjectReader* projectReader);
-  virtual ~CasaScenario() = default;
+  virtual ~CasaScenario() override = default;
 
   QString workingDirectory() const;
   void setWorkingDirectory(const QString& workingDirectory);
@@ -65,7 +65,7 @@ public:
   virtual QString iterationDirName() const { return ""; }
 
   void updateRelevantProperties(casaWizard::ProjectWriter& projectWriter);
-  void loadProject3dFile() const;
+  virtual void loadProject3dFile() const;
 
   void applyObjectiveFunctionOnCalibrationTargets();
   void updateObjectiveFunctionFromTargets();

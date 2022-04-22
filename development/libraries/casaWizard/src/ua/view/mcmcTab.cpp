@@ -4,6 +4,8 @@
 #include "view/plot/histogram.h"
 #include "view/plot/quartilePlot.h"
 
+#include "model/targetParameterMapCreator.h"
+
 #include <QCheckBox>
 #include <QLineEdit>
 #include <QHBoxLayout>
@@ -31,7 +33,7 @@ MCMCTab::MCMCTab(QWidget* parent) :
   lineEditL2normRS_{new QLineEdit("", this)},
   lineEditL2norm_{new QLineEdit("", this)},
   tablePredictionTargets_{new QTableWidget(this)},
-  histogramPredictionTarget_{new Histogram(this)},
+  histogramsPredictionTarget_{new QWidget(this)},
   sliderHistograms_{new QSlider{Qt::Horizontal, this}},
   lineEditTimeSeries_{new QLineEdit{"0", this}},
   checkBoxHistoryPlotsMode_{new QCheckBox{"Plot time series", this}},
@@ -78,7 +80,7 @@ MCMCTab::MCMCTab(QWidget* parent) :
   sliderGridLayout->addWidget(sliderHistograms_, 0, 2);
   sliderGridLayout->setColumnStretch(2,5);
 
-  layoutStackedPlots_->addWidget(histogramPredictionTarget_);
+  layoutStackedPlots_->addWidget(histogramsPredictionTarget_);
   layoutStackedPlots_->addWidget(quartilePredictionTargetTimeSeries_);
 
   QVBoxLayout* layoutPlotAndSlider = new QVBoxLayout();
@@ -161,15 +163,30 @@ void MCMCTab::fillPredictionTargetTable(const QVector<const PredictionTarget*> p
 
 void MCMCTab::updateSliderHistograms(const int timeSeriesSize)
 {
+  sliderHistograms_->setSliderPosition(0);
+  if (timeSeriesSize == 0)
+  {
+     sliderHistograms_->setEnabled(false);
+     lineEditTimeSeries_->setEnabled(false);
+     return;
+  }
   sliderHistograms_->setEnabled(true);
   lineEditTimeSeries_->setEnabled(true);
-  sliderHistograms_->setSliderPosition(0);
   sliderHistograms_->setRange(0, timeSeriesSize-1);
 }
 
 QCheckBox* MCMCTab::checkBoxHistoryPlotsMode() const
 {
-  return checkBoxHistoryPlotsMode_;
+   return checkBoxHistoryPlotsMode_;
+}
+
+void MCMCTab::clearTimeSeriesPlots()
+{
+   delete timeSeriesPlots_;
+   timeSeriesPlots_ = new QWidget(this);
+   QVBoxLayout* layout = new QVBoxLayout(timeSeriesPlots_);
+   layoutStackedPlots_->addWidget(timeSeriesPlots_);
+   layoutStackedPlots_->setCurrentWidget(timeSeriesPlots_);
 }
 
 QSlider* MCMCTab::sliderHistograms() const
@@ -177,32 +194,57 @@ QSlider* MCMCTab::sliderHistograms() const
   return sliderHistograms_;
 }
 
-void MCMCTab::updateHistogram(const PredictionTarget* const predictionTarget, const QVector<double>& values)
+void MCMCTab::updateHistogram(const PredictionTarget* const predictionTarget, const QVector<QVector<double>>& values, const QVector<QString>& predictionProperties)
 {
-  layoutStackedPlots_->setCurrentWidget(histogramPredictionTarget_);
+   delete histogramsPredictionTarget_;
+   histogramsPredictionTarget_ = new QWidget(this);
+   QHBoxLayout* layout = new QHBoxLayout(histogramsPredictionTarget_);
+   layoutStackedPlots_->addWidget(histogramsPredictionTarget_);
+   layoutStackedPlots_->setCurrentWidget(histogramsPredictionTarget_);
 
+   if (!predictionTarget)
+   {
+      return;
+   }
 
-  histogramPredictionTarget_->setData(values);
-  histogramPredictionTarget_->update();
+   int propertyCounter = 0;
+   for (const QString& predictionProperty : predictionProperties)
+   {
+      Histogram* histogram = new Histogram(histogramsPredictionTarget_);
+      histogram->setData(values[propertyCounter]);
+      histogram->update();
 
-  if (predictionTarget)
-  {
-    lineEditTimeSeries_->setText(QString::number(predictionTarget->age(), 'f', 0));
-    histogramPredictionTarget_->setXLabel(predictionTarget->property() + " " + predictionTarget->unitSI());
-  }
-  histogramPredictionTarget_->setYLabel("Number of counts");
-  histogramPredictionTarget_->setFontStyle(FontStyle::small);
+      lineEditTimeSeries_->setText(QString::number(predictionTarget->age(), 'f', 0));
+      histogram->setXLabel(predictionProperty + " " + targetParameterMapCreator::lookupSIUnit(predictionProperty));
+      histogram->setYLabel("Number of counts");
+      histogram->setFontStyle(FontStyle::small);
+
+      layout->addWidget(histogram);
+
+      propertyCounter++;
+   }
 }
 
-void MCMCTab::updateTimeSeriesPlot(const PredictionTarget& predictionTarget, const QVector<double>& timeSeries, const QVector<QVector<double>>& valuesMatrix, const QVector<double>& sampleCoordinates)
+void MCMCTab::updateTimeSeriesPlot(const QVector<double>& timeSeries, const QMap<QString,QVector<QVector<double>>>& valuesMatrices,
+                                   const QMap<QString, QVector<double> >& sampleCoordinatesPerProperty, const QVector<QString>& predictionProperties)
 {
-  layoutStackedPlots_->setCurrentWidget(quartilePredictionTargetTimeSeries_);
+  delete timeSeriesPlots_;
+  timeSeriesPlots_ = new QWidget(this);
+  QVBoxLayout* layout = new QVBoxLayout(timeSeriesPlots_);
+  layoutStackedPlots_->addWidget(timeSeriesPlots_);
+  layoutStackedPlots_->setCurrentWidget(timeSeriesPlots_);
 
-  quartilePredictionTargetTimeSeries_->setData(timeSeries, valuesMatrix, sampleCoordinates);
-  quartilePredictionTargetTimeSeries_->update();
-
-  quartilePredictionTargetTimeSeries_->setXLabel("age [Ma]");
-  quartilePredictionTargetTimeSeries_->setYLabel(predictionTarget.property() + " " + predictionTarget.unitSI());
+  int propertyCounter = 0;
+  for (const QString& predictionProperty : predictionProperties)
+  {
+     QuartilePlot* timePlot = new QuartilePlot(timeSeriesPlots_);
+     timePlot->setData(timeSeries, valuesMatrices[predictionProperty], sampleCoordinatesPerProperty[predictionProperty]);
+     timePlot->update();
+     timePlot->setXLabel("age [Ma]");
+     timePlot->setYLabel(predictionProperty + " " + targetParameterMapCreator::lookupSIUnit(predictionProperty));
+     layout->addWidget(timePlot);
+     propertyCounter++;
+  }
 }
 
 
@@ -218,7 +260,7 @@ void MCMCTab::setEnableTimeSeries(const bool checkState)
   {
     sliderHistograms_->setEnabled(true);
     lineEditTimeSeries_->setEnabled(true);
-    layoutStackedPlots_->setCurrentWidget(histogramPredictionTarget_);
+    layoutStackedPlots_->setCurrentWidget(histogramsPredictionTarget_);
   }
 }
 

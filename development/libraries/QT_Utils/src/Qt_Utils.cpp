@@ -1,7 +1,15 @@
+//
+// Copyright (C) 2022 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #include "Qt_Utils.h"
 #include <QCoreApplication>
 #include <QDebug>
-#include<QScrollBar>
+#include <QScrollBar>
 #include <fstream>
 #include <thread>
 #include <iostream>
@@ -19,9 +27,34 @@ QTextStream& qtutils::qStdOut()
 	return ts;
 }
 
-QString qtutils::AddDoubleQuotes(QString value)
+QString qtutils::addDoubleQuotes(QString value)
 {
 	return "\"" + value + "\"";
+}
+
+QString qtutils::escapeSpecialCharacters(QString str)
+{
+   str = str.replace("\a","\\a")
+         .replace("\b","\\b")
+         .replace("\f","\\f")
+         .replace("\n","\\n")
+         .replace("\r","\\r")
+         .replace("\t","\\t")
+         .replace("\v","\\v");
+   return str;
+}
+
+QString qtutils::replaceCharsNotAllowedInExcelTabsBy_(QString str)
+{
+   //Characters not allowed in excel tab: \ / ? * [ ]
+   str = str.replace("\\","_")
+         .replace(":","_")
+         .replace("/","_")
+         .replace("?","_")
+         .replace("*","_")
+         .replace("[","_")
+         .replace("]","_");
+   return str;
 }
 
 std::string replaceFirstOccurrence(
@@ -34,7 +67,7 @@ std::string replaceFirstOccurrence(
 	return s.replace(pos, toReplace.length(), replaceWith);
 }
 
-QString qtutils::ExportApplicationPath(void)
+QString qtutils::exportApplicationPath(void)
 {
 	std::string applicationPath = QCoreApplication::applicationDirPath().toStdString();
 	std::size_t index = applicationPath.find("/apps/sss");
@@ -51,7 +84,7 @@ QString qtutils::ExportApplicationPath(void)
 	return QString::fromStdString(applicationPath);
 }
 
-QString qtutils::IsValidNoOfProcs(QString noOfProcs)
+QString qtutils::isValidNoOfProcs(QString noOfProcs)
 {
 	bool validate;
 	auto value = noOfProcs.toInt(&validate);
@@ -167,7 +200,6 @@ void qtutils::FileLogger::finishupLogging(const QString& logFilePath, QTextEdit*
 	}
 
 }
-
 
 int qtutils::FileLogger::readFileWhenCreated(const QString& logFilePath, QTextEdit* theText) const
 {

@@ -12,12 +12,12 @@
 
 namespace casaWizard
 {
-namespace stringSanitizer
+
+class ToDepthConverter
 {
+public:
+   virtual double getDepth(double x, double y, QString name) const = 0;
+   virtual ~ToDepthConverter() = default;
+};
 
-//Escapes the special characters, such that they are written out as text
-QString escapeSpecialCharacters(QString str);
-
-} // casaWizard
-} // stringSanitizer
-
+} // namespace casaWizard

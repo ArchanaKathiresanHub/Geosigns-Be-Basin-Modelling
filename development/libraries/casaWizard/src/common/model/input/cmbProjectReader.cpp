@@ -45,8 +45,7 @@ CMBProjectReader::~CMBProjectReader()
 
 void CMBProjectReader::load(const QString& projectFile)
 {
-  cmbModel_->loadModelFromProjectFile(projectFile.toStdString());
-  loaded_ = true;
+    loaded_ = (cmbModel_->loadModelFromProjectFile(projectFile.toStdString()) == ErrorHandler::ReturnCode::NoError);
 }
 
 int CMBProjectReader::lowestSurfaceWithTWTData() const
@@ -83,13 +82,31 @@ bool CMBProjectReader::hasTWTData(int surfaceID) const
            stratigraphyManager.twtGridName(surfaceID).find("Calculated_TWT_for_") == std::string::npos );
 }
 
+double CMBProjectReader::getDepth(int surfaceID) const
+{
+   if (!loaded_)
+   {
+     return DataAccess::Interface::DefaultUndefinedScalarValue;
+   }
+   return cmbModel_->tableValueAsDouble("StratIoTbl", size_t(surfaceID), "Depth");
+}
+
 QString CMBProjectReader::getDepthGridName(int surfaceID) const
 {
   if (!loaded_)
   {
     return QString();
   }
-  return QString::fromStdString(cmbModel_->tableValueAsString("StratIoTbl", surfaceID, "DepthGrid"));
+  return QString::fromStdString(cmbModel_->tableValueAsString("StratIoTbl", size_t(surfaceID), "DepthGrid"));
+}
+
+double CMBProjectReader::getThickness(int surfaceID) const
+{
+   if (!loaded_)
+   {
+     return DataAccess::Interface::DefaultUndefinedScalarValue;
+   }
+   return cmbModel_->tableValueAsDouble("StratIoTbl", size_t(surfaceID), "Thickness");
 }
 
 bool CMBProjectReader::basementSurfaceHasTWT() const
@@ -314,6 +331,23 @@ QVector<double> CMBProjectReader::agesFromMajorSnapshots() const
 
   const mbapi::SnapshotManager & snapshotManager = cmbModel_->snapshotManager();
   return QVector<double>::fromStdVector(snapshotManager.agesFromMajorSnapshots());
+}
+
+QString CMBProjectReader::getLayerUnderSurface(const QString& surfaceName) const
+{
+   if (!loaded_)
+   {
+     return "";
+   }
+
+   const int surfaceID = surfaceNames().indexOf(surfaceName);
+   const QStringList layers = layerNames();
+   if (surfaceID >= 0 && surfaceID < layers.size())
+   {
+      return layers[surfaceID];
+   }
+
+   return "";
 }
 
 } // namespace casaWizard
