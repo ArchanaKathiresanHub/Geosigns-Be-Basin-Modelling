@@ -36,6 +36,18 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2022-04-22  Richard Faasse  <Richard.Faasse@shell.com>
+
+	chg: Improve Prediction target table in UA thermal wizard as per user request
+	 * Workflow with prediction targets has improved as per user request
+	 * The tables have merged into one, where it's possible to switch between surface/depth targets by changing the surface in the dropdown
+	 * The surface targets now use surfaces instead of layers to define their position.
+	 * For every prediction target it's now possible to select multiple properties (for thermal UA this means temperature/VRe)
+	 * Multiple time series plots and histogram plots are shown per prediction target (one for each property)
+	================== COMMIT-END ========================
+	Commit-ID:<5e142265e958f38955a88285d767a5c63cd46be6>	  (refs/heads/master)
+
+++
 2022-04-14  Marnix.vandenBerg  <Marnix.vandenBerg@shell.com>
 
 	chg: usr: Option for mcmc result export in ThermalWizard mcmc tab.
