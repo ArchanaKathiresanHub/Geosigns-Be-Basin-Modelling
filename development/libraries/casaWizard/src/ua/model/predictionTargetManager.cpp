@@ -412,6 +412,8 @@ void PredictionTargetManager::clear()
    clearMemory();
    predictionTargetsAllTimes_.clear();
    m_predictionTargets.clear();
+   m_targetHasTimeSeries.clear();
+   m_identifier = 1;
 }
 
 QVector<bool> PredictionTargetManager::targetHasTimeSeries() const

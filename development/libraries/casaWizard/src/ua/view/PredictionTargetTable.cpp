@@ -39,14 +39,13 @@ PredictionTargetTable::PredictionTargetTable(QWidget* parent) : QWidget(parent),
   tableWidgetTargets_->setRowCount(0);
   tableWidgetTargets_->setColumnCount(6);
   tableWidgetTargets_->horizontalHeader()->setStretchLastSection(true);
-  tableWidgetTargets_->setHorizontalHeaderItem(0, new QTableWidgetItem("Location Name"));
+  tableWidgetTargets_->setHorizontalHeaderItem(0, new QTableWidgetItem("Location name"));
   tableWidgetTargets_->setHorizontalHeaderItem(1, new QTableWidgetItem("x [m]"));
   tableWidgetTargets_->setHorizontalHeaderItem(2, new QTableWidgetItem("y [m]"));
   tableWidgetTargets_->setHorizontalHeaderItem(3, new QTableWidgetItem("z [m]"));
   tableWidgetTargets_->setHorizontalHeaderItem(4, new QTableWidgetItem("Surface"));
-  tableWidgetTargets_->setHorizontalHeaderItem(checkBoxColumnNumber_, new QTableWidgetItem("time series"));
+  tableWidgetTargets_->setHorizontalHeaderItem(checkBoxColumnNumber_, new QTableWidgetItem("Time series"));
   tableWidgetTargets_->horizontalHeader()->stretchLastSection();
-
   tableWidgetTargets_->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
 
   QHBoxLayout* horizontalLayoutPredictionButtons = new QHBoxLayout();
@@ -60,6 +59,7 @@ PredictionTargetTable::PredictionTargetTable(QWidget* parent) : QWidget(parent),
   verticalLayoutPrediction->addWidget(tableWidgetTargets_);
   verticalLayoutPrediction->addLayout(horizontalLayoutPredictionButtons);
   verticalLayoutPrediction->setStretch(0, 1);
+  verticalLayoutPrediction->setContentsMargins(0, 0, 0, 0);
 }
 
 void PredictionTargetTable::updateTable(const QVector<const PredictionTarget*> predictionTargets,
@@ -82,7 +82,7 @@ void PredictionTargetTable::updateTable(const QVector<const PredictionTarget*> p
       tableWidgetTargets_->setColumnCount(tableWidgetTargets_->columnCount() + 1);
       tableWidgetTargets_->setHorizontalHeaderItem(tableWidgetTargets_->columnCount() - 2, new QTableWidgetItem(option));
    }
-   tableWidgetTargets_->setHorizontalHeaderItem(checkBoxColumnNumber_ + predictionTargetOptions.size(), new QTableWidgetItem("time series"));
+   tableWidgetTargets_->setHorizontalHeaderItem(checkBoxColumnNumber_ + predictionTargetOptions.size(), new QTableWidgetItem("Time series"));
 
    int row = 0;
    for (const PredictionTarget* target : predictionTargets)

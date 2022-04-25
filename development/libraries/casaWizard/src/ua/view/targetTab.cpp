@@ -31,12 +31,12 @@ TargetTab::TargetTab(QWidget* parent) :
   pushSelectAllTargetTimeSeries_{new QPushButton("Select all time series", this)}
 {
   QHBoxLayout* selectionLayout = new QHBoxLayout();
-  selectionLayout->addWidget(new QLabel("Well Data upload", this));
+  selectionLayout->addWidget(new QLabel("Well data upload", this));
   selectionLayout->addWidget(lineEditCalibration_);
   selectionLayout->addWidget(pushSelectCalibration_);
 
   QHBoxLayout* tmpLayout = new QHBoxLayout();
-  tmpLayout->addWidget(new CustomTitle("Well Data", this), 0);
+  tmpLayout->addWidget(new CustomTitle("Well data", this), 0);
   tmpLayout->addWidget(new QWidget(this), 1);
   tmpLayout->addWidget(pushSelectAllTemperatures_);
   tmpLayout->addWidget(pushSelectAllVRe_);
@@ -59,6 +59,7 @@ TargetTab::TargetTab(QWidget* parent) :
   tmpLayout2->addWidget(pushSelectAllTargetTimeSeries_);
   predictionTargetsLayout->addLayout(tmpLayout2);
   predictionTargetsLayout->addWidget(predictionTargetTable_);
+  predictionTargetsLayout->setContentsMargins(11, 0, 0, 0);
 
   QHBoxLayout* layout = new QHBoxLayout(this);
   layout->addLayout(wellsLayout);
