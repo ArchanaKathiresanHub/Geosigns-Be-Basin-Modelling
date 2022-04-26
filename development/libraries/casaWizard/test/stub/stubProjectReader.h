@@ -122,7 +122,12 @@ public:
 
   QString getLayerUnderSurface(const QString &/*surfaceName*/) const override
   {
-     return "Layer";
+     return "Layer1";
+  }
+
+  QString getSurfaceOnTopOfLayer(const QString &/*layerName*/) const override
+  {
+     return "Water_Bottom";
   }
 };
 

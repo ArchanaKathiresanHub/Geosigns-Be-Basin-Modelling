@@ -62,7 +62,7 @@ TEST_F( PredictionTargetFromWellsCreatorTest, testSurfaceInput )
                                                                 predictionTargetManager());
    ASSERT_EQ(predictionTargetManager().amountAtAge0(),1);
    const QVector<const PredictionTarget*> predictionTargets = predictionTargetManager().predictionTargets();
-   EXPECT_EQ(predictionTargets.at(0)->variable().toStdString(),"\"Layer\"");
+   EXPECT_EQ(predictionTargets.at(0)->variable().toStdString(),"\"Layer1\"");
 }
 
 TEST_F( PredictionTargetFromWellsCreatorTest, locationNaming )

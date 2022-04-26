@@ -93,7 +93,7 @@ TEST_F( TestPredictionTargetManager, Readv2 )
    EXPECT_EQ(7, predictionTargets[2]->x());
    EXPECT_EQ(8, predictionTargets[2]->y());
    EXPECT_EQ("Water_Bottom", predictionTargets[2]->surfaceName());
-   EXPECT_EQ("\"Layer\"", predictionTargets[2]->variable().toStdString());
+   EXPECT_EQ("\"Layer1\"", predictionTargets[2]->variable().toStdString());
    EXPECT_EQ(10, predictionTargets[2]->age());
 }
 

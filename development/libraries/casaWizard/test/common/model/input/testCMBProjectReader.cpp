@@ -165,6 +165,12 @@ TEST_F( CMBProjectReaderTest, testGetLayerUnderSurface )
    EXPECT_EQ(reader_.getLayerUnderSurface("Nr_Base_Rotliegend"), ""); // Layer under basement surface does not exist
 }
 
+TEST_F( CMBProjectReaderTest, testGetSurfaceOnTopOfLayer )
+{
+   EXPECT_EQ(reader_.getSurfaceOnTopOfLayer("Miocene-Quaternary"), "Water bottom");
+   EXPECT_EQ(reader_.getSurfaceOnTopOfLayer("Triassic"), "45_TR_T_TDinput_SD");
+}
+
 TEST_F( CMBProjectReaderTest, testGetLayerID )
 {
   const QStringList layerNamesActual = reader_.layerNames();

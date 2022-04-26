@@ -54,6 +54,7 @@ public:
   bool basementSurfaceHasTWT() const override;  
   bool hasDepthDefinedInAllLayers() const override;
   QString getLayerUnderSurface(const QString& surfaceName) const override;
+  QString getSurfaceOnTopOfLayer(const QString& layerName) const override;
 
 private:
   std::unique_ptr<mbapi::Model> cmbModel_;

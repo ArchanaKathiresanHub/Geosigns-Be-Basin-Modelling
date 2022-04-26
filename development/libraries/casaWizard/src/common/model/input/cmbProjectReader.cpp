@@ -350,4 +350,21 @@ QString CMBProjectReader::getLayerUnderSurface(const QString& surfaceName) const
    return "";
 }
 
+QString CMBProjectReader::getSurfaceOnTopOfLayer(const QString& layerName) const
+{
+   if (!loaded_)
+   {
+     return "";
+   }
+
+   const int layerID = layerNames().indexOf(layerName);
+   const QStringList surfaces = surfaceNames();
+   if (layerID >= 0 && layerID < surfaces.size())
+   {
+      return surfaces[layerID];
+   }
+
+   return "";
+}
+
 } // namespace casaWizard

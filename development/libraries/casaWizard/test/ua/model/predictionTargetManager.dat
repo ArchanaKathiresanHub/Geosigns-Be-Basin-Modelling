@@ -6,6 +6,6 @@ depthTargetHasTimeSeries|vector|2
 depthTargetHasTimeSeries|0
 depthTargetHasTimeSeries|0
 surfaceTarget|vector|1
-surfaceTarget|0|Temperature|7.000000|8.000000|Water_Bottom|10.000000
+surfaceTarget|0|Temperature|7.000000|8.000000|Layer1|10.000000
 surfaceTargetHasTimeSeries|vector|1
 surfaceTargetHasTimeSeries|0

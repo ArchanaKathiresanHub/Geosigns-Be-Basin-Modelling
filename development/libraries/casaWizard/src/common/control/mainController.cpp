@@ -86,6 +86,9 @@ void MainController::slotOpen()
     return;
   }
 
+  scenario().clear();
+  logReceiver_->clear();
+
   QDir folderLocation = QFileInfo(fileName).dir();
   folderLocation.cdUp();
   scenario().setWorkingDirectory( folderLocation.path() );

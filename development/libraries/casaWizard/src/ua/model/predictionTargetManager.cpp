@@ -337,6 +337,8 @@ void PredictionTargetManager::setTimeSeriesActiveForAllTargets()
    {
       hasTimeSeries = !allTargetsHaveTimeSeries;
    }
+
+   setPredictionTargetsAllTimes();
 }
 
 int PredictionTargetManager::getIndexInPredictionTargetMatrix(const int predictionTargetRow, const int snapshotIndex, const QString& propertyName) const
@@ -385,8 +387,10 @@ void PredictionTargetManager::readFromFile(const ScenarioReader& reader)
          {
             m_targetHasTimeSeries.push_back(hasTimeSeries);
          }
-         for (const PredictionTargetSurface& target : surfaceTargets)
+         for (PredictionTargetSurface& target : surfaceTargets)
          {
+            QString oldLayerName = target.surfaceName(); // Old surface target only saved the layername, which is now read into the surfaceName()
+            target.setSurfaceAndLayerName(m_projectReader.getSurfaceOnTopOfLayer(oldLayerName), oldLayerName);
             m_predictionTargets.append(std::make_shared<PredictionTargetSurface>(target));
          }
          for (bool hasTimeSeries : surfaceTargetHasTimeSeries)
