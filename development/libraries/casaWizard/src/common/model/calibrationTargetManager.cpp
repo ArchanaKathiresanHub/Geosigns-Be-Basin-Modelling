@@ -21,10 +21,10 @@ namespace casaWizard
 {
 
 CalibrationTargetManager::CalibrationTargetManager() :
-  m_userNameToCauldronNameMapping{},
-  m_userNameUnits{},
-  m_wells{},
-  m_showPropertiesInTable{true}
+   m_userNameToCauldronNameMapping{},
+   m_userNameUnits{},
+   m_wells{},
+   m_showPropertiesInTable{true}
 {
 }
 
@@ -184,7 +184,7 @@ double CalibrationTargetManager::getShiftToAvoidOverlap(const QString& wellName,
 
 void CalibrationTargetManager::setWellMetaData(const int wellIndex, const QString& metaData)
 {
-  m_wells[wellIndex].setMetaData(metaData);
+   m_wells[wellIndex].setMetaData(metaData);
 }
 
 void CalibrationTargetManager::scaleData(const QStringList& selectedProperties, const double scalingFactor)
@@ -412,23 +412,23 @@ void CalibrationTargetManager::disableInvalidWells(const std::string& projectFil
 
       switch (wellState)
       {
-         case WellState::invalidData:
-            well.setIsActive(false);
-            well.setIsInvalid(true);
-            Logger::log() << "Well " << well.name() << " does not have calibration data and is therefore disabled. Check if the input file is valid." << Logger::endl();
-            break;
-         case WellState::invalidLocation:
-            well.setIsActive(false);
-            well.setIsInvalid(true);
-            Logger::log() << "Well " << well.name() << " is outside of the basin model and is therefore disabled." << Logger::endl();
-            break;
-         case WellState::invalidDuplicateName:
-            well.setIsActive(false);
-            well.setIsInvalid(true);
-            Logger::log() << "Well " << well.name() << " has a duplicate name and is therefore disabled." << Logger::endl();
-            break;
-         case WellState::valid:
-            break;
+      case WellState::invalidData:
+         well.setIsActive(false);
+         well.setIsInvalid(true);
+         Logger::log() << "Well " << well.name() << " does not have calibration data and is therefore disabled. Check if the input file is valid." << Logger::endl();
+         break;
+      case WellState::invalidLocation:
+         well.setIsActive(false);
+         well.setIsInvalid(true);
+         Logger::log() << "Well " << well.name() << " is outside of the basin model and is therefore disabled." << Logger::endl();
+         break;
+      case WellState::invalidDuplicateName:
+         well.setIsActive(false);
+         well.setIsInvalid(true);
+         Logger::log() << "Well " << well.name() << " has a duplicate name and is therefore disabled." << Logger::endl();
+         break;
+      case WellState::valid:
+         break;
       }
    }
 }
@@ -505,6 +505,16 @@ QStringList CalibrationTargetManager::getPropertyUserNamesForWell(const int well
    }
 
    return propertyUserNames;
+}
+
+QStringList CalibrationTargetManager::getWellNames() const
+{
+   QStringList wellNames;
+   for (const Well& well : m_wells)
+   {
+      wellNames.append(well.name());
+   }
+   return wellNames;
 }
 
 void CalibrationTargetManager::convertVPtoDT()

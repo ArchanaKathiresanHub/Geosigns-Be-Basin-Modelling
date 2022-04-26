@@ -29,7 +29,6 @@ public:
   CalibrationTargetTable* calibrationTable() const;
   void refreshAndEmitDataChanged();
 
-
 public slots:
   void slotSelectAllWells();
   void slotClearWellSelection();

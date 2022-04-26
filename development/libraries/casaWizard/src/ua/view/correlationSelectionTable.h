@@ -8,7 +8,6 @@ class QTableWidget;
 namespace casaWizard
 {
 
-
 namespace ua
 {
 

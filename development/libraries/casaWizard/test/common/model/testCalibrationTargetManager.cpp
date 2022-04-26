@@ -70,6 +70,11 @@ void testReading(const QString& testFile, const int version)
   EXPECT_EQ(expectedNameWell0, actualNameWell0);
   EXPECT_EQ(expectedNameWell1, actualNameWell1);
 
+  //Test the other method of obtaining well names
+  const QStringList wellNames = manager.getWellNames();
+  EXPECT_EQ(wellNames[0], actualNameWell0);
+  EXPECT_EQ(wellNames[1], actualNameWell1);
+
   const bool expectedIsActiveWell0 = false;
   const bool expectedIsActiveWell1 = true;
   const bool actualIsActiveWell0 = well0.isActive();

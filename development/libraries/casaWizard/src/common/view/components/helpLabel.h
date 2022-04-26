@@ -11,6 +11,7 @@ class HelpLabel : public QLabel
   Q_OBJECT
 public:
   HelpLabel(QWidget *parent = nullptr, const QString& tooltipText = "");
+  void setSize(int pts);
 };
 
 }

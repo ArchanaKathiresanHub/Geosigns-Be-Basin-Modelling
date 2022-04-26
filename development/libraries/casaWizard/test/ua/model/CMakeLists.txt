@@ -1,24 +1,27 @@
 add_casawizard_ua_gtest( NAME ArgumentList 
-                         SOURCES testArgumentList.cpp )
+   SOURCES testArgumentList.cpp )
 add_casawizard_ua_gtest( NAME DoeOption
-                         SOURCES testDoeOption.cpp
-                         AUXINCLUDEDIRS ${SUMPP_INCLUDE_DIR}
-                         AUXLIBS SUMlib )
+   SOURCES testDoeOption.cpp
+   AUXINCLUDEDIRS ${SUMPP_INCLUDE_DIR}
+   AUXLIBS SUMlib )
 
 add_casawizard_ua_gtest( NAME UaScenario
-                         SOURCES testUaScenario.cpp )
+   SOURCES testUaScenario.cpp )
 
 add_casawizard_ua_gtest( NAME PredictionTargetManager
-                         SOURCES testPredictionTargetManager.cpp )
+   SOURCES testPredictionTargetManager.cpp )
 
 add_casawizard_ua_gtest( NAME InfluentialParameterManager
-                         SOURCES testInfluentialParameterManager.cpp )
+   SOURCES testInfluentialParameterManager.cpp )
 
 add_casawizard_ua_gtest( NAME MonteCarloData
-                         SOURCES testMonteCarloData.cpp )
+   SOURCES testMonteCarloData.cpp )
 
 add_casawizard_ua_gtest( NAME ManualDesignPointManager
-                         SOURCES testManualDesignPointManager.cpp )
+   SOURCES testManualDesignPointManager.cpp )
+
+add_casawizard_ua_gtest( NAME PredictionTargetFromWellsCreator
+   SOURCES TestPredictionTargetFromWellsCreator.cpp )
 
 configure_file( predictionTargetManager.dat predictionTargetManager.dat )
 configure_file( predictionTargetManagerv2.dat predictionTargetManagerv2.dat )

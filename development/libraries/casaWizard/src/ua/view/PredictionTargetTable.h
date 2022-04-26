@@ -23,34 +23,39 @@ class PredictionTarget;
 
 class PredictionTargetTable : public QWidget
 {
-  Q_OBJECT
+   Q_OBJECT
 
 public:
-  explicit PredictionTargetTable(QWidget* parent = 0);
+   explicit PredictionTargetTable(QWidget* parent = nullptr);
 
-  void updateTable(const QVector<const PredictionTarget*> predictionTargets,
-                   const QVector<QString>& predictionTargetOptions,
-                   const QVector<bool>& hasTimeSeriesForPredictionTargets,
-                   const QStringList validLayerNames);
+   void updateTable(const QVector<const PredictionTarget*> predictionTargets,
+                    const QVector<QString>& predictionTargetOptions,
+                    const QVector<bool>& hasTimeSeriesForPredictionTargets,
+                    const QStringList validLayerNames);
 
-  const QTableWidget* tableWidgetSurfaceTargets() const;
-  const QPushButton* pushButtonAddSurfaceTarget() const;
-  const QPushButton* pushButtonDelSurfaceTarget() const;
-  const QPushButton* pushButtonCopySurfaceTarget() const;
+   const QTableWidget* tableWidgetSurfaceTargets() const;
 
-  int checkBoxColumnNumber() const;
+   void setTargetsAtWellLocationsButtonEnabled(bool state);
+
+   const QPushButton* pushButtonAddSurfaceTarget() const;
+   const QPushButton* pushButtonAddTargetsAtWellLocations() const;
+   const QPushButton* pushButtonDelSurfaceTarget() const;
+   const QPushButton* pushButtonCopySurfaceTarget() const;
+
+   int checkBoxColumnNumber() const;
 
 signals:
-  void activePropertyCheckBoxChanged(int, int, QString);
-  void targetHasTimeSeriesChanged(int, int);
+   void activePropertyCheckBoxChanged(int, int, QString);
+   void targetHasTimeSeriesChanged(int, int);
 
 private:
-  QTableWidget* tableWidgetTargets_;
-  QPushButton* pushButtonAddTarget_;
-  QPushButton* pushButtonDelTarget_;
-  QPushButton* pushButtonCopyTarget_;
-  int checkBoxColumnNumber_;
-  QVector<int> propertyColumns_;
+   QTableWidget* m_tableWidgetTargets;
+   QPushButton* m_pushButtonAddTarget;
+   QPushButton* m_pushButtonAddTargetsAtWellLocations;
+   QPushButton* m_pushButtonDelTarget;
+   QPushButton* m_pushButtonCopyTarget;
+   int m_checkBoxColumnNumber;
+   QVector<int> m_propertyColumns;
 };
 
 } // namespace ua

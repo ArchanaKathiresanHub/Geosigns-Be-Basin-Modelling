@@ -23,12 +23,12 @@ public:
 
   QStringList layerNames() const override
   {
-    return QStringList("Layer");
+    return {"Layer1","Layer2"};
   }
 
   QStringList surfaceNames() const override
   {
-    return {"Water_Bottom", "Second Surface"};
+    return {"Water_Bottom", "Second Surface", "Third Surface"};
   }
 
   QStringList lithologyNames() const override

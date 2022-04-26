@@ -63,6 +63,7 @@ public:
    void setWellHasDataInLayer(const std::string& projectFileName, const QStringList& layerNames);
 
    QStringList getPropertyUserNamesForWell(const int wellIndex) const;
+   QStringList getWellNames() const;
 
    void convertDTtoTWT(const std::string& iterationFolder, const std::string& project3dFilename);
    void convertVPtoDT();

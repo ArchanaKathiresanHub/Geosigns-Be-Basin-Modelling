@@ -29,37 +29,42 @@ namespace ua
 {
 
 PredictionTargetTable::PredictionTargetTable(QWidget* parent) : QWidget(parent),
-  tableWidgetTargets_{new QTableWidget(this)},
-  pushButtonAddTarget_{new QPushButton("Add", this)},
-  pushButtonDelTarget_{new QPushButton("Delete", this)},
-  pushButtonCopyTarget_{new QPushButton("Copy", this)},
-  checkBoxColumnNumber_{5},
-  propertyColumns_{}
+   m_tableWidgetTargets{new QTableWidget(this)},
+   m_pushButtonAddTarget{new QPushButton("Add", this)},
+   m_pushButtonAddTargetsAtWellLocations{new QPushButton("Add targets at well locations", this)},
+   m_pushButtonDelTarget{new QPushButton("Delete", this)},
+   m_pushButtonCopyTarget{new QPushButton("Copy", this)},
+   m_checkBoxColumnNumber{5},
+   m_propertyColumns{}
 {
-  tableWidgetTargets_->setRowCount(0);
-  tableWidgetTargets_->setColumnCount(6);
-  tableWidgetTargets_->horizontalHeader()->setStretchLastSection(true);
-  tableWidgetTargets_->setHorizontalHeaderItem(0, new QTableWidgetItem("Location name"));
-  tableWidgetTargets_->setHorizontalHeaderItem(1, new QTableWidgetItem("x [m]"));
-  tableWidgetTargets_->setHorizontalHeaderItem(2, new QTableWidgetItem("y [m]"));
-  tableWidgetTargets_->setHorizontalHeaderItem(3, new QTableWidgetItem("z [m]"));
-  tableWidgetTargets_->setHorizontalHeaderItem(4, new QTableWidgetItem("Surface"));
-  tableWidgetTargets_->setHorizontalHeaderItem(checkBoxColumnNumber_, new QTableWidgetItem("Time series"));
-  tableWidgetTargets_->horizontalHeader()->stretchLastSection();
-  tableWidgetTargets_->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+   m_pushButtonAddTargetsAtWellLocations->setEnabled(false);
 
-  QHBoxLayout* horizontalLayoutPredictionButtons = new QHBoxLayout();
-  horizontalLayoutPredictionButtons->addWidget(new QWidget(this));
-  horizontalLayoutPredictionButtons->addWidget(pushButtonCopyTarget_);
-  horizontalLayoutPredictionButtons->addWidget(pushButtonAddTarget_);
-  horizontalLayoutPredictionButtons->addWidget(pushButtonDelTarget_);
-  horizontalLayoutPredictionButtons->setStretch(0, 1);
+   m_tableWidgetTargets->setRowCount(0);
+   m_tableWidgetTargets->setColumnCount(6);
+   m_tableWidgetTargets->horizontalHeader()->setStretchLastSection(true);
+   m_tableWidgetTargets->setHorizontalHeaderItem(0, new QTableWidgetItem("Location name"));
+   m_tableWidgetTargets->setHorizontalHeaderItem(1, new QTableWidgetItem("x [m]"));
+   m_tableWidgetTargets->setHorizontalHeaderItem(2, new QTableWidgetItem("y [m]"));
+   m_tableWidgetTargets->setHorizontalHeaderItem(3, new QTableWidgetItem("z [m]"));
+   m_tableWidgetTargets->setHorizontalHeaderItem(4, new QTableWidgetItem("Surface"));
+   m_tableWidgetTargets->setHorizontalHeaderItem(m_checkBoxColumnNumber, new QTableWidgetItem("Time series"));
+   m_tableWidgetTargets->horizontalHeader()->stretchLastSection();
 
-  QVBoxLayout* verticalLayoutPrediction = new QVBoxLayout(this);
-  verticalLayoutPrediction->addWidget(tableWidgetTargets_);
-  verticalLayoutPrediction->addLayout(horizontalLayoutPredictionButtons);
-  verticalLayoutPrediction->setStretch(0, 1);
-  verticalLayoutPrediction->setContentsMargins(0, 0, 0, 0);
+   m_tableWidgetTargets->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+
+   QHBoxLayout* horizontalLayoutPredictionButtons = new QHBoxLayout();
+   horizontalLayoutPredictionButtons->addWidget(new QWidget(this));
+   horizontalLayoutPredictionButtons->addWidget(m_pushButtonAddTargetsAtWellLocations);
+   horizontalLayoutPredictionButtons->addWidget(m_pushButtonCopyTarget);
+   horizontalLayoutPredictionButtons->addWidget(m_pushButtonAddTarget);
+   horizontalLayoutPredictionButtons->addWidget(m_pushButtonDelTarget);
+   horizontalLayoutPredictionButtons->setStretch(0, 1);
+
+   QVBoxLayout* verticalLayoutPrediction = new QVBoxLayout(this);
+   verticalLayoutPrediction->addWidget(m_tableWidgetTargets);
+   verticalLayoutPrediction->addLayout(horizontalLayoutPredictionButtons);
+   verticalLayoutPrediction->setStretch(0, 1);
+   verticalLayoutPrediction->setContentsMargins(0, 0, 0, 0);
 }
 
 void PredictionTargetTable::updateTable(const QVector<const PredictionTarget*> predictionTargets,
@@ -67,27 +72,27 @@ void PredictionTargetTable::updateTable(const QVector<const PredictionTarget*> p
                                         const QVector<bool>& hasTimeSeriesForPredictionTargets,
                                         const QStringList validLayerNames)
 {
-   QSignalBlocker blocker(tableWidgetTargets_);
-   tableWidgetTargets_->clearContents();
-   tableWidgetTargets_->setRowCount(0);
-   for (int i : propertyColumns_)
+   QSignalBlocker blocker(m_tableWidgetTargets);
+   m_tableWidgetTargets->clearContents();
+   m_tableWidgetTargets->setRowCount(0);
+   for (int i : m_propertyColumns)
    {
-     tableWidgetTargets_->removeColumn(i);
+      m_tableWidgetTargets->removeColumn(i);
    }
-   propertyColumns_.clear();
+   m_propertyColumns.clear();
 
    for (const QString& option : predictionTargetOptions)
    {
-      propertyColumns_.append(tableWidgetTargets_->columnCount() - 1);
-      tableWidgetTargets_->setColumnCount(tableWidgetTargets_->columnCount() + 1);
-      tableWidgetTargets_->setHorizontalHeaderItem(tableWidgetTargets_->columnCount() - 2, new QTableWidgetItem(option));
+      m_propertyColumns.append(m_tableWidgetTargets->columnCount() - 1);
+      m_tableWidgetTargets->setColumnCount(m_tableWidgetTargets->columnCount() + 1);
+      m_tableWidgetTargets->setHorizontalHeaderItem(m_tableWidgetTargets->columnCount() - 2, new QTableWidgetItem(option));
    }
-   tableWidgetTargets_->setHorizontalHeaderItem(checkBoxColumnNumber_ + predictionTargetOptions.size(), new QTableWidgetItem("Time series"));
+   m_tableWidgetTargets->setHorizontalHeaderItem(m_checkBoxColumnNumber + predictionTargetOptions.size(), new QTableWidgetItem("Time series"));
 
    int row = 0;
    for (const PredictionTarget* target : predictionTargets)
    {
-      TableRowComboBox* layerComboBox = new TableRowComboBox(row, tableWidgetTargets_);
+      TableRowComboBox* layerComboBox = new TableRowComboBox(row, m_tableWidgetTargets);
       layerComboBox->insertItems(0, validLayerNames);
       int j = 0;
       for (const QString& layer: validLayerNames)
@@ -105,22 +110,22 @@ void PredictionTargetTable::updateTable(const QVector<const PredictionTarget*> p
               [=](){ itemLayer->setText(layerComboBox->currentText());});
 
 
-      tableWidgetTargets_->setRowCount(row+1);
-      tableWidgetTargets_->setItem(row, 0, new QTableWidgetItem(target->locationName()));
-      tableWidgetTargets_->setItem(row, 1, new QTableWidgetItem(QString::number(target->x(), 'f', 0)));
-      tableWidgetTargets_->setItem(row, 2, new QTableWidgetItem(QString::number(target->y(), 'f', 0)));
-      tableWidgetTargets_->setItem(row, 3, new QTableWidgetItem(QString::number(target->z(), 'f', 0)));
+      m_tableWidgetTargets->setRowCount(row+1);
+      m_tableWidgetTargets->setItem(row, 0, new QTableWidgetItem(target->locationName()));
+      m_tableWidgetTargets->setItem(row, 1, new QTableWidgetItem(QString::number(target->x(), 'f', 0)));
+      m_tableWidgetTargets->setItem(row, 2, new QTableWidgetItem(QString::number(target->y(), 'f', 0)));
+      m_tableWidgetTargets->setItem(row, 3, new QTableWidgetItem(QString::number(target->z(), 'f', 0)));
 
-      tableWidgetTargets_->setCellWidget(row, 4, layerComboBox);
-      tableWidgetTargets_->setItem(row, 4, itemLayer);
+      m_tableWidgetTargets->setCellWidget(row, 4, layerComboBox);
+      m_tableWidgetTargets->setItem(row, 4, itemLayer);
 
       if (target->surfaceName() != "")
       {
-         tableWidgetTargets_->item(row, 3)->setFlags(tableWidgetTargets_->item(row, 3)->flags() & Qt::ItemIsEditable);
+         m_tableWidgetTargets->item(row, 3)->setFlags(m_tableWidgetTargets->item(row, 3)->flags() & Qt::ItemIsEditable);
       }
 
       int i = 0;
-      for (const int col : propertyColumns_)
+      for (const int col : m_propertyColumns)
       {
          const QString& option = predictionTargetOptions[i];
          QWidget* checkBoxWidget = new QWidget();
@@ -134,7 +139,7 @@ void PredictionTargetTable::updateTable(const QVector<const PredictionTarget*> p
 
          connect(itemCheckBox, &CustomCheckbox::stateChanged, [=](int state){emit activePropertyCheckBoxChanged(state, row, option);});
 
-         tableWidgetTargets_->setCellWidget(row, col, checkBoxWidget);
+         m_tableWidgetTargets->setCellWidget(row, col, checkBoxWidget);
 
          ++i;
       }
@@ -150,8 +155,7 @@ void PredictionTargetTable::updateTable(const QVector<const PredictionTarget*> p
 
       connect(itemCheckBox, &CustomCheckbox::stateChanged, [=](int state){emit targetHasTimeSeriesChanged(state, row);});
 
-      tableWidgetTargets_->setCellWidget(row, checkBoxColumnNumber() + predictionTargetOptions.size(), checkBoxWidget);
-
+      m_tableWidgetTargets->setCellWidget(row, checkBoxColumnNumber() + predictionTargetOptions.size(), checkBoxWidget);
 
       ++row;
    }
@@ -159,27 +163,37 @@ void PredictionTargetTable::updateTable(const QVector<const PredictionTarget*> p
 
 const QTableWidget* PredictionTargetTable::tableWidgetSurfaceTargets() const
 {
-  return tableWidgetTargets_;
+   return m_tableWidgetTargets;
 }
 
 const QPushButton* PredictionTargetTable::pushButtonAddSurfaceTarget() const
 {
-  return pushButtonAddTarget_;
+   return m_pushButtonAddTarget;
+}
+
+const QPushButton* PredictionTargetTable::pushButtonAddTargetsAtWellLocations() const
+{
+   return m_pushButtonAddTargetsAtWellLocations;
+}
+
+void PredictionTargetTable::setTargetsAtWellLocationsButtonEnabled(bool state)
+{
+   m_pushButtonAddTargetsAtWellLocations->setEnabled(state);
 }
 
 const QPushButton* PredictionTargetTable::pushButtonDelSurfaceTarget() const
 {
-  return pushButtonDelTarget_;
+   return m_pushButtonDelTarget;
 }
 
 const QPushButton* PredictionTargetTable::pushButtonCopySurfaceTarget() const
 {
-  return pushButtonCopyTarget_;
+   return m_pushButtonCopyTarget;
 }
 
 int PredictionTargetTable::checkBoxColumnNumber() const
 {
-  return checkBoxColumnNumber_;
+   return m_checkBoxColumnNumber;
 }
 
 } // namespace ua

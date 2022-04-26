@@ -120,7 +120,6 @@ QStringList PredictionTargetManager::validSurfaceNames() const
    if (!validSurfaceNames.empty())
    {
       validSurfaceNames.removeLast(); // Remove basement, since that is not supported yet
-      validSurfaceNames.insert(0, ""); // Add empty entry to be able to deselect the surface in the predictionTargetTable
    }
 
    return validSurfaceNames;
@@ -217,31 +216,43 @@ void PredictionTargetManager::setTarget(int row, int column, const QString& text
    setPredictionTargetsAllTimes();
 }
 
-void PredictionTargetManager::addDepthTarget(const double x, const double y, const double z, const QVector<QString>& properties, const double age)
+void PredictionTargetManager::addDepthTarget(const double x, const double y, const double z, const QVector<QString>& properties, const double age, QString locationName)
 {
-   m_predictionTargets.push_back(std::make_shared<PredictionTargetDepth>(properties, x, y, z, age, "Loc_" + QString::number(m_identifier)));
+   if (locationName.isEmpty())
+   {
+      locationName = "Loc_" + QString::number(m_identifier);
+   }
+   m_predictionTargets.push_back(std::make_shared<PredictionTargetDepth>(properties, x, y, z, age, locationName));
    m_targetHasTimeSeries.push_back(false);
    m_identifier++;
 
    setPredictionTargetsAllTimes();
 }
 
-void PredictionTargetManager::addSurfaceTarget(const double x, const double y, QString layer, const QVector<QString>& properties, const double age)
-{  
-   const QStringList layers = m_projectReader.surfaceNames();
-   if (!layers.contains(layer))
+void PredictionTargetManager::addSurfaceTarget(const double x, const double y, QString surface, const QVector<QString>& properties, const double age, QString locationName)
+{
+   const QStringList surfaces = m_projectReader.surfaceNames();
+   if (!surfaces.contains(surface))
    {
-      if (layers.empty())
+      if (surfaces.empty())
       {
          return;
       }
       else
       {
-         layer = layers[0];
+         surface = surfaces[0];
       }
    }
 
-   m_predictionTargets.push_back(std::make_shared<PredictionTargetSurface>(properties, x, y, layer, age, &m_toDepthConverter, "Loc_" + QString::number(m_identifier)));
+   if (locationName.isEmpty())
+   {
+      locationName = "Loc_" + QString::number(m_identifier);
+   }
+
+   std::shared_ptr<PredictionTargetSurface> surfaceTarget = std::make_shared<PredictionTargetSurface>(properties, x, y, surface, age, &m_toDepthConverter, locationName);
+   surfaceTarget->setSurfaceAndLayerName(surface, m_projectReader.getLayerUnderSurface(surface));
+   m_predictionTargets.push_back(surfaceTarget);
+
    m_identifier++;
 
    m_targetHasTimeSeries.push_back(false);
@@ -410,6 +421,7 @@ void PredictionTargetManager::readFromFile(const ScenarioReader& reader)
 void PredictionTargetManager::clear()
 {
    clearMemory();
+   m_targetHasTimeSeries.clear();
    predictionTargetsAllTimes_.clear();
    m_predictionTargets.clear();
    m_targetHasTimeSeries.clear();

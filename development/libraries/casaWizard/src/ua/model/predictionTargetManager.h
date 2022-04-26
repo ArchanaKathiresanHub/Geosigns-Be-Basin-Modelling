@@ -37,8 +37,8 @@ public:
    const QVector<const PredictionTarget*> predictionTargetsIncludingTimeSeries() const;
    const QVector<const PredictionTarget*> predictionTargetInTimeSeries(const int row) const;
 
-   void addDepthTarget(const double x, const double y, const double z, const QVector<QString>& properties = s_targetVariables, const double age = 0.0);
-   void addSurfaceTarget(const double x, const double y, QString layer = "", const QVector<QString>& properties = s_targetVariables, const double age = 0.0);
+   void addDepthTarget(const double x, const double y, const double z, const QVector<QString>& properties = s_targetVariables, const double age = 0.0, QString locationName = "");
+   void addSurfaceTarget(const double x, const double y, QString surface = "", const QVector<QString>& properties = s_targetVariables, const double age = 0.0, QString locationName = "");
 
    void copyTargets(const QVector<int>& indices);
    void removeTargets(const QVector<int>& indices);

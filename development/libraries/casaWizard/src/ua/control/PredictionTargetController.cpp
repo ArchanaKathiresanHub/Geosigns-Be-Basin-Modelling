@@ -7,6 +7,7 @@
 //
 
 #include "PredictionTargetController.h"
+#include "TargetImportWellsController.h"
 
 #include "model/logger.h"
 #include "model/uaScenario.h"
@@ -24,12 +25,15 @@ namespace ua
 
 PredictionTargetController::PredictionTargetController(PredictionTargetTable* table,
                                                        PredictionTargetManager& manager,
+                                                       CalibrationTargetManager& calibrationTargetManager,
                                                        QObject* parent) :
   QObject(parent),
   m_table(table),
-  m_manager(manager)
+  m_predictionTargetManager(manager),
+  m_calibrationTargetManager(calibrationTargetManager)
 {
   connect(m_table->pushButtonAddSurfaceTarget(),  SIGNAL(clicked()), this, SLOT(slotPushButtonAddPredictionTargetClicked()));
+  connect(m_table->pushButtonAddTargetsAtWellLocations(),  SIGNAL(clicked()), this, SLOT(slotPushButtonAddTargetWellLocationsClicked()));
   connect(m_table->pushButtonDelSurfaceTarget(),  SIGNAL(clicked()), this, SLOT(slotPushButtonDelPredictionTargetClicked()));
   connect(m_table->pushButtonCopySurfaceTarget(), SIGNAL(clicked()), this, SLOT(slotPushButtonCopyPredictionTargetClicked()));
   connect(m_table->tableWidgetSurfaceTargets(),   SIGNAL(itemChanged(QTableWidgetItem*)),
@@ -45,13 +49,20 @@ PredictionTargetController::PredictionTargetController(PredictionTargetTable* ta
 
 void PredictionTargetController::slotPushButtonAddPredictionTargetClicked()
 {
-   m_manager.addDepthTarget(0.0, 0.0, 0.0);
+   m_predictionTargetManager.addDepthTarget(0.0, 0.0, 0.0);
+   refreshAndEmitDataChanged();
+}
+
+void PredictionTargetController::slotPushButtonAddTargetWellLocationsClicked()
+{
+   TargetImportWellsController targetImportWellsController(m_calibrationTargetManager,
+                                                           m_predictionTargetManager);
    refreshAndEmitDataChanged();
 }
 
 void PredictionTargetController::slotPushButtonDelPredictionTargetClicked()
 {
-   m_manager.removeTargets(getSelectedRows());
+   m_predictionTargetManager.removeTargets(getSelectedRows());
    refreshAndEmitDataChanged();
 }
 
@@ -74,13 +85,13 @@ QVector<int> PredictionTargetController::getSelectedRows()
 void PredictionTargetController::slotPushButtonCopyPredictionTargetClicked()
 {
    getSelectedRows();
-   m_manager.copyTargets(getSelectedRows());
+   m_predictionTargetManager.copyTargets(getSelectedRows());
    refreshAndEmitDataChanged();
 }
 
 void PredictionTargetController::slotTableWidgetPredictionTargetsItemChanged(QTableWidgetItem* item)
 {
-  m_manager.setTarget(item->row(), item->column(), item->data(0).toString());
+  m_predictionTargetManager.setTarget(item->row(), item->column(), item->data(0).toString());
   refreshAndEmitDataChanged();
 }
 
@@ -92,18 +103,25 @@ void PredictionTargetController::refreshAndEmitDataChanged()
 
 void PredictionTargetController::slotRefresh()
 {
-   m_table->updateTable(m_manager.predictionTargets(), m_manager.predictionTargetOptions(), m_manager.targetHasTimeSeries(), m_manager.validSurfaceNames());
+   QStringList validSurfaceNames = m_predictionTargetManager.validSurfaceNames();
+   validSurfaceNames.insert(0, ""); // Add empty entry to be able to deselect the surface in the predictionTargetTable
+   m_table->updateTable(m_predictionTargetManager.predictionTargets(), m_predictionTargetManager.predictionTargetOptions(), m_predictionTargetManager.targetHasTimeSeries(), validSurfaceNames);
+}
+
+void PredictionTargetController::enableTargetsAtWellLocationsButton(bool enable)
+{
+   m_table->setTargetsAtWellLocationsButtonEnabled(enable);
 }
 
 void PredictionTargetController::slotActivePropertyCheckBoxChanged(int state, int row, QString property)
 {
-   m_manager.setTargetActiveProperty(state == Qt::Checked, row, property);
+   m_predictionTargetManager.setTargetActiveProperty(state == Qt::Checked, row, property);
    emit dataChanged();
 }
 
 void PredictionTargetController::slotTargetHasTimeSeriesChanged(int state, int row)
 {
-   m_manager.setTargetHasTimeSeries(row, state == Qt::Checked);
+   m_predictionTargetManager.setTargetHasTimeSeries(row, state == Qt::Checked);
    emit dataChanged();
 }
 

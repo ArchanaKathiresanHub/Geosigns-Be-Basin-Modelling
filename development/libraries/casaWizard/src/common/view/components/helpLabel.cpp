@@ -8,3 +8,10 @@ casaWizard::HelpLabel::HelpLabel(QWidget* parent, const QString& tooltipText) :
   setFixedWidth(helpPixmap.width());
   setToolTip(tooltipText);
 }
+
+void casaWizard::HelpLabel::setSize(int pts)
+{
+   QPixmap helpPixmap = QPixmap(":/Help.png").scaledToHeight(pts, Qt::TransformationMode::SmoothTransformation);
+   setPixmap(helpPixmap);
+   setFixedWidth(helpPixmap.width());
+}

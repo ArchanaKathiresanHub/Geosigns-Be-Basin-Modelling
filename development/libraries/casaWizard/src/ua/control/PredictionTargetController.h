@@ -16,6 +16,8 @@ class QTableWidgetItem;
 namespace casaWizard
 {
 
+class CalibrationTargetManager;
+
 namespace ua
 {
 
@@ -30,9 +32,11 @@ class PredictionTargetController : public QObject
 public:
    explicit PredictionTargetController(PredictionTargetTable* table,
                                        PredictionTargetManager& manager,
+                                       CalibrationTargetManager& calibrationTargetManager,
                                        QObject* parent);
 
    void refreshAndEmitDataChanged();
+   void enableTargetsAtWellLocationsButton(bool enable);
 
 signals:
   void dataChanged();
@@ -42,6 +46,7 @@ public slots:
 
 private slots:
    void slotPushButtonAddPredictionTargetClicked();
+   void slotPushButtonAddTargetWellLocationsClicked();
    void slotPushButtonDelPredictionTargetClicked();
    void slotPushButtonCopyPredictionTargetClicked();
    void slotTableWidgetPredictionTargetsItemChanged(QTableWidgetItem* item);
@@ -50,7 +55,8 @@ private slots:
 
 private:
    PredictionTargetTable* m_table;
-   PredictionTargetManager& m_manager;
+   PredictionTargetManager& m_predictionTargetManager;
+   const CalibrationTargetManager& m_calibrationTargetManager;
    QVector<int> getSelectedRows();
 };
 
