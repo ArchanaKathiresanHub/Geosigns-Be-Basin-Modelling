@@ -20,10 +20,10 @@ TEST(SurfaceToDepthConverterTest, testSurfaceToDepthConverter)
 
    SurfaceToDepthConverter converter(projectReader,mapReader);
 
-   EXPECT_EQ(converter.getDepth(0,0,"invalidSurface"),Utilities::Numerical::CauldronNoDataValue);
+   EXPECT_EQ(converter.getDepth(0,0,"invalidSurface"),Utilities::Numerical::IbsNoDataValue);
 
    //Invalid location
-   EXPECT_EQ(converter.getDepth(-10e6,-10e6,"ResTop"),Utilities::Numerical::CauldronNoDataValue);
+   EXPECT_EQ(converter.getDepth(-10e6,-10e6,"ResTop"),Utilities::Numerical::IbsNoDataValue);
 
    //Read from map
    double z3 = converter.getDepth(0,0,"ResTop");

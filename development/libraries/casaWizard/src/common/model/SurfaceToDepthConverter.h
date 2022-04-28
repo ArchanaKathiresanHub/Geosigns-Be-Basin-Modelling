@@ -24,6 +24,7 @@ public:
 
 private:
    double getDepthFromMap(double x, double y, QString mapName) const;
+   static bool isValidMapValue(double val);
    static bool isValidValue(double val);
 
    const ProjectReader& m_projectReader;

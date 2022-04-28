@@ -14,6 +14,8 @@
 #include "model/TargetInputFromWellsInfo.h"
 
 #include <QStringList>
+#include <QMessageBox>
+#include <QPushButton>
 
 namespace casaWizard
 {
@@ -41,7 +43,23 @@ TargetImportWellsController::TargetImportWellsController(const CalibrationTarget
 
 void TargetImportWellsController::slotImportAccepted()
 {
+   if (m_predictionTargetManager.amountAtAge0() > 0)
+   {
+      QMessageBox overwriteData(QMessageBox::Icon::Information,
+                                "The target table already has targets.",
+                                "Would you like to overwrite or append the new targets?");
+      overwriteData.addButton("Append", QMessageBox::RejectRole);
+      QPushButton* overwriteButton =overwriteData.addButton("Overwrite", QMessageBox::AcceptRole);
+      connect(overwriteButton, SIGNAL(clicked()), this, SLOT(slotClearPredictionTargets()));
+      overwriteData.exec();
+   }
+
    writePredictionTargets();
+}
+
+void TargetImportWellsController::slotClearPredictionTargets()
+{
+   m_predictionTargetManager.clear();
 }
 
 void TargetImportWellsController::writePredictionTargets()

@@ -32,6 +32,7 @@ public:
                                ,QObject* parent = nullptr);
 public slots:
       void slotImportAccepted();
+      void slotClearPredictionTargets();
 
 private:
    void writePredictionTargets();

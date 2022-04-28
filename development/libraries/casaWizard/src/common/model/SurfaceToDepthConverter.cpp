@@ -35,7 +35,11 @@ double SurfaceToDepthConverter::getDepth(double x, double y, QString surfaceName
    QString mapName = m_projectReader.getDepthGridName(idxSurface);
    if (!mapName.isEmpty())
    {
-      return getDepthFromMap(x,y,mapName);
+      const double depthFromMap = getDepthFromMap(x,y,mapName);
+      if (isValidMapValue(depthFromMap))
+      {
+         return depthFromMap;
+      }
    }
 
    double thickness = m_projectReader.getThickness(idxSurface);
@@ -49,7 +53,7 @@ double SurfaceToDepthConverter::getDepth(double x, double y, QString surfaceName
       depth = m_projectReader.getDepth(idxSurface);
       mapName = m_projectReader.getDepthGridName(idxSurface);
 
-      double layerThickness = m_projectReader.getThickness(idxSurface);
+      const double layerThickness = m_projectReader.getThickness(idxSurface);
       if (isValidValue(layerThickness))
       {
          thickness += layerThickness;
@@ -62,7 +66,11 @@ double SurfaceToDepthConverter::getDepth(double x, double y, QString surfaceName
    }
    else if (!mapName.isEmpty())
    {
-      return getDepthFromMap(x,y,mapName)-thickness;
+      const double depthFromMap = getDepthFromMap(x,y,mapName);
+      if (isValidMapValue(depthFromMap))
+      {
+         return depthFromMap-thickness;
+      }
    }
 
    Logger::log() << "Warning: Could not find depth value. StratIOtbl may be invalid" << Logger::endl();
@@ -72,6 +80,11 @@ double SurfaceToDepthConverter::getDepth(double x, double y, QString surfaceName
 bool SurfaceToDepthConverter::isValidValue(double val)
 {
    return std::fabs(val - DataAccess::Interface::DefaultUndefinedScalarValue) > 1e-5;
+}
+
+bool SurfaceToDepthConverter::isValidMapValue(double val)
+{
+   return std::fabs(val - DataAccess::Interface::DefaultUndefinedMapValueInteger) > 1e-5;
 }
 
 double SurfaceToDepthConverter::getDepthFromMap(double x, double y, QString mapName) const
