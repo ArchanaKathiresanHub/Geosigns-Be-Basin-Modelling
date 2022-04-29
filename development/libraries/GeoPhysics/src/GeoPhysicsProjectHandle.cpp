@@ -134,7 +134,8 @@ GeoPhysics::ConfigFileParameterAlc * GeoPhysics::ProjectHandle::getBasementLitho
 //------------------------------------------------------------//
 
 bool GeoPhysics::ProjectHandle::startActivity ( const std::string& name, const DataAccess::Interface::Grid* grid, bool saveAsInputGrid, bool createResultsFile, bool append ) {
-   const bool started = DataAccess::Interface::ProjectHandle::startActivity ( name, grid, saveAsInputGrid, createResultsFile, append );
+
+    const bool started = DataAccess::Interface::ProjectHandle::startActivity ( name, grid, saveAsInputGrid, createResultsFile, append );
 
    if ( started ) {
       // Now get the boundaries of the activity grid for this process.

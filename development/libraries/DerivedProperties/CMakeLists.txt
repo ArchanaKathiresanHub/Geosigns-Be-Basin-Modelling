@@ -32,6 +32,8 @@ create_bm_library( TARGET ${LIB_NAME}
 generate_dox( DerivedProperties.cfg )
 
 copy_test_file(DBMProject.project3d)
+copy_test_file(01_simple_50km_HF_test.project3d)
+copy_test_file(01_simple_50km_HF_test.HDF)
 
 
 ################################################################
@@ -146,6 +148,14 @@ add_gtest( NAME ${LIB_NAME}::GammaRayFormationCalculatorTest
 add_gtest( NAME ${LIB_NAME}::DepthBelowMudlinePropertyTest
            SOURCES test/DepthBelowMudlinePropertyTest.cpp
            INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/../DataModel/test ${CMAKE_CURRENT_SOURCE_DIR}/../GeoPhysics/src ${CMAKE_CURRENT_SOURCE_DIR}/src ${CMAKE_CURRENT_SOURCE_DIR}/../DataAccess/src ${CMAKE_CURRENT_SOURCE_DIR}/../DistributedDataAccess/src
+           LIBRARIES ${LIB_NAME} SerialDataAccess GeoPhysics DataModel DataAccess DistributedDataAccess
+	       ENV_VARS CTCDIR=${PROJECT_SOURCE_DIR}/geocase/misc
+           FOLDER "${BASE_FOLDER}/${LIB_NAME}"
+)
+
+add_gtest( NAME ${LIB_NAME}::HeatFlowPropertyTest
+           SOURCES test/HeatFlowPropertyTest.cpp test/MockHeatFlowPropertyManager.cpp
+           INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/test ${CMAKE_CURRENT_SOURCE_DIR}/../DataModel/test ${CMAKE_CURRENT_SOURCE_DIR}/../GeoPhysics/src ${CMAKE_CURRENT_SOURCE_DIR}/src ${CMAKE_CURRENT_SOURCE_DIR}/../DataAccess/src ${CMAKE_CURRENT_SOURCE_DIR}/../DistributedDataAccess/src
            LIBRARIES ${LIB_NAME} SerialDataAccess GeoPhysics DataModel DataAccess DistributedDataAccess
 	       ENV_VARS CTCDIR=${PROJECT_SOURCE_DIR}/geocase/misc
            FOLDER "${BASE_FOLDER}/${LIB_NAME}"

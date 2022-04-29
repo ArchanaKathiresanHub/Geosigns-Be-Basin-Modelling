@@ -100,13 +100,22 @@ void DerivedProperties::HeatFlowFormationCalculator::calculate (       AbstractP
       const DataModel::AbstractProperty* basaltDepthProperty     = propertyManager.getProperty ( "ALCStepTopBasaltDepth" );
       const DataModel::AbstractProperty* basaltThicknessProperty = propertyManager.getProperty ( "ALCStepBasaltThickness" );
 
-      if( formation->getName() != "Crust" ) {
-         const GeoPhysics::GeoPhysicsFormation *mantleFormation = dynamic_cast<const GeoPhysics::GeoPhysicsFormation*>( formation );
-         const DataModel::AbstractFormation * crustFormation = ( mantleFormation->getTopSurface()->getTopFormation() );
+      if( formation->getName() != "Crust" ) 
+      {
+         const auto *mantleFormation = dynamic_cast<const GeoPhysics::GeoPhysicsFormation*>( formation );
+         if (mantleFormation)
+         {
+             const DataModel::AbstractFormation * crustFormation = ( mantleFormation->getTopSurface()->getTopFormation() );
 
-         basaltDepth = propertyManager.getFormationMapProperty ( basaltDepthProperty, snapshot, crustFormation );
-         basaltThickness = propertyManager.getFormationMapProperty ( basaltThicknessProperty, snapshot, crustFormation );
-      } else {
+	         if (crustFormation)
+             {
+                 basaltDepth = propertyManager.getFormationMapProperty ( basaltDepthProperty, snapshot, crustFormation );
+		         basaltThickness = propertyManager.getFormationMapProperty ( basaltThicknessProperty, snapshot, crustFormation );
+             }
+         }
+      } 
+      else 
+      {
          basaltDepth = propertyManager.getFormationMapProperty ( basaltDepthProperty, snapshot, formation );
          basaltThickness = propertyManager.getFormationMapProperty ( basaltThicknessProperty, snapshot, formation );
       }
@@ -118,23 +127,23 @@ void DerivedProperties::HeatFlowFormationCalculator::calculate (       AbstractP
    if ( chemicalCompactionRequired ) {
       chemicalCompaction = propertyManager.getFormationProperty ( aChemicalCompactionProperty, snapshot, formation );
       // Just in case the property is not found.
-      chemicalCompactionRequired = chemicalCompaction != 0;
+      chemicalCompactionRequired = chemicalCompaction != nullptr;
    }
 
    derivedProperties.clear ();
 
-   bool allProperties = temperature != 0 and depth != 0 and geoFormation != 0;
+   bool allProperties = temperature != nullptr and depth != nullptr and geoFormation != nullptr;
 
    if( not basementFormation ) {
-      allProperties = allProperties and ves != 0 and maxVes != 0 and pressure != 0 and overpressure != 0;
+      allProperties = allProperties and ves != nullptr and maxVes != nullptr and pressure != nullptr and overpressure != nullptr;
    } else {
-      allProperties = allProperties and lithoStaticPressure != 0;
+      allProperties = allProperties and lithoStaticPressure != nullptr;
       if( basementFormationAndAlcMode ) {
-         allProperties = allProperties and basaltDepth != 0 and basaltThickness != 0;
+         allProperties = allProperties and basaltDepth != nullptr and basaltThickness != nullptr;
       }
    }
    if ( chemicalCompactionRequired ) {
-      allProperties = allProperties and chemicalCompaction != 0;
+      allProperties = allProperties and chemicalCompaction != nullptr;
    }
 
    if( allProperties ) {
@@ -165,31 +174,29 @@ void DerivedProperties::HeatFlowFormationCalculator::calculate (       AbstractP
       }
 
       const GeoPhysics::CompoundLithologyArray * lithologies = &geoFormation->getCompoundLithologyArray ();
-      const GeoPhysics::FluidType* fluid = dynamic_cast<const GeoPhysics::FluidType*>(geoFormation->getFluidType ());
+      const auto fluid = dynamic_cast<const GeoPhysics::FluidType*>(geoFormation->getFluidType ());
 
       double currentTime = snapshot->getTime();
       const bool includeAdvectiveTerm = m_projectHandle.getRunParameters ()->getConvectiveTerm ();
 
-      if(  lithologies != 0 ) {
+      if(  lithologies != nullptr ) {
 
-         DerivedFormationPropertyPtr heatFlowX =
-            DerivedFormationPropertyPtr ( new DerivedProperties::DerivedFormationProperty ( heatFlowXProperty, snapshot, formation,
+         auto heatFlowX =
+            DerivedFormationPropertyPtr (make_shared<DerivedProperties::DerivedFormationProperty> ( heatFlowXProperty, snapshot, formation,
                                                                                             propertyManager.getMapGrid (),
                                                                                             geoFormation->getMaximumNumberOfElements() + 1 ));
-         DerivedFormationPropertyPtr heatFlowY =
-            DerivedFormationPropertyPtr ( new DerivedProperties::DerivedFormationProperty ( heatFlowYProperty, snapshot, formation,
+         auto heatFlowY =
+            DerivedFormationPropertyPtr (make_shared <DerivedProperties::DerivedFormationProperty> ( heatFlowYProperty, snapshot, formation,
                                                                                             propertyManager.getMapGrid (),
                                                                                             geoFormation->getMaximumNumberOfElements() + 1 ));
-         DerivedFormationPropertyPtr heatFlowZ =
-            DerivedFormationPropertyPtr ( new DerivedProperties::DerivedFormationProperty ( heatFlowZProperty, snapshot, formation,
+         auto heatFlowZ =
+            DerivedFormationPropertyPtr (make_shared <DerivedProperties::DerivedFormationProperty> ( heatFlowZProperty, snapshot, formation,
                                                                                             propertyManager.getMapGrid (),
                                                                                             geoFormation->getMaximumNumberOfElements() + 1 ));
 
          ElementList elements;
          setUp2dEltMapping( propertyManager, depth, elements );
 
-         unsigned int elementCount;
-         unsigned int i, j;
          const GeoPhysics::CompoundLithology* lithology;
 
          ElementGeometryMatrix geometryMatrix;
@@ -215,160 +222,179 @@ void DerivedProperties::HeatFlowFormationCalculator::calculate (       AbstractP
          // set to true to replace non-valid elements values with the nearest valid element
          const bool validElementsOnSurface = true;
 
-         for ( elementCount = 0; elementCount < elements.size(); elementCount++ ) {
+         for (unsigned int elementCount = 0; elementCount < elements.size(); elementCount++) {
 
-            if ( elements[elementCount].exists) {
-               i = elements [ elementCount ].i [ 0 ];
-               j = elements [ elementCount ].j [ 0 ];
-               lithology = (*lithologies)( i, j, currentTime );
+             unsigned int i = elements[elementCount].i[0];
+             unsigned int j = elements[elementCount].j[0];
 
-               if ( lithology != 0 ) {
+             if (elements[elementCount].exists) {
 
-                  unsigned int degenerateElements = 0;
-                  bool validElementFound = false;
+                 lithology = (*lithologies)(i, j, currentTime);
 
-                  for (unsigned int k = heatFlowX->firstK(); k < heatFlowX->lastK (); ++k ) {
+                 if (lithology != nullptr) {
 
-                     // Retrieve element data.
-                     for ( unsigned int node = 1; node <= 8; ++node ) {
-                        int LidxZ = k + (( node - 1 ) < 4 ? 1 : 0);
-                        int GidxY = elements [ elementCount ].j [( node - 1 ) % 4 ];
-                        int GidxX = elements [ elementCount ].i [( node - 1 ) % 4 ];
+                     unsigned int degenerateElements = 0;
+                     bool validElementFound = false;
+                     // the lasK() is specially taken care of, hence we only loop upto k < lastK()
+                     for (unsigned int k = heatFlowX->firstK(); k < heatFlowX->lastK(); ++k) {
 
-                        geometryMatrix ( 1, node ) = originX + (deltaX * GidxX);
-                        geometryMatrix ( 2, node ) = originY + (deltaY * GidxY);
-                        geometryMatrix ( 3, node ) = depth->get ( GidxX, GidxY, LidxZ );
+                         // Retrieve element data.
+                         for (unsigned int node = 1; node <= 8; ++node) {
+                             int LidxZ = k + ((node - 1) < 4 ? 1 : 0);
+                             int GidxY = elements[elementCount].j[(node - 1) % 4];
+                             int GidxX = elements[elementCount].i[(node - 1) % 4];
 
-                        if( not basementFormation ) {
-                           vesVector          ( node ) = ves->get ( GidxX, GidxY, LidxZ );
-                           maxVesVector       ( node ) = maxVes->get ( GidxX, GidxY, LidxZ );
-                           overpressureVector ( node ) = overpressure->get ( GidxX, GidxY, LidxZ );
-                           porePressureVector ( node ) = pressure->get ( GidxX, GidxY, LidxZ );
-                        } else {
-                           lithoPressureVector ( node ) = lithoStaticPressure->get ( GidxX, GidxY, LidxZ );
-                        }
-                        temperatureVector    ( node ) = temperature->get ( GidxX, GidxY, LidxZ );
-                        chemCompactionVector ( node ) = ( chemicalCompactionRequired ? chemicalCompaction->get ( GidxX, GidxY, LidxZ ) : 0.0 );
-                     }
+                             geometryMatrix(1, node) = originX + (deltaX * GidxX);
+                             geometryMatrix(2, node) = originY + (deltaY * GidxY);
+                             geometryMatrix(3, node) = depth->get(GidxX, GidxY, LidxZ);
 
-                     bool isBasalt = false;
+                             if (not basementFormation) {
+                                 vesVector(node) = ves->get(GidxX, GidxY, LidxZ);
+                                 maxVesVector(node) = maxVes->get(GidxX, GidxY, LidxZ);
+                                 overpressureVector(node) = overpressure->get(GidxX, GidxY, LidxZ);
+                                 porePressureVector(node) = pressure->get(GidxX, GidxY, LidxZ);
+                             }
+                             else {
+                                 lithoPressureVector(node) = lithoStaticPressure->get(GidxX, GidxY, LidxZ);
+                             }
+                             temperatureVector(node) = temperature->get(GidxX, GidxY, LidxZ);
+                             chemCompactionVector(node) = (chemicalCompactionRequired ? chemicalCompaction->get(GidxX, GidxY, LidxZ) : 0.0);
+                         }
 
-                     if ( basementFormationAndAlcMode ) {
-                        int GidxY = elements [ elementCount ].j [0];
-                        int GidxX = elements [ elementCount ].i [0];
-                        int LidxZ = k;
+                         bool isBasalt = false;
 
-                        if( geoFormation->getName() == "Crust" ) {
-                           LidxZ = k + 1;
-                        }
+                         if (basementFormationAndAlcMode) {
+                             int GidxY = elements[elementCount].j[0];
+                             int GidxX = elements[elementCount].i[0];
+                             int LidxZ = k;
 
-                        const double topBasaltDepth = basaltDepth->get(  GidxX, GidxY );
-                        const double botBasaltDepth = topBasaltDepth + basaltThickness->get( GidxX, GidxY ) + 1;
+                             if (geoFormation->getName() == "Crust") {
+                                 LidxZ = k + 1;
+                             }
 
-                        if( basaltThickness->get( GidxX, GidxY ) != 0 and
-                            ( topBasaltDepth <= depth->get ( GidxX, GidxY, LidxZ ) and botBasaltDepth >= depth->get (  GidxX, GidxY, LidxZ ))) {
+                             const double topBasaltDepth = basaltDepth->get(GidxX, GidxY);
+                             const double botBasaltDepth = topBasaltDepth + basaltThickness->get(GidxX, GidxY) + 1;
 
-                           isBasalt = true;
-                        }
-                     }
-                     const bool degenerateElement = isDegenerate( geometryMatrix );
+                             if (basaltThickness->get(GidxX, GidxY) != 0 and
+                                 (topBasaltDepth <= depth->get(GidxX, GidxY, LidxZ) and botBasaltDepth >= depth->get(GidxX, GidxY, LidxZ))) {
 
-                     // compute one  element
-                     if( degenerateElement ) {
-                        if( validElementsOnSurface and validElementFound ) {
-                           // if the element is not valid then copy the values from the last valid element below
+                                 isBasalt = true;
+                             }
+                         }
+                         const bool degenerateElement = isDegenerate(geometryMatrix);
 
-                           heatFlow ( 1 ) = heatFlowValid ( 1 );
-                           heatFlow ( 2 ) = heatFlowValid ( 2 );
-                           heatFlow ( 3 ) = heatFlowValid ( 3 );
-                        } else {
-                           degenerateElements += 1;
+                         // compute one  element
+                         if (degenerateElement) {
+                             if (validElementsOnSurface and validElementFound) {
+                                 // if the element is not valid then copy the values from the last valid element below
 
-                           heatFlow ( 1 ) = DataAccess::Interface::DefaultUndefinedMapValue;
-                           heatFlow ( 2 ) = DataAccess::Interface::DefaultUndefinedMapValue;
-                           heatFlow ( 3 ) = DataAccess::Interface::DefaultUndefinedMapValue;
-                        }
-                     } else {
+                                 heatFlow(1) = heatFlowValid(1);
+                                 heatFlow(2) = heatFlowValid(2);
+                                 heatFlow(3) = heatFlowValid(3);
+                             }
+                             else {
+                                 degenerateElements += 1;
 
-                        computeHeatFlow ( basementFormation,
-                                          isBasalt,
-                                          1.0,
-                                          lithology,
-                                          fluid,
-                                          chemicalCompactionRequired,
-                                          includeAdvectiveTerm,
-                                          geometryMatrix,
-                                          vesVector,
-                                          maxVesVector,
-                                          overpressureVector,
-                                          porePressureVector,
-                                          lithoPressureVector,
-                                          temperatureVector,
-                                          chemCompactionVector,
-                                          heatFlow );
+                                 heatFlow(1) = DataAccess::Interface::DefaultUndefinedMapValue;
+                                 heatFlow(2) = DataAccess::Interface::DefaultUndefinedMapValue;
+                                 heatFlow(3) = DataAccess::Interface::DefaultUndefinedMapValue;
+                             }
+                         }
+                         else {
 
-                        // save this element at a last valid element
-                        if( validElementsOnSurface ) {
-                           validElementFound = true;
+                             computeHeatFlow(basementFormation,
+                                 isBasalt,
+                                 1.0,
+                                 lithology,
+                                 fluid,
+                                 chemicalCompactionRequired,
+                                 includeAdvectiveTerm,
+                                 geometryMatrix,
+                                 vesVector,
+                                 maxVesVector,
+                                 overpressureVector,
+                                 porePressureVector,
+                                 lithoPressureVector,
+                                 temperatureVector,
+                                 chemCompactionVector,
+                                 heatFlow);
 
-                           heatFlowValid ( 1 ) = heatFlow ( 1 );
-                           heatFlowValid ( 2 ) = heatFlow ( 2 );
-                           heatFlowValid ( 3 ) = heatFlow ( 3 );
-                        }
-                     }
+                             // save this element at a last valid element
+                             if (validElementsOnSurface) {
+                                 validElementFound = true;
 
-                     heatFlowX->set ( i, j, k, heatFlow ( 1 ));
-                     heatFlowY->set ( i, j, k, heatFlow ( 2 ));
-                     heatFlowZ->set ( i, j, k, heatFlow ( 3 ));
+                                 heatFlowValid(1) = heatFlow(1);
+                                 heatFlowValid(2) = heatFlow(2);
+                                 heatFlowValid(3) = heatFlow(3);
+                             }
+                         }
 
-                     fillBorders( i, j, k, globalXNodes, globalYNodes, heatFlowX, heatFlowY, heatFlowZ, heatFlow );
+                         heatFlowX->set(i, j, k, heatFlow(1));
+                         heatFlowY->set(i, j, k, heatFlow(2));
+                         heatFlowZ->set(i, j, k, heatFlow(3));
 
-                     if( validElementsOnSurface and degenerateElements > 0 and not degenerateElement ) {
-                        // if degenerateElements > 0 then the current element is the first valid element (count from the bottom) - all
-                        // elements below are derenerated.
-                        // Fill-in the elements below
+                         fillBorders(i, j, k, globalXNodes, globalYNodes, heatFlowX, heatFlowY, heatFlowZ, heatFlow);
 
-                        for ( unsigned int l = 1; l <= degenerateElements ; ++ l ) {
-                           heatFlowX->set ( i, j, k - l, heatFlow ( 1 ));
-                           heatFlowY->set ( i, j, k - l, heatFlow ( 2 ));
-                           heatFlowZ->set ( i, j, k - l, heatFlow ( 3 ));
+                         if (validElementsOnSurface and degenerateElements > 0 and not degenerateElement) {
+                             // if degenerateElements > 0 then the current element is the first valid element (count from the bottom) - all
+                             // elements below are degenerated.
+                             // Fill-in the elements below
 
-                           fillBorders( i, j, k - l, globalXNodes, globalYNodes, heatFlowX, heatFlowY, heatFlowZ, heatFlow );
-                        }
-                        degenerateElements = 0;
-                     }
+                             for (unsigned int l = 1; l <= degenerateElements; ++l) {
+                                 heatFlowX->set(i, j, k - l, heatFlow(1));
+                                 heatFlowY->set(i, j, k - l, heatFlow(2));
+                                 heatFlowZ->set(i, j, k - l, heatFlow(3));
 
-                     // at the top of the formation
-                     if( k == heatFlowX->lastK () - 1 ) {
-                        if( not degenerateElement ) {
-                           computeHeatFlow ( basementFormation,
-                                             isBasalt,
-                                             -1.0,
-                                             lithology,
-                                             fluid,
-                                             chemicalCompactionRequired,
-                                             includeAdvectiveTerm,
-                                             geometryMatrix,
-                                             vesVector,
-                                             maxVesVector,
-                                             overpressureVector,
-                                             porePressureVector,
-                                             lithoPressureVector,
-                                             temperatureVector,
-                                             chemCompactionVector,
-                                             heatFlow );
-                        }
-                        // if the element is not valid the heatFlow is already pre-filled
-                        heatFlowX->set ( i, j, k + 1, heatFlow ( 1 ));
-                        heatFlowY->set ( i, j, k + 1, heatFlow ( 2 ));
-                        heatFlowZ->set ( i, j, k + 1, heatFlow ( 3 ));
+                                 fillBorders(i, j, k - l, globalXNodes, globalYNodes, heatFlowX, heatFlowY, heatFlowZ, heatFlow);
+                             }
+                             degenerateElements = 0;
+                         }
 
-                        fillBorders( i, j, k + 1, globalXNodes, globalYNodes, heatFlowX, heatFlowY, heatFlowZ, heatFlow );
-                     }
-                  } // over k loop
-               }
-            }
-         } // elements loop
+                         // at the top of the formation
+                         if (k == heatFlowX->lastK() - 1) {
+                             if (not degenerateElement) {
+                                 computeHeatFlow(basementFormation,
+                                     isBasalt,
+                                     -1.0,
+                                     lithology,
+                                     fluid,
+                                     chemicalCompactionRequired,
+                                     includeAdvectiveTerm,
+                                     geometryMatrix,
+                                     vesVector,
+                                     maxVesVector,
+                                     overpressureVector,
+                                     porePressureVector,
+                                     lithoPressureVector,
+                                     temperatureVector,
+                                     chemCompactionVector,
+                                     heatFlow);
+                             }
+                             // if the element is not valid the heatFlow is already pre-filled
+                             // k+1 is the lastK() here
+                             heatFlowX->set(i, j, k + 1, heatFlow(1));
+                             heatFlowY->set(i, j, k + 1, heatFlow(2));
+                             heatFlowZ->set(i, j, k + 1, heatFlow(3));
+
+                             fillBorders(i, j, k + 1, globalXNodes, globalYNodes, heatFlowX, heatFlowY, heatFlowZ, heatFlow);
+                         }
+                     } // over k loop
+                 }
+             }
+             else {
+                 for (unsigned int k = heatFlowX->firstK(); k <= heatFlowX->lastK(); ++k) {
+					 ThreeVector heatFlowUndef;
+					 heatFlowUndef(1) = DataAccess::Interface::DefaultUndefinedMapValue;
+					 heatFlowUndef(2) = DataAccess::Interface::DefaultUndefinedMapValue;
+					 heatFlowUndef(3) = DataAccess::Interface::DefaultUndefinedMapValue;
+					 heatFlowX->set(i, j, k, heatFlowUndef(1));
+					 heatFlowY->set(i, j, k, heatFlowUndef(2));
+					 heatFlowZ->set(i, j, k, heatFlowUndef(3));
+					 // need to take same care for the edge nodes that come from non-existent elements
+					 fillBorders(i, j, k, globalXNodes, globalYNodes, heatFlowX, heatFlowY, heatFlowZ, heatFlowUndef);
+                 }
+             }
+         }// elements loop
 
          derivedProperties.push_back ( heatFlowX );
          derivedProperties.push_back ( heatFlowY );

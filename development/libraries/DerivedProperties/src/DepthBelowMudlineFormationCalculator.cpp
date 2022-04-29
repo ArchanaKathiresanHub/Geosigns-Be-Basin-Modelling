@@ -50,7 +50,7 @@ void DerivedProperties::DepthBelowMudlineFormationCalculator::calculate (       
          {
                for ( unsigned int k = depth->firstK (); k <= depth->lastK (); ++k )
                {
-                   // Calculte the 'DepthBelowMudline' property value (DbML) at any (i,j,k)
+                   // Calculate the 'DepthBelowMudline' property value (DbML) at any (i,j,k)
                    auto DbML = depth->get(i, j, k) - m_projectHandle.getSeaBottomDepth(i, j, snapshot->getTime());
                    // Set the property value at the node depending upon the validity of the node
                    // The value is set to the calculated value (DbML) if it is a valid node else it is set to 'undefinedValue'

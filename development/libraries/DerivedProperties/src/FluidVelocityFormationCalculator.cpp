@@ -125,8 +125,6 @@ void DerivedProperties::FluidVelocityFormationCalculator::calculate ( AbstractPr
          ElementList elements;
          setUp2dEltMapping( propertyManager, depth, elements );
 
-         unsigned int elementCount;
-         unsigned int i, j;
          const GeoPhysics::CompoundLithology* lithology;
 
          ElementGeometryMatrix geometryMatrix;
@@ -148,11 +146,13 @@ void DerivedProperties::FluidVelocityFormationCalculator::calculate ( AbstractPr
          // set to true to replace non-valid elements values with the nearest valid element
          const bool validElementsOnSurface = true;
 
-         for ( elementCount = 0; elementCount < elements.size(); elementCount++ ) {
+         for (unsigned int elementCount = 0; elementCount < elements.size(); elementCount++ ) {
+
+             unsigned int i = elements [ elementCount ].i [ 0 ];
+             unsigned int j = elements [ elementCount ].j [ 0 ];
 
             if ( elements[elementCount].exists) {
-               i = elements [ elementCount ].i [ 0 ];
-               j = elements [ elementCount ].j [ 0 ];
+               
                lithology = (*lithologies)( i, j, currentTime );
 
                if ( lithology != 0 ) {
@@ -224,7 +224,7 @@ void DerivedProperties::FluidVelocityFormationCalculator::calculate ( AbstractPr
 
                      if( validElementsOnSurface and degenerateElements > 0 and not degenerateElement ) {
                         // if degenerateElements > 0 then the current element is the first valid element (count from the bottom) - all
-                        // elements below are derenerated.
+                        // elements below are degenerated.
                         // Fill-in the elements below
 
                         for ( int l = 1; l <= degenerateElements ; ++ l ) {
@@ -262,6 +262,19 @@ void DerivedProperties::FluidVelocityFormationCalculator::calculate ( AbstractPr
                   }
                }
             }
+			else {
+                for (unsigned int k = fluidVelocityX->firstK(); k <= fluidVelocityX->lastK(); ++k) {
+				    ThreeVector fluidVelocityUndef;
+                    fluidVelocityUndef(1) = DataAccess::Interface::DefaultUndefinedMapValue;
+                    fluidVelocityUndef(2) = DataAccess::Interface::DefaultUndefinedMapValue;
+                    fluidVelocityUndef(3) = DataAccess::Interface::DefaultUndefinedMapValue;
+                    fluidVelocityX->set(i, j, k, fluidVelocityUndef(1));
+                    fluidVelocityY->set(i, j, k, fluidVelocityUndef(2));
+                    fluidVelocityZ->set(i, j, k, fluidVelocityUndef(3));
+				    // need to take same care for the edge nodes that come from non-existent elements
+				    fillBorders(i, j, k, globalXNodes, globalYNodes, fluidVelocityX, fluidVelocityY, fluidVelocityZ, fluidVelocityUndef);
+			    }
+			}
          }
          derivedProperties.push_back ( fluidVelocityX );
          derivedProperties.push_back ( fluidVelocityY );
