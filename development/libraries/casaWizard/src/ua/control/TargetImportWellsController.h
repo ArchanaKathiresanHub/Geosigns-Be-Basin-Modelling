@@ -30,16 +30,15 @@ public:
    TargetImportWellsController(const CalibrationTargetManager& calibrationTargetManager
                                ,PredictionTargetManager& predictionTargetManager
                                ,QObject* parent = nullptr);
-public slots:
-      void slotImportAccepted();
-      void slotClearPredictionTargets();
+private slots:
+   void slotClearAndWritePredictionTargets();
+   void slotImportAccepted();
+   void slotImportPredictionTargets();
 
 private:
-   void writePredictionTargets();
-
-   TargetImportDialogWells m_targetImportDialogWells;
    const CalibrationTargetManager& m_calibrationTargetManager;
    PredictionTargetManager& m_predictionTargetManager;
+   TargetImportDialogWells m_targetImportDialogWells;
 };
 
 } // namespace ua

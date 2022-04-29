@@ -48,21 +48,20 @@ void TargetImportWellsController::slotImportAccepted()
       QMessageBox overwriteData(QMessageBox::Icon::Information,
                                 "The target table already has targets.",
                                 "Would you like to overwrite or append the new targets?");
-      overwriteData.addButton("Append", QMessageBox::RejectRole);
-      QPushButton* overwriteButton =overwriteData.addButton("Overwrite", QMessageBox::AcceptRole);
-      connect(overwriteButton, SIGNAL(clicked()), this, SLOT(slotClearPredictionTargets()));
+      QPushButton* appendButton = overwriteData.addButton("Append", QMessageBox::RejectRole);
+      QPushButton* overwriteButton = overwriteData.addButton("Overwrite", QMessageBox::AcceptRole);
+      connect(appendButton, SIGNAL(clicked()), this, SLOT(slotImportPredictionTargets()));
+      connect(overwriteButton, SIGNAL(clicked()), this, SLOT(slotClearAndWritePredictionTargets()));
       overwriteData.exec();
+      //If the dialog is closed without selecting append or overwrite, no prediction targets are imported.
    }
-
-   writePredictionTargets();
+   else
+   {
+      slotImportPredictionTargets();
+   }
 }
 
-void TargetImportWellsController::slotClearPredictionTargets()
-{
-   m_predictionTargetManager.clear();
-}
-
-void TargetImportWellsController::writePredictionTargets()
+void TargetImportWellsController::slotImportPredictionTargets()
 {
    TargetInputFromWellsInfo targetInputInfo;
 
@@ -75,6 +74,12 @@ void TargetImportWellsController::writePredictionTargets()
    PredictionTargetsFromWellsCreator::createTargetsFromWellData(targetInputInfo,
                                                                 m_calibrationTargetManager,
                                                                 m_predictionTargetManager);
+}
+
+void TargetImportWellsController::slotClearAndWritePredictionTargets()
+{
+   m_predictionTargetManager.clear();
+   slotImportPredictionTargets();
 }
 
 } // namespace ua
