@@ -13,7 +13,7 @@
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Version				Date of update
 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-Cauldron-v2.8.0		2022-02-10 16:08:02 +0000
+Cauldron-v2.8.2		2022-04-29 10:40:19 +0000
 =============================================================
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Third-party Software 		version
@@ -36,6 +36,17 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2022-04-29  arijit.khan Khan  <arijit.khan@shell.com>
+
+	usr: dev: fix: Undefined HeatFlow values for invalid elements !bug.
+	 * Heatflow did not display correctly in BPA2 map viewer - most but not all of no-data beyond model outline (AoI) is displaying as if zero.
+	 * set variable value to 99999 for areas outside AoI as the solution
+
+	Related work items: #458845
+	================== COMMIT-END ========================
+	Commit-ID:<238bbb0e7c4a08797411bd4eed87a6e40fe18c64>	  (tag: refs/tags/v2.8.2, refs/heads/master, refs/heads/Developers/Arijit.Khan/ChangelogUpdate)
+
+++
 2022-04-22  Richard Faasse  <Richard.Faasse@shell.com>
 
 	chg: Improve Prediction target table in UA thermal wizard as per user request
