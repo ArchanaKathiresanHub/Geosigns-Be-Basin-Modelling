@@ -52,6 +52,11 @@ void CalibrationTargetTable::updateTableBase(const QVector<const Well*> wells, c
    for (const Well* well : wells)
    {
       setRowCount(row + 1);
+
+      setItem(row, wellNameColumn(), new QTableWidgetItem(well->name()));
+      setItem(row, wellXColumn(), new QTableWidgetItem(QString::number(well->x(), 'f', 0)));
+      setItem(row, wellYColumn(), new QTableWidgetItem(QString::number(well->y(), 'f', 0)));
+
       if (addEnabledCheckBox())
       {
          QWidget* checkBoxWidget = new QWidget();
@@ -73,14 +78,13 @@ void CalibrationTargetTable::updateTableBase(const QVector<const Well*> wells, c
            for (int column = 1; column < 4; column++)
            {
              QTableWidgetItem* toDisable = item(row, column);
-             toDisable->setFlags(toDisable->flags().setFlag(Qt::ItemIsEnabled, false));
+             if (toDisable != nullptr)
+             {
+                toDisable->setFlags(toDisable->flags().setFlag(Qt::ItemIsEnabled, false));
+             }
            }
          }
       }
-
-     setItem(row, wellNameColumn(), new QTableWidgetItem(well->name()));
-     setItem(row, wellXColumn(), new QTableWidgetItem(QString::number(well->x(), 'f', 0)));
-     setItem(row, wellYColumn(), new QTableWidgetItem(QString::number(well->y(), 'f', 0)));
 
      ++row;
    }
