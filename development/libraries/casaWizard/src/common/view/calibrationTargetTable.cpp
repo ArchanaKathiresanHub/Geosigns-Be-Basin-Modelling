@@ -17,12 +17,16 @@ CalibrationTargetTable::CalibrationTargetTable(QWidget* parent)
 {
   setRowCount(0);
 
-
   horizontalHeader()->sectionSizeHint(100);
   horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
 
   disconnect(horizontalHeader(), SIGNAL(sectionPressed(int)), this, SLOT(selectColumn(int)));
   disconnect(verticalHeader(), SIGNAL(sectionPressed(int)), this, SLOT(selectRow(int)));
+
+  //Disable cell  highlighting:
+  setEditTriggers(QAbstractItemView::NoEditTriggers);
+  setFocusPolicy(Qt::NoFocus);
+  setSelectionMode(QAbstractItemView::NoSelection);
 }
 
 void CalibrationTargetTable::updateTableBase(const QVector<const Well*> wells, const QMap<QString, QSet<int>>& propertyNamesPerWell)
@@ -75,8 +79,8 @@ void CalibrationTargetTable::updateTableBase(const QVector<const Well*> wells, c
       }
 
      setItem(row, wellNameColumn(), new QTableWidgetItem(well->name()));
-     setItem(row, wellXColumn(), new QTableWidgetItem(QString::number(well->x(), 'g', 12)));
-     setItem(row, wellYColumn(), new QTableWidgetItem(QString::number(well->y(), 'g', 12)));
+     setItem(row, wellXColumn(), new QTableWidgetItem(QString::number(well->x(), 'f', 0)));
+     setItem(row, wellYColumn(), new QTableWidgetItem(QString::number(well->y(), 'f', 0)));
 
      ++row;
    }

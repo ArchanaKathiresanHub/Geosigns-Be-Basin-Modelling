@@ -62,8 +62,8 @@ TargetTab::TargetTab(QWidget* parent) :
   predictionTargetsLayout->setContentsMargins(11, 0, 0, 0);
 
   QHBoxLayout* layout = new QHBoxLayout(this);
-  layout->addLayout(wellsLayout);
-  layout->addLayout(predictionTargetsLayout);
+  layout->addLayout(wellsLayout, 1);
+  layout->addLayout(predictionTargetsLayout, 2); // The 2 is to stretch the predictionTargetsLayout to twice the size of the wellsLayout
 }
 
 CalibrationTargetTable* TargetTab::calibrationTargetTable() const

@@ -51,6 +51,7 @@ PredictionTargetTable::PredictionTargetTable(QWidget* parent) : QWidget(parent),
    m_tableWidgetTargets->horizontalHeader()->stretchLastSection();
 
    m_tableWidgetTargets->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+   m_tableWidgetTargets->setHorizontalScrollBarPolicy(Qt::ScrollBarPolicy::ScrollBarAlwaysOff);
 
    QHBoxLayout* horizontalLayoutPredictionButtons = new QHBoxLayout();
    horizontalLayoutPredictionButtons->addWidget(new QWidget(this));
@@ -74,7 +75,7 @@ void PredictionTargetTable::updateTable(const QVector<const PredictionTarget*> p
 {
    QSignalBlocker blocker(m_tableWidgetTargets);
    m_tableWidgetTargets->clearContents();
-   m_tableWidgetTargets->setRowCount(0);
+   m_tableWidgetTargets->setRowCount(predictionTargets.size());
    for (int i : m_propertyColumns)
    {
       m_tableWidgetTargets->removeColumn(i);
@@ -110,7 +111,6 @@ void PredictionTargetTable::updateTable(const QVector<const PredictionTarget*> p
               [=](){ itemLayer->setText(layerComboBox->currentText());});
 
 
-      m_tableWidgetTargets->setRowCount(row+1);
       m_tableWidgetTargets->setItem(row, 0, new QTableWidgetItem(target->locationName()));
       m_tableWidgetTargets->setItem(row, 1, new QTableWidgetItem(QString::number(target->x(), 'f', 0)));
       m_tableWidgetTargets->setItem(row, 2, new QTableWidgetItem(QString::number(target->y(), 'f', 0)));
@@ -158,6 +158,22 @@ void PredictionTargetTable::updateTable(const QVector<const PredictionTarget*> p
       m_tableWidgetTargets->setCellWidget(row, checkBoxColumnNumber() + predictionTargetOptions.size(), checkBoxWidget);
 
       ++row;
+   }
+}
+
+void PredictionTargetTable::updateTableAtRow(const PredictionTarget* predictionTarget,
+                                             const int row)
+{
+   QSignalBlocker blocker(m_tableWidgetTargets);
+
+   m_tableWidgetTargets->setItem(row, 0, new QTableWidgetItem(predictionTarget->locationName()));
+   m_tableWidgetTargets->setItem(row, 1, new QTableWidgetItem(QString::number(predictionTarget->x(), 'f', 0)));
+   m_tableWidgetTargets->setItem(row, 2, new QTableWidgetItem(QString::number(predictionTarget->y(), 'f', 0)));
+   m_tableWidgetTargets->setItem(row, 3, new QTableWidgetItem(QString::number(predictionTarget->z(), 'f', 0)));
+
+   if (predictionTarget->surfaceName() != "")
+   {
+      m_tableWidgetTargets->item(row, 3)->setFlags(m_tableWidgetTargets->item(row, 3)->flags() & Qt::ItemIsEditable);
    }
 }
 

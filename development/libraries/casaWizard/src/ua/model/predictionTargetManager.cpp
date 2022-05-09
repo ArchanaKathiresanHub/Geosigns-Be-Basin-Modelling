@@ -317,6 +317,8 @@ void PredictionTargetManager::setPropertyActiveForAllTargets(const QString& prop
    {
       target->setPropertyActive(!allTargetsSelected, propertyName);
    }
+
+   setPredictionTargetsAllTimes();
 }
 
 void PredictionTargetManager::setTimeSeriesActiveForAllTargets()

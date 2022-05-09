@@ -33,6 +33,8 @@ public:
                     const QVector<bool>& hasTimeSeriesForPredictionTargets,
                     const QStringList validLayerNames);
 
+   void updateTableAtRow(const PredictionTarget* predictionTarget, const int row);
+
    const QTableWidget* tableWidgetSurfaceTargets() const;
 
    void setTargetsAtWellLocationsButtonEnabled(bool state);

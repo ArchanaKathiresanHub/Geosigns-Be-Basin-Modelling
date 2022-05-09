@@ -92,7 +92,8 @@ void PredictionTargetController::slotPushButtonCopyPredictionTargetClicked()
 void PredictionTargetController::slotTableWidgetPredictionTargetsItemChanged(QTableWidgetItem* item)
 {
   m_predictionTargetManager.setTarget(item->row(), item->column(), item->data(0).toString());
-  refreshAndEmitDataChanged();
+  m_table->updateTableAtRow(m_predictionTargetManager.predictionTargets()[item->row()], item->row());
+  emit dataChanged();
 }
 
 void PredictionTargetController::refreshAndEmitDataChanged()
