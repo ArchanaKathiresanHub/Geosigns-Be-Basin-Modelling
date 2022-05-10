@@ -21,14 +21,19 @@ DerivedProperties::ReservoirOutputPropertyValue::ReservoirOutputPropertyValue ( 
 
 }
 
-double DerivedProperties::ReservoirOutputPropertyValue::getValue ( const double i, const double j, const double k ) const {
-
-   if ( m_reservoirProperty != 0 ) {
-      return m_reservoirProperty->interpolate ( i, j );
-   } else {
-      return DataAccess::Interface::DefaultUndefinedMapValue;
+double DerivedProperties::ReservoirOutputPropertyValue::getValue ( const double i, const double j, const double k ) const 
+{
+   if ( m_reservoirProperty != 0 ) 
+   {
+       auto value = m_reservoirProperty->interpolate(i, j);
+       auto isNaN = OutputPropertyValue::checkForNANPropertyValue(value);
+       value = isNaN ? DataAccess::Interface::DefaultUndefinedMapValue : value;
+       return value;
+   } 
+   else 
+   {
+       return DataAccess::Interface::DefaultUndefinedMapValue;
    }
-
 }
 
 void DerivedProperties::ReservoirOutputPropertyValue::restoreData () const {

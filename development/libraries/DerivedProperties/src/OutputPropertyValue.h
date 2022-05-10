@@ -74,6 +74,10 @@ namespace  DerivedProperties {
 
       const DataModel::AbstractProperty* m_property;
 
+   protected:
+       /// \brief Check if the value is NaN 
+       bool checkForNANPropertyValue(const double& value)const;
+
    };
 
    typedef std::shared_ptr<OutputPropertyValue> OutputPropertyValuePtr;
@@ -86,6 +90,10 @@ namespace  DerivedProperties {
 
    inline double OutputPropertyValue::getUndefinedValue () const {
       return DataAccess::Interface::DefaultUndefinedMapValue;
+   }
+
+   inline bool OutputPropertyValue::checkForNANPropertyValue(const double& value)const {
+       return isnan(value);
    }
 }
 

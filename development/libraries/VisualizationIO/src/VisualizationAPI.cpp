@@ -16,6 +16,8 @@
 #include <iostream>
 #include <math.h>
 
+#include "LogHandler.h"
+
 #ifdef _MSC_VER
 #pragma warning (push)
 #pragma warning (disable : 4290)
@@ -1761,17 +1763,35 @@ void CauldronIO::SurfaceData::updateMinMax() throw (CauldronIOException)
     float minValue = DefaultUndefinedValue;
     float maxValue = DefaultUndefinedValue;
     bool foundUndefined = false;
+    bool hasNAN = false;
+    int nodeCountWithNAN = 0;
 
     for (size_t i = 0; i < allElements; i++)
     {
         float val = m_internalData[i];
+        if (isnan(val))
+        {
+            hasNAN = true;
+            nodeCountWithNAN++;
+            m_internalData[i] = DefaultUndefinedValue;
+            val = DefaultUndefinedValue;
+            foundUndefined = true;
+            continue;
+        }
         if (val != DefaultUndefinedValue)
         {
             minValue = minValue == DefaultUndefinedValue ? val : min(minValue, val);
             maxValue = maxValue == DefaultUndefinedValue ? val : max(maxValue, val);
         }
         else
+        {
             foundUndefined = true;
+        }
+    }
+    if (hasNAN)
+    {
+        //Check if the prop name can be specified
+        LogHandler(LogHandler::DEBUG_SEVERITY) << "A total of "<< nodeCountWithNAN<< " nodes are having NAN which is resetting to "<< CauldronIO::DefaultUndefinedValue;
     }
 
     m_minValue = minValue;
@@ -2412,6 +2432,12 @@ void CauldronIO::VolumeData::updateMinMax() throw (CauldronIOException)
     for (size_t i = 0; i < allElements; i++)
     {
         float val = internaldata[i];
+        if (isnan(val))
+        {
+            internaldata[i] = DefaultUndefinedValue;
+            val = DefaultUndefinedValue;
+            continue;
+        }
         if (val != DefaultUndefinedValue)
         {
             minValue = minValue == DefaultUndefinedValue ? val : min(minValue, val);

@@ -61,7 +61,7 @@ void DomainShapeReader::extractData(const Window& window, const hid_t groupId, c
    const hid_t spaceId = H5Dget_space(datasetId);
    const hssize_t bufferSize = H5Sget_simple_extent_npoints(spaceId);
    hsize_t ndims = H5Sget_simple_extent_ndims(spaceId);
-   hsize_t dims[ndims];
+   hsize_t *dims=new hsize_t[ndims];
    H5Sget_simple_extent_dims(spaceId, dims, nullptr);
    const hsize_t numI = dims[0];
    const hsize_t numJ = dims[1];
@@ -86,9 +86,11 @@ void DomainShapeReader::extractData(const Window& window, const hid_t groupId, c
                );
       }
       domainShape.push_back(row);
+      
    }
 
    H5Dclose(datasetId);
+   delete[] dims;
 }
 
 }

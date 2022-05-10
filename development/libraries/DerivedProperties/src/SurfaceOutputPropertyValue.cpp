@@ -48,12 +48,18 @@ bool DerivedProperties::SurfaceOutputPropertyValue::isPrimary() const {
    }
 }
 
-double DerivedProperties::SurfaceOutputPropertyValue::getValue ( const double i, const double j, const double k ) const {
-
-   if ( m_surfaceProperty != 0 ) {
-      return m_surfaceProperty->interpolate ( i, j );
-   } else {
-      return DataAccess::Interface::DefaultUndefinedMapValue;
+double DerivedProperties::SurfaceOutputPropertyValue::getValue ( const double i, const double j, const double k ) const 
+{
+   if ( m_surfaceProperty != 0 ) 
+   {
+       auto value = m_surfaceProperty->interpolate(i, j);
+       auto isNaN = OutputPropertyValue::checkForNANPropertyValue(value);
+       value = isNaN ? DataAccess::Interface::DefaultUndefinedMapValue : value;
+       return value;
+   } 
+   else 
+   {
+       return DataAccess::Interface::DefaultUndefinedMapValue;
    }
 }
 

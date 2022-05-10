@@ -496,14 +496,14 @@ bool VisualizationPropertiesCalculator::computeFormationVolume (OutputPropertyVa
          unsigned int pk = 0;
          for (int k = lastK; k >= firstK; --k, ++ pk)
          {
-            float value = static_cast<float>(propertyValue->getValue(i, j, pk));
+            float value = static_cast<float>(propertyValue->getValue(i, j, pk));          
             if (computeMinMax and value != CauldronIO::DefaultUndefinedValue)
             {
                m_minValue = std::min(m_minValue, value);
                m_maxValue = std::max(m_maxValue, value);
             }
-            size_t index =  i + j * numI + (k - minK ) * numI * numJ;
-            m_data[index] = value;
+            size_t index = i + j * numI + (k - minK) * numI * numJ;
+            m_data[index] = value; 
          }
       }
    }
@@ -536,10 +536,9 @@ bool VisualizationPropertiesCalculator::computeFormationMap (OutputPropertyValue
       {
          size_t index =  j * numI + i;
          float value = static_cast<float>(propertyValue->getValue(i, j, kIndex));
-         m_data[index] = value;
+         m_data[index] = value;        
       }
    }
-
    propertyValue->restoreData ();
    MPI_Reduce((void *)data, (void *)dest,  dataSize, MPI_FLOAT, MPI_SUM, 0,  PETSC_COMM_WORLD);
 

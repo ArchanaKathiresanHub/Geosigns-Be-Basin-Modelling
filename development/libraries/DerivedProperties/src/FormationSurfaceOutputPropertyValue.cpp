@@ -45,12 +45,18 @@ const DataModel::AbstractGrid* DerivedProperties::FormationSurfaceOutputProperty
    return nullptr;
 }
 
-double DerivedProperties::FormationSurfaceOutputPropertyValue::getValue ( const double i, const double j, const double k ) const {
-
-   if ( m_formationSurfaceProperty != 0 ) {
-      return m_formationSurfaceProperty->interpolate ( i, j );
-   } else {
-      return DataAccess::Interface::DefaultUndefinedMapValue;
+double DerivedProperties::FormationSurfaceOutputPropertyValue::getValue ( const double i, const double j, const double k ) const 
+{
+   if ( m_formationSurfaceProperty != 0 ) 
+   {
+       auto value = m_formationSurfaceProperty->interpolate(i, j);
+       auto isNaN = OutputPropertyValue::checkForNANPropertyValue(value);
+       value = isNaN ? DataAccess::Interface::DefaultUndefinedMapValue : value;
+       return value;
+   } 
+   else 
+   {
+       return DataAccess::Interface::DefaultUndefinedMapValue;
    }
 }
 

@@ -52,14 +52,19 @@ void DerivedProperties::FormationOutputPropertyValue::restoreData () const {
 }
 
 
-double DerivedProperties::FormationOutputPropertyValue::getValue ( const double i, const double j, const double k ) const {
-
-   if ( m_formationProperty != nullptr ) {
-      return m_formationProperty->interpolate ( i, j, k );
-   } else {
-      return DataAccess::Interface::DefaultUndefinedMapValue;
+double DerivedProperties::FormationOutputPropertyValue::getValue ( const double i, const double j, const double k ) const 
+{
+   if ( m_formationProperty != nullptr ) 
+   {
+       auto value = m_formationProperty->interpolate(i, j, k);
+       auto isNaN = OutputPropertyValue::checkForNANPropertyValue(value);
+       value = isNaN ? DataAccess::Interface::DefaultUndefinedMapValue : value;
+       return value;
+   } 
+   else 
+   {
+       return DataAccess::Interface::DefaultUndefinedMapValue;
    }
-
 }
 
 unsigned int DerivedProperties::FormationOutputPropertyValue::getDepth () const {
