@@ -16,7 +16,7 @@
 #include "AbstractSurface.h"
 #include "AbstractReservoir.h"
 #include "AbstractGrid.h"
-
+#include <cmath>
 #include <memory>
 
 namespace  DerivedProperties {
