@@ -154,16 +154,6 @@ bool Well::isExcluded() const
   return isExcluded_;
 }
 
-void Well::setIsExcluded(const bool isExcluded)
-{
-  isExcluded_ = isExcluded;
-}
-
-bool Well::isInvalid() const
-{
-  return isInvalid_;
-}
-
 void Well::setIsInvalid(const bool isInvalid)
 {
   isInvalid_ = isInvalid;
@@ -172,6 +162,16 @@ void Well::setIsInvalid(const bool isInvalid)
 QVector<bool> Well::hasDataInLayer() const
 {
   return hasDataInLayer_;
+}
+
+void Well::setIsExcluded(const bool isExcluded)
+{
+  isExcluded_ = isExcluded;
+}
+
+bool Well::isInvalid() const
+{
+  return isInvalid_;
 }
 
 void Well::setHasDataInLayer(QVector<bool> hasDataInLayer)

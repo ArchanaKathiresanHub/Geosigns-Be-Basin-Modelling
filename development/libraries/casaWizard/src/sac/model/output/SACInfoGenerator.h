@@ -13,14 +13,15 @@
 namespace casaWizard
 {
 
-class ProjectReader;
 class CMBMapReader;
+class ProjectReader;
 class Well;
 
 namespace sac
 {
 
 class SACScenario;
+class MapsManager;
 
 class SACInfoGenerator : public casaWizard::InfoGenerator
 {
@@ -50,6 +51,7 @@ private:
   std::string doubleToFormattedString(const double inputDouble);
 
   const SACScenario& scenario_;
+  const MapsManager& mapsManager_;
   ProjectReader& projectReader_;
 };
 

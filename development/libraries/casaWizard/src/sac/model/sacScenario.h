@@ -3,10 +3,13 @@
 
 #include "model/casaScenario.h"
 #include "model/lithofractionManager.h"
+#include "model/MapsManager.h"
 #include "model/wellTrajectoryManager.h"
 
 namespace casaWizard
 {
+
+class VectorVectorMap;
 
 namespace sac
 {
@@ -18,26 +21,13 @@ public:
 
   QString stateFileNameSAC() const;
   QString calibrationDirectory() const;
-
-  int interpolationMethod() const;
-  void setInterpolationMethod(int interpolationMethod);
-
-  int smoothingOption() const;
-  void setSmoothingOption(int smoothingOption);
-
-  int pIDW() const;
-  void setPIDW(int pIDW);
-
-  int radiusSmoothing() const;
-  void setRadiusSmoothing(int radiusSmoothing);
-
-  bool smartGridding() const;
-  void setSmartGridding(bool smartGridding);
+  QString optimizedProjectDirectory() const;
 
   int t2zReferenceSurface() const;
   void setT2zReferenceSurface(int t2zReferenceSurface);
 
   int t2zLastSurface() const;
+  void updateT2zLastSurface();
 
   int t2zNumberCPUs() const;
   void setT2zNumberCPUs(int t2zNumberCPUs);
@@ -60,6 +50,9 @@ public:
   WellTrajectoryManager& wellTrajectoryManager();
   const WellTrajectoryManager& wellTrajectoryManager() const;
 
+  MapsManager& mapsManager();
+  const MapsManager& mapsManager() const;
+
   void writeToFile(ScenarioWriter& writer) const override;
   void readFromFile(const ScenarioReader& reader) override;
   void clear() override;
@@ -67,22 +60,25 @@ public:
 
   QVector<bool> activePlots() const;
   void setActivePlots(const QVector<bool>& activePlots);
-  void updateT2zLastSurface();
-
+  void getVisualisationData(QVector<OptimizedLithofraction>& optimizedLithoFractions,
+                            QVector<const Well*>& activeAndIncludedWells,
+                            const QString& activeLayer) const;
+  void exportOptimizedLithofractionMapsToZycor(const QString& targetPath);
   void wellPrepToSAC();
+  QVector<int> getIncludedWellIndicesFromSelectedWells(const QVector<int>& selectedWellIndices);
+  bool hasOptimizedSuccessfully(const int caseIndex);
+  QVector<int> getHighlightedWells(const QVector<int>& selectedWells, const QString& activeLayer);
+  bool getLithologyTypesAndMaps(const QString& layerName, std::vector<VectorVectorMap>& lithologyMaps, QStringList& lithologyTypes);
+  std::vector<double> getLithopercentagesOfClosestWell(const double xInKm, const double yInKm, const QString& activeLayer, int& closestWellID) const;
   void updateWellsForProject3D();
 
 private:
   QString stateFileNameSAC_;
   QString calibrationDirectory_;
   LithofractionManager lithofractionManager_;
+  MapsManager mapsManager_;
   WellTrajectoryManager wellTrajectoryManager_;
 
-  int interpolationMethod_;
-  int smoothingOption_;
-  int pIDW_;  
-  int radiusSmoothing_; //[m]
-  bool smartGridding_;
   int t2zLastSurface_;
   int t2zReferenceSurface_;
   int t2zSubSampling_;
@@ -92,6 +88,10 @@ private:
   QVector<bool> activePlots_;
   bool showSurfaceLines_;
   bool fitRangeToData_;
+
+  QVector<OptimizedLithofraction> getOptimizedLithoFractionsInLayer(const QString& layer) const;
+  bool openMaps(MapReader& mapReader, const int layerID) const;
+  bool wellHasDataInActiveLayer(const Well* well, const QString& activeLayer) const;
 };
 
 } // namespace sac

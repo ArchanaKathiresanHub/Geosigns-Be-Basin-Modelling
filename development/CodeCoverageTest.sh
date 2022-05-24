@@ -43,7 +43,7 @@ buildAndAnalyze()
   $BRANCH_LOCATION/makeAll.sh
   make test
   profmerge
-  codecov -spi pgopti.spi -dpi pgopti.dpi -xmlbcvrgfull BasinModelling_fcvrg.xml -counts -comp includedFiles.txt -nopartial
+  codecov -spi pgopti.spi -dpi pgopti.dpi -xmlbcvrgfull BasinModelling_fcvrg.xml -counts -comp includedFiles.txt
 }
 
 moveResultsToFolder()
@@ -106,14 +106,7 @@ then
 fi
 
 rm $BUILD_LOCATION/includedFiles.txt
-git diff --name-only master > $BUILD_LOCATION/includedFiles.txt
-excludeFromAnalysis /test/ # exclude the test folders from the analysis
-excludeFromAnalysis libraries/casaWizard/src/common/view 
-excludeFromAnalysis libraries/casaWizard/src/common/control
-excludeFromAnalysis libraries/casaWizard/src/sac/control
-excludeFromAnalysis libraries/casaWizard/src/sac/view
-excludeFromAnalysis libraries/casaWizard/src/ua/view
-excludeFromAnalysis libraries/casaWizard/src/ua/control
+find $BRANCH_LOCATION -name "*.h" -o -name "*.cpp" -o -name "*.hpp" -o -name "*.C" -o -name "*.c" | grep -v /tests/ | grep -v /test/ | sed 's|^\./||g' > $BUILD_LOCATION/includedFiles.txt
 
 # Install binaries and run the codecov tool using the text file as argument value for -comp 
 buildAndAnalyze

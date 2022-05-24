@@ -752,4 +752,20 @@ void CalibrationTargetManager::convertDTtoTWT(const std::string& iterationFolder
    addToMapping(convertedTWTName, "TwoWayTime");
 }
 
+QVector<int> CalibrationTargetManager::getExcludedWellsFromActiveWells()
+{
+  QVector<int> excludedWells;
+  int counter = 0;
+  for (const Well* well : activeWells())
+  {
+    if (well->isExcluded())
+    {
+      excludedWells.push_back(counter);
+    }
+    counter++;
+  }
+
+  return excludedWells;
+}
+
 } // namespace casaWizard

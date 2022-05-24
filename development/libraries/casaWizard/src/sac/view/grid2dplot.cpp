@@ -74,6 +74,12 @@ void Grid2DPlot::showColorBar()
   colorBar_->show();
 }
 
+void Grid2DPlot::refresh()
+{
+  update();
+  lithoPercent2dView_->update();
+}
+
 void Grid2DPlot::setTitle(const QString& lithoType, int id, bool inputMap)
 {
   title_->setText(QString(inputMap ? "INPUT MAP - " : "") + "Lithotype " + QString::number(id + 1) + ": " + lithoType);

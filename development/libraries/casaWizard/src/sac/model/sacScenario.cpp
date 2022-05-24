@@ -1,8 +1,12 @@
 #include "sacScenario.h"
 
+#include "model/functions/sortedByXWellIndices.h"
+#include "model/input/cmbMapReader.h"
 #include "model/input/projectReader.h"
 #include "model/scenarioReader.h"
 #include "model/scenarioWriter.h"
+
+#include "ConstantsMathematics.h"
 
 #include <QDateTime>
 #include <QDir>
@@ -22,12 +26,8 @@ SACScenario::SACScenario(ProjectReader* projectReader) :
   stateFileNameSAC_{"casaStateSAC.txt"},
   calibrationDirectory_{"calibration_step1"},
   lithofractionManager_{},
+  mapsManager_{},
   wellTrajectoryManager_{},
-  interpolationMethod_{0},
-  smoothingOption_{0},
-  pIDW_{3},
-  radiusSmoothing_{1000},
-  smartGridding_{true},
   t2zLastSurface_{projectReader->lowestSurfaceWithTWTData()},
   t2zReferenceSurface_{defaultReferenceSurface},
   t2zSubSampling_{1},
@@ -48,59 +48,14 @@ QString SACScenario::stateFileNameSAC() const
   return stateFileNameSAC_;
 }
 
-int SACScenario::interpolationMethod() const
-{
-  return interpolationMethod_;
-}
-
-void SACScenario::setInterpolationMethod(int interpolationMethod)
-{
-  interpolationMethod_ = interpolationMethod;
-}
-
-int SACScenario::smoothingOption() const
-{
-  return smoothingOption_;
-}
-
-void SACScenario::setSmoothingOption(int smoothingOption)
-{
-  smoothingOption_ = smoothingOption;
-}
-
-int SACScenario::pIDW() const
-{
-  return pIDW_;
-}
-
-void SACScenario::setPIDW(int pIDW)
-{
-  pIDW_ = pIDW;
-}
-
-int SACScenario::radiusSmoothing() const
-{
-  return radiusSmoothing_;
-}
-
-void SACScenario::setRadiusSmoothing(int radiusSmoothing)
-{
-  radiusSmoothing_ = radiusSmoothing;
-}
-
-bool SACScenario::smartGridding() const
-{
-  return smartGridding_;
-}
-
-void SACScenario::setSmartGridding(bool smartGridding)
-{
-  smartGridding_ = smartGridding;
-}
-
 QString SACScenario::calibrationDirectory() const
 {
   return workingDirectory() + "/" + calibrationDirectory_;
+}
+
+QString SACScenario::optimizedProjectDirectory() const
+{
+  return calibrationDirectory() + "/ThreeDFromOneD/";
 }
 
 int SACScenario::t2zReferenceSurface() const
@@ -188,16 +143,20 @@ const WellTrajectoryManager& SACScenario::wellTrajectoryManager() const
   return wellTrajectoryManager_;
 }
 
+MapsManager& SACScenario::mapsManager()
+{
+  return mapsManager_;
+}
+
+const MapsManager&SACScenario::mapsManager() const
+{
+  return mapsManager_;
+}
+
 void SACScenario::writeToFile(ScenarioWriter& writer) const
 {
   CasaScenario::writeToFile(writer);
   writer.writeValue("SACScenarioVersion", 3);
-
-  writer.writeValue("interpolationMethod", interpolationMethod_);
-  writer.writeValue("smoothingOption",smoothingOption_);
-  writer.writeValue("pIDW",pIDW_);  
-  writer.writeValue("radiusSmoothing",radiusSmoothing_);
-  writer.writeValue("smartGridding", smartGridding_);
 
   writer.writeValue("referenceSurface", t2zReferenceSurface_);
   writer.writeValue("t2zSubSampling", t2zSubSampling_);
@@ -206,6 +165,7 @@ void SACScenario::writeToFile(ScenarioWriter& writer) const
 
   lithofractionManager_.writeToFile(writer);
   wellTrajectoryManager_.writeToFile(writer);
+  mapsManager_.writeToFile(writer);
 }
 
 void SACScenario::readFromFile(const ScenarioReader& reader)
@@ -214,23 +174,11 @@ void SACScenario::readFromFile(const ScenarioReader& reader)
 
   int sacScenarioVersion = reader.readInt("SACScenarioVersion");
 
-  if (sacScenarioVersion > 0)
-  {
-    interpolationMethod_ = reader.readInt("interpolationMethod");
-    smoothingOption_ = reader.readInt("smoothingOption");
-    pIDW_ = reader.readInt("pIDW");    
-    radiusSmoothing_ = reader.readInt("radiusSmoothing");
-  }
-
   if (sacScenarioVersion > 1)
   {
     t2zSubSampling_ = reader.readInt("t2zSubSampling") > 0 ? reader.readInt("t2zSubSampling") : t2zSubSampling_;
     t2zRunOnOriginalProject_ = reader.readBool("t2zRunOnOriginalProject");
     t2zNumberCPUs_ = reader.readInt("t2zNumberOfCPUs");
-  }
-  if (sacScenarioVersion > 2)
-  {
-    smartGridding_ = reader.readBool("smartGridding");
   }
 
   t2zLastSurface_ = projectReader().lowestSurfaceWithTWTData();
@@ -238,6 +186,7 @@ void SACScenario::readFromFile(const ScenarioReader& reader)
 
   lithofractionManager_.readFromFile(reader);
   wellTrajectoryManager_.readFromFile(reader);
+  mapsManager_.readFromFile(reader);
 }
 
 void SACScenario::clear()
@@ -295,6 +244,68 @@ void SACScenario::updateT2zLastSurface()
   t2zLastSurface_ = projectReader().lowestSurfaceWithTWTData();
 }
 
+QVector<OptimizedLithofraction> SACScenario::getOptimizedLithoFractionsInLayer(const QString& layer) const
+{
+  const QVector<Lithofraction>& lithofractions = lithofractionManager_.lithofractions();
+
+  QVector<OptimizedLithofraction> optimizedLithoFractionsInLayer;
+  for (const Well* well : calibrationTargetManager().activeAndIncludedWells())
+  {
+    QVector<OptimizedLithofraction> optimizedLithoFractions = lithofractionManager_.optimizedInWell(well->id());
+    for (OptimizedLithofraction lithofraction : optimizedLithoFractions)
+    {
+      if (lithofractions[lithofraction.lithofractionId()].layerName() == layer)
+      {
+        optimizedLithoFractionsInLayer.push_back(lithofraction);
+      }
+    }
+  }
+
+  return optimizedLithoFractionsInLayer;
+}
+
+void SACScenario::getVisualisationData(QVector<OptimizedLithofraction>& optimizedLithoFractions, QVector<const Well*>& activeAndIncludedWells, const QString& activeLayer) const
+{
+  optimizedLithoFractions = getOptimizedLithoFractionsInLayer(activeLayer);
+  activeAndIncludedWells = calibrationTargetManager().activeAndIncludedWells();
+
+  if (optimizedLithoFractions.size() != activeAndIncludedWells.size())
+  {
+    return; // In this layer the wells have not been optimized
+  }
+
+  if (mapsManager().smartGridding())
+  {
+    for (int i = activeAndIncludedWells.size() - 1 ; i >= 0; i--)
+    {
+      if (!wellHasDataInActiveLayer(activeAndIncludedWells[i], activeLayer))
+      {
+        optimizedLithoFractions.remove(i);
+        activeAndIncludedWells.remove(i);
+      }
+    }
+  }
+}
+
+bool SACScenario::wellHasDataInActiveLayer(const Well* well, const QString& activeLayer) const
+{
+    // If the well has no data (meaning the wells were imported before the changes to the calibrationTargetCreator)
+    // just always show all wells
+    if (well->hasDataInLayer().empty())
+    {
+      return true;
+    }
+
+    return well->hasDataInLayer()[projectReader().getLayerID(activeLayer.toStdString())];
+}
+
+void SACScenario::exportOptimizedLithofractionMapsToZycor(const QString& targetPath)
+{
+  CMBMapReader mapReader;
+  mapReader.load((optimizedProjectDirectory() + project3dFilename()).toStdString());
+  mapsManager_.exportOptimizedLithofractionMapsToZycor(projectReader(), mapReader, targetPath);
+}
+
 void SACScenario::wellPrepToSAC()
 {
   calibrationTargetManager().appendFrom(calibrationTargetManagerWellPrep());
@@ -311,6 +322,143 @@ void SACScenario::updateWellsForProject3D()
 {
   calibrationTargetManager().disableInvalidWells(project3dPath().toStdString(), projectReader().getDepthGridName(0).toStdString());
   calibrationTargetManager().setWellHasDataInLayer(project3dPath().toStdString(), projectReader().layerNames());
+}
+
+QVector<int> SACScenario::getIncludedWellIndicesFromSelectedWells(const QVector<int>& selectedWellIndices)
+{
+  return mapsManager_.transformToActiveAndIncluded(selectedWellIndices, calibrationTargetManager().getExcludedWellsFromActiveWells());
+}
+
+bool SACScenario::hasOptimizedSuccessfully(const int caseIndex)
+{
+  const QVector<int> sortedIndices = casaWizard::functions::sortedByXYWellIndices(calibrationTargetManager().activeWells());
+  QFile successFile(calibrationDirectory() + "/" + runLocation() + "/" + iterationDirName() + "/Case_" + QString::number(sortedIndices[caseIndex] + 1) + "/Stage_0.sh.success");
+
+  return successFile.exists();
+}
+
+QVector<int> SACScenario::getHighlightedWells(const QVector<int>& selectedWells, const QString& activeLayer)
+{
+  QVector<int> highlightedWells;
+  if (mapsManager_.smartGridding())
+  {
+    // Shift the selected wells to account for wells which are not plotted, since they do
+    // not have data in the active layer
+    for (int wellIndex : selectedWells)
+    {
+      int exclusionShift = 0;
+      bool excluded = false;
+      int excludedWellIndex = 0;
+      for (const Well* well : calibrationTargetManager().activeAndIncludedWells())
+      {
+        if(excludedWellIndex == wellIndex && !wellHasDataInActiveLayer(well, activeLayer))
+        {
+          excluded = true;
+          break;
+        }
+
+        if(wellIndex > excludedWellIndex && !wellHasDataInActiveLayer(well, activeLayer))
+        {
+           exclusionShift++;
+        }
+
+        excludedWellIndex++;
+      }
+
+      if (!excluded)
+      {
+        highlightedWells.push_back(wellIndex - exclusionShift);
+      }
+    }
+  }
+  else
+  {
+    highlightedWells = selectedWells;
+  }
+
+  return highlightedWells;
+}
+
+bool SACScenario::getLithologyTypesAndMaps(const QString& layerName, std::vector<VectorVectorMap>& lithologyMaps, QStringList& lithologyTypes)
+{
+  const int layerID = projectReader().getLayerID(layerName.toStdString());
+
+  CMBMapReader mapReader;
+  const bool optimizedLithomapsAvailable = openMaps(mapReader, layerID);
+  if (optimizedLithomapsAvailable)
+  {
+    lithologyMaps = mapReader.getOptimizedLithoMapsInLayer(layerID);
+  }
+  else
+  {
+    mapReader.load(project3dPath().toStdString());
+    lithologyMaps = mapReader.getInputLithoMapsInLayer(layerID);
+  }
+
+  VectorVectorMap depthMap = mapReader.getMapData(projectReader().getDepthGridName(0).toStdString());
+  for (VectorVectorMap& lithologyMap : lithologyMaps)
+  {
+    lithologyMap.setUndefinedValuesBasedOnReferenceMap(depthMap);
+  }
+
+  lithologyTypes = projectReader().lithologyTypesForLayer(layerID);
+
+  return optimizedLithomapsAvailable;
+}
+
+bool SACScenario::openMaps(MapReader& mapReader, const int layerID) const
+{
+  QDir threeDFromOneD = optimizedProjectDirectory();
+  if (project3dFilename() == "" || !threeDFromOneD.exists())
+  {
+    return false;
+  }
+
+  mapReader.load((optimizedProjectDirectory() + project3dFilename()).toStdString());
+  if (!mapReader.mapExists(std::to_string(layerID) + "_percent_1"))
+  {
+    return false;
+  }
+
+  return true;
+}
+
+std::vector<double> SACScenario::getLithopercentagesOfClosestWell(const double xInKm, const double yInKm, const QString& activeLayer, int& closestWellID) const
+{
+  std::vector<double> lithofractionsAtPoint;
+
+  double xMin = 0; double xMax = 1; double yMin = 0; double yMax = 1;
+  projectReader().domainRange(xMin, xMax, yMin, yMax);
+  double smallestDistance2 = ((xMax - xMin) / 30)*((xMax - xMin) / 30);
+
+  int closestLithofractionIndex = -1;
+  int currentLithofractionIndex = 0;
+
+  const QVector<OptimizedLithofraction>& lithofractionsInLayer = getOptimizedLithoFractionsInLayer(activeLayer);
+  for (const auto& optimizedLithofraction : lithofractionsInLayer)
+  {
+    const int wellId = optimizedLithofraction.wellId();
+    const auto& currentWell = calibrationTargetManager().well(wellId);
+    const double distance2 = (currentWell.x() - xInKm * Utilities::Maths::KilometerToMeter) * (currentWell.x() - xInKm * Utilities::Maths::KilometerToMeter) +
+                             (currentWell.y() - yInKm * Utilities::Maths::KilometerToMeter) * (currentWell.y() - yInKm * Utilities::Maths::KilometerToMeter);
+    const bool isCloser = distance2 < smallestDistance2;
+    if (isCloser)
+    {
+      smallestDistance2 = distance2;
+      closestLithofractionIndex = currentLithofractionIndex;
+      closestWellID = wellId;
+    }
+    currentLithofractionIndex++;
+  }
+
+  if (closestLithofractionIndex!= -1)
+  {
+    lithofractionsAtPoint.push_back(lithofractionsInLayer[closestLithofractionIndex].optimizedPercentageFirstComponent());
+    lithofractionsAtPoint.push_back(lithofractionsInLayer[closestLithofractionIndex].optimizedPercentageSecondComponent());
+    lithofractionsAtPoint.push_back(lithofractionsInLayer[closestLithofractionIndex].optimizedPercentageThirdComponent());
+  }
+
+  return lithofractionsAtPoint;
 }
 
 } // namespace sac

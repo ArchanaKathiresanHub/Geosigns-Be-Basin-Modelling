@@ -166,7 +166,7 @@ void T2Zcontroller::getSourceAndT2zDir()
   }
   else
   {
-    sourceDir_ = casaScenario_.calibrationDirectory() + "/ThreeDFromOneD";
+    sourceDir_ = casaScenario_.optimizedProjectDirectory();
     t2zDir_ = casaScenario_.workingDirectory() + "/T2Z_step2";
   }
 }
@@ -333,7 +333,7 @@ void T2Zcontroller::updateSurfaces()
 void T2Zcontroller::updateProjectSelectionOptions()
 {
   QStringList projectSelectionOptions;
-  if (QDir(casaScenario_.calibrationDirectory() + "/ThreeDFromOneD").exists())
+  if (QDir(casaScenario_.optimizedProjectDirectory()).exists())
   {
     projectSelectionOptions.push_back("Optimized Project");
   }

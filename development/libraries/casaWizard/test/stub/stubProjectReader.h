@@ -43,7 +43,7 @@ public:
 
   QStringList lithologyTypesForLayer(const int /*layerIndex*/) const override
   {
-    return QStringList();
+    return {"Type1", "Type2"};
   }
 
   QVector<double> lithologyValuesForLayerAtLocation(const int layerIndex, const double xLoc, const double yLoc) const override
@@ -56,8 +56,12 @@ public:
     return 0;
   }
 
-  void domainRange(double& /*xMin*/, double& /*xMax*/, double& /*yMin*/, double& /*yMax*/) const override
+  void domainRange(double& xMin, double& xMax, double& yMin, double& yMax) const override
   {
+    xMin = 0;
+    xMax = 1e6;
+    yMin = 0;
+    yMax = 1e6;
   }
 
   double heatProductionRate() const override

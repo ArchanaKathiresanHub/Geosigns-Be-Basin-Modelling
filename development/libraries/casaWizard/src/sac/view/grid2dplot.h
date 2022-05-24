@@ -32,6 +32,7 @@ public:
   void updateColorBar();
   void hideColorBar();
   void showColorBar();
+  void refresh();
 
 private:
   ColorBar* colorBar_;

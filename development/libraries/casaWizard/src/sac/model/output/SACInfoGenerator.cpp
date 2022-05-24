@@ -8,10 +8,11 @@
 
 #include "SACInfoGenerator.h"
 
-#include "model/sacScenario.h"
 #include "model/input/projectReader.h"
 #include "model/input/cmbMapReader.h"
+#include "model/MapsManager.h"
 #include "model/objectiveFunctionValue.h"
+#include "model/sacScenario.h"
 
 #include <iomanip>
 #include <sstream>
@@ -23,8 +24,9 @@ namespace sac
 
 SACInfoGenerator::SACInfoGenerator(const SACScenario& scenario, ProjectReader& projectReader) :
   casaWizard::InfoGenerator(),
-  projectReader_{projectReader},
-  scenario_{scenario}
+  scenario_{scenario},
+  mapsManager_{scenario.mapsManager()},
+  projectReader_{projectReader}
 {
 
 }
@@ -120,11 +122,11 @@ void SACInfoGenerator::addMapsGenerationSection()
 void SACInfoGenerator::addInterpolation()
 {
   std::string interpolationOption;
-  if (scenario().interpolationMethod() == 0)
+  if (mapsManager_.interpolationMethod() == 0)
   {
-    interpolationOption = "Inverse Distance Weighting, P = " + std::to_string(scenario().pIDW());
+    interpolationOption = "Inverse Distance Weighting, P = " + std::to_string(mapsManager_.pIDW());
   }
-  else if (scenario().interpolationMethod() == 1)
+  else if (mapsManager_.interpolationMethod() == 1)
   {
     interpolationOption = "Natural Neighbor";
   }
@@ -134,16 +136,16 @@ void SACInfoGenerator::addInterpolation()
 void SACInfoGenerator::addSmoothing()
 {
   std::string smoothingOption = "";
-  switch (scenario().smoothingOption())
+  switch (mapsManager_.smoothingOption())
   {
     case 0:
       smoothingOption = "None";
       break;
     case 1:
-      smoothingOption = "Gaussian, Radius = " + std::to_string(scenario().radiusSmoothing());
+      smoothingOption = "Gaussian, Radius = " + std::to_string(mapsManager_.radiusSmoothing());
       break;
     case 2:
-      smoothingOption = "Moving Average, Radius = " + std::to_string(scenario().radiusSmoothing());
+      smoothingOption = "Moving Average, Radius = " + std::to_string(mapsManager_.radiusSmoothing());
       break;
   }
   addOption("Smoothing", smoothingOption);
@@ -151,7 +153,7 @@ void SACInfoGenerator::addSmoothing()
 
 void SACInfoGenerator::addSmartGridding()
 {
-  addOption("Smart gridding", scenario_.smartGridding() ? "Enabled" : "Disabled");
+  addOption("Smart gridding", mapsManager_.smartGridding() ? "Enabled" : "Disabled");
 }
 
 void SACInfoGenerator::addWellsSection()

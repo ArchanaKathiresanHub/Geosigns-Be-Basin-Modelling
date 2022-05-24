@@ -33,20 +33,9 @@ Grid2DView::Grid2DView(const ColorMap& colormap, QWidget* parent) :
 {
 }
 
-void Grid2DView::updatePlots(const std::vector<std::vector<double>>& values, const std::vector<std::vector<double>>& depthMap)
+void Grid2DView::updatePlots(const std::vector<std::vector<double>>& values)
 {
   values_ = values;
-  for (int i = 0; i< values.size(); ++i)
-  {
-    for (int j = 0; j<values[0].size(); ++j)
-    {
-      if (depthMap[i][j] == CMBDataAccess::DefaultUndefinedMapValue)
-      {
-        values_[i][j] = CMBDataAccess::DefaultUndefinedMapValue;
-      }
-    }
-  }
-
   determineRange();
 
   update();

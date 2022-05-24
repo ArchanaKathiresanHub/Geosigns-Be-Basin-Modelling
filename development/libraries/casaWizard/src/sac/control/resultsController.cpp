@@ -117,16 +117,9 @@ void ResultsController::setDomainBirdsView()
   CMBMapReader mapReader;
   mapReader.load(scenario_.project3dPath().toStdString());
   VectorVectorMap depthMap = mapReader.getMapData(scenario_.projectReader().getDepthGridName(0).toStdString());
-  std::vector<std::vector<double>> values = depthMap.getData();
-  for ( auto& row : values )
-  {
-    for ( double& value : row )
-    {
-      value = 1.0;
-    }
-  }
+  depthMap.setDefinedValuesToOne();
   resultsTab_->wellBirdsView()->setFixedValueRange({0,1});
-  resultsTab_->wellBirdsView()->updatePlots( values, depthMap.getData());
+  resultsTab_->wellBirdsView()->updatePlots(depthMap.getData());
 }
 
 void ResultsController::slotUpdateTabGUI(int tabID)

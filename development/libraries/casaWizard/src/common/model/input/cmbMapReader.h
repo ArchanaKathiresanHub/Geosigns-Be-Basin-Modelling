@@ -8,11 +8,9 @@
 
 #pragma once
 
-#include "model/vectorvectormap.h"
+#include "mapReader.h"
 
 #include <memory>
-#include <string>
-#include <vector>
 
 namespace mbapi
 {
@@ -22,19 +20,20 @@ namespace mbapi
 namespace casaWizard
 {
 
-class CMBMapReader
+class CMBMapReader : public MapReader
 {
 public:
   CMBMapReader();
-  ~CMBMapReader();
+  ~CMBMapReader() override;
 
-  VectorVectorMap getMapData(const std::string& mapName) const;
-  void load(const std::string& projectFile);
-  bool mapExists(const std::string& mapName) const;
-  double getValue(const double x, const double y, const std::string& mapName) const;
-  std::vector<VectorVectorMap> getInputLithoMapsInLayer(const int layerIndex) const;
-  bool checkIfPointIsInLayer(const double x, const double y, const double z, const std::string& layerName) const;
-  void getMapDimensions(double& xMin, double& xMax, double& yMin, double& yMax, long& numI, long& numJ);
+  VectorVectorMap getMapData(const std::string& mapName) const override;
+  void load(const std::string& projectFile) override;
+  bool mapExists(const std::string& mapName) const override;
+  double getValue(const double x, const double y, const std::string& mapName) const override;
+  std::vector<VectorVectorMap> getInputLithoMapsInLayer(const int layerIndex) const override;
+  std::vector<VectorVectorMap> getOptimizedLithoMapsInLayer(const int layerIndex) const override;
+  bool checkIfPointIsInLayer(const double x, const double y, const double z, const std::string& layerName) const override;
+  void getMapDimensions(double& xMin, double& xMax, double& yMin, double& yMax, long& numI, long& numJ) override;
 
 private:
   std::vector<std::vector<double> > resizeData(const std::vector<double>& out, const int numI, const int numJ) const;

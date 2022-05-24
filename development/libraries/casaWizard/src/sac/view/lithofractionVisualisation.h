@@ -32,6 +32,7 @@ namespace sac
 class ColorBar;
 class Grid2DPlot;
 class OptimizedLithofraction;
+class MapPlotOptions;
 
 class LithofractionVisualisation : public QWidget
 {
@@ -44,7 +45,6 @@ public:
   const QComboBox* layerSelection() const;
   QComboBox* lithotypeSelection() const;
   CustomCheckbox* singleMapLayout() const;
-  QComboBox* colorMapSelection() const;
   QCheckBox* wellsVisible() const;
 
   void clearPlots();
@@ -57,20 +57,12 @@ public:
   void finalizeTooltip(const std::vector<double>& lithofractionsAtPoint, const QString& wellName, const int plotID);
 
 private:
-  QComboBox* percentageRange_;
   std::unique_ptr<ColorMap> colormap_;
-  QComboBox* colorMapSelection_;
-  QComboBox* layerSelection_;
-  QComboBox* lithotypeSelection_;
   std::vector<Grid2DPlot*> lithoFractionPlots_;
-  QWidget* plotOptions_;
-  CustomCheckbox* stretched_;
-  CustomCheckbox* wellsVisible_;
-  CustomCheckbox* singleMapLayout_;
+  MapPlotOptions* plotOptions_;
   QGridLayout* plotsAndOptions_;
   QLabel* lithoSelectionLabel_;
 
-  void setPlotOptionsLayout();
   void setTotalLayout();
   void initializeLithoFractionPlots();
   void connectSignalsAndSlots();

@@ -12,7 +12,6 @@
 #include "lithofraction.h"
 #include "model/writable.h"
 #include "optimizedLithofraction.h"
-#include "model/writable.h"
 
 #include <QVector>
 

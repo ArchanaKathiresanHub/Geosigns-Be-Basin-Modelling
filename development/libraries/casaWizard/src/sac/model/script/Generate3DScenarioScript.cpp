@@ -14,6 +14,7 @@ namespace sac
 
 Generate3DScenarioScript::Generate3DScenarioScript(const SACScenario& scenario) :
   CasaScript(scenario.calibrationDirectory()),
+  mapsManager_{scenario.mapsManager()},
   scenario_{scenario}
 {
 }
@@ -36,11 +37,11 @@ QString Generate3DScenarioScript::workingDirectory() const
 QString Generate3DScenarioScript::generateThreeDFromOneD() const
 {
   QString command("generateThreeDFromOneD");
-  switch ( scenario_.interpolationMethod() )
+  switch ( mapsManager_.interpolationMethod() )
   {
     case 0:
     {
-      command += " IDW " + QString::number(scenario_.pIDW());
+      command += " IDW " + QString::number(mapsManager_.pIDW());
       break;
     }
     case 1:
@@ -54,16 +55,16 @@ QString Generate3DScenarioScript::generateThreeDFromOneD() const
     }
   }
 
-  switch ( scenario_.smoothingOption() )
+  switch ( mapsManager_.smoothingOption() )
   {
     case 1:
     {
-      command += " Gaussian " + QString::number(scenario_.radiusSmoothing()) + " 12";
+      command += " Gaussian " + QString::number(mapsManager_.radiusSmoothing()) + " 12";
       break;
     }
     case 2:
     {
-      command += " MovingAverage " + QString::number(scenario_.radiusSmoothing()) + " 12";
+      command += " MovingAverage " + QString::number(mapsManager_.radiusSmoothing()) + " 12";
       break;
     }
   }
@@ -75,7 +76,7 @@ QString Generate3DScenarioScript::setFilterOneDResults() const
 {
   QString command("setFilterOneDResults ");
 
-  command += scenario_.smartGridding() ? "smartLithoFractionGridding" : "none";
+  command += mapsManager_.smartGridding() ? "smartLithoFractionGridding" : "none";
 
   const CalibrationTargetManager& ctManager = scenario_.calibrationTargetManager();
 

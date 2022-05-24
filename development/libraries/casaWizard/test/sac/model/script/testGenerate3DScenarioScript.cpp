@@ -52,12 +52,14 @@ TEST(Generate3DScenarioScriptTest, testWriteScriptIDWGaussian)
   casaWizard::sac::SACScenario scenario{new casaWizard::StubProjectReader()};
   scenario.setWorkingDirectory(".");
   scenario.setProject3dFileNameAndLoadFile("projStub.project3d");
-  scenario.setSmoothingOption(1);
-  scenario.setPIDW(3);
+
+  MapsManager& mapsManager = scenario.mapsManager();
+  mapsManager.setSmoothingOption(1);
+  mapsManager.setPIDW(3);
+  mapsManager.setSmartGridding(false);
+
   const std::string expectedFile{"generate3DScenarioScript_IDW_GaussianExpected.casa"};
   const std::string actualFile{"generate3DScenarioScript.casa"};
-
-  scenario.setSmartGridding(false);
 
   casaWizard::sac::Generate3DScenarioScript script(scenario);
   script.writeScript();
@@ -70,9 +72,11 @@ TEST(Generate3DScenarioScriptTest, testWriteScriptNNMovingAverage)
   casaWizard::sac::SACScenario scenario{new casaWizard::StubProjectReader()};
   scenario.setWorkingDirectory(".");
   scenario.setProject3dFileNameAndLoadFile("projStub.project3d");
-  scenario.setSmoothingOption(2);
-  scenario.setRadiusSmoothing(3500);
-  scenario.setInterpolationMethod(1);
+
+  MapsManager& mapsManager = scenario.mapsManager();
+  mapsManager.setSmoothingOption(2);
+  mapsManager.setRadiusSmoothing(3500);
+  mapsManager.setInterpolationMethod(1);
 
   const std::string expectedFile{"generate3DScenarioScript_NN_MovingAverageExpected.casa"};
   const std::string actualFile{"generate3DScenarioScript.casa"};

@@ -20,8 +20,9 @@ namespace sac
 
 class ActiveWellsController;
 class LithofractionVisualisationController;
-class SACScenario;
 class MapsTab;
+class MapsManager;
+class SACScenario;
 
 class MapsController : public QObject
 {
@@ -54,21 +55,18 @@ signals:
   void signalRefreshChildWidgets();
 
 private:  
-  QVector<int> getExcludedWells();
+  QVector<int> getExcludedWellsFromActiveWells();
   QVector<int> getSelectedWellIndices();
-  QVector<int> selectedWells();
-  QVector<int> transformToActiveAndIncluded(const QVector<int>& wellIndices, const QVector<int>& excludedWells);
-  bool hasOptimizedSuccessfully(const int index) const;
 
   void refreshGUI();
   void validateWellsHaveOptimized();
 
+  MapsManager& mapsManager_;
   MapsTab* mapsTab_;
   SACScenario& scenario_;
   ScriptRunController& scriptRunController_;
   ActiveWellsController* activeWellsController_;
   LithofractionVisualisationController* lithofractionVisualisationController_;
-
 };
 
 } // namespace sac

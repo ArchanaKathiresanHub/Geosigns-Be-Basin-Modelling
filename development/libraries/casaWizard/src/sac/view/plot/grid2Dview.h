@@ -35,7 +35,7 @@ public:
   const std::pair<double, double>& getValueRange() const;
   double getValue(const QPointF& point) const;
 
-  void updatePlots(const std::vector<std::vector<double>>& values, const std::vector<std::vector<double>>& depthMap);
+  void updatePlots(const std::vector<std::vector<double>>& values);
   void updateRange(const double xMin, const double xMax, const double yMin, const double yMax);
 
   void clearData() override;

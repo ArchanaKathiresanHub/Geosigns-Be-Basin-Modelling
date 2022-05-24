@@ -39,6 +39,8 @@ LithoPercent2DView::LithoPercent2DView(const ColorMap& colormap, QWidget* parent
 void LithoPercent2DView::setWellsVisible(const bool wellsVisible)
 {
   wellsVisible_ = wellsVisible;
+  setToolTipVisible(false);
+
   update();
 }
 

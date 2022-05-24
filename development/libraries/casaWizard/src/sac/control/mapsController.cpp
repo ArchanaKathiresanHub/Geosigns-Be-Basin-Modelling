@@ -15,12 +15,9 @@
 #include "control/run3dCaseController.h"
 #include "control/scriptRunController.h"
 
-#include "model/functions/sortedByXWellIndices.h"
-#include "model/input/cmbMapReader.h"
 #include "model/input/cmbProjectReader.h"
 #include "model/logger.h"
 #include "model/output/LithoMapsInfoGenerator.h"
-#include "model/output/zycorWriter.h"
 #include "model/sacScenario.h"
 #include "model/scenarioBackup.h"
 #include "model/script/Generate3DScenarioScript.h"
@@ -50,6 +47,7 @@ MapsController::MapsController(MapsTab* mapsTab,
                                ScriptRunController& scriptRunController,
                                QObject* parent) :
   QObject(parent),
+  mapsManager_{scenario.mapsManager()},
   mapsTab_{mapsTab},
   scenario_{scenario},
   scriptRunController_{scriptRunController},
@@ -72,27 +70,26 @@ MapsController::MapsController(MapsTab* mapsTab,
 
   connect(lithofractionVisualisationController_, SIGNAL(wellClicked(const QString&)), this, SLOT(slotWellClicked(const QString&)));
   connect(lithofractionVisualisationController_, SIGNAL(clearWellListHighlightSelection()), activeWellsController_, SLOT(slotClearWellListHighlightSelection()));
-
 }
 
 void MapsController::slotInterpolationTypeCurrentIndexChanged(int interpolationType)
 {
-  scenario_.setInterpolationMethod(interpolationType);
+  mapsManager_.setInterpolationMethod(interpolationType);
 }
 
 void MapsController::slotPvalueChanged(int pIDW)
 {
-  scenario_.setPIDW(pIDW);
+  mapsManager_.setPIDW(pIDW);
 }
 
 void MapsController::slotSmoothingTypeCurrentIndexChanged(int smoothingType)
 {
-  scenario_.setSmoothingOption(smoothingType);
+  mapsManager_.setSmoothingOption(smoothingType);
 }
 
 void MapsController::slotSmoothingRadiusValueChanged(int smoothingRadius)
 {
-  scenario_.setRadiusSmoothing(smoothingRadius);
+  mapsManager_.setRadiusSmoothing(smoothingRadius);
 }
 
 void MapsController::slotUpdateTabGUI(int tabID)
@@ -109,36 +106,25 @@ void MapsController::validateWellsHaveOptimized()
 {
   for (int i = 0; i < mapsTab_->numberOfActiveWells(); i++)
   {
-    if (!hasOptimizedSuccessfully(i))
+    if (!scenario_.hasOptimizedSuccessfully(i))
     {
       mapsTab_->disableWellAtIndex(i);
     }
   }
 }
 
-bool MapsController::hasOptimizedSuccessfully(const int index) const
-{
-  const CalibrationTargetManager& ctManager = scenario_.calibrationTargetManager();
-  const QVector<int> sortedIndices = casaWizard::functions::sortedByXYWellIndices(ctManager.activeWells());
-
-  QFile successFile(scenario_.calibrationDirectory() + "/" + scenario_.runLocation() + "/" + scenario_.iterationDirName() + "/Case_" + QString::number(sortedIndices[index] + 1) + "/Stage_0.sh.success");
-
-  return successFile.exists();
-}
-
 void MapsController::refreshGUI()
 {
-  mapsTab_->interpolationType()->setCurrentIndex(scenario_.interpolationMethod());
-  mapsTab_->pValue()->setValue(scenario_.pIDW());
-  mapsTab_->smoothingType()->setCurrentIndex(scenario_.smoothingOption());
-  mapsTab_->smoothingRadius()->setValue(scenario_.radiusSmoothing());
+  mapsTab_->interpolationType()->setCurrentIndex(mapsManager_.interpolationMethod());
+  mapsTab_->pValue()->setValue(mapsManager_.pIDW());
+  mapsTab_->smoothingType()->setCurrentIndex(mapsManager_.smoothingOption());
+  mapsTab_->smoothingRadius()->setValue(mapsManager_.radiusSmoothing());
   lithofractionVisualisationController_->updateSelectedWells({});
-  mapsTab_->smartGridding()->setCheckState(scenario_.smartGridding() ? Qt::Checked : Qt::Unchecked);
+  mapsTab_->smartGridding()->setCheckState(mapsManager_.smartGridding() ? Qt::Checked : Qt::Unchecked);
 
   emit signalRefreshChildWidgets();
   validateWellsHaveOptimized();
 }
-
 
 void MapsController::slotUpdateWellSelection()
 {
@@ -147,7 +133,7 @@ void MapsController::slotUpdateWellSelection()
 
 void MapsController::slotSmartGriddingChanged(int state)
 {
-  scenario_.setSmartGridding(state == Qt::Checked);
+  mapsManager_.setSmartGridding(state == Qt::Checked);
   lithofractionVisualisationController_->hideAllTooltips();
   activeWellsController_->slotClearWellListHighlightSelection();
   lithofractionVisualisationController_->updateBirdsView();
@@ -169,9 +155,9 @@ void MapsController::slotGenerateLithoMaps()
   {
     return;
   }
-  Logger::log() << "Done!" << Logger::endl();
   scenarioBackup::backup(scenario_);
 
+  Logger::log() << "Done!" << Logger::endl();
   refreshGUI();
 }
 
@@ -182,17 +168,16 @@ void MapsController::slotExportOptimized()
     return;
   }
 
-  QDir sourceDir(scenario_.calibrationDirectory() + "/ThreeDFromOneD");
+  QDir sourceDir(scenario_.optimizedProjectDirectory());
 
   CMBProjectReader projectReader;
   LithoMapsInfoGenerator lithoMapsInfoGenerator(scenario_, projectReader);
-
   functions::exportScenarioToZip(sourceDir, scenario_.workingDirectory(), scenario_.project3dFilename(), lithoMapsInfoGenerator);
 }
 
 void MapsController::slotExportOptimizedToZycor()
 {
-  QDir sourceDir(scenario_.calibrationDirectory() + "/ThreeDFromOneD");
+  QDir sourceDir(scenario_.optimizedProjectDirectory());
   if (!sourceDir.exists())
   {
     Logger::log() << "No optimized project is available for export" << Logger::endl();
@@ -209,40 +194,7 @@ void MapsController::slotExportOptimizedToZycor()
     return;
   }
 
-  ZycorWriter writer;
-
-  CMBMapReader mapReader;
-  mapReader.load((sourceDir.path() + "/" + scenario_.project3dFilename()).toStdString());
-
-  double xMin = 0.0;
-  double xMax = 0.0;
-  double yMin = 0.0;
-  double yMax = 0.0;
-  long numI = 0;
-  long numJ = 0;
-  mapReader.getMapDimensions(xMin, xMax, yMin, yMax, numI, numJ);
-  const casaWizard::MapMetaData metaData(xMin, xMax, yMin, yMax, numI, numJ);
-
-  for (int i = 0; i < scenario_.projectReader().layerNames().size(); i++)
-  {
-    if (!mapReader.mapExists(std::to_string(i) + "_percent_1"))
-    {
-      continue;
-    }
-    std::vector<VectorVectorMap> lithoMaps = lithofractionVisualisationController_->obtainLithologyMaps(mapReader, i);
-    QStringList lithoNames = scenario_.projectReader().lithologyTypesForLayer(i);
-    int iLithoName = 0;
-    for (const VectorVectorMap& lithoMap : lithoMaps)
-    {
-      writer.writeToFile(targetPath.toStdString() + "/" +
-                         scenario_.projectReader().layerNames()[i].toStdString() + "_" +
-                         lithoNames[iLithoName].toStdString() + ".zyc",
-                         lithoMap.getData(),
-                         metaData);
-
-      iLithoName++;
-    }
-  }
+  scenario_.exportOptimizedLithofractionMapsToZycor(targetPath);
 
   Logger::log() << "Finished exporting optimized lithofraction maps to Zycor" << Logger::endl();
 }
@@ -254,8 +206,7 @@ void MapsController::slotRunOptimized()
     return;
   }
 
-  const QString baseDirectory{scenario_.calibrationDirectory() + "/ThreeDFromOneD"};
-
+  const QString baseDirectory{scenario_.optimizedProjectDirectory()};
   Run3dCaseController run3dCaseController(scenario_, scriptRunController_);
   if (run3dCaseController.run3dCase(baseDirectory, true))
   {
@@ -265,15 +216,8 @@ void MapsController::slotRunOptimized()
 
 void MapsController::slotUpdateBirdView()
 {
-  lithofractionVisualisationController_->updateSelectedWells(selectedWells());
-}
-
-QVector<int> MapsController::selectedWells()
-{
-  const QVector<int> wellIndices = getSelectedWellIndices();
-  const QVector<int> excludedWells = getExcludedWells();
-
-  return transformToActiveAndIncluded(wellIndices, excludedWells);
+  QVector<int> selectedWells = scenario_.getIncludedWellIndicesFromSelectedWells(getSelectedWellIndices());
+  lithofractionVisualisationController_->updateSelectedWells(selectedWells);
 }
 
 QVector<int> MapsController::getSelectedWellIndices()
@@ -287,44 +231,6 @@ QVector<int> MapsController::getSelectedWellIndices()
   }
 
   return wellIndices;
-}
-
-QVector<int> MapsController::getExcludedWells()
-{
-  QVector<int> excludedWells;
-  int counter = 0;
-  for (const Well* well : scenario_.calibrationTargetManager().activeWells())
-  {
-    if (well->isExcluded())
-    {
-      excludedWells.push_back(counter);
-    }
-    counter++;
-  }
-
-  return excludedWells;
-}
-
-QVector<int> MapsController::transformToActiveAndIncluded(const QVector<int>& wellIndices, const QVector<int>& excludedWells)
-{
-  QVector<int> wellIndicesActiveIncluded;
-  for (int wellIndex : wellIndices)
-  {
-    int exclusionShift = 0;
-    bool excluded = false;
-    for (int excludedWellIndex : excludedWells)
-    {
-      if(wellIndex == excludedWellIndex) excluded = true;
-      if(wellIndex >  excludedWellIndex) exclusionShift++;
-    }
-
-    if (!excluded)
-    {
-      wellIndicesActiveIncluded.push_back(wellIndex - exclusionShift);
-    }
-  }
-
-  return wellIndicesActiveIncluded;
 }
 
 } // namespace sac

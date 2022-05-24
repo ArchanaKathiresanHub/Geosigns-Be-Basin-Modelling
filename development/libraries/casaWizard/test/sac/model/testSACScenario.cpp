@@ -14,6 +14,7 @@ TEST(SACScenarioTest, testWriteRead)
   writeScenario.setT2zReferenceSurface(321);
   writeScenario.setT2zNumberCPUs(12);
   writeScenario.setT2zSubSampling(3);
+  writeScenario.mapsManager().setSmartGridding(false);
 
   casaWizard::sac::LithofractionManager& lithofractionManagerWrite = writeScenario.lithofractionManager();
 
@@ -35,7 +36,6 @@ TEST(SACScenarioTest, testWriteRead)
   wellTrajectoryManagerWrite.addWellTrajectory(16, "TemperatureUserName");
   wellTrajectoryManagerWrite.setTrajectoryData(casaWizard::sac::TrajectoryType::Original1D, 0, {1, 2, 3}, {4, 5, 6});
   wellTrajectoryManagerWrite.setTrajectoryData(casaWizard::sac::TrajectoryType::Optimized1D, 0, {1, 2, 3},  {7, 8, 9});
-  writeScenario.setSmartGridding(false);
 
   casaWizard::ScenarioWriter writer{"scenario.dat"};
   writeScenario.writeToFile(writer);
@@ -53,7 +53,7 @@ TEST(SACScenarioTest, testWriteRead)
   EXPECT_EQ(writeScenario.t2zNumberCPUs(), 12);
   EXPECT_EQ(writeScenario.t2zSubSampling(), 3);
   EXPECT_EQ(writeScenario.t2zSubSampling(), readScenario.t2zSubSampling());
-  EXPECT_EQ(writeScenario.smartGridding(), readScenario.smartGridding());
+  EXPECT_EQ(writeScenario.mapsManager().smartGridding(), readScenario.mapsManager().smartGridding());
 
   EXPECT_FALSE(writeScenario.t2zRunOnOriginalProject());
   writeScenario.setT2zRunOnOriginalProject(true);
@@ -139,4 +139,54 @@ TEST(SACScenarioTest, testWellPrepToSAC)
   EXPECT_EQ(trajectories[1].size(), 1);
   EXPECT_EQ(trajectories[2].size(), 1);
   EXPECT_EQ(trajectories[3].size(), 1);
+}
+
+void createScenarioWithOptimizedLithofractions(casaWizard::sac::SACScenario& scenario)
+{
+
+  scenario.calibrationTargetManager().addWell("ActiveWell1", 1000, 1000);
+  scenario.calibrationTargetManager().addWell("ActiveWell2", 3000, 3000);
+  scenario.calibrationTargetManager().addWell("Non-ActiveWell", 2000, 2000);
+  scenario.calibrationTargetManager().setWellIsActive(false, 2);
+
+  casaWizard::sac::OptimizedLithofraction optimizedLithofractionWell1(0, 0, 60, 0.5);
+  casaWizard::sac::OptimizedLithofraction optimizedLithofractionWell2(1, 0, 50, 0.2);
+  casaWizard::sac::OptimizedLithofraction optimizedLithofractionNonActiveWell(2, 0, 40, 0.5);
+
+  scenario.lithofractionManager().addOptimizedLithofraction(optimizedLithofractionWell1);
+  scenario.lithofractionManager().addOptimizedLithofraction(optimizedLithofractionWell2);
+  scenario.lithofractionManager().addOptimizedLithofraction(optimizedLithofractionNonActiveWell);
+  scenario.lithofractionManager().addLithofraction("layer");
+}
+
+TEST(SACScenarioTest, testGetLithopercentagesOfClosestWell)
+{
+  // Given
+  casaWizard::sac::SACScenario scenario{new casaWizard::StubProjectReader()};
+  createScenarioWithOptimizedLithofractions(scenario);
+
+  // When
+  int closestWellID = -1;
+  std::vector<double> lithoPercentagesOfClosestWell = scenario.getLithopercentagesOfClosestWell(2.2, 2.2, "layer", closestWellID);
+
+  // Then
+  EXPECT_EQ(closestWellID, 1);
+  EXPECT_DOUBLE_EQ(lithoPercentagesOfClosestWell[0], 50);
+  EXPECT_DOUBLE_EQ(lithoPercentagesOfClosestWell[1], 10);
+  EXPECT_DOUBLE_EQ(lithoPercentagesOfClosestWell[2], 40);
+}
+
+TEST(SACScenarioTest, testGetLithopercentagesOfClosestWellNoLithoFractionInLayer)
+{
+  // Given
+  casaWizard::sac::SACScenario scenario{new casaWizard::StubProjectReader()};
+  createScenarioWithOptimizedLithofractions(scenario);
+
+  // When
+  int closestWellID = -1;
+  std::vector<double> lithoPercentagesOfClosestWell = scenario.getLithopercentagesOfClosestWell(1.9, 1.9, "non-existent layer", closestWellID);
+
+  // Then
+  EXPECT_EQ(closestWellID, -1);
+  EXPECT_TRUE(lithoPercentagesOfClosestWell.empty());
 }

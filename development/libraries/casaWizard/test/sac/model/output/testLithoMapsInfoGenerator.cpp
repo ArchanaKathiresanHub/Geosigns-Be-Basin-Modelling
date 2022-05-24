@@ -28,10 +28,11 @@ TEST( LithoMapsInfoGenerator, testInfoGenerator )
   scenario.calibrationTargetManager().addToMapping("Density", "BulkDensity");
   scenario.calibrationTargetManager().addToMapping("Velocity", "Velocity");
 
-  scenario.setPIDW(3);
-  scenario.setSmoothingOption(1);
-  scenario.setRadiusSmoothing(5000);
-  scenario.setSmartGridding(false);
+  MapsManager& mapsManager = scenario.mapsManager();
+  mapsManager.setPIDW(3);
+  mapsManager.setSmoothingOption(1);
+  mapsManager.setRadiusSmoothing(5000);
+  mapsManager.setSmartGridding(false);
 
   // Set Wells
   scenario.calibrationTargetManager().addWell("10_AML2_AV", 184550.00, 608300.00);

@@ -10,6 +10,7 @@ namespace sac
 {
 
 class SACScenario;
+class MapsManager;
 
 class Generate3DScenarioScript : public CasaScript
 {
@@ -26,6 +27,7 @@ private:
   QString setFilterOneDResults() const;
   QString generateThreeDFromOneD() const;
 
+  const MapsManager& mapsManager_;
   const SACScenario& scenario_;
 };
 

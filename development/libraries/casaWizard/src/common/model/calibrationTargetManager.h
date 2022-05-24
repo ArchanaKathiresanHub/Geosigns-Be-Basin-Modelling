@@ -86,6 +86,7 @@ public:
    bool showPropertiesInTable() const;
    void setShowPropertiesInTable(const bool showPropertiesInTable);
 
+  QVector<int> getExcludedWellsFromActiveWells();
    QMap<QString, QSet<int> > getPropertyNamesPerWellForTargetTable() const;
 private:
    CalibrationTargetManager(const CalibrationTargetManager&) = delete;

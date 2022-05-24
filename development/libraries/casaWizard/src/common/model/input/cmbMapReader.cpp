@@ -10,7 +10,7 @@
 
 #include "cmbAPI.h"
 #include "MapsManager.h"
-#include "model/vectorvectormap.h"
+#include "model/VectorVectorMap.h"
 
 #include <stdexcept>
 
@@ -156,6 +156,25 @@ std::vector<VectorVectorMap> CMBMapReader::getInputLithoMapsInLayer(const int la
   maps.push_back(maps[0]*-1.0 + maps[1]*-1.0 + 100.0);
 
   return maps;
+}
+
+std::vector<VectorVectorMap> CMBMapReader::getOptimizedLithoMapsInLayer(const int layerIndex) const
+{
+  std::vector<VectorVectorMap> lithologyMaps;
+  lithologyMaps.push_back(getMapData(std::to_string(layerIndex) + "_percent_1"));
+
+  if (mapExists(std::to_string(layerIndex) + "_percent_2"))
+  {
+    lithologyMaps.push_back(getMapData(std::to_string(layerIndex) + "_percent_2"));
+  }
+  else
+  {
+    lithologyMaps.push_back(lithologyMaps[0] * -1.0 + 100);
+  }
+
+  lithologyMaps.push_back((lithologyMaps[0] + lithologyMaps[1]) * (-1.0) + 100);
+
+  return lithologyMaps;
 }
 
 bool CMBMapReader::checkIfPointIsInLayer(const double x, const double y, const double z, const std::string& layerName) const

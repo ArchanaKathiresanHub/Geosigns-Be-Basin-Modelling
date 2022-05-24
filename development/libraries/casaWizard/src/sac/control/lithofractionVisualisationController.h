@@ -37,7 +37,6 @@ public:
   void updateBirdsView();
   void updateSelectedWells(QVector<int> selectedWells);
   void hideAllTooltips();
-  std::vector<VectorVectorMap> obtainLithologyMaps(const CMBMapReader& mapReader, int layerID) const;
 
 signals:
   void wellClicked(const QString&);
@@ -52,18 +51,13 @@ private:
   LithofractionVisualisation* lithofractionVisualisation_;
   SACScenario& scenario_;
 
-  void connectToolTipSlots();
+  void connectToolTipSlots();  
   QString currentlyDisplayedLithotype() const;
   QVector<OptimizedLithofraction> getOptimizedLithoFractionsInLayer(const QString& layer) const;
   std::vector<double> getLithopercentagesOfClosestWell(const QPointF& point, int& closestWellID) const;
   std::vector<double> getLithopercentagesAtLocation(const QPointF& point) const;
   bool lithofractionIsValid(const double lithofractionAtPoint) const;
   QStringList obtainAvailableLayers() const;
-  std::vector<VectorVectorMap> obtainInputLithologyMaps(const CMBMapReader& mapReader, int layerID) const;
-  QStringList obtainLithologyTypes(const int layerID) const;
-  bool openMaps(CMBMapReader& mapReader, const int layerID) const;
-
-  bool wellHasDataInActiveLayer(const Well* well) const;
 
 private slots:
   void slotUpdatePlots(const QString& layerName);
