@@ -126,6 +126,20 @@ const QTableWidget* MCMCTab::tablePredictionTargets() const
   return tablePredictionTargets_;
 }
 
+void MCMCTab::setOptimalCaseButtonsDisabled()
+{
+   pushButtonExportOptimalCase_->setDisabled(true);
+   pushButtonRunOptimalCase_->setDisabled(true);
+   pushButtonAddOptimalDesignPoint_->setDisabled(true);
+}
+
+void MCMCTab::setOptimalCaseButtonsEnabled()
+{
+   pushButtonExportOptimalCase_->setDisabled(false);
+   pushButtonRunOptimalCase_->setDisabled(false);
+   pushButtonAddOptimalDesignPoint_->setDisabled(false);
+}
+
 void MCMCTab::setL2normRS(const double l2norm) const
 {
   lineEditL2normRS_->setText(QString::number(l2norm));

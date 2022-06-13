@@ -1,8 +1,9 @@
 #include "predictionTarget.h"
 
 #include "model/targetParameterMapCreator.h"
-
 #include "model/PredictionTargetReader.h"
+
+#include "StringHandler.h"
 
 namespace casaWizard
 {
@@ -23,6 +24,21 @@ PredictionTarget::PredictionTarget(const QVector<QString>& properties, const dou
 PredictionTarget* PredictionTarget::createFromList(const int version, const QStringList& list)
 {
    return PredictionTargetReader::readTarget(version, list);
+}
+
+QString PredictionTarget::casaCommandFromStrVec(std::vector<std::string> stringVec)
+{
+   //If strings contain spaces, add quotation marks:
+   for (std::string& str : stringVec)
+   {
+      if (str.find_first_of(' ') != std::string::npos)
+      {
+         str = "\"" + str + "\"";
+      }
+   }
+
+   //Concatenate with space as delimiter and return:
+   return QString::fromStdString(StringHandler::implode(stringVec," "));
 }
 
 QString PredictionTarget::surfaceName() const

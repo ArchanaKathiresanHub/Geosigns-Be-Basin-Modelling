@@ -12,6 +12,7 @@
 #include "CasaCommander.h"
 
 #include "ErrorHandler.h"
+#include "casaCmdInterface.h"
 
 #include <algorithm>
 #include <fstream>
@@ -65,70 +66,8 @@ void CfgFileParser::parseFile( const std::string & cmdFile, CasaCommander & cmdQ
       else { cmdLine += line; }
 
       std::string              cmdID;
-      std::vector<std::string> cmdPrms;
+      std::vector<std::string> cmdPrms = casaCmdInterface::stringVecFromCasaCommand(cmdLine,cmdID,int(lineNum));
 
-      std::istringstream iss( cmdLine );
-
-      std::string result;
-      // get command itself first
-      int tokNum = 0;
-
-      while( std::getline( iss, result, ' ') ) 
-      {
-         if ( result.empty() || (result.size() == 1 && result[0] == ' ') ) continue; // ignore spaces
-         if ( result[0] == '#' ) break; // ignore all after comment
-         if ( 0 == tokNum ) // get cmd name
-         {
-            cmdID = result;
-         }
-         else
-         {
-            if ( result[0] == '"' ) // need to get the full string without any change inside
-            {
-               std::string opt = result.substr( 1, result.size() - 1 );
-               if ( *opt.rbegin() == '"' )
-               {
-                  opt.erase( opt.size() - 1, 1 );
-               }
-               else if ( std::getline( iss, result, '"' ) )
-               {
-                  opt += " " + result;
-               }
-               else 
-               {
-                  throw ErrorHandler::Exception( ErrorHandler::IoError ) << "Can not find closing \" for the string: " << opt << 
-                                                                            ", at line: " << lineNum << ", command: " << cmdID;
-               }
-
-               cmdPrms.push_back( opt );
-               continue;
-            }
-            else if ( result[0] == '[' ) // get whole array in one go
-            {
-               std::string opt = result;
-               if ( *opt.rbegin() != ']' )
-               {
-                  if ( std::getline( iss, result, ']' ) )
-                  {
-                     opt += " " + result + "]";
-                  }
-                  else 
-                  {
-                     throw ErrorHandler::Exception( ErrorHandler::IoError ) << "Can not find closing ] for the set: " << opt << 
-                                                                               ", at line: " << lineNum << ", command: " << cmdID;
-                  }
-               }
-               cmdPrms.push_back( opt );
-               continue;
-            }
-            else 
-            {
-               cmdPrms.
-                  push_back( result );
-            }
-         }
-         ++tokNum;
-      }
       cmdQueue.addCommand( cmdID, cmdPrms, lineNum );
       cmdLine = "";
    }
@@ -237,21 +176,8 @@ void CfgFileParser::readTrajectoryFile( const std::string & fileName,
    ifs.close();
 }
 
-
-
 bool CfgFileParser::isNumericPrm( const std::string & prm )
 {
    std::locale loc;
    return std::isdigit( prm[0], loc );
 }
-
-std::string CfgFileParser::implode( const std::vector<std::string> & vos, const char * delim, size_t st )
-{
-   std::ostringstream ret;
-   for ( size_t i = st; i < vos.size(); ++i )
-   {
-      ret << (i == st ? "" : delim ) << vos[i];
-   }
-   return ret.str();
-}
-

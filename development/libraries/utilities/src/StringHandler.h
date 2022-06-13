@@ -34,6 +34,9 @@ public:
    /// @param[out] theTokens    The command's options parsed from the command line
    static void parseLine( const std::string& theString, const char& theDelimiter, std::vector<std::string>& theTokens );
 
+   /// @brief Join array of strings to one string separated with given delimiter
+   static std::string implode( const std::vector<std::string> & strings, const char * delim, size_t st = 0 );
+
 private:
 
 };

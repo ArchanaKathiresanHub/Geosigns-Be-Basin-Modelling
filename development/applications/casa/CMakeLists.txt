@@ -55,7 +55,7 @@ target_link_libraries( ${APP_NAME}
    SerialDataAccess
    Serial_Hdf5
    TableIO
-   utilities
+   casaCmdInterface
    SUMlib
    NNlib
    ${HDF5_LIBRARIES}

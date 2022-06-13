@@ -1,6 +1,10 @@
 #include "predictionTargetSurface.h"
 #include "model/ToDepthConverter.h"
 #include "model/scenarioIO.h"
+#include "casaCmdInterface.h"
+#include "model/script/WizardDataToCasaScriptMapper.h"
+
+#include <regex>
 
 namespace casaWizard
 {
@@ -90,6 +94,34 @@ QString PredictionTargetSurface::name(const QString& property) const
   return property + " (" + doubleNoDigitToQString(x()) + ", " + doubleNoDigitToQString(y()) + ", " + m_surface + ", " + QString::number(age(), 'f', 1) + ")";
 }
 
+QString PredictionTargetSurface::identifier(const QString& property) const
+{
+   std::vector<std::string> stringVec = identifierStringVec(property);
+   std::string identifierString = casaCmdInterface::stringVecToStringWithNoSpaces(stringVec,"_");
+   return QString::fromStdString(identifierString);
+}
+
+QString PredictionTargetSurface::casaCommand(const QString& property) const
+{
+   return casaCommandFromStrVec(identifierStringVec(property));
+}
+
+std::vector<std::string> PredictionTargetSurface::identifierStringVec(const QString& property) const
+{
+   using namespace wizardDataToCasaScriptMapper;
+
+   std::vector<std::string> stringVec;
+   stringVec.push_back(typeName().toStdString());
+   stringVec.push_back(mapName(property).toStdString());
+   stringVec.push_back(doubleToQString(x()).toStdString());
+   stringVec.push_back(doubleToQString(y()).toStdString());
+   stringVec.push_back(m_layer.toStdString());
+   stringVec.push_back(doubleOneDigitToQString(age()).toStdString());
+   stringVec.push_back("1.0");
+   stringVec.push_back("1.0");
+   return stringVec;
+}
+
 QString PredictionTargetSurface::nameWithoutAge() const
 {
   auto doubleNoDigitToQString = [](double d){return QString::number(d, 'g', 12); };
@@ -137,7 +169,7 @@ QString PredictionTargetSurface::variable() const
 
 QString PredictionTargetSurface::typeName() const
 {
-  return "XYPointLayerTopSurface";
+   return "XYPointLayerTopSurface";
 }
 
 QString PredictionTargetSurface::surfaceName() const

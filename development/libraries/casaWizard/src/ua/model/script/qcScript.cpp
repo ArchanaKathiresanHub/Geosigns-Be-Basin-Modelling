@@ -38,7 +38,6 @@ void QCScript::writeScriptContents(QFile& file) const
   out << writeExportDataTxt("DoeIndices", uaScenario().doeIndicesTextFileName());
   out << writeExportDataTxt("RunCasesObservables", uaScenario().runCasesObservablesTextFileName());
   out << writeExportDataTxt("ProxyEvalObservables", uaScenario().proxyEvaluationObservablesTextFileName(), doeList, proxyName());
-  out << writeExportDataTxt("ProxyQC", "proxyQC.txt", doeList, proxyName());
   out << writeExportDataTxt("ProxyEvaluateQuality", uaScenario().proxyQualityEvaluationTextFileName(), doeList, proxyName());
   out << writeSaveState(uaScenario().stateFileNameQC());
 }

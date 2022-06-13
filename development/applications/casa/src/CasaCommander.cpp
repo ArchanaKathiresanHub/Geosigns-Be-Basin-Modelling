@@ -12,7 +12,7 @@
 #include "LogHandler.h"
 
 #include "CasaCommander.h"
-#include "CfgFileParser.h"
+#include "StringHandler.h"
 
 #include "CmdAddCldApp.h"
 #include "CmdAddDesignPoint.h"
@@ -102,7 +102,7 @@ void CasaCommander::addCommand( const std::string & cmdName, const std::vector< 
    m_inpFileCmdPos.push_back( lineNum );
 
    LogHandler( LogHandler::DEBUG_SEVERITY ) << "Added command to the command queue: " << ( typeid( *cmd ).name() ) << "("
-                              << CfgFileParser::implode( prms, "," ) << ")";
+                              << StringHandler::implode( prms, "," ) << ")";
 }
 
 std::string CasaCommander::toString( const CasaCmd * pCmd )

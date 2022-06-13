@@ -73,7 +73,6 @@ bool ScriptRunController::runScript(RunScript& script, QObject * receiver, const
     timer.start(timeout);
   }
 
-
   if (!script.generateCommands())
   {
     emit runEnded();

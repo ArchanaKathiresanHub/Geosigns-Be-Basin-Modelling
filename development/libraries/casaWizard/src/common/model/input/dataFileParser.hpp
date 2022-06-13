@@ -1,7 +1,14 @@
+//
+// Copyright (C) 2022 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #include <model/input/dataFileParser.h>
 
-#include <QFile>
-#include <QTextStream>
+#include <utility>
 
 namespace casaWizard
 {
@@ -14,79 +21,144 @@ T convertStringToType(const QString& entry);
 
 template<> double convertStringToType<double>(const QString& entry)
 {
-  return entry.toDouble();
+   return entry.toDouble();
 }
 
 template<> int convertStringToType<int>(const QString& entry)
 {
-  return entry.toInt();
+   return entry.toInt();
+}
+
+template<> QString convertStringToType<QString>(const QString& entry)
+{
+   return entry;
+}
+
+template<class Type>
+QVector<Type> readRowToVector(const QString& line)
+{
+   QVector<Type> rowData;
+   const QStringList entries{line.split(" ", QString::SplitBehavior::SkipEmptyParts)};
+
+   for (const QString& entry : entries)
+   {
+      rowData.push_back(convertStringToType<Type>(entry));
+   }
+
+   return rowData;
+}
+
+template<class Type>
+QVector<QVector<Type>> convertToColumDominant(const QVector<QVector<Type>>& rowDominantData)
+{
+   //Assumes square matrix, which is checked by the readMatrix function.
+   if (rowDominantData.size() == 0)
+   {
+      return {};
+   }
+
+   QVector<QVector<Type>> columnDominantData;
+   const int rows{rowDominantData.size()};
+   const int cols{rowDominantData[0].size()};
+
+   for (int j = 0; j < cols; j++)
+   {
+      QVector<Type> columnData;
+      for (int i = 0; i < rows; i++)
+      {
+         columnData.push_back(rowDominantData[i][j]);
+      }
+      columnDominantData.push_back(columnData);
+   }
+   return columnDominantData;
 }
 
 } // namespace
 
 template<class Type>
-DataFileParser<Type>::DataFileParser(const QString& filename) :
-  filename_{filename}
+DataFileParser<Type>::DataFileParser(const QString& fileName) :
+   m_filename(fileName),
+   m_file(fileName)
 {
+   if (!m_file.open(QIODevice::ReadOnly | QIODevice::Text))
+   {
+      throw std::runtime_error("Opening datafile " + fileName.toStdString() + " failed");
+   }
+   m_inputStream.setDevice(&m_file);
 }
 
 template<class Type>
-QVector<QVector<Type>> DataFileParser<Type>::matrixData() const
+QVector<QVector<Type>> DataFileParser<Type>::colDominantMatrix(const QString& fileName)
 {
-  QVector<QVector<Type>> columnDominantData;
-  const QVector<QVector<Type>> rowDominantData = rowDominantMatrix();
-
-  const int rows{rowDominantData.size()};
-  const int cols{rowDominantData[0].size()};
-
-  for (int j = 0; j < cols; j++)
-  {
-    QVector<Type> columnData;
-    for (int i = 0; i < rows; i++)
-    {
-      columnData.push_back(rowDominantData[i][j]);
-    }
-    columnDominantData.push_back(columnData);
-  }
-
-  return columnDominantData;
+   return convertToColumDominant(rowDominantMatrix(fileName));
 }
 
 template<class Type>
-QVector<QVector<Type>> DataFileParser<Type>::rowDominantMatrix() const
+QVector<QVector<Type>> DataFileParser<Type>::rowDominantMatrix(const QString& fileName)
 {
-  QVector<QVector<Type>> rowDominantData;
-  QFile file{filename_};
-
-  if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
-  {
-    throw std::runtime_error("Opening datafile " + filename_.toStdString() + " failed");
-  }
-
-  QTextStream inputStream{&file};
-
-  while (!inputStream.atEnd())
-  {
-    const QString textLine{inputStream.readLine()};
-    const QVector<Type> rowData = readRowToVector(textLine);
-    rowDominantData.push_back(rowData);
-  }
-
-  return rowDominantData;
+   DataFileParser<Type> parser(fileName);
+   return parser.readMatrix();
 }
 
 template<class Type>
-QVector<Type> DataFileParser<Type>::readRowToVector(const QString& line) const
+QVector<QVector<Type>> DataFileParser<Type>::parseFileWithHeaderColDominant(const QString& fileName)
 {
-  QVector<Type> rowData;
-  const QStringList entries{line.split(" ", QString::SplitBehavior::SkipEmptyParts)};
+   return convertToColumDominant(parseFileWithHeaderRowDominant(fileName));
+}
 
-  for (const QString& entry : entries)
-  {
-    rowData.push_back(convertStringToType<Type>(entry));
-  }
+template<class Type>
+QVector<QVector<Type>> DataFileParser<Type>::parseFileWithHeaderColDominant(const QString& fileName, QVector<QString>& headers)
+{
+   return convertToColumDominant(parseFileWithHeaderRowDominant(fileName,headers));
+}
 
-  return rowData;
+template<class Type>
+QVector<QVector<Type>> DataFileParser<Type>::parseFileWithHeaderRowDominant(const QString& fileName)
+{
+   DataFileParser<Type> parser(fileName);
+   parser.readHeader();
+   return parser.readMatrix();
+}
+
+template<class Type>
+QVector<QVector<Type>> DataFileParser<Type>::parseFileWithHeaderRowDominant(const QString& fileName, QVector<QString>& headers)
+{
+   DataFileParser<Type> parser(fileName);
+   headers = parser.readHeader();
+   return parser.readMatrix();
+}
+
+template<class Type>
+QVector<QVector<Type>> DataFileParser<Type>::readMatrix()
+{
+   QVector<QVector<Type>> rowDominantData;
+   while (!m_inputStream.atEnd())
+   {
+      const QString textLine{m_inputStream.readLine()};
+      const QVector<Type> rowData = readRowToVector<Type>(textLine);
+
+      if (rowDominantData.size())
+      {
+         if (rowDominantData.back().size() != rowData.size())
+         {
+            throw std::runtime_error("Datafile " + m_filename.toStdString() + " does not have the expected file format and is not read");
+         }
+      }
+
+      rowDominantData.push_back(rowData);
+   }
+   return rowDominantData;
+}
+
+template<class Type>
+QVector<QString> DataFileParser<Type>::readHeader()
+{
+   if (!m_inputStream.atEnd())
+   {
+      const QString textLine{m_inputStream.readLine()};
+      return readRowToVector<QString>(textLine);
+   }
+   return {};
 }
 
 } //namespace casaWizard

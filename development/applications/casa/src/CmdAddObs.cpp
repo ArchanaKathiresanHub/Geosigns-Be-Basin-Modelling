@@ -28,6 +28,12 @@
 // LogHandler
 #include "LogHandler.h"
 
+//StringHandler
+#include "StringHandler.h"
+
+//casaCmdInterface
+#include "casaCmdInterface.h"
+
 // STD C
 #include <cstdlib>
 
@@ -590,11 +596,13 @@ static const ObsTypesFactory g_obsFactory;
 // Command processing
 //////////////////////////////////////////
 CmdAddObs::CmdAddObs( CasaCommander & parent, const std::vector< std::string > & cmdPrms ) : CasaCmd( parent, cmdPrms )
-{
+{   
    if( m_prms.size() < 1 )
    {
       throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "Observable is not defined properly";
    }
+
+   m_obsName = casaCmdInterface::stringVecToStringWithNoSpaces(m_prms,"_");
 
    // the first parameter could be observable name
    const ObsType * ot = g_obsFactory.factory( m_prms[0] );
@@ -604,7 +612,6 @@ CmdAddObs::CmdAddObs( CasaCommander & parent, const std::vector< std::string > &
       ot = g_obsFactory.factory( m_prms[1] );
       if ( ot )
       {
-         m_obsName = m_prms[0];
          m_prms.erase( m_prms.begin() );
       }
    }
@@ -624,8 +631,7 @@ CmdAddObs::CmdAddObs( CasaCommander & parent, const std::vector< std::string > &
 void CmdAddObs::execute( std::unique_ptr<casa::ScenarioAnalysis> & sa )
 {
    LogHandler( LogHandler::INFO_SEVERITY ) << "Add observable: " <<
-      (m_obsName.empty() ? (m_prms[0] + "(" + CfgFileParser::implode( m_prms, ",", 1 ) + ")") : m_obsName);
-
+      (m_obsName.empty() ? (m_prms[0] + "(" + StringHandler::implode( m_prms, ",", 1 ) + ")") : m_obsName);
 
    casa::Observable * obs = g_obsFactory.factory( m_prms[0] )->createObservableObject( m_obsName, m_prms );
 

@@ -42,6 +42,9 @@ public:
    void fillPredictionTargetTable(const QVector<const PredictionTarget*> predictionTargets);
    void setEnableTimeSeries(const bool checkState);
 
+   void setOptimalCaseButtonsDisabled();
+   void setOptimalCaseButtonsEnabled();
+
    QSlider* sliderHistograms() const;
    void updateSliderHistograms(const int timeSeriesSize);
    QCheckBox* checkBoxHistoryPlotsMode() const;

@@ -55,12 +55,27 @@ MCMCController::MCMCController(MCMCTab* mcmcTab,
    connect(m_mcmcTab->pushButtonAddOptimalDesignPoint(), SIGNAL(clicked()),            this, SLOT(slotPushButtonAddOptimalDesignPointClicked()));
    connect(m_mcmcTab->sliderHistograms(),                SIGNAL(valueChanged(int)),    this, SLOT(slotSliderHistogramsChanged(int)));
    connect(m_mcmcTab->checkBoxHistoryPlotsMode(),        SIGNAL(stateChanged(int)),    this, SLOT(slotCheckBoxHistoryPlotModeChanged(int)));
+
+   //Optimal case is only defined if there are calibration targets.
+   if (m_casaScenario.calibrationTargetManager().amountOfActiveCalibrationTargets() == 0)
+   {
+      m_mcmcTab->setOptimalCaseButtonsDisabled();
+   }
 }
 
 void MCMCController::refreshGUI()
 {
    const PredictionTargetManager& predictionTargetManager = m_casaScenario.predictionTargetManager();
    const MonteCarloDataManager& monteCarloData = m_casaScenario.monteCarloDataManager();
+
+   if (m_casaScenario.calibrationTargetManager().amountOfActiveCalibrationTargets() == 0)
+   {
+      m_mcmcTab->setOptimalCaseButtonsDisabled();
+   }
+   else
+   {
+      m_mcmcTab->setOptimalCaseButtonsEnabled();
+   }
 
    if (m_casaScenario.isStageComplete(StageTypesUA::mcmc))
    {
@@ -182,11 +197,23 @@ void MCMCController::slotPushButtonRunOptimalCasesClicked()
       return;
    }
 
-   DataFileParser<double> fileParser(optimal.absoluteDirectory() + m_casaScenario.runCasesObservablesTextFileName());
+   QString filePath = optimal.absoluteDirectory() + m_casaScenario.runCasesObservablesTextFileName();
 
-   const QVector<double> observableValues = fileParser.rowDominantMatrix()[0];
+   QVector<QString> colNames;
+   QVector<double> observableValues;
+   try
+   {
+      observableValues = DataFileParser<double>::parseFileWithHeaderRowDominant(filePath,colNames)[0];
+   }
+   catch (const std::exception& e)
+   {
+      Logger::log() << e.what() << Logger::endl();
+   }
+
+   m_casaScenario.setOptimalValuesTargetQCs(observableValues,colNames);
+
    QVector<int> calibrationTargetIndices = m_casaScenario.calibrationDataObservablesIndexRange();
-   if (calibrationTargetIndices.back()-1 > observableValues.size())
+   if (calibrationTargetIndices.size() == 0 || calibrationTargetIndices.back()-1 > observableValues.size())
    {
       Logger::log() << "Calculation of RMSE failed due to insufficient calibration targets." << Logger::endl();
    }
@@ -234,18 +261,18 @@ void MCMCController::slotPushButtonExportMcmcOutputClicked()
 
    if (exportData.targetData.empty())
    {
-     Logger::log() << "No data to export." << Logger::endl();
-     return;
+      Logger::log() << "No data to export." << Logger::endl();
+      return;
    }
    QString fileName = QFileDialog::getSaveFileName(m_mcmcTab, "Save as", QDir::currentPath(), "comma separated file (*.csv)");
    if (fileName == "")
    {
-     return;
+      return;
    }
 
    if (!fileName.endsWith(".csv"))
    {
-     fileName += ".csv";
+      fileName += ".csv";
    }
 
    McmcOutputWriter::writeToFile(fileName,exportData);

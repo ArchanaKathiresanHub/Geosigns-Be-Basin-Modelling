@@ -35,8 +35,6 @@ protected:
   QString writeLoadState(const QString& stateFilename) const;
   QString writeDoeTextList(const QStringList& doeList) const;
 
-  QString mapWizardToCasaName(const QString& wizardName) const;
-
   const QString stopExecFilename_{"stop_exec_scenario"};
 
 private:

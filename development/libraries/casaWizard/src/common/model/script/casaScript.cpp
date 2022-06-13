@@ -96,15 +96,6 @@ QString CasaScript::writeDoeTextList(const QStringList& doeList) const
   return QString("\"" + doeList.join(",") + "\"");
 }
 
-QString CasaScript::mapWizardToCasaName(const QString& wizardName) const
-{
-  if (wizardName == "VRe")
-  {
-    return QString("Vr");
-  }
-  return wizardName;
-}
-
 bool CasaScript::validateBaseScenario() const
 {
   if (scenario().project3dPath().isEmpty())

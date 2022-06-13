@@ -9,6 +9,7 @@
 // 
 
 #include "StringHandler.h"
+#include <regex>
 
 void StringHandler::parseLine( const std::string& theString, const char& theDelimiter, std::vector<std::string>& theTokens )
 {
@@ -31,3 +32,14 @@ void StringHandler::parseLine( const std::string& theString, const char& theDeli
       startPos += increment + 1;
    }
 }
+
+std::string StringHandler::implode( const std::vector<std::string> & vos, const char * delim, size_t st )
+{
+   std::ostringstream ret;
+   for ( size_t i = st; i < vos.size(); ++i )
+   {
+      ret << (i == st ? "" : delim ) << vos[i];
+   }
+   return ret.str();
+}
+

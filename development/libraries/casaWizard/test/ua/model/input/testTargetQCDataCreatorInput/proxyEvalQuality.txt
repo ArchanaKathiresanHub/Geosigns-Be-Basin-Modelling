@@ -1,0 +1,4 @@
+XYPointLayerTopSurface_Temperature_196750_606750_Layer1_0.0_1.0_1.0
+9.99956783e-01
+9.99956783e-01
+9.99416564e-01

@@ -6,8 +6,6 @@ configure_file( McmcOutputExpectedSpecialCharacters.csv McmcOutputExpectedSpecia
 
 add_casawizard_ua_gtest( NAME McmcDataCollector
                          SOURCES TestMcmcDataCollector.cpp)
-configure_file( runCasesObservables.txt runCasesObservables.txt COPYONLY )
-configure_file( proxyEvalObservables.txt proxyEvalObservables.txt COPYONLY )
 
 add_casawizard_ua_gtest( NAME RunCaseSetFileManager
                          SOURCES testRunCaseSetFileManager.cpp )

@@ -33,6 +33,8 @@ namespace qtutils {
    QString escapeSpecialCharacters(QString str);
    QString replaceCharsNotAllowedInExcelTabsBy_(QString str);
 
+   bool isEqual(const QVector<QString>& strVec1, const QVector<QString>& strVec2);
+
    QString isValidNoOfProcs(QString noOfProcs);
 	QString getOutpurDirNameFromP3FileName(QString pathToP3File);
 	bool delay(int secs);

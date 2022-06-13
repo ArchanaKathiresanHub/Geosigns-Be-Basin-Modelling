@@ -16,6 +16,8 @@
 #include <string>
 #include <vector>
 
+#include "ConstantsNumerical.h"
+
 
 namespace ddd
 {
@@ -643,13 +645,13 @@ namespace DataAccess
       typedef std::vector<SimulationDetails*> MutableSimulationDetailsList;
 
       /// Value for undefined used in maps
-      const double DefaultUndefinedMapValue = 99999;
+      const double DefaultUndefinedMapValue = Utilities::Numerical::CauldronNoDataValue;
       /// Value for undefined used in maps
-      const int DefaultUndefinedMapValueInteger = 99999;
+      const int DefaultUndefinedMapValueInteger = Utilities::Numerical::CauldronNoDataValueInt;
       /// Value for undefined used in project files
-      const double DefaultUndefinedScalarValue = -9999;
+      const double DefaultUndefinedScalarValue = Utilities::Numerical::IbsNoDataValue;
       const double RecordValueUndefined = DefaultUndefinedScalarValue;
-      const int    DefaultUndefinedScalarIntValue = -9999;
+      const int    DefaultUndefinedScalarIntValue = Utilities::Numerical::IbsNoDataValueInt;
 
 
       /// Must correspond to the FaultStatus in Migration

@@ -121,6 +121,12 @@ namespace casa
       /// @param id run case ID
       void setID( size_t id ) { m_id = id; }
 
+      virtual std::vector<const casa::ObsValue*> getDoubleObsValues() const;
+      virtual std::vector<double> extractObservableValues()  const;
+      virtual std::vector<std::string> extractObservableNames() const;
+      virtual std::vector<std::string> extractParameterNames() const;
+      virtual std::vector<double> extractParametersValuesAsDouble() const;
+
    private:
       std::unique_ptr<mbapi::Model>    m_model;                // Mutated model, available after mutateCaseTo call
       std::string                      m_modelProjectFileName; // full path to the project file

@@ -300,5 +300,87 @@ namespace casa
          throw ErrorHandler::Exception( ErrorHandler::DeserializationError ) << "RunCaseImpl deserialization error";
       }
    }
+
+   std::vector<const casa::ObsValue*> RunCaseImpl::getDoubleObsValues() const
+   {
+      std::vector<const casa::ObsValue*> doubleObservables;
+
+      for (size_t j = 0; j < observablesNumber(); ++j)
+      {
+         const casa::ObsValue* obv = obsValue(j);
+
+         if (!obv->isDouble())
+         {
+            continue;
+         }
+         doubleObservables.push_back(obv);
+      }
+      return doubleObservables;
+   }
+
+   std::vector<double> RunCaseImpl::extractObservableValues() const
+   {
+      std::vector<double> result;
+      std::vector<const casa::ObsValue*> doubleObsValues = getDoubleObsValues();
+      for (auto obv : doubleObsValues)
+      {
+         const std::vector<double>& vals = obv->asDoubleArray();
+         result.insert(result.end(), vals.begin(), vals.end());
+      }
+      return result;
+   }
+
+   std::vector<std::string> RunCaseImpl::extractObservableNames() const
+   {
+      std::vector<std::string> obsNames;
+      std::vector<const casa::ObsValue*> doubleObsValues = getDoubleObsValues();
+      for (auto obv : doubleObsValues)
+      {
+         const std::vector<std::string>& names = obv->parent()->name();
+         obsNames.insert(obsNames.end(),names.begin(),names.end());
+      }
+      return obsNames;
+   }
+
+   std::vector<std::string> RunCaseImpl::extractParameterNames() const
+   {
+      std::vector<std::string> paramNames;
+      for (size_t j = 0; j < parametersNumber(); ++j)
+      {
+         const casa::Parameter* prm = parameter(j).get();
+         const std::vector<std::string>& names = prm->parent()->name();
+         paramNames.insert(paramNames.end(),names.begin(),names.end());
+      }
+      return paramNames;
+   }
+
+   std::vector<double> RunCaseImpl::extractParametersValuesAsDouble() const
+   {
+      std::vector<double> result;
+      for (size_t j = 0; j < parametersNumber(); ++j)
+      {
+         const casa::Parameter* prm = parameter(j).get();
+
+         if (!prm || !prm->parent()) continue;
+
+         switch (prm->parent()->variationType())
+         {
+         case casa::VarParameter::Continuous:
+         case casa::VarParameter::Discrete:
+         {
+            const std::vector<double>& vals = prm->asDoubleArray();
+            result.insert(result.end(), vals.begin(), vals.end());
+         }
+            break;
+
+         case casa::VarParameter::Categorical:
+            result.push_back(prm->asInteger());
+            break;
+
+         default: assert(false); break;
+         }
+      }
+      return result;
+   }
 }
 

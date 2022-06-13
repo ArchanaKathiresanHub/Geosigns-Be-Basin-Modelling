@@ -36,6 +36,7 @@ create_bm_library( TARGET ${LIB_NAME}
                              modelpseudo1dlib
                              NNlib
                              WorkLoadManagers
+                             utilities
                              ${Boost_LIBRARIES} )
 
 if (UNIX)

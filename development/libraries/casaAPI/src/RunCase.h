@@ -128,7 +128,14 @@ namespace casa
       /// @brief Creates a shallow copy which only contains the parameters
       virtual std::shared_ptr<RunCase> shallowCopy() const = 0;
 
-   protected:
+
+      virtual std::vector<const casa::ObsValue*> getDoubleObsValues() const = 0;
+      virtual std::vector<double> extractObservableValues()  const = 0;
+      virtual std::vector<std::string> extractObservableNames() const = 0;
+      virtual std::vector<std::string> extractParameterNames() const = 0;
+      virtual std::vector<double> extractParametersValuesAsDouble() const = 0;
+
+   protected:      
       RunCase() { }
    };
 

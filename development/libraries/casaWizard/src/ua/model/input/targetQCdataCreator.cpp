@@ -5,8 +5,9 @@
 #include "model/targetParameterMapCreator.h"
 #include "model/uaScenario.h"
 
-#include <set>
+#include "Qt_Utils.h"
 
+#include <set>
 #include <cmath>
 
 namespace casaWizard
@@ -28,15 +29,27 @@ void readTargetQCs(UAScenario& scenario)
     return;
   }
 
-  const DataFileParser<double> parserRunCases(scenario.workingDirectory() + "/" + scenario.runCasesObservablesTextFileName());
-  const DataFileParser<int> parserDoeIndices(scenario.workingDirectory() + "/" + scenario.doeIndicesTextFileName());
-  const DataFileParser<double> parserProxyEvaluation(scenario.workingDirectory() + "/" + scenario.proxyEvaluationObservablesTextFileName());
-  const DataFileParser<double> parserProxyQualityEvaluation(scenario.workingDirectory() + "/" + scenario.proxyQualityEvaluationTextFileName());
+  QString obsFileName = scenario.workingDirectory() + "/" + scenario.runCasesObservablesTextFileName();
+  QString doeIndicesFileName = scenario.workingDirectory() + "/" + scenario.doeIndicesTextFileName();
+  QString proxyEvalFileName = scenario.workingDirectory() + "/" + scenario.proxyEvaluationObservablesTextFileName();
+  QString proxyQualityFileName = scenario.workingDirectory() + "/" + scenario.proxyQualityEvaluationTextFileName();
 
-  const QVector<QVector<double>> runCasesObservables = parserRunCases.matrixData();
-  const QVector<QVector<int>> doeIndices = parserDoeIndices.rowDominantMatrix();
-  const QVector<QVector<double>> proxyEvaluationObservables = parserProxyEvaluation.matrixData();
-  const QVector<QVector<double>> proxyQualityEvaluation = parserProxyQualityEvaluation.matrixData();
+  QVector<QString> obsIdentifiersRunCaseObservables;
+  const QVector<QVector<double>> runCasesObservables = DataFileParser<double>::parseFileWithHeaderColDominant(obsFileName,obsIdentifiersRunCaseObservables);
+  const QVector<QVector<int>> doeIndices = DataFileParser<int>::rowDominantMatrix(doeIndicesFileName);
+
+  QVector<QString> obsIdentifiersEvalObservables;
+  const QVector<QVector<double>> proxyEvaluationObservables = DataFileParser<double>::parseFileWithHeaderColDominant(proxyEvalFileName,obsIdentifiersEvalObservables);
+
+  QVector<QString> obsIdentifiersProxyQuality;
+  const QVector<QVector<double>> proxyQualityEvaluation = DataFileParser<double>::parseFileWithHeaderColDominant(proxyQualityFileName,obsIdentifiersProxyQuality);
+
+  if (!qtutils::isEqual(obsIdentifiersRunCaseObservables,obsIdentifiersEvalObservables)
+      || !qtutils::isEqual(obsIdentifiersEvalObservables, obsIdentifiersProxyQuality))
+  {
+     Logger::log() << "Incompatible header names in observbles, proxy observables, or proxyQuality files." << Logger::endl();
+     return;
+  }
 
   if (runCasesObservables.size() == 0
    || runCasesObservables.size() != proxyEvaluationObservables.size()
@@ -94,6 +107,7 @@ void readTargetQCs(UAScenario& scenario)
     TargetQC targetQC(targetIndex,
                       calibrationTargetManager.getCauldronPropertyName(calibrationTarget->propertyUserName()),
                       calibrationTarget->name(),
+                      obsIdentifiersRunCaseObservables[targetIndex],
                       true, // is calibration
                       calibrationTarget->value(),
                       calibrationTarget->standardDeviation(),
@@ -110,18 +124,29 @@ void readTargetQCs(UAScenario& scenario)
   {
      for (const QString& property : predictionTarget->properties())
      {
-        TargetQC targetQC(targetIndex,
-                          property,
-                          predictionTarget->name(property),
-                          false, // is not calibration
-                          0.0, // value
-                          0.0, // standard deviation
-                          proxyQualityEvaluation[targetIndex][0], // R2
-                          proxyQualityEvaluation[targetIndex][1], // R2Adj
-                          proxyQualityEvaluation[targetIndex][2], // Q2
-                          runCasesObservablesOfTargetQC[targetIndex],
-                          proxyEvaluationObservables[targetIndex]);
-        targetQCs.push_back(targetQC);
+        QString targetId = predictionTarget->identifier(property);
+        QString obsId = obsIdentifiersEvalObservables[targetIndex];
+        if (targetId == obsId)
+        {
+           TargetQC targetQC(targetIndex,
+                             property,
+                             predictionTarget->name(property),
+                             targetId,
+                             false, // is not calibration
+                             0.0, // value
+                             0.0, // standard deviation
+                             proxyQualityEvaluation[targetIndex][0], // R2
+                             proxyQualityEvaluation[targetIndex][1], // R2Adj
+                             proxyQualityEvaluation[targetIndex][2], // Q2
+                             runCasesObservablesOfTargetQC[targetIndex],
+                             proxyEvaluationObservables[targetIndex]);
+           targetQCs.push_back(targetQC);
+        }
+        else
+        {
+            Logger::log() << "Warning: Mismatch target identifier: " <<  targetId << " and observable Id: " << obsId << " Qc target is not created." << Logger::endl();
+        }
+
         targetIndex++;
      }
   }

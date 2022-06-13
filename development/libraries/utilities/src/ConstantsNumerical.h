@@ -22,10 +22,14 @@ namespace Utilities
    namespace Numerical {
       /// \brief Unsigned int no data value used accross all ibs libraries and applications
       constexpr unsigned int UnsignedIntNoDataValue = std::numeric_limits<unsigned int>::max();
+      /// \brief Negative no data value used accross all ibs libraries and applications, integer
+      constexpr int IbsNoDataValueInt         = -9999;
       /// \brief Negative no data value used accross all ibs libraries and applications
-      constexpr double IbsNoDataValue         = -9999;
+      constexpr double IbsNoDataValue         = double(IbsNoDataValueInt);
+      /// \brief Positive no data value used accross all ibs libraries and applications, integer
+      constexpr int CauldronNoDataValueInt    = 99999;
       /// \brief Positive no data value used accross all ibs libraries and applications
-      constexpr double CauldronNoDataValue    = 99999;
+      constexpr double CauldronNoDataValue    = double(CauldronNoDataValueInt);
       /// \brief The maximum number of characters allowed for a command line options
       constexpr int    MaxLineSize            = 512;
       /// \brief Genex positive no data value used accross all ibs libraries and applications

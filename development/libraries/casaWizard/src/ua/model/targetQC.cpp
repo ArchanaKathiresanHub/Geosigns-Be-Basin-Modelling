@@ -9,9 +9,10 @@ namespace casaWizard
 namespace ua
 {
 
-TargetQC::TargetQC(const double id,
+TargetQC::TargetQC(const int id,
                    const QString& property,
                    const QString& name,
+                   const QString& identifier,
                    const bool calibration,
                    const double value,
                    const double standardDeviation,
@@ -19,10 +20,12 @@ TargetQC::TargetQC(const double id,
                    const double R2Adj,
                    const double Q2,
                    const QVector<double>& y,
-                   const QVector<double>& yProxy) :
+                   const QVector<double>& yProxy,
+                   const double yOptimalSim) :
   id_{id},
   property_{property},
   name_{name},
+  identifier_{identifier},
   calibration_{calibration},
   value_{value},
   standardDeviation_{standardDeviation},
@@ -30,7 +33,8 @@ TargetQC::TargetQC(const double id,
   R2Adj_{R2Adj},
   Q2_{Q2},
   y_{y},
-  yProxy_{yProxy}
+  yProxy_{yProxy},
+  m_yOptimalSim{yOptimalSim}
 {
 }
 
@@ -41,11 +45,12 @@ int TargetQC::version() const
 
 TargetQC TargetQC::read(const int /*version*/, const QStringList& p)
 {
-  return TargetQC
+  TargetQC target
   {
     p[0].toInt(),
     p[1],
     p[2],
+    "",
     p[3]=="1",
     p[4].toDouble(),
     p[5].toDouble(),
@@ -55,6 +60,12 @@ TargetQC TargetQC::read(const int /*version*/, const QStringList& p)
     scenarioIO::vectorFromRead(p[9]),
     scenarioIO::vectorFromRead(p[10])
   };
+
+  if (p.size() >= 12)
+  {
+      target.setValOptimalSim(p[11].toDouble());
+  }
+  return target;
 }
 
 QStringList TargetQC::write() const
@@ -63,6 +74,7 @@ QStringList TargetQC::write() const
   out << QString::number(id_)
       << property_
       << name_
+      << identifier_
       << (calibration_?"1":"0")
       << scenarioIO::doubleToQString(value_)
       << scenarioIO::doubleToQString(standardDeviation_)
@@ -70,8 +82,19 @@ QStringList TargetQC::write() const
       << scenarioIO::doubleToQString(R2Adj_)
       << scenarioIO::doubleToQString(Q2_)
       << scenarioIO::vectorToWrite(y_)
-      << scenarioIO::vectorToWrite(yProxy_);
+      << scenarioIO::vectorToWrite(yProxy_)
+      << scenarioIO::doubleToQString(m_yOptimalSim);
   return out;
+}
+
+void TargetQC::setValOptimalSim(double vOptimalSim)
+{
+   m_yOptimalSim = vOptimalSim;
+}
+
+double TargetQC::yOptimalSim() const
+{
+   return m_yOptimalSim;
 }
 
 int TargetQC::id() const
@@ -87,6 +110,11 @@ QString TargetQC::property() const
 QString TargetQC::name() const
 {
   return name_;
+}
+
+QString TargetQC::identifier() const
+{
+   return identifier_;
 }
 
 bool TargetQC::calibration() const

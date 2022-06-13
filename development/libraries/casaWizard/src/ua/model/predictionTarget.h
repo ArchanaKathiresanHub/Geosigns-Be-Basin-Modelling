@@ -21,10 +21,14 @@ public:
   virtual int version() const = 0;
   virtual QStringList write() const = 0;
   virtual QString name(const QString& property) const = 0;
+  virtual QString identifier(const QString& property) const = 0;
   virtual QString nameWithoutAge() const = 0;
   virtual QString variable() const = 0;
   virtual QString typeName() const = 0;
   virtual QString surfaceName() const;
+  virtual QString casaCommand(const QString& property) const = 0;
+
+  static QString casaCommandFromStrVec(std::vector<std::string> stringVec);
 
   virtual PredictionTarget* createCopy() const = 0;
 

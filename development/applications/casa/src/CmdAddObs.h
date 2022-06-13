@@ -12,7 +12,6 @@
 
 #include "CasaCmd.h"
 
-
 /// @brief Add new observable definition to scenario
 class CmdAddObs : public CasaCmd
 {

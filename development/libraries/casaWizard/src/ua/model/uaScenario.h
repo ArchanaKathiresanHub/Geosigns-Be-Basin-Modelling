@@ -75,6 +75,7 @@ public:
 
   QVector<TargetQC> targetQCs() const;
   void setTargetQCs(const QVector<TargetQC>& targetQCs);
+  void setOptimalValuesTargetQCs(const QVector<double>& values, const QVector<QString> colNames);
 
   QVector<double> calibrationTargetDataBestMC() const;
   QVector<double> predictionTargetDataBestMC() const;

@@ -4,6 +4,9 @@
 #include "predictionTarget.h"
 #include <memory>
 
+#include <vector>
+#include <string>
+
 namespace casaWizard
 {
 
@@ -21,11 +24,16 @@ public:
   int version() const override;
   QStringList write() const override;
   QString name(const QString& property) const override;
+  QString identifier(const QString& property) const override;
   QString nameWithoutAge() const override;
   QString variable() const override;
   QString typeName() const override;
+  QString casaCommand(const QString& property) const override;
 
   PredictionTarget* createCopy() const override;
+
+private:
+  std::vector<std::string> identifierStringVec(const QString& property) const;
 };
 
 } // namespace ua

@@ -10,13 +10,12 @@
 #include "McmcTargetExportData.h"
 
 #include "model/doeOption.h"
-#include "model/input/dataFileParser.h"
 #include "model/logger.h"
 #include "model/monteCarloDataManager.h"
 #include "model/percentileGenerator.h"
 #include "model/script/runOptimalCaseScript.h"
+#include "model/targetQC.h"
 #include "model/uaScenario.h"
-
 
 #include <QMap>
 
@@ -42,7 +41,6 @@ McmcTargetExportData McmcOutputDataCollector::collectMcmcOutputData(const UAScen
 void McmcOutputDataCollector::collectMcmcOutputDataPrivate()
 {
    readBaseCase();
-   readOptimalCase();
    collectPredictionTargetData();
 }
 
@@ -82,19 +80,6 @@ void McmcOutputDataCollector::readBaseCase()
    {
       readValuesFromTargetQcs();
    }
-   else
-   {
-      readValuesFromObservableFiles();
-   }
-}
-
-void McmcOutputDataCollector::readValuesFromObservableFiles()
-{
-   QString fileName = m_scenario.workingDirectory() + "/" + m_scenario.runCasesObservablesTextFileName();
-   m_baseCaseSimValues = readPredictionTargetsFirstRowObservables(fileName);
-
-   fileName = m_scenario.workingDirectory() + "/" + m_scenario.proxyEvaluationObservablesTextFileName();
-   m_baseCaseProxyValues = readPredictionTargetsFirstRowObservables(fileName);
 }
 
 void McmcOutputDataCollector::readValuesFromTargetQcs()
@@ -105,6 +90,7 @@ void McmcOutputDataCollector::readValuesFromTargetQcs()
 
    m_baseCaseSimValues.resize(0);
    m_baseCaseProxyValues.resize(0);
+   m_optimalCaseSimValues.resize(0);
 
    for (int predictionTargetIdx : idxRange)
    {
@@ -114,38 +100,11 @@ void McmcOutputDataCollector::readValuesFromTargetQcs()
           {
              m_baseCaseSimValues.push_back(qcTarget.y().first());
              m_baseCaseProxyValues.push_back(qcTarget.yProxy().first());
+             m_optimalCaseSimValues.push_back(qcTarget.yOptimalSim());
              break;
           }
        }
    }
-}
-
-void McmcOutputDataCollector::readOptimalCase()
-{
-   const RunOptimalCaseScript optimal{m_scenario};
-   const QString fileName = optimal.absoluteDirectory() + m_scenario.runCasesObservablesTextFileName();
-   m_optimalCaseSimValues = readPredictionTargetsFirstRowObservables(fileName);
-}
-
-QVector<double> McmcOutputDataCollector::readPredictionTargetsFirstRowObservables(QString fileName) const
-{
-   QFile file{fileName};
-
-   if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
-   {
-      return QVector<double>();
-   }
-
-   const DataFileParser<double> fileParser(fileName);
-   const QVector<QVector<double>> mat = fileParser.rowDominantMatrix();
-
-   if (mat.size() == 0)
-   {
-      Logger::log() << "Export MCMC data: Couldn't read target data from file: " << fileName << Logger::endl();
-      return QVector<double>();
-   }
-
-   return getPredictionData(mat[0]);
 }
 
 QVector<double> McmcOutputDataCollector::getPredictionData(const QVector<double>& values) const
@@ -173,6 +132,7 @@ void McmcOutputDataCollector::collectPredictionTargetData()
 
    const MonteCarloDataManager& monteCarloData = m_scenario.monteCarloDataManager();
    const QVector<QVector<double>>& predictionTargetMatrix = monteCarloData.predictionTargetMatrix();
+   const QVector<QString>& predictionTargetIdentifiers = monteCarloData.predictionTargetIdentifiers();
    const QVector<double>& optimalValuesProxy = m_scenario.predictionTargetDataBestMC();
 
    //Only write the data that could be collected (enables data writing before performing MCMC):
@@ -227,12 +187,31 @@ void McmcOutputDataCollector::collectPredictionTargetData()
 
          if (writePercentiles)
          {
-            const QVector<double>& targetValues = predictionTargetMatrix.at(indexInPredictionTargetMatrix);
-            const QVector<double> quartileTargets{0.1, 0.5, 0.9};
-            const QVector<double> percentiles = percentileGenerator::getPercentileValues(targetValues, quartileTargets);
-            targetData.p10 = *percentiles.begin();
-            targetData.p50 = percentiles.at(1);
-            targetData.p90 = percentiles.back();
+            QString targetIdentifier = target->identifier(propertyName);
+            bool identifierComparisonPassed(false);
+            if (predictionTargetIdentifiers.size() == 0)
+            {
+               identifierComparisonPassed = true;
+            }
+            else if (predictionTargetIdentifiers.size() > indexInPredictionTargetMatrix &&
+                     predictionTargetIdentifiers.at(indexInPredictionTargetMatrix) == targetIdentifier)
+            {
+               identifierComparisonPassed = true;
+            }
+
+            if (identifierComparisonPassed)
+            {
+               const QVector<double>& targetValues = predictionTargetMatrix.at(indexInPredictionTargetMatrix);
+               const QVector<double> quartileTargets{0.1, 0.5, 0.9};
+               const QVector<double> percentiles = percentileGenerator::getPercentileValues(targetValues, quartileTargets);
+               targetData.p10 = *percentiles.begin();
+               targetData.p50 = percentiles.at(1);
+               targetData.p90 = percentiles.back();
+            }
+            else
+            {
+               Logger::log() << "Error: Mismatch between wizard and casa prediction target identifiers. Target output not written." << Logger::endl();
+            }
          }
 
          if (writeOptimalValuesProxy)  targetData.optimalProxy = optimalValuesProxy.at(indexInPredictionTargetMatrix);

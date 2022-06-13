@@ -31,7 +31,7 @@ public:
 
 private:
    template<class T>
-   void saveResults(const std::vector<std::vector<T>>& res);
+   void saveResults(const std::vector<std::vector<T>>& res, const std::vector<std::string>* headers = nullptr);
 
    void exportParameters(std::unique_ptr<casa::ScenarioAnalysis>& scenario);
    void exportRunCaseObs(std::unique_ptr<casa::ScenarioAnalysis>& scenario);
@@ -42,6 +42,8 @@ private:
    void exportMCResults(std::unique_ptr<casa::ScenarioAnalysis>& scenario);
    const std::vector<std::vector<double>> rsQualityR2AndR2adj(std::unique_ptr<casa::ScenarioAnalysis>& scenario) const;
    const std::vector<double> rsQualityQ2(std::unique_ptr<casa::ScenarioAnalysis>& scenario);
+
+   const std::vector<std::string> obsNames(const casa::ScenarioAnalysis& scenario) const;
 
    std::string                  m_whatToSave;   ///< DoEParameters/RunCasesObservables/ProxyEvalObservables
    std::string                  m_proxyName;    ///< Name of Response Surface proxy

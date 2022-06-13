@@ -32,12 +32,8 @@ private:
    void collectCalibrationTargetData();
 
    void readBaseCase();
-   void readOptimalCase();
-
    void readValuesFromTargetQcs();
-   void readValuesFromObservableFiles();
 
-   QVector<double> readPredictionTargetsFirstRowObservables(QString fileName) const;
    QVector<double> getPredictionData(const QVector<double>& values) const;
 
    const UAScenario& m_scenario;

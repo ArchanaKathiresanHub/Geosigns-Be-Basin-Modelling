@@ -14,6 +14,7 @@
 #include "casaAPI.h"
 
 #include "LogHandler.h"
+#include "StringHandler.h"
 
 #include <cstdlib>
 #include <iostream>
@@ -69,7 +70,7 @@ void CmdAddCldApp::execute( std::unique_ptr<casa::ScenarioAnalysis> & sa )
    if ( m_cpus < 0 ) { m_cpus = 1; } // if not - set it to 1
 
    LogHandler( LogHandler::INFO_SEVERITY ) << "Add cauldron application to calculation pipeline " << m_prms[p - 1] << "(" <<
-                                 CfgFileParser::implode( m_prms, ",", p ) << ")";
+                                 StringHandler::implode( m_prms, ",", p ) << ")";
 
    casa::CauldronApp * app = 0;
 

@@ -13,6 +13,7 @@
 #include "CmdAddVarPrm.h"
 #include "UndefinedValues.h"
 #include "CfgFileParser.h"
+#include "StringHandler.h"
 
 #include "PrmEquilibriumOceanicLithosphereThickness.h"
 #include "PrmInitialLithosphericMantleThickness.h"
@@ -1611,7 +1612,7 @@ CmdAddVarPrm::CmdAddVarPrm( CasaCommander & parent, const std::vector< std::stri
 void CmdAddVarPrm::execute( std::unique_ptr<casa::ScenarioAnalysis> & sa )
 {
    LogHandler( LogHandler::INFO_SEVERITY ) << "Add variable parameter: " << ( m_prmName.empty() ?
-                                                                  (m_prms[0] + "(" + CfgFileParser::implode( m_prms, ",", 1 ) + ")") :
+                                                                  (m_prms[0] + "(" + StringHandler::implode( m_prms, ",", 1 ) + ")") :
                                                                   (m_prmName)
                                                               );
 

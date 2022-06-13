@@ -41,9 +41,6 @@ public:
 
    static bool isNumericPrm( const std::string & prm );
 
-   // join array of string to one string separated with given delimiter
-   static std::string implode( const std::vector<std::string> & vos, const char * delim, size_t st = 0 );
-
 protected:
 };
 

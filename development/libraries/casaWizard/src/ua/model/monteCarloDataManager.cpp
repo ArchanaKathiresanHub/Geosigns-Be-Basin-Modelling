@@ -13,115 +13,154 @@ MonteCarloDataManager::MonteCarloDataManager(const QVector<double>& rmseVector,
                                              const QVector<QVector<double>>& influentialParameterMatrix,
                                              const QVector<QVector<double>>& calibrationTargetMatrix,
                                              const QVector<QVector<double>>& predictionTargetMatrix) :
-  rmse_{rmseVector},
-  influentialParameterMatrix_{influentialParameterMatrix},
-  calibrationTargetMatrix_{calibrationTargetMatrix},
-  predictionTargetMatrix_{predictionTargetMatrix},
-  rmseOptimalRunCase_{-9999}
+   m_rmse{rmseVector},
+   m_influentialParameterMatrix{influentialParameterMatrix},
+   m_calibrationTargetMatrix{calibrationTargetMatrix},
+   m_predictionTargetMatrix{predictionTargetMatrix},
+   m_rmseOptimalRunCase{-9999}
 {
 }
 
 void MonteCarloDataManager::writeToFile(ScenarioWriter& writer) const
 {
-  writer.writeValue("MonteCarloDataManagerVersion", 0);
-  writer.writeValue("mcmcRMSE", rmse_);
-  writer.writeValue("mcmcInfluentialParameters", influentialParameterMatrix_);
-  writer.writeValue("mcmcCalibrationTargets", calibrationTargetMatrix_);
-  writer.writeValue("mcmcPredictionTargets", predictionTargetMatrix_);
-  writer.writeValue("mcmcRMSEOPtimalRunCase", rmseOptimalRunCase_);
+   writer.writeValue("MonteCarloDataManagerVersion", 0);
+   writer.writeValue("mcmcRMSE", m_rmse);
+   writer.writeValue("mcmcInfluentialParameters", m_influentialParameterMatrix);
+   writer.writeValue("mcmcCalibrationTargets", m_calibrationTargetMatrix);
+   writer.writeValue("mcmcPredictionTargets", m_predictionTargetMatrix);
+   writer.writeValue("mcmcRMSEOPtimalRunCase", m_rmseOptimalRunCase);
+   writer.writeValue("mcmcInfluentialParameterIdentifiers", m_influentialParameterIdentifiers);
+   writer.writeValue("mcmcCalibrationTargetIdentifiers", m_calibrationTargetIdentifiers);
+   writer.writeValue("mcmcPredictionTargetIdentifiers", m_predictionTargetIdentifiers);
 }
 
 void MonteCarloDataManager::readFromFile(const ScenarioReader& reader)
 {
-  rmse_ = reader.readVector<double>("mcmcRMSE");
-  influentialParameterMatrix_ = reader.readVector<QVector<double>>("mcmcInfluentialParameters");
-  calibrationTargetMatrix_ = reader.readVector<QVector<double>>("mcmcCalibrationTargets");
-  predictionTargetMatrix_ = reader.readVector<QVector<double>>("mcmcPredictionTargets");
-  rmseOptimalRunCase_ = reader.readDouble("mcmcRMSEOPtimalRunCase");
+   m_rmse = reader.readVector<double>("mcmcRMSE");
+   m_influentialParameterMatrix = reader.readVector<QVector<double>>("mcmcInfluentialParameters");
+   m_calibrationTargetMatrix = reader.readVector<QVector<double>>("mcmcCalibrationTargets");
+   m_predictionTargetMatrix = reader.readVector<QVector<double>>("mcmcPredictionTargets");
+   m_rmseOptimalRunCase = reader.readDouble("mcmcRMSEOPtimalRunCase");
+   m_influentialParameterIdentifiers = reader.readVector<QString>("mcmcInfluentialParameterIdentifiers");
+   m_calibrationTargetIdentifiers = reader.readVector<QString>("mcmcCalibrationTargetIdentifiers");
+   m_predictionTargetIdentifiers = reader.readVector<QString>("mcmcCalibrationTargetIdentifiers");
 }
 
 void MonteCarloDataManager::clear()
 {
-  rmse_.clear();
-  influentialParameterMatrix_.clear();
-  calibrationTargetMatrix_.clear();
-  predictionTargetMatrix_.clear();
-  rmseOptimalRunCase_ = -9999;
+   m_rmse.clear();
+   m_influentialParameterMatrix.clear();
+   m_calibrationTargetMatrix.clear();
+   m_predictionTargetMatrix.clear();
+   m_rmseOptimalRunCase = -9999;
 }
 
 QVector<double> MonteCarloDataManager::rmse() const
 {
-  return rmse_;
+   return m_rmse;
 }
 
 void MonteCarloDataManager::setRmse(const QVector<double>& rmseVector)
 {
-  rmse_ = rmseVector;
+   m_rmse = rmseVector;
 }
 
 QVector<QVector<double>> MonteCarloDataManager::influentialParameterMatrix() const
 {
-  if (rmse_.isEmpty())
-  {
-    return {};
-  }
-  return influentialParameterMatrix_;
+   if (m_rmse.isEmpty())
+   {
+      return {};
+   }
+   return m_influentialParameterMatrix;
+}
+
+const QVector<QString>& MonteCarloDataManager::influentialParameterIdentifiers() const
+{
+   return m_influentialParameterIdentifiers;
+}
+
+void MonteCarloDataManager::setInfluentialParameterMatrix(const QVector<QVector<double>>& influentialParameterMatrix, const QVector<QString>& parameterIdentifiers)
+{
+   m_influentialParameterIdentifiers = parameterIdentifiers;
+   setInfluentialParameterMatrix(influentialParameterMatrix);
 }
 
 void MonteCarloDataManager::setInfluentialParameterMatrix(const QVector<QVector<double>>& influentialParameterMatrix)
 {
-  influentialParameterMatrix_ = influentialParameterMatrix;
+   m_influentialParameterMatrix = influentialParameterMatrix;
 }
 
 QVector<QVector<double>> MonteCarloDataManager::calibrationTargetMatrix() const
 {
-  if (rmse_.isEmpty())
-  {
-    return {};
-  }
-  return calibrationTargetMatrix_;
+   if (m_rmse.isEmpty())
+   {
+      return {};
+   }
+   return m_calibrationTargetMatrix;
+}
+
+const QVector<QString>& MonteCarloDataManager::calibrationTargetIdentifiers() const
+{
+   return m_calibrationTargetIdentifiers;
+}
+
+void MonteCarloDataManager::setCalibrationTargetMatrix(const QVector<QVector<double>>& calibrationTargetMatrix, const QVector<QString>& targetIdentifiers)
+{
+   m_calibrationTargetIdentifiers = targetIdentifiers;
+   setCalibrationTargetMatrix(calibrationTargetMatrix);
 }
 
 void MonteCarloDataManager::setCalibrationTargetMatrix(const QVector<QVector<double>>& calibrationTargetMatrix)
 {
-  calibrationTargetMatrix_ = calibrationTargetMatrix;
+   m_calibrationTargetMatrix = calibrationTargetMatrix;
 }
 
 QVector<QVector<double>> MonteCarloDataManager::predictionTargetMatrix() const
 {
-  if (rmse_.isEmpty())
-  {
-    return {};
-  }
-  return predictionTargetMatrix_;
+   if (m_rmse.isEmpty())
+   {
+      return {};
+   }
+   return m_predictionTargetMatrix;
+}
+
+const QVector<QString>& MonteCarloDataManager::predictionTargetIdentifiers() const
+{
+   return m_predictionTargetIdentifiers;
+}
+
+void MonteCarloDataManager::setPredictionTargetMatrix(const QVector<QVector<double>>& predictionTargetMatrix, const QVector<QString>& targetIdentifiers)
+{
+   m_predictionTargetIdentifiers = targetIdentifiers;
+   setPredictionTargetMatrix(predictionTargetMatrix);
 }
 
 void MonteCarloDataManager::setPredictionTargetMatrix(const QVector<QVector<double>>& predictionTargetMatrix)
 {
-  predictionTargetMatrix_ = predictionTargetMatrix;
+   m_predictionTargetMatrix = predictionTargetMatrix;
 }
 
 double MonteCarloDataManager::rmseOptimalRunCase() const
 {
-  return rmseOptimalRunCase_;
+   return m_rmseOptimalRunCase;
 }
 
 void MonteCarloDataManager::setRmseOptimalRunCase(double rmseOptimalRunCase)
 {
-  rmseOptimalRunCase_ = rmseOptimalRunCase;
+   m_rmseOptimalRunCase = rmseOptimalRunCase;
 }
 
 QVector<double> MonteCarloDataManager::getPoint(const int point) const
 {
-  const int influentialParameters = influentialParameterMatrix_.size();
+   const int influentialParameters = m_influentialParameterMatrix.size();
 
-  QVector<double> mcmcPoint(influentialParameters, 0);
-  for (int i = 0; i < influentialParameters; ++i)
-  {
-    mcmcPoint[i] = influentialParameterMatrix_[i][point];
-  }
+   QVector<double> mcmcPoint(influentialParameters, 0);
+   for (int i = 0; i < influentialParameters; ++i)
+   {
+      mcmcPoint[i] = m_influentialParameterMatrix[i][point];
+   }
 
-  return mcmcPoint;
+   return mcmcPoint;
 }
 
 

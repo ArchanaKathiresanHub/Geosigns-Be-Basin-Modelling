@@ -27,12 +27,18 @@ public:
   void setRmse(const QVector<double>& rmse);
 
   QVector<QVector<double>> influentialParameterMatrix() const;
+  const QVector<QString>& influentialParameterIdentifiers() const;
+  void setInfluentialParameterMatrix(const QVector<QVector<double>>& influentialParameterMatrix, const QVector<QString>& parameterIdentifiers);
   void setInfluentialParameterMatrix(const QVector<QVector<double>>& influentialParameterMatrix);
 
   QVector<QVector<double>> calibrationTargetMatrix() const;
+  const QVector<QString>& calibrationTargetIdentifiers() const;
+  void setCalibrationTargetMatrix(const QVector<QVector<double>>& calibrationTargetMatrix, const QVector<QString>& targetIdentifiers);
   void setCalibrationTargetMatrix(const QVector<QVector<double>>& calibrationTargetMatrix);
 
   QVector<QVector<double>> predictionTargetMatrix() const;
+  const QVector<QString>& predictionTargetIdentifiers() const;
+  void setPredictionTargetMatrix(const QVector<QVector<double>>& predictionTargetMatrix, const QVector<QString>& targetIdentifiers);
   void setPredictionTargetMatrix(const QVector<QVector<double>>& predictionTargetMatrix);
 
   double rmseOptimalRunCase() const;
@@ -44,11 +50,15 @@ private:
   MonteCarloDataManager(const MonteCarloDataManager&) = delete;
   MonteCarloDataManager& operator=(MonteCarloDataManager) = delete;
 
-  QVector<double> rmse_;
-  QVector<QVector<double>> influentialParameterMatrix_;
-  QVector<QVector<double>> calibrationTargetMatrix_;
-  QVector<QVector<double>> predictionTargetMatrix_;
-  double rmseOptimalRunCase_;
+  QVector<double> m_rmse;
+  QVector<QVector<double>> m_influentialParameterMatrix;
+  QVector<QVector<double>> m_calibrationTargetMatrix;
+  QVector<QVector<double>> m_predictionTargetMatrix;
+  QVector<QString> m_influentialParameterIdentifiers;
+  QVector<QString> m_calibrationTargetIdentifiers;
+  QVector<QString> m_predictionTargetIdentifiers;
+
+  double m_rmseOptimalRunCase;
 };
 
 } // namespace ua

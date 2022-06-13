@@ -22,11 +22,10 @@ void OptimizedLithofractionDataCreator::readCase(const int wellIndex, const int 
   const QString dataFolder = iterationPath() + "/Case_" + QString::number(caseIndex);
   const QString filePath{dataFolder + "/optimalLithofractions.txt"};
 
-  const DataFileParser<double> parser{filePath};
   QVector<double> values;
   try
   {
-    values = parser.rowDominantMatrix().last();
+    values = DataFileParser<double>::rowDominantMatrix(filePath).last();
   }
   catch( const std::exception& e )
   {

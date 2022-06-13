@@ -12,3 +12,6 @@ mcmcPredictionTargets|vector|2
 mcmcPredictionTargets|55.000000><56.000000
 mcmcPredictionTargets|65.000000><66.000000
 mcmcRMSEOPtimalRunCase|double|123.000000
+mcmcInfluentialParameterIdentifiers|vector|0
+mcmcCalibrationTargetIdentifiers|vector|0
+mcmcPredictionTargetIdentifiers|vector|0

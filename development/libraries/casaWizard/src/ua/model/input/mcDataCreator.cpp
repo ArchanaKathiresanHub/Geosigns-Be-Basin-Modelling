@@ -13,55 +13,59 @@ namespace mcDataCreator
 
 void setData(UAScenario& scenario)
 {
-  // Index of RMSE data in CASA text file for MC data.
-  const int indexRMSEmcDataCasaFile = 1;
+   // Index of RMSE data in CASA text file for MC data.
+   const int indexRMSEmcDataCasaFile = 1;
 
-  if (scenario.workingDirectory().isEmpty())
-  {
-    throw std::runtime_error("No working directory set");
-  }
+   if (scenario.workingDirectory().isEmpty())
+   {
+      throw std::runtime_error("No working directory set");
+   }
 
-  if (scenario.mcTextFileName().isEmpty())
-  {
-    throw std::runtime_error("No MC text file name set");
-  }
+   if (scenario.mcTextFileName().isEmpty())
+   {
+      throw std::runtime_error("No MC text file name set");
+   }
 
-  DataFileParser<double> parser{scenario.workingDirectory() + "/" + scenario.mcTextFileName()};
-  QVector<QVector<double>> mcSampleData = parser.matrixData();
+   QString filePath = scenario.workingDirectory() + "/" + scenario.mcTextFileName();
+   QVector<QString> columnNames;
+   QVector<QVector<double>> mcSampleData = DataFileParser<double>::parseFileWithHeaderColDominant(filePath,columnNames);
 
-  QVector<QVector<double>> influentialParameterMatrix;
-  QVector<QVector<double>> calibrationTargetMatrix;
-  QVector<QVector<double>> predictionTargetMatrix;
+   QVector<QVector<double>> influentialParameterMatrix;
+   QVector<QVector<double>> calibrationTargetMatrix;
+   QVector<QVector<double>> predictionTargetMatrix;
 
-  const InfluentialParameterManager& ipManager = scenario.influentialParameterManager();
-  const int endInfluential = 2 + ipManager.influentialParameters().size();
+   QVector<QString> influentialParameterIdentifiers;
+   QVector<QString> calibrationTargetIdentifiers;
+   QVector<QString> predictionTargetIdentifiers;
 
-  const CalibrationTargetManager& ctManager = scenario.calibrationTargetManager();
-  const int endCalibration = endInfluential + ctManager.amountOfActiveCalibrationTargets();
+   const InfluentialParameterManager& ipManager = scenario.influentialParameterManager();
+   const int endInfluential = 2 + ipManager.influentialParameters().size();
 
-  const PredictionTargetManager& ptManager = scenario.predictionTargetManager();
-  const int endPrediction = endCalibration + ptManager.amountOfPredictionTargetWithTimeSeriesAndProperties();
-  for (int i = 2; i < mcSampleData.size(); ++i)
-  {
-    if (i < endInfluential)
-    {
-      influentialParameterMatrix.push_back(mcSampleData[i]);
-    }
-    else if (i < endCalibration)
-    {
-      calibrationTargetMatrix.push_back(mcSampleData[i]);
-    }
-    else if (i < endPrediction)
-    {
-      predictionTargetMatrix.push_back(mcSampleData[i]);
-    }
-  }
+   const CalibrationTargetManager& ctManager = scenario.calibrationTargetManager();
+   const int endCalibration = endInfluential + ctManager.amountOfActiveCalibrationTargets();
 
-  MonteCarloDataManager& monteCarloDataManager = scenario.monteCarloDataManager();
-  monteCarloDataManager.setRmse(mcSampleData[indexRMSEmcDataCasaFile]);
-  monteCarloDataManager.setInfluentialParameterMatrix(influentialParameterMatrix);
-  monteCarloDataManager.setCalibrationTargetMatrix(calibrationTargetMatrix);
-  monteCarloDataManager.setPredictionTargetMatrix(predictionTargetMatrix);
+   const PredictionTargetManager& ptManager = scenario.predictionTargetManager();
+   const int endPrediction = endCalibration + ptManager.amountOfPredictionTargetWithTimeSeriesAndProperties();
+
+   if (endPrediction != mcSampleData.size())
+   {
+      throw std::runtime_error("Mismatch in targets and MCMC output size.");
+   }
+
+   influentialParameterMatrix = mcSampleData.mid(2,endInfluential-2);
+   influentialParameterIdentifiers = columnNames.mid(2,endInfluential-2);
+
+   calibrationTargetMatrix = mcSampleData.mid(endInfluential,endCalibration-endInfluential);
+   calibrationTargetIdentifiers = columnNames.mid(endInfluential,endCalibration-endInfluential);
+
+   predictionTargetMatrix = mcSampleData.mid(endCalibration,endPrediction-endCalibration);
+   predictionTargetIdentifiers = columnNames.mid(endCalibration,endPrediction-endCalibration);
+
+   MonteCarloDataManager& monteCarloDataManager = scenario.monteCarloDataManager();
+   monteCarloDataManager.setRmse(mcSampleData[indexRMSEmcDataCasaFile]);
+   monteCarloDataManager.setInfluentialParameterMatrix(influentialParameterMatrix,influentialParameterIdentifiers);
+   monteCarloDataManager.setCalibrationTargetMatrix(calibrationTargetMatrix,calibrationTargetIdentifiers);
+   monteCarloDataManager.setPredictionTargetMatrix(predictionTargetMatrix,predictionTargetIdentifiers);
 }
 
 } // namespace mcDataCreator
