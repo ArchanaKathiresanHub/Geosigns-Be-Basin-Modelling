@@ -20,7 +20,7 @@
 // CASA
 #include "CasaDeserializer.h"
 #include "JobSchedulerLocal.h"
-#include "jobSchedulerCluster.h"
+#include "JobSchedulerCluster.h"
 
 casa::JobScheduler * casa::JobScheduler::load( CasaDeserializer & dz, const char * objName )
 {

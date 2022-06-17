@@ -29,6 +29,7 @@ namespace casa
     size_t runTimeLim;
     JobScheduler::JobState jobstate;
     int ClusterJobID = -1;
+    int numberOfRuns = 0;
   };
 
   class JobSchedulerCluster : public JobScheduler
@@ -54,6 +55,8 @@ namespace casa
     JobState jobState(JobID job) override;
 
     bool cpusNumberByScheduler() override {return false;}
+
+    bool hasRunsLeft(JobID job) override;
 
     // version of serialized object representation
     virtual unsigned int version() const override { return 1; }

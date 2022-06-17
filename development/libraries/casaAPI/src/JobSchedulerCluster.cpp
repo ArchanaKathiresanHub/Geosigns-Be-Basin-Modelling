@@ -8,7 +8,7 @@
 
 #ifndef _WIN32
 
-#include "jobSchedulerCluster.h"
+#include "JobSchedulerCluster.h"
 
 #include "SDUWorkLoadManager.h"
 
@@ -84,6 +84,7 @@ std::string exec(const char* cmd) {
     m_jobs[job].ClusterJobID = workLoadManager_->getJobIDFromOutputOfSubmissionCommand(result);
 
     m_jobs[job].jobstate = jobState(job);
+    m_jobs[job].numberOfRuns++;
     return m_jobs[job].jobstate;
   }
 
@@ -141,7 +142,12 @@ std::string exec(const char* cmd) {
       return m_jobs[job].jobstate;
     }
 
-   return m_jobs[job].jobstate;
+    return m_jobs[job].jobstate;
+  }
+
+  bool JobSchedulerCluster::hasRunsLeft(JobScheduler::JobID job)
+  {
+     return m_jobs[job].numberOfRuns < 3;
   }
 }
 #endif

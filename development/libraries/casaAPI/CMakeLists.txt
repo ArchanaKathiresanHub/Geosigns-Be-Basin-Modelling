@@ -104,18 +104,13 @@ add_casa_gtest( NAME RunCaseSetTest SOURCES test/RunCaseSetTest.cpp)
 
 add_casa_gtest( NAME ObservableTest SOURCES test/ObservableTest.cpp )
 
+add_casa_gtest( NAME RunManagerTest SOURCES test/RunManagerTest.cpp )
+
 add_casa_gtest( NAME PrmEquilibriumOceanicLithosphereThickness   SOURCES test/PrmEquilibriumOceanicLithosphereThickness.cpp )
 add_casa_gtest( NAME PrmSurfaceTemperatureTest            SOURCES test/PrmSurfaceTemperatureTest.cpp )
 add_casa_gtest( NAME PrmTopCrustHeatProduction            SOURCES test/PrmTopCrustHeatProductionTest.cpp )
 add_casa_gtest( NAME PrmTopCrustHeatProductionGrid        SOURCES test/PrmTopCrustHeatProductionGridTest.cpp )
 add_casa_gtest( NAME PrmTopCrustHeatProductionGridScaling SOURCES test/PrmTopCrustHeatProductionGridScalingTest.cpp )
-
-# temporary disabled, under development
-#add_gtest( NAME LMOptimTest
-#   SOURCES test/LMOptimTest.cpp
-#   LIBRARIES ${LIB_NAME} cmbapi DataAccess SerialDataAccess TableIO ${HDF5_LIBRARIES} ${Boost_LIBRARIES}
-#   FOLDER "${BASE_FOLDER}/${LIB_NAME}"
-#)
 
 if (MSVC)
    generate_version_by_git_last_checkin(src API_FILE_GIT_DATE_AS_VER)

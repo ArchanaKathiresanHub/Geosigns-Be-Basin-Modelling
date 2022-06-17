@@ -93,6 +93,7 @@
 namespace casa
 {
    class RunCase;
+   class JobScheduler;
 
    /// @brief Allows to run set of Cases on HPC cluster
    class RunManager : public ErrorHandler, public CasaSerializable
@@ -184,6 +185,8 @@ namespace casa
       /// @brief Add case to the list of jobs and update case status by analysing completed stages into Case folder
       /// @param cs case object
       virtual void restoreCaseStatus( RunCase * cs ) = 0;
+
+      virtual void setJobScheduler (JobScheduler* scheduler) = 0;
 
    protected:
       RunManager() {}

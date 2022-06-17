@@ -74,6 +74,8 @@ namespace casa
       // should mpirun command contains -np CPUS or number of cpus will be requested by the job scheduler
       virtual bool cpusNumberByScheduler() = 0;
 
+      virtual bool hasRunsLeft( JobID job ) = 0;
+
       // Wait a bit (~10 sec) before asking about job state again
       // for the LOCAL cluster - do noting
       // secs -1 - use default value for scheduler, 0 or positive number seconds to sleep

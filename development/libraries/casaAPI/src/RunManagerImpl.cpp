@@ -22,7 +22,7 @@
 #include "CauldronEnvConfig.h"
 
 #include "JobSchedulerLocal.h"
-#include "jobSchedulerCluster.h"
+#include "JobSchedulerCluster.h"
 
 #include "LogHandler.h"
 
@@ -78,9 +78,8 @@ CauldronApp * RunManager::createApplication( ApplicationType        appType
 
 
 ///////////////////////////////////////////////////////////////////////////////
-RunManagerImpl::RunManagerImpl( const std::string & clusterName ) : m_maxPendingJobs( 0 )
+RunManagerImpl::RunManagerImpl(const std::string & clusterName) : m_maxPendingJobs( 0 )
 {
-   // create instance of job scheduler
    createJobScheduler( clusterName );
 }
 
@@ -426,9 +425,20 @@ ErrorHandler::ReturnCode RunManagerImpl::runScheduledCases( int updateStateTimeI
                switch ( jobState )
                {
                   case JobScheduler::JobFailed: // job failed!!! shouldn't run others in a pipeline!
-                     m_jobs[i].resize( j+1 ); // drop all other jobs for this case
-                     m_cases[i]->setRunStatus( RunCase::Failed );
-                     contAppPipeline = false;
+                     if ( m_jobSched->hasRunsLeft(job) )
+                     {
+                        // Try to run again
+                        jobState = m_jobSched->runJob( job ); // submit the job if it not dependent on any other job
+                        if ( JobScheduler::JobPending == jobState ) ++prevPending; // take into account just submitted job
+                        contAppPipeline = false; // stop going further in applications pipeline for this case
+                     }
+                     else
+                     {
+                        m_jobs[i].resize( j+1 ); // drop all other jobs for this case
+                        m_cases[i]->setRunStatus( RunCase::Failed );
+                        contAppPipeline = false;
+                     }
+
                      break;
 
                   case JobScheduler::JobPending:
@@ -731,6 +741,11 @@ RunManagerImpl::RunManagerImpl( CasaDeserializer & dz, const char * objName )
    ok = ok ? dz.load( m_maxPendingJobs, "maxPendingJobs" ) : ok;
 
    if ( !ok ) throw Exception( DeserializationError ) << "RunManagerImpl deserialization error";
+}
+
+void RunManagerImpl::setJobScheduler(JobScheduler* scheduler)
+{
+   m_jobSched.reset(scheduler);
 }
 
 // create job scheduler depending on cluster name and OS

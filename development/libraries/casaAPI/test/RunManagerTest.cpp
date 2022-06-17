@@ -7,6 +7,8 @@
 #include "../src/RunManager.h"
 #include "../src/VarPrmSourceRockTOC.h"
 
+#include "JobSchedulerStub.h"
+
 #include <memory>
 #include <cstdlib>
 
@@ -83,6 +85,8 @@ TEST_F( RunManagerTest, Tornado2PrmsMutations )
    ASSERT_EQ( ErrorHandler::NoError, sc.applyMutations( sc.doeCaseSet() ) );
 
    RunManager& rm = sc.runManager();
+   JobSchedulerStub* scheduler = new JobSchedulerStub();
+   rm.setJobScheduler(scheduler);
 
    // set up simulation pipeline, the first is fastcauldron
    CauldronApp * app = RunManager::createApplication( RunManager::fastcauldron );
@@ -121,6 +125,11 @@ TEST_F( RunManagerTest, Tornado2PrmsMutations )
         ASSERT_TRUE( ( ibs::FilePath(casePath.path() ) << std::string( "Stage_" ) + std::to_string( j ) + m_scriptExt ).exists() );
       }
    }
+
+   rm.runScheduledCases(0);
+
+   EXPECT_EQ(scheduler->numberOfRuns(0), 1);
+   EXPECT_EQ(scheduler->numberOfRuns(1), 3); // second job  fails and is therefore run 3 times
 
    // cleaning files/folders
    pathToCaseSet.clean();  // clean folder ./CaseSet/Iteration_1

@@ -61,6 +61,8 @@ namespace casa
       // version of serialized object representation
       virtual unsigned int version() const { return 0; }
 
+      bool hasRunsLeft(JobID /*job*/) override { return false; }
+
       // Serialize object to the given stream
       virtual bool save( CasaSerializer & sz ) const;
 

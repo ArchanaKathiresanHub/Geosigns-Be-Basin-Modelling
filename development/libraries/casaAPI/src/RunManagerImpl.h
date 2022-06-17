@@ -32,7 +32,7 @@ namespace casa
    {
    public:
 
-      RunManagerImpl( const std::string & clusterName = "" );
+      RunManagerImpl(const std::string & clusterName = "");
       virtual ~RunManagerImpl();
 
       /// @brief Add application to the list of simulators for pipeline calculation definitions
@@ -107,6 +107,10 @@ namespace casa
       /// @return new observable instance on susccess, or throw and exception in case of any error
       RunManagerImpl( CasaDeserializer & inStream, const char * objName );
       /// @}
+      ///
+
+      /// @brief setJobScheduler Change the jobscheduler from local to cluster, or to a stub-scheduler for testing
+      void setJobScheduler(JobScheduler* scheduler) override;
 
 
    private:
