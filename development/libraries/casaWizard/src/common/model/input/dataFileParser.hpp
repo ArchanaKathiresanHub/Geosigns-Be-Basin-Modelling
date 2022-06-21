@@ -88,6 +88,13 @@ DataFileParser<Type>::DataFileParser(const QString& fileName) :
 }
 
 template<class Type>
+QVector<QVector<Type>> DataFileParser<Type>::readFile(const QString& fileName)
+{
+   DataFileParser<Type> parser(fileName);
+   return parser.readFile();
+}
+
+template<class Type>
 QVector<QVector<Type>> DataFileParser<Type>::colDominantMatrix(const QString& fileName)
 {
    return convertToColumDominant(rowDominantMatrix(fileName));
@@ -101,19 +108,19 @@ QVector<QVector<Type>> DataFileParser<Type>::rowDominantMatrix(const QString& fi
 }
 
 template<class Type>
-QVector<QVector<Type>> DataFileParser<Type>::parseFileWithHeaderColDominant(const QString& fileName)
+QVector<QVector<Type>> DataFileParser<Type>::parseMatrixFileWithHeaderColDominant(const QString& fileName)
 {
-   return convertToColumDominant(parseFileWithHeaderRowDominant(fileName));
+   return convertToColumDominant(parseMatrixFileWithHeaderRowDominant(fileName));
 }
 
 template<class Type>
-QVector<QVector<Type>> DataFileParser<Type>::parseFileWithHeaderColDominant(const QString& fileName, QVector<QString>& headers)
+QVector<QVector<Type>> DataFileParser<Type>::parseMatrixFileWithHeaderColDominant(const QString& fileName, QVector<QString>& headers)
 {
-   return convertToColumDominant(parseFileWithHeaderRowDominant(fileName,headers));
+   return convertToColumDominant(parseMatrixFileWithHeaderRowDominant(fileName,headers));
 }
 
 template<class Type>
-QVector<QVector<Type>> DataFileParser<Type>::parseFileWithHeaderRowDominant(const QString& fileName)
+QVector<QVector<Type>> DataFileParser<Type>::parseMatrixFileWithHeaderRowDominant(const QString& fileName)
 {
    DataFileParser<Type> parser(fileName);
    parser.readHeader();
@@ -121,7 +128,7 @@ QVector<QVector<Type>> DataFileParser<Type>::parseFileWithHeaderRowDominant(cons
 }
 
 template<class Type>
-QVector<QVector<Type>> DataFileParser<Type>::parseFileWithHeaderRowDominant(const QString& fileName, QVector<QString>& headers)
+QVector<QVector<Type>> DataFileParser<Type>::parseMatrixFileWithHeaderRowDominant(const QString& fileName, QVector<QString>& headers)
 {
    DataFileParser<Type> parser(fileName);
    headers = parser.readHeader();
@@ -129,23 +136,32 @@ QVector<QVector<Type>> DataFileParser<Type>::parseFileWithHeaderRowDominant(cons
 }
 
 template<class Type>
-QVector<QVector<Type>> DataFileParser<Type>::readMatrix()
+QVector<QVector<Type>> DataFileParser<Type>::readFile()
 {
-   QVector<QVector<Type>> rowDominantData;
+   QVector<QVector<Type>> data;
    while (!m_inputStream.atEnd())
    {
       const QString textLine{m_inputStream.readLine()};
       const QVector<Type> rowData = readRowToVector<Type>(textLine);
+      data.push_back(rowData);
+   }
+   return data;
+}
 
-      if (rowDominantData.size())
+template<class Type>
+QVector<QVector<Type>> DataFileParser<Type>::readMatrix()
+{
+   QVector<QVector<Type>> rowDominantData = readFile();
+   if (rowDominantData.size() > 0)
+   {
+      const int firstRowSize = rowDominantData.at(0).size();
+      for (const auto& row : rowDominantData)
       {
-         if (rowDominantData.back().size() != rowData.size())
+         if (row.size() != firstRowSize)
          {
             throw std::runtime_error("Datafile " + m_filename.toStdString() + " does not have the expected file format and is not read");
          }
       }
-
-      rowDominantData.push_back(rowData);
    }
    return rowDominantData;
 }

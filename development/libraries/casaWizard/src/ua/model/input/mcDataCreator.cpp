@@ -28,7 +28,7 @@ void setData(UAScenario& scenario)
 
    QString filePath = scenario.workingDirectory() + "/" + scenario.mcTextFileName();
    QVector<QString> columnNames;
-   QVector<QVector<double>> mcSampleData = DataFileParser<double>::parseFileWithHeaderColDominant(filePath,columnNames);
+   QVector<QVector<double>> mcSampleData = DataFileParser<double>::parseMatrixFileWithHeaderColDominant(filePath,columnNames);
 
    QVector<QVector<double>> influentialParameterMatrix;
    QVector<QVector<double>> calibrationTargetMatrix;

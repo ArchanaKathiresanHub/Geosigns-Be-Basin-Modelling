@@ -25,7 +25,7 @@ void OptimizedLithofractionDataCreator::readCase(const int wellIndex, const int 
   QVector<double> values;
   try
   {
-    values = DataFileParser<double>::rowDominantMatrix(filePath).last();
+    values = DataFileParser<double>::readFile(filePath).last();
   }
   catch( const std::exception& e )
   {

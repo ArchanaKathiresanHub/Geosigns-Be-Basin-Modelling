@@ -35,14 +35,14 @@ void readTargetQCs(UAScenario& scenario)
   QString proxyQualityFileName = scenario.workingDirectory() + "/" + scenario.proxyQualityEvaluationTextFileName();
 
   QVector<QString> obsIdentifiersRunCaseObservables;
-  const QVector<QVector<double>> runCasesObservables = DataFileParser<double>::parseFileWithHeaderColDominant(obsFileName,obsIdentifiersRunCaseObservables);
-  const QVector<QVector<int>> doeIndices = DataFileParser<int>::rowDominantMatrix(doeIndicesFileName);
+  const QVector<QVector<double>> runCasesObservables = DataFileParser<double>::parseMatrixFileWithHeaderColDominant(obsFileName,obsIdentifiersRunCaseObservables);
+  const QVector<QVector<int>> doeIndices = DataFileParser<int>::readFile(doeIndicesFileName);
 
   QVector<QString> obsIdentifiersEvalObservables;
-  const QVector<QVector<double>> proxyEvaluationObservables = DataFileParser<double>::parseFileWithHeaderColDominant(proxyEvalFileName,obsIdentifiersEvalObservables);
+  const QVector<QVector<double>> proxyEvaluationObservables = DataFileParser<double>::parseMatrixFileWithHeaderColDominant(proxyEvalFileName,obsIdentifiersEvalObservables);
 
   QVector<QString> obsIdentifiersProxyQuality;
-  const QVector<QVector<double>> proxyQualityEvaluation = DataFileParser<double>::parseFileWithHeaderColDominant(proxyQualityFileName,obsIdentifiersProxyQuality);
+  const QVector<QVector<double>> proxyQualityEvaluation = DataFileParser<double>::parseMatrixFileWithHeaderColDominant(proxyQualityFileName,obsIdentifiersProxyQuality);
 
   if (!qtutils::isEqual(obsIdentifiersRunCaseObservables,obsIdentifiersEvalObservables)
       || !qtutils::isEqual(obsIdentifiersEvalObservables, obsIdentifiersProxyQuality))

@@ -4,7 +4,7 @@ configure_file( testDataFileParserDouble.dat testDataFileParserDouble.dat COPYON
 configure_file( testDataFileParserDoubleHeaders.dat testDataFileParserDoubleHeaders.dat COPYONLY )
 configure_file( testDataFileParserDoubleHeaders.dat testDataFileParserHeadersWrongFormat.dat COPYONLY )
 configure_file( testDataFileParserInt.dat testDataFileParserInt.dat COPYONLY )
-configure_file( testDataFileParserWrongFormat.dat testDataFileParserWrongFormat.dat COPYONLY )
+configure_file( testDataFileParserNonMatrixFormat.dat testDataFileParserNonMatrixFormat.dat COPYONLY )
 
 add_casawizard_common_gtest( NAME ExtractWellDataXlsx
                              SOURCES testExtractWellDataXlsx.cpp wellTestData.h )

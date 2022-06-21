@@ -21,18 +21,24 @@ template<class Type>
 class DataFileParser
 {
 public:
+
+   //Just reads the content of the file, only checking for type consistency.
+   static QVector<QVector<Type>> readFile(const QString& fileName);
+
+   //Matrix functions expect matrix data, and check if data in is a matrix format.
    static QVector<QVector<Type>> colDominantMatrix(const QString& fileName);
    static QVector<QVector<Type>> rowDominantMatrix(const QString& fileName);
 
-   static QVector<QVector<Type>> parseFileWithHeaderColDominant(const QString& fileName);
-   static QVector<QVector<Type>> parseFileWithHeaderColDominant(const QString& fileName, QVector<QString>& headers);
+   static QVector<QVector<Type>> parseMatrixFileWithHeaderColDominant(const QString& fileName);
+   static QVector<QVector<Type>> parseMatrixFileWithHeaderColDominant(const QString& fileName, QVector<QString>& headers);
 
-   static QVector<QVector<Type>> parseFileWithHeaderRowDominant(const QString& fileName);
-   static QVector<QVector<Type>> parseFileWithHeaderRowDominant(const QString& fileName, QVector<QString>& headers);
+   static QVector<QVector<Type>> parseMatrixFileWithHeaderRowDominant(const QString& fileName);
+   static QVector<QVector<Type>> parseMatrixFileWithHeaderRowDominant(const QString& fileName, QVector<QString>& headers);
 
 private:
    explicit DataFileParser(const QString& fileName);
 
+   QVector<QVector<Type>> readFile();
    QVector<QVector<Type>> readMatrix();
    QVector<QString> readHeader();
 

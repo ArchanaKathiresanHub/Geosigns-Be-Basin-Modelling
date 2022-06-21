@@ -203,7 +203,7 @@ void MCMCController::slotPushButtonRunOptimalCasesClicked()
    QVector<double> observableValues;
    try
    {
-      observableValues = DataFileParser<double>::parseFileWithHeaderRowDominant(filePath,colNames)[0];
+      observableValues = DataFileParser<double>::parseMatrixFileWithHeaderRowDominant(filePath,colNames)[0];
    }
    catch (const std::exception& e)
    {
