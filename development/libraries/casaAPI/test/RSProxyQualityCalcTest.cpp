@@ -136,7 +136,7 @@ TEST_F(RSProxyCalcTest, CalculateR2AndR2Adj)
   const std::vector<std::vector<double>> R2AndR2AdjActual = rsProxyCalculator.calculateR2AndR2adj("TestRS", doeList);
 
   const std::vector<double> R2Expected = {9.93381700e-01, 9.87494959e-01, 9.84379009e-01, 9.79618779e-01, 9.75046517e-01};
-  const std::vector<double> R2adjExpected = {9.91175600e-01, 9.83326611e-01, 9.79172012e-01, 9.72825039e-01, 9.66728689e-01};
+  const std::vector<double> R2adjExpected = {0.9867633992678935, 0.9749899177402007, 0.9687580177996215, 0.9592375580744908, 0.9500930333601868};
 
   ASSERT_EQ(R2AndR2AdjActual.size(), 2);
   ASSERT_EQ(R2AndR2AdjActual[0].size(), R2Expected.size());

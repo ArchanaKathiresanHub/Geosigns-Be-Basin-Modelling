@@ -42,16 +42,18 @@ public:
   /// @return                               Matrix containing Q2
   std::vector<double> calculateQ2(const std::string& proxyName, const std::vector<std::string>& experimentList) const;
 
+  /// @brief  Calculate response surface proxy quality data (R2, R2adj) from observable
+  /// @param  runCasesObservables[in]        Matrix containing target run case values for observable
+  /// @param  proxyEvaluationObservables[in] Matrix containing target proxy evaluation values for observables
+  /// @param  nCoefficients[in]              Number of coefficients in the proxy polynomial
+  /// @return                                Matrix containing R2 (first row), R2adj (second row)
+  static const std::vector<std::vector<double>> calculateR2AndR2adjFromObservables(const std::vector<std::vector<double>>& runCasesObservables,
+                                                                                   const std::vector<std::vector<double>>& proxyEvaluationObservables,
+                                                                                   const int nCoefficients);
 
 private:
   RSProxyQualityCalculator(const RSProxyQualityCalculator&) = delete;
   RSProxyQualityCalculator& operator = (const RSProxyQualityCalculator&) = delete;
-
-  /// @brief  Calculate response surface proxy quality data (R2, R2adj) from observable
-  /// @param  runCasesObservables[in]        Matrix containing target run case values for observable
-  /// @param  proxyEvaluationObservables[in] Matrix containing target proxy evaluation values for observables
-  /// @return                                Matrix containing R2 (first row), R2adj (second row)
-  const std::vector<std::vector<double>> calculateR2AndR2adjFromObservables(const std::vector<std::vector<double>>& runCasesObservables, const std::vector<std::vector<double>>& proxyEvaluationObservables) const;
 
   /// @brief Calculate response surface proxy quality data for Q2 from observables
   /// @param runCasesObservables[in]        Matrix containing target run case values for observable

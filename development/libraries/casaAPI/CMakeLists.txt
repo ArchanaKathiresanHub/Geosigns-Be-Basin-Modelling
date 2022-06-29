@@ -132,3 +132,5 @@ if (MSVC)
 
    configure_file(test/Project.project3d ${CMAKE_CURRENT_BINARY_DIR}/Project.project3d COPYONLY )
 endif (MSVC)
+
+add_subdirectory(test/sumlibTests)

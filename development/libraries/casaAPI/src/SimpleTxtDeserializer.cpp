@@ -52,23 +52,22 @@ namespace casa
       endLinePos = line.find( "\r" );
       if ( std::string::npos != endLinePos ) line = line.substr( 0, endLinePos );
 
-
       std::istringstream iss( line );
-
       std::string result;
-
       std::string opt;
 
+      bool readingStringBetweenQuotations(false);
       while ( std::getline( iss, result, ' ' ) )
       {
          if ( result.empty() || (result.size() == 1 && result[0] == ' ') ) continue;
 
-         if ( opt.size() ) // we had string in parentheses, read all between parentheses as one string
+         if ( readingStringBetweenQuotations ) // we had string in double quotes, read all between double quotes as one string
          {
-            if ( *result.rbegin() == '"' )
+            if ( result.back() == '"' )
             {
                opt += " " + result.substr( 0, result.size() - 1 );
                tokens.push_back( opt );
+               readingStringBetweenQuotations = false;
                opt = "";
             }
             else { opt += " " + result; }
@@ -77,13 +76,14 @@ namespace casa
          {
             if ( result[0] == '"' )
             {
-               if ( *result.rbegin() == '"' )
+               if (result.back() == '"' && result.size() > 1)
                {
                   tokens.push_back( result.substr( 1, result.size() - 2 ) );
                }
                else
                {
                   opt = result.substr( 1 );
+                  readingStringBetweenQuotations = true;
                }
             }
             else

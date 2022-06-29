@@ -180,10 +180,10 @@ public:
    // algo Monte Carlo algorithm
    // interp do we need Kriging interpolation? If yes, the response surface proxy must also use it.
    void setMCAlgorithm( MonteCarloSolver::Algorithm algo
-                      , MonteCarloSolver::KrigingType kr
-                      , MonteCarloSolver::PriorDistribution priorDist
-                      , MonteCarloSolver::MeasurementDistribution measureDist
-                      )
+                        , MonteCarloSolver::KrigingType kr
+                        , MonteCarloSolver::PriorDistribution priorDist
+                        , MonteCarloSolver::MeasurementDistribution measureDist
+                        )
    {
       m_mcSolver.reset( new MonteCarloSolverImpl( algo, kr, priorDist, measureDist ) );
    }
@@ -198,12 +198,12 @@ public:
 
    // Run given optimization algorithm and store calibration results to the given projet file
    void calibrateProjectUsingOptimizationAlgorithm( const std::string & cbProjectName
-                                                  , const std::string & optimAlg
-                                                  , ScenarioAnalysis  & sa
-                                                  , bool                keepHistory
-                                                  , const std::string & transformation
-                                                  , const double        relativeReduction
-                                                  );
+                                                    , const std::string & optimAlg
+                                                    , ScenarioAnalysis  & sa
+                                                    , bool                keepHistory
+                                                    , const std::string & transformation
+                                                    , const double        relativeReduction
+                                                    );
 
    // Get SensitivityCalculator
    SensitivityCalculator & sensitivityCalculator() { return *m_sensCalc; }
@@ -268,11 +268,11 @@ size_t                  ScenarioAnalysis::scenarioIteration() const { return m_p
 void                    ScenarioAnalysis::resetRunManager(bool cleanApps ) { m_pimpl->resetRunManager( cleanApps ); }
 
 RSProxy * ScenarioAnalysis::createRSProxy( const std::string      & name
-                                         , const int                order
-                                         , RSProxy::RSKrigingType   krType
-                                         )
+                                           , const int                order
+                                           , RSProxy::RSKrigingType   krType
+                                           )
 {
-  return m_pimpl->createRSProxy(name, order, krType);
+   return m_pimpl->createRSProxy(name, order, krType);
 }
 
 // Define Scenario ID
@@ -390,37 +390,37 @@ ErrorHandler::ReturnCode ScenarioAnalysis::generateThreeDFromOneD( const std::st
    catch ( ibs::PathException & pex ) { return reportError( IoError, pex.what( ) ); }
    catch ( ... ) { return reportError( UnknownError, "Unknown error" ); }
 
-  return NoError;
+   return NoError;
 }
 
 ErrorHandler::ReturnCode ScenarioAnalysis::requestDataDiggerObservables(RunCaseSet& rcs)
 {
-  try { m_pimpl->requestDataDiggerObservables( rcs ); }
-  catch ( Exception          & ex ) { return reportError( ex.errorCode( ), ex.what( ) ); }
-  catch ( ibs::PathException & pex ) { return reportError( IoError, pex.what( ) ); }
-  catch ( ... ) { return reportError( UnknownError, "Unknown error" ); }
+   try { m_pimpl->requestDataDiggerObservables( rcs ); }
+   catch ( Exception          & ex ) { return reportError( ex.errorCode( ), ex.what( ) ); }
+   catch ( ibs::PathException & pex ) { return reportError( IoError, pex.what( ) ); }
+   catch ( ... ) { return reportError( UnknownError, "Unknown error" ); }
 
-  return NoError;
+   return NoError;
 }
 
 ErrorHandler::ReturnCode ScenarioAnalysis::collectDataDiggerRunResults(RunCaseSet& rcs)
 {
-  try { m_pimpl->collectDataDiggerRunResults( rcs ); }
-  catch ( Exception          & ex ) { return reportError( ex.errorCode( ), ex.what( ) ); }
-  catch ( ibs::PathException & pex ) { return reportError( IoError, pex.what( ) ); }
-  catch ( ... ) { return reportError( UnknownError, "Unknown error" ); }
+   try { m_pimpl->collectDataDiggerRunResults( rcs ); }
+   catch ( Exception          & ex ) { return reportError( ex.errorCode( ), ex.what( ) ); }
+   catch ( ibs::PathException & pex ) { return reportError( IoError, pex.what( ) ); }
+   catch ( ... ) { return reportError( UnknownError, "Unknown error" ); }
 
-  return NoError;
+   return NoError;
 }
 
 ErrorHandler::ReturnCode ScenarioAnalysis::runCaseIsExcluded(const int runCaseID, bool& isExcluded)
 {
-  try { m_pimpl->runCaseIsExcluded( runCaseID, isExcluded ); }
-  catch ( Exception          & ex ) { return reportError( ex.errorCode( ), ex.what( ) ); }
-  catch ( ibs::PathException & pex ) { return reportError( IoError, pex.what( ) ); }
-  catch ( ... ) { return reportError( UnknownError, "Unknown error" ); }
+   try { m_pimpl->runCaseIsExcluded( runCaseID, isExcluded ); }
+   catch ( Exception          & ex ) { return reportError( ex.errorCode( ), ex.what( ) ); }
+   catch ( ibs::PathException & pex ) { return reportError( IoError, pex.what( ) ); }
+   catch ( ... ) { return reportError( UnknownError, "Unknown error" ); }
 
-  return NoError;
+   return NoError;
 }
 
 ErrorHandler::ReturnCode ScenarioAnalysis::validateCaseSet( RunCaseSet & cs )
@@ -434,10 +434,10 @@ ErrorHandler::ReturnCode ScenarioAnalysis::validateCaseSet( RunCaseSet & cs )
 
 
 ErrorHandler::ReturnCode ScenarioAnalysis::addRSAlgorithm( const char * name
-                                                         , const int order
-                                                         , RSProxy::RSKrigingType krType
-                                                         , const std::vector<std::string> & doeList
-                                                         )
+                                                           , const int order
+                                                           , RSProxy::RSKrigingType krType
+                                                           , const std::vector<std::string> & doeList
+                                                           )
 {
    try { m_pimpl->addRSAlgorithm( name, order, krType, doeList ); }
    catch( Exception & ex ) { return reportError( ex.errorCode(), ex.what() ); }
@@ -447,10 +447,10 @@ ErrorHandler::ReturnCode ScenarioAnalysis::addRSAlgorithm( const char * name
 }
 
 ErrorHandler::ReturnCode ScenarioAnalysis::setMCAlgorithm( MonteCarloSolver::Algorithm               algo
-                                                         , MonteCarloSolver::KrigingType             interp
-                                                         , MonteCarloSolver::PriorDistribution       priorDist
-                                                         , MonteCarloSolver::MeasurementDistribution measureDist
-                                                         )
+                                                           , MonteCarloSolver::KrigingType             interp
+                                                           , MonteCarloSolver::PriorDistribution       priorDist
+                                                           , MonteCarloSolver::MeasurementDistribution measureDist
+                                                           )
 {
    try { m_pimpl->setMCAlgorithm( algo, interp, priorDist, measureDist ); }
    catch( Exception & ex ) { return reportError( ex.errorCode(), ex.what() ); }
@@ -460,11 +460,11 @@ ErrorHandler::ReturnCode ScenarioAnalysis::setMCAlgorithm( MonteCarloSolver::Alg
 }
 
 ErrorHandler::ReturnCode ScenarioAnalysis::calibrateProjectUsingOptimizationAlgorithm( const std::string & cbProjeName
-                                                                                     , const std::string & optimAlg
-                                                                                     , const std::string & transformation
-                                                                                     , const double        relativeReduction
-                                                                                     , bool                keepHistory
-                                                                                     )
+                                                                                       , const std::string & optimAlg
+                                                                                       , const std::string & transformation
+                                                                                       , const double        relativeReduction
+                                                                                       , bool                keepHistory
+                                                                                       )
 {
    try { m_pimpl->calibrateProjectUsingOptimizationAlgorithm( cbProjeName, optimAlg, *this, keepHistory, transformation, relativeReduction ); }
    catch( Exception & ex ) { return reportError( ex.errorCode(), ex.what() ); }
@@ -519,7 +519,7 @@ ScenarioAnalysis * ScenarioAnalysis::loadScenario( const char * fileName, const 
 
       sc->m_pimpl->deserialize( *inStream );
       if ( sc->errorCode() != ErrorHandler::NoError ) { throw ErrorHandler::Exception( sc->errorCode() ) << sc->errorMessage(); }
-      }
+   }
    catch ( const ErrorHandler::Exception & ex ) { sc->reportError( ex.errorCode(), ex.what() ); }
 
    return sc;
@@ -537,9 +537,9 @@ ScenarioAnalysis * ScenarioAnalysis::loadScenario( const char * stateFileBuf, si
       if ( !fid.good() ) throw Exception( DeserializationError ) << "Can not read from the given memory buffer";
 
       std::unique_ptr<CasaDeserializer> inStream( CasaDeserializer::createDeserializer( fid
-                                                                                    , fileType == NULL ? "" : std::string( fileType )
-                                                                                    , sc->version()
-                                                                                    ) );
+                                                                                        , fileType == NULL ? "" : std::string( fileType )
+                                                                                                             , sc->version()
+                                                                                        ) );
       sc->m_pimpl->deserialize( *inStream );
       if ( sc->errorCode() != ErrorHandler::NoError )
       {
@@ -634,7 +634,7 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::setScenarioLocation( const char * p
          // Pick last iteration to write in if it exists
          if ( append && m_iterationNum > 1)
          {
-           m_iterationNum--;
+            m_iterationNum--;
          }
 
          m_caseSetPath = saFolder.fullPath().path();
@@ -667,7 +667,7 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::applyMutations(RunCaseSet & rcs , c
    // also use experiment name (if it was set) in folder name pathToScenario/Iteration_XX_ExperimentName
    if ( !rcs.filter().empty() )
    {
-     expFld += std::string( "_" ) + rcs.filter();
+      expFld += std::string( "_" ) + rcs.filter();
    }
 
    caseSetPath << expFld;
@@ -687,14 +687,14 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::applyMutations(RunCaseSet & rcs , c
    // generate base case run case and save it as project file
    if ( !m_baseCaseRunCase.get() ) // this wasn't done before
    {
-     // create new CASA case
-     m_baseCaseRunCase.reset( new RunCaseImpl() );
+      // create new CASA case
+      m_baseCaseRunCase.reset( new RunCaseImpl() );
 
-     // add base parameters value to base case run case
-     for ( size_t i = 0; i < m_varSpace->size(); ++i )
-     {
-       m_baseCaseRunCase->addParameter( m_varSpace->parameter( i )->baseValue() );
-     }
+      // add base parameters value to base case run case
+      for ( size_t i = 0; i < m_varSpace->size(); ++i )
+      {
+         m_baseCaseRunCase->addParameter( m_varSpace->parameter( i )->baseValue() );
+      }
    }
 
    RunCase* baseRunCase = m_baseCaseRunCase.get();
@@ -702,9 +702,9 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::applyMutations(RunCaseSet & rcs , c
    baseCasePath << std::string( "BaseCase");
    if ( !baseCasePath.exists() )
    {
-     baseCasePath.create();
-     baseCasePath << projectFileName;
-     baseRunCase->mutateCaseTo( baseCase(), baseCasePath.path().c_str() );
+      baseCasePath.create();
+      baseCasePath << projectFileName;
+      baseRunCase->mutateCaseTo( baseCase(), baseCasePath.path().c_str() );
    }
 
    for ( size_t i = 0; i < rcs.size(); ++i )
@@ -767,11 +767,11 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::extractOneDProjects( const std::str
       if ( NoError != mdl.windowSize( (*it)->xCoords().front(), (*it)->yCoords().front(), minI, maxI, minJ, maxJ, centreX, centreY ) )
       {
          throw ErrorHandler::Exception( ErrorHandler::IoError ) << "Setting window around well: " << (*it)->xCoords().front() << " "
-                                                                                                  << (*it)->yCoords().front() << " "
+                                                                << (*it)->yCoords().front() << " "
                                                                 << " for the project failed";
       }
 
-       // the new case to add
+      // the new case to add
       std::shared_ptr<RunCase> newCase( new casa::RunCaseImpl() );
 
       //  the new window
@@ -790,10 +790,10 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::extractOneDProjects( const std::str
       // for other influential parameters, set the values read from the model
       for ( size_t par = 0; par < var.size(); ++par )
       {
-        const casa::VarParameter * vprm = var.parameter( par );
-        // get the parameter value at the specific x, y location (bottom left corner)
-        SharedParameterPtr prm( vprm->newParameterFromModel( mdl, wellCoord ) );
-        newCase->addParameter( prm );
+         const casa::VarParameter * vprm = var.parameter( par );
+         // get the parameter value at the specific x, y location (bottom left corner)
+         SharedParameterPtr prm( vprm->newParameterFromModel( mdl, wellCoord ) );
+         newCase->addParameter( prm );
       }
 
       // push back the new case in the experiment set
@@ -825,7 +825,7 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::importOneDResults( const std::strin
 
       if (m_excludeSet.find(c) != m_excludeSet.end())
       {
-        continue;
+         continue;
       }
 
       // load scenario from file (deserialization)
@@ -833,7 +833,7 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::importOneDResults( const std::strin
 
       if ( oneDscenario->errorCode() != ErrorHandler::NoError )
       {
-        throw ErrorHandler::Exception( ErrorHandler::DeserializationError ) << oneDscenario->errorMessage();
+         throw ErrorHandler::Exception( ErrorHandler::DeserializationError ) << oneDscenario->errorMessage();
       }
 
       // get the RunCaseSet
@@ -844,7 +844,7 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::importOneDResults( const std::strin
       if ( oneDCaseSet.size() != 1 )
       {
          throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << " The best matched case must be present and unique, instead "
-            << oneDCaseSet.size() << " cases were found";
+                                                                        << oneDCaseSet.size() << " cases were found";
       }
       bestMatchedCases[c] = copyAnotherScenarioCase( oneDCaseSet[0] );
 
@@ -853,7 +853,7 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::importOneDResults( const std::strin
       if ( oneDCaseSet.size() != 1 )
       {
          throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << " The base case must be present and unique, instead "
-            << oneDCaseSet.size() << " cases were found";
+                                                                        << oneDCaseSet.size() << " cases were found";
       }
       baseCases[c] = copyAnotherScenarioCase( oneDCaseSet[0] );
 
@@ -862,7 +862,7 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::importOneDResults( const std::strin
       if ( oneDCaseSet.size() < 1 )
       {
          throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << " Cannot extract the last run case because the LMSteps case set size is "
-            << oneDCaseSet.size();
+                                                                        << oneDCaseSet.size();
       }
       lastRunCases[c] = copyAnotherScenarioCase( oneDCaseSet[oneDCaseSet.size() - 1] );
    }
@@ -870,7 +870,7 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::importOneDResults( const std::strin
    if ( m_xcoordOneD.size() != bestMatchedCases.size() )
    {
       throw ErrorHandler::Exception( ErrorHandler::UnknownError ) << " The number of extracted wells is not equal to the number"
-         << " of the calibrated 1D cases";
+                                                                  << " of the calibrated 1D cases";
    }
 
    // set the filter back and add the cases
@@ -882,16 +882,16 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::importOneDResults( const std::strin
 
 void ScenarioAnalysis::ScenarioAnalysisImpl::setFilterOneDResults(const std::string & filterAlgorithm , const std::set<int>& excludeSet)
 {
-  m_excludeSet = excludeSet;
+   m_excludeSet = excludeSet;
 
-  // Just set the filtering algorithm
+   // Just set the filtering algorithm
    if ( filterAlgorithm == "smartLithoFractionGridding")
    {
       m_filteringAlgorithm = 1;
    }
    else if ( filterAlgorithm == "none")
    {
-     m_filteringAlgorithm = 0;
+      m_filteringAlgorithm = 0;
    }
    // for other cases add an else if
    else
@@ -986,56 +986,56 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::generateThreeDFromOneD( const std::
       const casa::VarParameter * vprm = var.parameter( par );
       switch ( vprm->variationType() )
       {
-         case casa::VarParameter::Continuous:
+      case casa::VarParameter::Continuous:
+      {
+         const casa::VarPrmContinuous * vprmc = dynamic_cast<const casa::VarPrmContinuous*>( vprm );
+
+         for ( size_t c = 0; c < rcs.size(); ++c )
          {
-            const casa::VarPrmContinuous * vprmc = dynamic_cast<const casa::VarPrmContinuous*>( vprm );
-
-            for ( size_t c = 0; c < rcs.size(); ++c )
+            if (!rcs[c])
             {
-              if (!rcs[c])
-              {
-                continue;
-              }
-               SharedParameterPtr nprm = rcs[c]->parameter( par );
-
-               if (parameterFilter( nprm.get(), baseOneDCases[c].get() ) )
-               {
-                  prmVec.push_back( nprm );
-                  xcoordOneD.push_back( m_xcoordOneD[c]);
-                  ycoordOneD.push_back( m_ycoordOneD[c]);
-               }
+               continue;
             }
+            SharedParameterPtr nprm = rcs[c]->parameter( par );
 
-            try
+            if (parameterFilter( nprm.get(), baseOneDCases[c].get() ) )
             {
-               // if the average method is not implemented a makeThreeDFromOneD will throw exception
-               if ( prmVec.size() > 0 )
-               {
-                  // make the averages
-                  SharedParameterPtr prm;
-                  VarPrmContinuous::InterpolationParams interpolationParams{ interpolationMethod, IDWpower, smoothingMethod, smoothingRadius, nrOfThreads };
-                  prm = vprmc->makeThreeDFromOneD( bc, xcoordOneD, ycoordOneD, prmVec, interpolationParams );
-                  brc->addParameter( prm );
-               }
+               prmVec.push_back( nprm );
+               xcoordOneD.push_back( m_xcoordOneD[c]);
+               ycoordOneD.push_back( m_ycoordOneD[c]);
             }
-            catch ( const ErrorHandler::Exception & ex )
-            {
-                  throw ErrorHandler::Exception( ex.errorCode() ) << " The generation of the 3D parameter " << vprmc->name()
-                                                                  << " from multi 1D results failed. Error message: " << ex.what();
-            }
-
-            //clear previous arrays stored for the mean values
-            prmVec.clear();
-            xcoordOneD.clear();
-            ycoordOneD.clear();
          }
+
+         try
+         {
+            // if the average method is not implemented a makeThreeDFromOneD will throw exception
+            if ( prmVec.size() > 0 )
+            {
+               // make the averages
+               SharedParameterPtr prm;
+               VarPrmContinuous::InterpolationParams interpolationParams{ interpolationMethod, IDWpower, smoothingMethod, smoothingRadius, nrOfThreads };
+               prm = vprmc->makeThreeDFromOneD( bc, xcoordOneD, ycoordOneD, prmVec, interpolationParams );
+               brc->addParameter( prm );
+            }
+         }
+         catch ( const ErrorHandler::Exception & ex )
+         {
+            throw ErrorHandler::Exception( ex.errorCode() ) << " The generation of the 3D parameter " << vprmc->name()
+                                                            << " from multi 1D results failed. Error message: " << ex.what();
+         }
+
+         //clear previous arrays stored for the mean values
+         prmVec.clear();
+         xcoordOneD.clear();
+         ycoordOneD.clear();
+      }
          break;
 
-         case casa::VarParameter::Categorical: brc->addParameter( vprm->baseValue() ); break;
-         case casa::VarParameter::Discrete:
-         default:
-            throw ErrorHandler::Exception( ErrorHandler::NotImplementedAPI ) << "Not implemented influential parameter type: " << vprm->variationType();
-            break;
+      case casa::VarParameter::Categorical: brc->addParameter( vprm->baseValue() ); break;
+      case casa::VarParameter::Discrete:
+      default:
+         throw ErrorHandler::Exception( ErrorHandler::NotImplementedAPI ) << "Not implemented influential parameter type: " << vprm->variationType();
+         break;
       }
    }
 
@@ -1069,17 +1069,17 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::generateThreeDFromOneD( const std::
 
 void ScenarioAnalysis::ScenarioAnalysisImpl::requestDataDiggerObservables(RunCaseSet& rcs)
 {
-  dataDigger().requestObservables(obsSpace(), rcs, m_excludeSet);
+   dataDigger().requestObservables(obsSpace(), rcs, m_excludeSet);
 }
 
 void ScenarioAnalysis::ScenarioAnalysisImpl::collectDataDiggerRunResults(RunCaseSet& rcs)
 {
-  dataDigger().collectRunResults(obsSpace(), rcs, m_excludeSet);
+   dataDigger().collectRunResults(obsSpace(), rcs, m_excludeSet);
 }
 
 void ScenarioAnalysis::ScenarioAnalysisImpl::runCaseIsExcluded(const int i, bool& isExcluded)
 {
-  isExcluded = m_excludeSet.find(i) != m_excludeSet.end();
+   isExcluded = m_excludeSet.find(i) != m_excludeSet.end();
 }
 
 void ScenarioAnalysis::ScenarioAnalysisImpl::validateCaseSet( RunCaseSet & rcs )
@@ -1108,12 +1108,12 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::validateCaseSet( RunCaseSet & rcs )
 
 
 void ScenarioAnalysis::ScenarioAnalysisImpl::calibrateProjectUsingOptimizationAlgorithm( const std::string & cbProjectName
-                                                                                       , const std::string & optimAlg
-                                                                                       , ScenarioAnalysis  & sa
-                                                                                       , bool                // keepHistory
-                                                                                       , const std::string & transformation
-                                                                                       , const double        relativeReduction
-                                                                                       )
+                                                                                         , const std::string & optimAlg
+                                                                                         , ScenarioAnalysis  & sa
+                                                                                         , bool                // keepHistory
+                                                                                         , const std::string & transformation
+                                                                                         , const double        relativeReduction
+                                                                                         )
 {
    std::unique_ptr<OptimizationAlgorithm> optAlgo;
 
@@ -1162,10 +1162,10 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::saveCalibratedCase( const char * pr
 }
 
 void ScenarioAnalysis::ScenarioAnalysisImpl::addRSAlgorithm( const std::string              & name
-                                                           , const int                        order
-                                                           , RSProxy::RSKrigingType           krType
-                                                           , const std::vector<std::string> & doeList
-                                                           )
+                                                             , const int                        order
+                                                             , RSProxy::RSKrigingType           krType
+                                                             , const std::vector<std::string> & doeList
+                                                             )
 {
    if ( name.empty() ) throw Exception( OutOfRangeValue ) << "addRSAlgorithm(): empty proxy name";
 
@@ -1175,22 +1175,22 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::addRSAlgorithm( const std::string  
    }
    else
    {
-     RSProxy * proxy = createRSProxy( name, order, krType );
-     // if DoEs name list is not empty - calculate response surface
-     if ( doeList.size() )
-     {
-       const std::vector<const casa::RunCase *> & runCases = m_doeCases->collectCompletedCases( doeList );
-       calculateRSProxy( proxy, runCases );
-     }
+      RSProxy * proxy = createRSProxy( name, order, krType );
+      // if DoEs name list is not empty - calculate response surface
+      if ( doeList.size() )
+      {
+         const std::vector<const casa::RunCase *> & runCases = m_doeCases->collectCompletedCases( doeList );
+         calculateRSProxy( proxy, runCases );
+      }
 
-     m_rsProxySet->addNewRSProxy( proxy, name );
+      m_rsProxySet->addNewRSProxy( proxy, name );
    }
 }
 
 RSProxy * ScenarioAnalysis::ScenarioAnalysisImpl::createRSProxy( const std::string      & name
-                                                               , const int                order
-                                                               , RSProxy::RSKrigingType   krType
-                                                               )
+                                                                 , const int                order
+                                                                 , RSProxy::RSKrigingType   krType
+                                                                 )
 {
    if ( order < -1 || order > 3 )
    {
@@ -1200,52 +1200,54 @@ RSProxy * ScenarioAnalysis::ScenarioAnalysisImpl::createRSProxy( const std::stri
 
    if ( !obsSpace().size() )
    {
-     throw Exception( RSProxyError ) << "createRSProxy(): No observable is defined for proxy calculation";
+      throw Exception( RSProxyError ) << "createRSProxy(): No observable is defined for proxy calculation";
    }
 
    if ( !varSpace().size() )
    {
-     throw Exception( RSProxyError ) << "createRSProxy(): No influential parameter is defined for proxy calculation";
+      throw Exception( RSProxyError ) << "createRSProxy(): No influential parameter is defined for proxy calculation";
    }
 
    RSProxy * proxy;
 
    switch ( order )
    {
-     case -1: proxy = new RSProxyImpl( name, varSpace(), obsSpace(), 0,     krType, true ); break;
-     case  0:
-     case  1:
-     case  2: proxy = new RSProxyImpl( name, varSpace(), obsSpace(), order, krType                 ); break;
-     case  3: proxy = new RSProxyImpl( name, varSpace(), obsSpace(), 0,     krType, true, 1.0      ); break;
+   case -1: proxy = new RSProxyImpl( name, varSpace(), obsSpace(), 0,     krType, true ); break;
+   case  0:
+   case  1:
+   case  2: proxy = new RSProxyImpl( name, varSpace(), obsSpace(), order, krType                 ); break;
+
+   //Target R2 parameter 1.0 is currently not used in RSProxyImpl, thus order -1 and 3 lead to the same proxy.
+   case  3: proxy = new RSProxyImpl( name, varSpace(), obsSpace(), 0,     krType, true, 1.0      ); break;
    }
 
    return proxy;
 }
 
 void ScenarioAnalysis::ScenarioAnalysisImpl::calculateRSProxy( RSProxy                                  * proxy
-                                                             , const std::vector<const casa::RunCase *> & runCases
-                                                             ) const
+                                                               , const std::vector<const casa::RunCase *> & runCases
+                                                               ) const
 {
-  if ( proxy == nullptr )
-  {
-    throw Exception( UndefinedValue ) << "calculateRSProxy(): provided proxy is not initiated for construction!";
-  }
+   if ( proxy == nullptr )
+   {
+      throw Exception( UndefinedValue ) << "calculateRSProxy(): provided proxy is not initiated for construction!";
+   }
 
-  if ( runCases.empty() ) throw Exception( RSProxyError ) << "calculateRSProxy(): empty completed cases list for given DoEs";
+   if ( runCases.empty() ) throw Exception( RSProxyError ) << "calculateRSProxy(): empty completed cases list for given DoEs";
 
-  if ( NoError != proxy->calculateRSProxy( runCases ) )
-  {
-    throw Exception( proxy->errorCode() ) << proxy->errorMessage();
-  }
+   if ( NoError != proxy->calculateRSProxy( runCases ) )
+   {
+      throw Exception( proxy->errorCode() ) << proxy->errorMessage();
+   }
 }
 
 void ScenarioAnalysis::ScenarioAnalysisImpl::serialize( CasaSerializer & outStream )
 {
-  std::vector<int> excludeVec;
-  for (const int i: m_excludeSet)
-  {
-    excludeVec.push_back(i);
-  }
+   std::vector<int> excludeVec;
+   for (const int i: m_excludeSet)
+   {
+      excludeVec.push_back(i);
+   }
 
    bool ok = outStream.save( m_caseSetPath,         "caseSetPath"           );
    ok = ok ? outStream.save( m_baseCaseProjectFile, "baseCaseProjectFile"   ) : ok;
@@ -1281,7 +1283,7 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::deserialize( CasaDeserializer & inS
    if ( inStream.version() < 9 )
    {
       throw Exception( DeserializationError ) << "Incompatible casa state file version. Versions 9 and later are incompatible with " <<
-         " the given state file version: " <<  inStream.version();
+                                                 " the given state file version: " <<  inStream.version();
    }
 
    bool ok = inStream.load( m_caseSetPath,         "caseSetPath" );
@@ -1303,13 +1305,13 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::deserialize( CasaDeserializer & inS
    }
    if ( inStream.version() > 11 )
    {
-     m_excludeSet.clear();
-     std::vector<int> excludeVec;
-     ok = ok ? inStream.load( excludeVec,       "excludeVec" ) : ok; // version 12
-     for (const int i : excludeVec)
-     {
-       m_excludeSet.insert(i);
-     }
+      m_excludeSet.clear();
+      std::vector<int> excludeVec;
+      ok = ok ? inStream.load( excludeVec,       "excludeVec" ) : ok; // version 12
+      for (const int i : excludeVec)
+      {
+         m_excludeSet.insert(i);
+      }
    }
 
    if ( !ok ) throw Exception( DeserializationError ) << "Deserialization error in ScenarioAnalysis";
@@ -1339,7 +1341,7 @@ std::shared_ptr<RunCaseImpl> ScenarioAnalysis::ScenarioAnalysisImpl::copyAnother
    if ( cs->parametersNumber() != varSpace().size() )
    {
       throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Import run case: IP space for the current scenario is different " <<
-                                                                         varSpace().size() << " != " << cs->parametersNumber();
+                                                                        varSpace().size() << " != " << cs->parametersNumber();
    }
 
    // import paramters using SUMlib <-> CASA converters
@@ -1351,7 +1353,7 @@ std::shared_ptr<RunCaseImpl> ScenarioAnalysis::ScenarioAnalysisImpl::copyAnother
    if ( cs->observablesNumber() != obsSpace().size() )
    {
       throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Import run case: targets number for the current scenario is different " <<
-                                                                         obsSpace().size() << " != " << cs->observablesNumber();
+                                                                        obsSpace().size() << " != " << cs->observablesNumber();
    }
 
    // import observables
