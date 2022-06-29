@@ -164,10 +164,7 @@ void VisualizationPropertiesCalculator::calculateProperties(FormationSurfaceVect
       return;
    }
 
-   if (m_rank == 0)
-   {
-      createXML();
-   }
+   createXML();
 
    if (not m_fileNameExistingXml.empty())
    {
