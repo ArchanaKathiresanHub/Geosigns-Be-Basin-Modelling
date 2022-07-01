@@ -462,6 +462,5 @@ TEST_F( TestPredictionTargetManager, TestGetIndexInPredictionTargetMatrix)
 
    EXPECT_EQ(3, manager.getIndexInPredictionTargetMatrix(0, 3, "Temperature"));
    EXPECT_EQ(sizeOfTimeSeries + 1, manager.getIndexInPredictionTargetMatrix(1, 0, "VRe"));
-
 }
 

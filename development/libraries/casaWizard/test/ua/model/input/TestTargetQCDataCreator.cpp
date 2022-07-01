@@ -14,7 +14,6 @@ TEST( TestTargetQCDataCreator, TestCreateFromFile )
    scenario.setWorkingDirectory("./testTargetQCDataCreatorInput/");
 
    scenario.predictionTargetManager().addSurfaceTarget(196750,606750,"Surface1",{"Temperature"});
-   //XYPointLayerTopSurface_Temperature_196750_606750_Top_Chalk_0.0_1.0_1.0
 
    targetQCdataCreator::readTargetQCs(scenario);
    const QVector<TargetQC> targetQCs = scenario.targetQCs();

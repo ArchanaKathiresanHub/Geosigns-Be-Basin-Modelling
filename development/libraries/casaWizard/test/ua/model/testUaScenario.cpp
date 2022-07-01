@@ -213,5 +213,32 @@ TEST(UAScenarioTest, PredictionTargetDataBestMC)
    QVector<double> bestMc = scenario.predictionTargetDataBestMC();
    EXPECT_EQ(bestMc.size(),1);
    EXPECT_DOUBLE_EQ(bestMc[0],55);
+}
 
+TEST(UAScenarioTest, setOptimalValuesTargetQCs)
+{
+   UAScenario scenario(new casaWizard::StubProjectReader());
+
+   QVector<TargetQC> targetQCs;
+   const int nTargets = 3;
+
+   for (int i = 0; i < nTargets; i++)
+   {
+      const QString identifier = "id" + QString::number(i);
+      targetQCs.push_back(TargetQC(0,"","",identifier,false,0,0,0,0,0,{},{},0));
+   }
+
+   scenario.setTargetQCs(targetQCs);
+
+   const QVector<double> values{1,2,3};
+   const QVector<QString> names{"id1","id2","id0"};
+
+   //Optimal values are matched to the targets based on the identifiers.
+   scenario.setOptimalValuesTargetQCs(values, names);
+
+   targetQCs = scenario.targetQCs();
+
+   EXPECT_DOUBLE_EQ(targetQCs[0].yOptimalSim(),3);
+   EXPECT_DOUBLE_EQ(targetQCs[1].yOptimalSim(),1);
+   EXPECT_DOUBLE_EQ(targetQCs[2].yOptimalSim(),2);
 }

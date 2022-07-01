@@ -7,48 +7,98 @@
 
 #include <gtest/gtest.h>
 
-TEST( TestMonteCarloData, testWriteToFile )
+
+
+namespace
+{
+void checkMatrixEqual(const QVector<QVector<double>>& m1, const QVector<QVector<double>>& m2)
+{
+   for (int i = 0; i < m1.size(); i++)
+   {
+      for (int j = 0; j < m1[i].size(); j++)
+      {
+         EXPECT_DOUBLE_EQ(m1[i][j], m2[i][j]);
+      }
+   }
+}
+
+void checkVectorEqual(const QVector<double>& v1, const QVector<double>& v2)
+{
+   for (int i = 0; i < v1.size(); i++)
+   {
+      EXPECT_DOUBLE_EQ(v1[i], v2[i]);
+   }
+}
+
+void checkManagersEqual(const casaWizard::ua::MonteCarloDataManager& m1, const casaWizard::ua::MonteCarloDataManager& m2)
+{
+   checkMatrixEqual(m1.predictionTargetMatrix(),m2.predictionTargetMatrix());
+   checkMatrixEqual(m1.calibrationTargetMatrix(),m2.calibrationTargetMatrix());
+   checkMatrixEqual(m1.influentialParameterMatrix(),m2.influentialParameterMatrix());
+
+   EXPECT_TRUE(m1.influentialParameterIdentifiers() == m2.influentialParameterIdentifiers());
+   EXPECT_TRUE(m1.predictionTargetIdentifiers() == m2.predictionTargetIdentifiers());
+   EXPECT_TRUE(m1.calibrationTargetIdentifiers() == m2.calibrationTargetIdentifiers());
+
+   checkVectorEqual(m1.rmse(),m2.rmse());
+   EXPECT_DOUBLE_EQ(m1.rmseOptimalRunCase(), m2.rmseOptimalRunCase());
+}
+
+}
+
+TEST( TestMonteCarloData, testLoadSave )
 {
    casaWizard::ua::MonteCarloDataManager mcData;
    mcData.setRmseOptimalRunCase(123);
    mcData.setRmse({1, 2});
 
-   QVector<QVector<double>> ctMatrix = {{11, 12}, {21, 22}};
-   QVector<QVector<double>> ipMatrix = {{33, 34}, {43, 44}};
-   QVector<QVector<double>> ptMatrix = {{55, 56}, {65, 66}};
+   const QVector<QVector<double>> ctMatrix = {{11, 12}, {21, 22}};
+   const QVector<QVector<double>> ipMatrix = {{33, 34}, {43, 44}};
+   const QVector<QVector<double>> ptMatrix = {{55, 56}, {65, 66}};
 
    mcData.setCalibrationTargetMatrix(ctMatrix);
    mcData.setInfluentialParameterMatrix(ipMatrix);
    mcData.setPredictionTargetMatrix(ptMatrix);
 
-   {
+   { //Check reading and writing without headers:
       casaWizard::ScenarioWriter writer{"monteCarloDataManagerActual.dat"};
       mcData.writeToFile(writer);
       writer.close();
+
+      casaWizard::ua::MonteCarloDataManager mcDataRead;
+      casaWizard::ScenarioReader reader{"monteCarloDataManagerActual.dat"};
+      mcDataRead.readFromFile(reader);
+
+      checkManagersEqual(mcData,mcDataRead);
    }
 
-   expectFileEq("monteCarloDataManagerActual.dat", "monteCarloDataManager.dat");
 
-   QVector<QString> ctHeaders = {"cth1","cth2"};
-   QVector<QString> ipHeaders = {"iph1","iph2"};
-   QVector<QString> ptHeaders = {"pth1","pth2"};
+   const QVector<QString> ctHeaders = {"cth1","cth2"};
+   const QVector<QString> ipHeaders = {"iph1","iph2"};
+   const QVector<QString> ptHeaders = {"pth1","pth2"};
 
-   mcData.setPredictionTargetMatrix(ctMatrix,ctHeaders);
+   mcData.setCalibrationTargetMatrix(ctMatrix,ctHeaders);
    mcData.setInfluentialParameterMatrix(ipMatrix,ipHeaders);
    mcData.setPredictionTargetMatrix(ptMatrix,ptHeaders);
 
-   {
+   { //Check writing and reading with headers
       casaWizard::ScenarioWriter writer{"monteCarloDataManagerActualHeaders.dat"};
       mcData.writeToFile(writer);
       writer.close();
+
+      casaWizard::ua::MonteCarloDataManager mcDataRead;
+      casaWizard::ScenarioReader reader{"monteCarloDataManagerActualHeaders.dat"};
+      mcDataRead.readFromFile(reader);
+
+      checkManagersEqual(mcData,mcDataRead);
    }
-   expectFileEq("monteCarloDataManagerActualHeaders.dat", "monteCarloDataManagerHeaders.dat");
+
 }
 
-TEST( TestMonteCarloData, testReadFromFile )
+TEST( TestMonteCarloData, testReadFromOldFormatFile )
 {
    casaWizard::ua::MonteCarloDataManager mcData;
-   casaWizard::ScenarioReader reader{"monteCarloDataManager.dat"};
+   casaWizard::ScenarioReader reader{"monteCarloDataManagerV0.dat"};
    mcData.readFromFile(reader);
 
    EXPECT_DOUBLE_EQ(mcData.rmseOptimalRunCase(), 123);
@@ -104,12 +154,12 @@ TEST( TestMonteCarloData, testGetPoint )
    mcData.setInfluentialParameterMatrix({{11,21},{31,41}});
    mcData.setPredictionTargetMatrix({{12,22},{32,42}});
 
-   QVector<double> mcmcPoint = mcData.getPoint(0);
+   const QVector<double> mcmcPoint = mcData.getPoint(0);
    ASSERT_EQ(2, mcmcPoint.size());
    EXPECT_EQ(11, mcmcPoint[0]);
    EXPECT_EQ(31, mcmcPoint[1]);
 
-   QVector<double> mcmcPoint2 = mcData.getPoint(1);
+   const QVector<double> mcmcPoint2 = mcData.getPoint(1);
    ASSERT_EQ(2, mcmcPoint2.size());
    EXPECT_EQ(21, mcmcPoint2[0]);
    EXPECT_EQ(41, mcmcPoint2[1]);

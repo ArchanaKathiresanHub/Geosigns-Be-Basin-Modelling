@@ -163,7 +163,7 @@ TEST(RSProxyTest, polyFitManyDoEPoints4D)
 
    // The integer vector keys in the coefficient map represent the monomial terms.
    // For example, for influential parameters A,B,C and D, represented by integers 0,1,3 and 4,
-   // the integer vector key {3, 3, 3} with value pair {c,0.0) would represent monomial c*D*D*D*D. The integer vector
+   // the integer vector key {3, 3, 3} with value pair {c,0.0) would represent monomial c*D*D*D. The integer vector
    // {1, 2, 3} with value pair {c,0.0) would represent monomial c*B*C*D.
 
    //Define a stub model with some nice crossterms:

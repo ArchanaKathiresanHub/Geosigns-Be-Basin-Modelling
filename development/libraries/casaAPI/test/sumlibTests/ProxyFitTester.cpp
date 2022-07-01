@@ -81,7 +81,7 @@ bool ProxyFitTester::compareCasaSumlibR2Adj() const
    const int nCoefficients = int(m_fittedCoefficients.size());
    std::vector<std::vector<double>> r2Andr2Adj = casa::RSProxyQualityCalculator::calculateR2AndR2adjFromObservables(casaTargets,
                                                                                                                     casaProxyVals,
-                                                                                                                    nCoefficients);
+                                                                                                                    {nCoefficients});
    double r2AdjCasa = r2Andr2Adj[1][0];
    return std::abs(r2AdjCasa-m_r2Adj) < 1e-6;
 }

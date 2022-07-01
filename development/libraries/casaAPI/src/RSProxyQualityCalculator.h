@@ -49,7 +49,7 @@ public:
   /// @return                                Matrix containing R2 (first row), R2adj (second row)
   static const std::vector<std::vector<double>> calculateR2AndR2adjFromObservables(const std::vector<std::vector<double>>& runCasesObservables,
                                                                                    const std::vector<std::vector<double>>& proxyEvaluationObservables,
-                                                                                   const int nCoefficients);
+                                                                                   const std::vector<int>& nCoefficients);
 
 private:
   RSProxyQualityCalculator(const RSProxyQualityCalculator&) = delete;

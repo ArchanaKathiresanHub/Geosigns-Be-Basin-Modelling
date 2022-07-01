@@ -126,7 +126,12 @@ std::vector<std::vector<double>> RSProxyQualityCalculator::calculateR2AndR2adj(c
    }
 
    const casa::RSProxy::CoefficientsMapList & cml = proxy->getCoefficientsMapList();
-   const int nCoefficients = int(cml.size());
+
+   std::vector<int> nCoefficients;
+   for (const auto& cofMap : cml)
+   {
+      nCoefficients.push_back(int(cofMap.size()));
+   }
 
    return calculateR2AndR2adjFromObservables(runCasesObservables, proxyEvaluationObservables, nCoefficients);
 }
@@ -189,7 +194,7 @@ std::vector<double> RSProxyQualityCalculator::calculateQ2(const string& proxyNam
 
 const std::vector<std::vector<double>> RSProxyQualityCalculator::calculateR2AndR2adjFromObservables(const std::vector<std::vector<double>>& runCaseObservables,
                                                                                                     const std::vector<std::vector<double>>& proxyObservables,
-                                                                                                    const int nCoefficients)
+                                                                                                    const std::vector<int>& nCoefficients)
 {
    const int nTargets{ static_cast<int>(runCaseObservables[0].size())};
 
@@ -206,7 +211,7 @@ const std::vector<std::vector<double>> RSProxyQualityCalculator::calculateR2AndR
       if (SSEOverSSyy >= 0)
       {
          R2Current    = 1.0 - SSEOverSSyy;
-         R2adjCurrent = 1.0 - SSEOverSSyy*(nDoEs - 1)/(nDoEs - nCoefficients);
+         R2adjCurrent = 1.0 - SSEOverSSyy*(nDoEs - 1)/(nDoEs - nCoefficients.at(size_t(j)));
       }
 
       R2AndR2adj[0][j] = R2Current;

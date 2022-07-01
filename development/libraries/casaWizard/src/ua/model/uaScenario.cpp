@@ -413,10 +413,13 @@ void UAScenario::setOptimalValuesTargetQCs(const QVector<double>& values, const 
    {
       for (int i = 0; i < targetQCs_.size(); i++)
       {
-         TargetQC& targetQc = targetQCs_[i];
-         if (targetQc.identifier() == colNames[i])
+         for (int j = 0; j < colNames.size(); j++)
          {
-            targetQc.setValOptimalSim(values.at(i));
+            TargetQC& targetQc = targetQCs_[i];
+            if (targetQc.identifier() == colNames[j])
+            {
+               targetQc.setValOptimalSim(values.at(j));
+            }
          }
       }
    }

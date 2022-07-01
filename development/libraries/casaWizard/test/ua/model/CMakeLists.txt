@@ -29,12 +29,14 @@ add_casawizard_ua_gtest( NAME PredictionTargetDepth
 add_casawizard_ua_gtest( NAME PredictionTargetSurface
    SOURCES TestPredictionTargetSurface.cpp )
 
+add_casawizard_ua_gtest( NAME TargetQC
+   SOURCES TestTargetQC.cpp )
+
 configure_file( predictionTargetManager.dat predictionTargetManager.dat )
 configure_file( predictionTargetManagerv2.dat predictionTargetManagerv2.dat )
 configure_file( influentialParameterManager.dat influentialParameterManager.dat )
-configure_file( monteCarloDataManager.dat monteCarloDataManager.dat )
-configure_file( monteCarloDataManagerHeaders.dat monteCarloDataManagerHeaders.dat )
 configure_file( manualDesignPointManager.dat manualDesignPointManager.dat )
+configure_file( monteCarloDataManagerV0.dat monteCarloDataManagerV0.dat )
 
 add_subdirectory( input )
 add_subdirectory( output )

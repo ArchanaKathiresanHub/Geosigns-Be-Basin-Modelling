@@ -23,7 +23,7 @@ MonteCarloDataManager::MonteCarloDataManager(const QVector<double>& rmseVector,
 
 void MonteCarloDataManager::writeToFile(ScenarioWriter& writer) const
 {
-   writer.writeValue("MonteCarloDataManagerVersion", 0);
+   writer.writeValue("MonteCarloDataManagerVersion", 1);
    writer.writeValue("mcmcRMSE", m_rmse);
    writer.writeValue("mcmcInfluentialParameters", m_influentialParameterMatrix);
    writer.writeValue("mcmcCalibrationTargets", m_calibrationTargetMatrix);
@@ -43,7 +43,7 @@ void MonteCarloDataManager::readFromFile(const ScenarioReader& reader)
    m_rmseOptimalRunCase = reader.readDouble("mcmcRMSEOPtimalRunCase");
    m_influentialParameterIdentifiers = reader.readVector<QString>("mcmcInfluentialParameterIdentifiers");
    m_calibrationTargetIdentifiers = reader.readVector<QString>("mcmcCalibrationTargetIdentifiers");
-   m_predictionTargetIdentifiers = reader.readVector<QString>("mcmcCalibrationTargetIdentifiers");
+   m_predictionTargetIdentifiers = reader.readVector<QString>("mcmcPredictionTargetIdentifiers");
 }
 
 void MonteCarloDataManager::clear()

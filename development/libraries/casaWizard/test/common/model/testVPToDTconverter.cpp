@@ -25,6 +25,7 @@ TEST(VPToDTConverterTest, TestConvertInvalidValues)
   std::vector<double> DT = converter.convertToDT({0.0, -1, Utilities::Numerical::CauldronNoDataValue});
 
   std::vector<double> DTExpected = {Utilities::Numerical::CauldronNoDataValue,
+                                    Utilities::Numerical::CauldronNoDataValue,
                                     Utilities::Numerical::CauldronNoDataValue};
 
   for (unsigned int i = 0; i < DT.size(); i++)
