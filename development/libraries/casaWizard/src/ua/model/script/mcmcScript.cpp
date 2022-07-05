@@ -43,7 +43,7 @@ void McmcScript::writeScriptContents(QFile& file) const
 
   if (uaScenario().mcTextFileName().isEmpty())
   {
-    throw std::runtime_error("MC text file name not found! This should not happen!");
+    throw std::runtime_error("MC text file name not found. Failed to write casa script");
   }
 
   out << writeExportDataTxt("MCResults", uaScenario().mcTextFileName(), doeList);

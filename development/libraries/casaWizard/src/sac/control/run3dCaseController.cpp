@@ -106,7 +106,7 @@ bool Run3dCaseController::import3dWellData(const QString& baseDirectory, const b
   }
   catch(const std::exception& e)
   {
-    Logger::log() << "Failed to read file" << e.what() << Logger::endl();
+    Logger::log() << e.what() << Logger::endl();
     return false;
   }
 

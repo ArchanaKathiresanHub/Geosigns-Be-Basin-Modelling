@@ -181,7 +181,18 @@ void exportScenarioToZip(const QDir& sourceDir, const QString& workingDirectory,
   CMBProjectWriter writer(tmpdir.absolutePath() + "/" + projectFile);  
   writer.generateOutputProject(timeStamp, workingDirectory + "/" + projectFile);
   ProjectTXTManipulator manipulator(tmpdir.absolutePath() + "/" + projectTextFile);
-  manipulator.appendStampToScenarioName(timeStamp);
+
+  try
+  {
+       manipulator.appendStampToScenarioName(timeStamp);
+  }
+  catch (const std::exception& e)
+  {
+     Logger::log() << e.what() << Logger::endl();
+     tmpdir.removeRecursively();
+     return;
+  }
+
 
   cleanFolder(tmpdir);
 

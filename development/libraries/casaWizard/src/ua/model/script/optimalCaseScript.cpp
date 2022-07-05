@@ -17,7 +17,7 @@ namespace ua
 OptimalCaseScript::OptimalCaseScript(const UAScenario& scenario) :
   CasaScript(scenario.workingDirectory()),
   scenario_{scenario},
-  optimalCaseDirectory_{scenario_.workingDirectory() + "/" + scenario_.runLocation() + "/Calibrated_calibrated"}
+  optimalCaseDirectory_{scenario_.workingDirectory() + "/" + scenario_.runLocation() + "/Calibrated_Project"}
 {
 }
 
@@ -92,7 +92,7 @@ bool OptimalCaseScript::validateScenario() const
 
 void OptimalCaseScript::writeScriptContents(QFile& file) const
 {
-  QString filename{"calibrated.project3d"};
+  QString filename{"Project.project3d"};
   QTextStream out(&file);
   out << writeBaseProject(scenario_.project3dPath());
   out << writeLoadState(scenario_.runLocation() + "/" + scenario_.iterationDirName() + "/" + scenario_.stateFileNameMCMC());

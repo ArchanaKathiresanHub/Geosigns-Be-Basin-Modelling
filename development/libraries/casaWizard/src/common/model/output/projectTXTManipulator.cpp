@@ -22,7 +22,7 @@ void ProjectTXTManipulator::appendStampToScenarioName(const QString& stamp) cons
   QFile textFile(projectTextFile_);
   if (!textFile.open(QIODevice::ReadOnly | QIODevice::Text))
   {
-     throw FileDoesNotExistException();
+     throw FileDoesNotExistException("File " + tempFileName.toStdString() + " could not be created");
   }
 
   QFile tmpFile(tempFileName);

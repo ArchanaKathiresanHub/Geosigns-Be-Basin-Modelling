@@ -1,5 +1,5 @@
 app 1 fastcauldron "-itcoupled"
-base_project "./CaseSet/Calibrated_calibrated/calibrated.project3d"
+base_project "./CaseSet/Calibrated_Project/Project.project3d"
 doe "BaseCase"
 location "CaseSet"
 run "LOCAL" "Default"

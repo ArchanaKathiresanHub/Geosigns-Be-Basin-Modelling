@@ -228,7 +228,7 @@ void ExtractWellDataVSET::createMetaDataSection()
   if (!fileStream.good())
   {
     throw std::runtime_error("The chosen file cannot be opened. Either the file does not exist, or the permissions are wrong") ;
-  }    
+  }
 
   std::string line;
   std::string firstWord;

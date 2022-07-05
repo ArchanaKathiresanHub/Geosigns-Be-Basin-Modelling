@@ -13,6 +13,7 @@
 #include "model/casaScenario.h"
 #include "model/input/calibrationTargetCreator.h"
 #include "view/importWellPopup.h"
+#include "view/components/ErrorMessageBox.h"
 
 #include <QMessageBox>
 #include <QSet>
@@ -49,9 +50,9 @@ void ImportWellPopupController::slotCloseWaitingDialog()
   waitingDialog_.done(0);
 }
 
-void ImportWellPopupController::slotExceptionThrown(QString exception)
+void ImportWellPopupController::slotExceptionThrown(QString message)
 {
-  throw std::runtime_error(exception.toStdString());
+   messageBox::showErrorMessageBox(message);
 }
 
 

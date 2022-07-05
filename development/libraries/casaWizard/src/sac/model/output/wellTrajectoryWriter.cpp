@@ -55,7 +55,7 @@ void writeTrajectories(SACScenario& scenario)
 
       if( !file.open(QIODevice::WriteOnly | QIODevice::Text))
       {
-        throw std::exception();
+        throw std::runtime_error("Failed to open file " + filename.toStdString());
       }
       QTextStream out{&file};
 

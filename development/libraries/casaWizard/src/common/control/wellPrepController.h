@@ -69,7 +69,6 @@ private:
   bool allActiveWellsHave1DResults() const;
   void checkEnabledStateButtons() const;
   void exportOnSeparateThread(const CalibrationTargetManager& calibrationTargetManager, const QString& fileName);
-  void reportImportError(QString message);
 
   WellPrepTab* wellPrepTab_;
   CasaScenario& casaScenario_;

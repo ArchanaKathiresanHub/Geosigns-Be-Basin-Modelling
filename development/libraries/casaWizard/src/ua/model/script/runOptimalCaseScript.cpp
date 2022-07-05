@@ -15,7 +15,7 @@ namespace ua
 RunOptimalCaseScript::RunOptimalCaseScript(const UAScenario& scenario) :
   DoEScript(scenario),
   scenario_{scenario},
-  projectFile_{"calibrated.project3d"}
+  projectFile_{"Project.project3d"}
 {
 }
 
@@ -31,7 +31,7 @@ QString RunOptimalCaseScript::workingDirectory() const
 
 QString RunOptimalCaseScript::relativeDirectory() const
 {
-  return scenario_.runLocation() + "/Calibrated_calibrated";
+  return scenario_.runLocation() + "/Calibrated_Project";
 }
 
 QString RunOptimalCaseScript::absoluteDirectory() const

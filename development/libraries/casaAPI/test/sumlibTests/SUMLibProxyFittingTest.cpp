@@ -104,7 +104,6 @@ TEST(RSProxyTest, polyFitManyDoEPoints1D)
    }
 
    //With modelsearch false, the fitting just sticks to the specified order:
-
    {
       //Only constant term
       info.modelSearch = false;

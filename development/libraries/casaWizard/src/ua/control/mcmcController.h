@@ -39,6 +39,8 @@ private slots:
 private:
    void refreshGUI();
 
+   bool doesOptimalCaseExist() const;
+
    MCMCTab* m_mcmcTab;
    UAScenario& m_casaScenario;
    ScriptRunController& m_scriptRunController;

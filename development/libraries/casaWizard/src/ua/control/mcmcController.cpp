@@ -190,6 +190,12 @@ void MCMCController::slotPushButtonRunOptimalCasesClicked()
 {
    scenarioBackup::backup(m_casaScenario);
 
+   if (!doesOptimalCaseExist())
+   {
+      Logger::log() << "The optimal case does not yet exist or is invalid and will be (re)generated." << Logger::endl();
+      slotPushButtonExportOptimalCasesClicked();
+   }
+
    RunOptimalCaseScript optimal{m_casaScenario};
    if (!casaScriptWriter::writeCasaScript(optimal) ||
        !m_scriptRunController.runScript(optimal))
@@ -216,6 +222,7 @@ void MCMCController::slotPushButtonRunOptimalCasesClicked()
    if (calibrationTargetIndices.size() == 0 || calibrationTargetIndices.back()-1 > observableValues.size())
    {
       Logger::log() << "Calculation of RMSE failed due to insufficient calibration targets." << Logger::endl();
+      return;
    }
 
    QVector<double> calibrationTargets;
@@ -229,6 +236,13 @@ void MCMCController::slotPushButtonRunOptimalCasesClicked()
    manager.setRmseOptimalRunCase(L2norm);
    m_mcmcTab->setL2norm(L2norm);
    scenarioBackup::backup(m_casaScenario);
+}
+
+bool MCMCController::doesOptimalCaseExist() const
+{
+   const OptimalCaseScript optimal{m_casaScenario};
+   const QString directory{optimal.optimalCaseDirectory()};
+   return QFile::exists(directory + "/Project.project3d");
 }
 
 void MCMCController::slotPushButtonAddOptimalDesignPointClicked()

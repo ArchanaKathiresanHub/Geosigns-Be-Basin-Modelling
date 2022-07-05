@@ -19,7 +19,8 @@ public:
   QString projectTextFile_;
 };
 
-class FileDoesNotExistException : std::exception
+class FileDoesNotExistException : std::runtime_error
 {
+public:
+   FileDoesNotExistException(std::string str):std::runtime_error(str){}
 };
-
