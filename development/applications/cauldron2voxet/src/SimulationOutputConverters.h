@@ -13,6 +13,7 @@
 
 #include <string>
 #include <vector>
+#include <climits>
 
 /// <summary>
 ///  Simulation Output Converters class
@@ -69,6 +70,28 @@ namespace converters
 
     /// @brief Splits the string into separate strings as per the separator provided
     bool splitString(char* string, char separator, char*& firstPart, char*& secondPart, char*& thirdPart);
+
+#ifdef FORLATER
+    template <typename T>
+    T swap_endian(T u)
+    {
+        static_assert (CHAR_BIT == 8, "CHAR_BIT != 8");
+
+        union
+        {
+            T u;
+            unsigned char u8[sizeof(T)];
+        } source, dest;
+
+        source.u = u;
+
+        for (size_t k = 0; k < sizeof(T); k++)
+            dest.u8[k] = source.u8[sizeof(T) - k - 1];
+
+        return dest.u;
+    }
+#endif // FORLATER
+
 }
 
 #endif

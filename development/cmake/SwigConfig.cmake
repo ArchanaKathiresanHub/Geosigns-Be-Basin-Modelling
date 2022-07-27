@@ -13,7 +13,7 @@
 include(cmake/AddPackage.cmake)
 
 
-set(SWIG_EXECUTABLE "${SWIG_DIR}/swig.exe" CACHE FILEPATH "The path to the SWIG executable")
+set(SWIG_EXECUTABLE "${SWIG_DIR}/../swig.exe" CACHE FILEPATH "The path to the SWIG executable")
 
 add_external_package_info( 
        CAPABILITY Swig

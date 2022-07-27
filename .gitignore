@@ -18,3 +18,4 @@
 
 #ignore linux backup files
 *~
+/.vs

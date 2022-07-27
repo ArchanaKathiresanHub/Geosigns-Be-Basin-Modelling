@@ -48,7 +48,7 @@ include_directories( SYSTEM
 
 target_link_libraries(${FDC_TARGET_NAME}
     FastDepthConversionLib
-    FastcauldronApplication
+    FastcauldronLib
     DataAccess
     DistributedDataAccess
     )

@@ -70,12 +70,12 @@ include_directories( SYSTEM
 # DataAccess and DistributedDataAccess crossdependencies
 #
 target_link_libraries(${FASTCAULDRON_TARGET_NAME}
-    FastcauldronApplication
+    FastcauldronLib
     DataAccess
     DistributedDataAccess
 )
 target_link_libraries(${LINEARSOLVER_TARGET_NAME}
-    FastcauldronApplication
+    FastcauldronLib
     DataAccess
     DistributedDataAccess
 )

@@ -17,7 +17,7 @@ set_property( GLOBAL PROPERTY USE_FOLDERS ON )
 
 #Set 3rd party tools versions:
 set(PETSC_VERSION "3.13.1"  CACHE STRING "PETSc version")
-set(SWIG_VERSION  "3.0.12" CACHE STRING "The version number of the swig executable")
+set(SWIG_VERSION  "4.0.2" CACHE STRING "The version number of the swig executable")
 if (WIN32)
 	set(BOOST_VERSION_WIN  "1_73_0" CACHE STRING "The Boost version number used")
 else(UNIX)

@@ -28,9 +28,9 @@ set_target_properties( ${FDC_LIB_NAME} PROPERTIES FOLDER "${BASE_FOLDER}/${FDC_L
 ################################################################
 
 if (UNIX)
-add_dependencies(${FDC_LIB_NAME} FastcauldronApplication TableIO Boost cmbapi PETSC )
+add_dependencies(${FDC_LIB_NAME} FastcauldronLib TableIO Boost cmbapi PETSC )
 else (WIN32)
-add_dependencies(${FDC_LIB_NAME} FastcauldronApplication TableIO )
+add_dependencies(${FDC_LIB_NAME} FastcauldronLib TableIO )
 endif (UNIX)
 
 include_directories(

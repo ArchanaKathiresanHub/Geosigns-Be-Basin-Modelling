@@ -9,6 +9,9 @@
 # Do not distribute without written permission from Shell.              #
 #                                                                       #
 #########################################################################
+if(UNIX)
+    set ( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fp-model strict" )
+endif()
 
 # 1. This list contains all header files
 FILE( GLOB all_headers src/*.h )

@@ -96,7 +96,7 @@ endif()
 
 #SWIG
 if (IS_DIRECTORY "${BM_EXTERNAL_COMPONENTS_DIR}/swigwin-${SWIG_VERSION}" )
-   set(SWIG_DIR "${BM_EXTERNAL_COMPONENTS_DIR}/swigwin-${SWIG_VERSION}" CACHE PATH "The directory where SWIG is installed")
+   set(SWIG_DIR "${BM_EXTERNAL_COMPONENTS_DIR}/swigwin-${SWIG_VERSION}/Lib" CACHE PATH "The directory where SWIG is installed")
    set(SWIG_FOUND TRUE)
 else()
    message( FATAL_ERROR "Can not find Swig in ${BM_EXTERNAL_COMPONENTS_DIR}/swigwin-${SWIG_VERSION}" )
