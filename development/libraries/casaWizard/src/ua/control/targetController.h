@@ -51,6 +51,6 @@ private:
   ObjectiveFunctionController* objectiveFunctionController_;
 };
 
-}  // namespace casaWizard
+} // namespace ua
 
-}  // namespace ua
+} // namespace casaWizard

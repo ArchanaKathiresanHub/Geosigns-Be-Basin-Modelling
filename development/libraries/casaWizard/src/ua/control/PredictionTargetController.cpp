@@ -8,6 +8,7 @@
 
 #include "PredictionTargetController.h"
 #include "TargetImportWellsController.h"
+#include "TargetImportPredictionTargetsController.h"
 
 #include "model/logger.h"
 #include "model/uaScenario.h"
@@ -34,6 +35,7 @@ PredictionTargetController::PredictionTargetController(PredictionTargetTable* ta
 {
   connect(m_table->pushButtonAddSurfaceTarget(),  SIGNAL(clicked()), this, SLOT(slotPushButtonAddPredictionTargetClicked()));
   connect(m_table->pushButtonAddTargetsAtWellLocations(),  SIGNAL(clicked()), this, SLOT(slotPushButtonAddTargetWellLocationsClicked()));
+  connect(m_table->pushButtonAddPredictionTargets(), SIGNAL(clicked()), this, SLOT(slotPushButtonAddPredictionTargetsClicked()));
   connect(m_table->pushButtonDelSurfaceTarget(),  SIGNAL(clicked()), this, SLOT(slotPushButtonDelPredictionTargetClicked()));
   connect(m_table->pushButtonCopySurfaceTarget(), SIGNAL(clicked()), this, SLOT(slotPushButtonCopyPredictionTargetClicked()));
   connect(m_table->tableWidgetSurfaceTargets(),   SIGNAL(itemChanged(QTableWidgetItem*)),
@@ -58,6 +60,12 @@ void PredictionTargetController::slotPushButtonAddTargetWellLocationsClicked()
    TargetImportWellsController targetImportWellsController(m_calibrationTargetManager,
                                                            m_predictionTargetManager);
    refreshAndEmitDataChanged();
+}
+
+void PredictionTargetController::slotPushButtonAddPredictionTargetsClicked(){
+    TargetImportPredictionTargetsController targetImportPredictionTargetsController(m_calibrationTargetManager,
+                                                                                    m_predictionTargetManager);
+    refreshAndEmitDataChanged();
 }
 
 void PredictionTargetController::slotPushButtonDelPredictionTargetClicked()

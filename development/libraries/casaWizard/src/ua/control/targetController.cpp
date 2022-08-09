@@ -160,6 +160,6 @@ void TargetController::slotLineEditCalibrationTextChanged(const QString& calibra
    emit signalRefreshChildWidgets();
 }
 
-}  // namespace casaWizard
+} // namespace ua
 
-}  // namespace ua
+} // namespace casaWizard

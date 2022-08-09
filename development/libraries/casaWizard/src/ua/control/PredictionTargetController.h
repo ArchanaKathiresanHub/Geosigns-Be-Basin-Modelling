@@ -47,6 +47,7 @@ public slots:
 private slots:
    void slotPushButtonAddPredictionTargetClicked();
    void slotPushButtonAddTargetWellLocationsClicked();
+   void slotPushButtonAddPredictionTargetsClicked();
    void slotPushButtonDelPredictionTargetClicked();
    void slotPushButtonCopyPredictionTargetClicked();
    void slotTableWidgetPredictionTargetsItemChanged(QTableWidgetItem* item);

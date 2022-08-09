@@ -7,9 +7,6 @@
 //
 
 #pragma once
-
-#include "view/TargetImportDialogWells.h"
-
 #include <QObject>
 
 namespace casaWizard
@@ -21,6 +18,7 @@ namespace ua
 {
 
 class PredictionTargetManager;
+class TargetImportDialogWells;
 
 class TargetImportWellsController: public QObject
 {
@@ -38,7 +36,7 @@ private slots:
 private:
    const CalibrationTargetManager& m_calibrationTargetManager;
    PredictionTargetManager& m_predictionTargetManager;
-   TargetImportDialogWells m_targetImportDialogWells;
+   TargetImportDialogWells* m_targetImportDialogWells;
 };
 
 } // namespace ua

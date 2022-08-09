@@ -10,8 +10,10 @@
 
 #include "model/calibrationTargetManager.h"
 #include "model/predictionTargetManager.h"
-#include "model/PredictionTargetsFromWellsCreator.h"
-#include "model/TargetInputFromWellsInfo.h"
+#include "model/PredictionTargetCreator.h"
+#include "model/TargetInputInfoFromWells.h"
+
+#include "view/TargetImportDialogWells.h"
 
 #include <QStringList>
 #include <QMessageBox>
@@ -19,7 +21,6 @@
 
 namespace casaWizard
 {
-
 namespace ua
 {
 
@@ -28,17 +29,18 @@ TargetImportWellsController::TargetImportWellsController(const CalibrationTarget
                                                          ,QObject* parent):
    QObject(parent),
    m_calibrationTargetManager(calibrationTargetManager),
-   m_predictionTargetManager(predictionTargetManager)
+   m_predictionTargetManager(predictionTargetManager),
+   m_targetImportDialogWells(new TargetImportDialogWells())
 {
-   connect(&m_targetImportDialogWells, SIGNAL(accepted()), this, SLOT(slotImportAccepted()));
+   connect(m_targetImportDialogWells, SIGNAL(accepted()), this, SLOT(slotImportAccepted()));
 
    const QStringList wellNames = calibrationTargetManager.getWellNames();
-   m_targetImportDialogWells.updateWellsTable(wellNames);
+   m_targetImportDialogWells->updateWellsTable(wellNames);
 
    const QStringList surfaceNames = predictionTargetManager.validSurfaceNames();
-   m_targetImportDialogWells.updateSurfaceTable(surfaceNames);
+   m_targetImportDialogWells->updateSurfaceTable(surfaceNames);
 
-   m_targetImportDialogWells.exec();
+   m_targetImportDialogWells->exec();
 }
 
 void TargetImportWellsController::slotImportAccepted()
@@ -63,17 +65,15 @@ void TargetImportWellsController::slotImportAccepted()
 
 void TargetImportWellsController::slotImportPredictionTargets()
 {
-   TargetInputFromWellsInfo targetInputInfo;
+   TargetInputInfoFromWells targetInputInfo( m_calibrationTargetManager,
+                                             m_targetImportDialogWells->wellSelectionStates(),
+                                             m_targetImportDialogWells->surfaceSelectionStates(),
+                                             m_targetImportDialogWells->temperatureTargetsSelected(),
+                                             m_targetImportDialogWells->vreTargetsSelected(),
+                                             m_targetImportDialogWells->depthInput());
 
-   targetInputInfo.wellSelectionStates = m_targetImportDialogWells.wellSelectionStates();
-   targetInputInfo.surfaceSelectionStates = m_targetImportDialogWells.surfaceSelectionStates();
-   targetInputInfo.temperatureTargetsSelected = m_targetImportDialogWells.temperatureTargetsSelected();
-   targetInputInfo.vreTargetsSelected = m_targetImportDialogWells.vreTargetsSelected();
-   targetInputInfo.depthInput = m_targetImportDialogWells.depthInput();
-
-   PredictionTargetsFromWellsCreator::createTargetsFromWellData(targetInputInfo,
-                                                                m_calibrationTargetManager,
-                                                                m_predictionTargetManager);
+   PredictionTargetCreator creator(targetInputInfo, m_predictionTargetManager);
+   creator.createTargets();
 }
 
 void TargetImportWellsController::slotClearAndWritePredictionTargets()

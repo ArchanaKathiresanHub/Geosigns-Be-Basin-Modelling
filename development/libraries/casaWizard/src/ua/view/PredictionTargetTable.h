@@ -43,6 +43,7 @@ public:
    const QPushButton* pushButtonAddTargetsAtWellLocations() const;
    const QPushButton* pushButtonDelSurfaceTarget() const;
    const QPushButton* pushButtonCopySurfaceTarget() const;
+   const QPushButton* pushButtonAddPredictionTargets() const;
 
    int checkBoxColumnNumber() const;
 
@@ -56,6 +57,7 @@ private:
    QPushButton* m_pushButtonAddTargetsAtWellLocations;
    QPushButton* m_pushButtonDelTarget;
    QPushButton* m_pushButtonCopyTarget;
+   QPushButton* m_pushButtonAddPredictionTargets;
    int m_checkBoxColumnNumber;
    QVector<int> m_propertyColumns;
 };

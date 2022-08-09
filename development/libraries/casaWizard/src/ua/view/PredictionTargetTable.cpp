@@ -34,6 +34,7 @@ PredictionTargetTable::PredictionTargetTable(QWidget* parent) : QWidget(parent),
    m_pushButtonAddTargetsAtWellLocations{new QPushButton("Add targets at well locations", this)},
    m_pushButtonDelTarget{new QPushButton("Delete", this)},
    m_pushButtonCopyTarget{new QPushButton("Copy", this)},
+   m_pushButtonAddPredictionTargets{new QPushButton("Add prediction targets from File")},
    m_checkBoxColumnNumber{5},
    m_propertyColumns{}
 {
@@ -55,6 +56,7 @@ PredictionTargetTable::PredictionTargetTable(QWidget* parent) : QWidget(parent),
 
    QHBoxLayout* horizontalLayoutPredictionButtons = new QHBoxLayout();
    horizontalLayoutPredictionButtons->addWidget(new QWidget(this));
+   horizontalLayoutPredictionButtons->addWidget(m_pushButtonAddPredictionTargets);
    horizontalLayoutPredictionButtons->addWidget(m_pushButtonAddTargetsAtWellLocations);
    horizontalLayoutPredictionButtons->addWidget(m_pushButtonCopyTarget);
    horizontalLayoutPredictionButtons->addWidget(m_pushButtonAddTarget);
@@ -195,6 +197,11 @@ const QPushButton* PredictionTargetTable::pushButtonAddTargetsAtWellLocations() 
 void PredictionTargetTable::setTargetsAtWellLocationsButtonEnabled(bool state)
 {
    m_pushButtonAddTargetsAtWellLocations->setEnabled(state);
+}
+
+const QPushButton* PredictionTargetTable::pushButtonAddPredictionTargets() const
+{
+   return m_pushButtonAddPredictionTargets;
 }
 
 const QPushButton* PredictionTargetTable::pushButtonDelSurfaceTarget() const

@@ -20,8 +20,14 @@ add_casawizard_ua_gtest( NAME MonteCarloData
 add_casawizard_ua_gtest( NAME ManualDesignPointManager
    SOURCES testManualDesignPointManager.cpp )
 
-add_casawizard_ua_gtest( NAME PredictionTargetFromWellsCreator
-   SOURCES TestPredictionTargetFromWellsCreator.cpp )
+add_casawizard_ua_gtest( NAME PredictionTargetCreator
+   SOURCES TestPredictionTargetCreator.cpp )
+
+add_casawizard_ua_gtest( NAME PredictionTargetCreatorFromWells
+   SOURCES TestPredictionTargetCreatorFromWells.cpp )
+
+add_casawizard_ua_gtest( NAME PredictionTargetCreatorFromASCII
+   SOURCES TestPredictionTargetCreatorFromAscii.cpp )
 
 add_casawizard_ua_gtest( NAME PredictionTargetDepth
    SOURCES TestPredictionTargetDepth.cpp )
@@ -37,6 +43,7 @@ configure_file( predictionTargetManagerv2.dat predictionTargetManagerv2.dat )
 configure_file( influentialParameterManager.dat influentialParameterManager.dat )
 configure_file( manualDesignPointManager.dat manualDesignPointManager.dat )
 configure_file( monteCarloDataManagerV0.dat monteCarloDataManagerV0.dat )
+configure_file( importTest.txt importTest.txt)
 
 add_subdirectory( input )
 add_subdirectory( output )
