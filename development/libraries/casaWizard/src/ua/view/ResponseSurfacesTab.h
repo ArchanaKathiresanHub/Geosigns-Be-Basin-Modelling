@@ -18,12 +18,12 @@ class QCPlot;
 class QCDoeOptionTable;
 struct TargetQC;
 
-class QCTab : public QWidget
+class ResponseSurfacesTab : public QWidget
 {
   Q_OBJECT
 
 public:
-  explicit QCTab(QWidget* parent = 0);
+  explicit ResponseSurfacesTab(QWidget* parent = 0);
 
   const QPushButton* pushButtonQCrunCASA() const;
   QCDoeOptionTable* qcDoeOptionTable() const;

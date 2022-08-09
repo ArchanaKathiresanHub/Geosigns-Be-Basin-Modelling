@@ -116,32 +116,36 @@ public:
                                 QMap<QString, QVector<QVector<double>>>& currentPredTargetMatrixPerProperty) const;
 
   void obtainMonteCarloDataForTimeStep(const int targetIndex, const int timeStep, QVector<QVector<double> >& data) const;
+
+  int subSamplingFactor() const;
+  void setSubSamplingFactor(const int subSamplingFactor);
 private:
-  QString stateFileNameDoE_;
-  QString stateFileNameQC_;
-  QString stateFileNameMCMC_;
-  const QString runCasesObservablesTextFileName_;
-  const QString doeIndicesTextFileName_;
-  const QString proxyEvaluationObservablesTextFileName_;
-  const QString proxyQualityEvaluationTextFileName_;
-  QString doeTextFileName_;
-  QString mcTextFileName_;
-  Proxy proxy_;
-  std::unique_ptr<CMBMapReader> cmbMapReader_;
+  QString m_stateFileNameDoE;
+  QString m_stateFileNameQC;
+  QString m_stateFileNameMCMC;
+  const QString m_runCasesObservablesTextFileName;
+  const QString m_doeIndicesTextFileName;
+  const QString m_proxyEvaluationObservablesTextFileName;
+  const QString m_proxyQualityEvaluationTextFileName;
+  QString m_doeTextFileName;
+  QString m_mcTextFileName;
+  Proxy m_proxy;
+  std::unique_ptr<CMBMapReader> m_cmbMapReader;
   std::unique_ptr<ToDepthConverter> m_toDepthConverter;
-  InfluentialParameterManager influentialParameterManager_;
-  PredictionTargetManager predictionTargetManager_;
-  MonteCarloDataManager monteCarloDataManager_;
-  ManualDesignPointManager manualDesignPointManager_;
-  RunCaseSetFileManager runCaseSetFileManager_;
+  InfluentialParameterManager m_influentialParameterManager;
+  PredictionTargetManager m_predictionTargetManager;
+  MonteCarloDataManager m_monteCarloDataManager;
+  ManualDesignPointManager m_manualDesignPointManager;
+  RunCaseSetFileManager m_runCaseSetFileManager;
 
-  QVector<DoeOption*> doeOptions_;
+  QVector<DoeOption*> m_doeOptions;
 
-  QVector<TargetQC> targetQCs_;
-  QVector<bool> isDoeOptionSelected_;
-  QVector<bool> isQcDoeOptionSelected_;
+  QVector<TargetQC> m_targetQCs;
+  QVector<bool> m_isDoeOptionSelected;
+  QVector<bool> m_isQcDoeOptionSelected;
 
-  StageCompletionUA isStageComplete_;
+  StageCompletionUA m_isStageComplete;
+  int m_subSamplingFactor;
 };
 
 } // namespace ua

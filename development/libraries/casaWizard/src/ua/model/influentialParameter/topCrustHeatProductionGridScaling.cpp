@@ -9,7 +9,7 @@ namespace ua
 TopCrustHeatProductionGridScaling::TopCrustHeatProductionGridScaling() :
   InfluentialParameter
   (
-    "Basement: A0 map scaling",
+    "Continental crust heat production (A0) grid scaling",
     "\"TopCrustHeatProductionGridScaling\"",
     "Map scaling factor",
     "[-]",

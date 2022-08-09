@@ -1,8 +1,8 @@
 #include "controller.h"
 
-#include "control/doeController.h"
+#include "control/ModelInputsController.h"
 #include "control/logDisplayController.h"
-#include "control/qcController.h"
+#include "control/ResponseSurfacesController.h"
 #include "control/targetController.h"
 #include "control/mcmcController.h"
 #include "control/correlationController.h"
@@ -25,11 +25,11 @@ Controller::Controller() :
   MainController(),
   ui_{},
   scenario_{new CMBProjectReader()},
-  doeController_{new DoEcontroller{ui_.doeTab(), scenario_, scriptRunController(), this}},
-  targetController_{new TargetController{ui_.targetTab(), scenario_, this}},
-  qcController_{new QCController{ui_.qcTab(), scenario_, scriptRunController(), this}},
-  mcmcController_{new MCMCController{ui_.mcmcTab(), scenario_, scriptRunController(), this}},
-  correlationController_{new CorrelationController{ui_.correlationsTab(), scenario_, scriptRunController(), this}}
+  m_modelInputsController{new ModelInputsController{ui_.modelInputsTab(), scenario_, scriptRunController(), this}},
+  m_targetController{new TargetController{ui_.targetTab(), scenario_, this}},
+  m_responseSurfacesController{new ResponseSurfacesController{ui_.responseSurfacesTab(), scenario_, scriptRunController(), this}},
+  m_mcmcController{new MCMCController{ui_.mcmcTab(), scenario_, scriptRunController(), this}},
+  m_correlationController{new CorrelationController{ui_.correlationsTab(), scenario_, scriptRunController(), this}}
 {
   const MenuBarUA* menuBarUA = ui_.menuUA();
   connect(menuBarUA->actionRemoveDoeData(),    SIGNAL(triggered()), this, SLOT(slotPopupRemoveDoeData()));
@@ -76,7 +76,7 @@ void Controller::slotPopupRemoveDoeData()
     return;
   }
 
-  if (!scenario_.isStageComplete(StageTypesUA::qc))
+  if (!scenario_.isStageComplete(StageTypesUA::responseSurfaces))
   {
     QMessageBox warningBox;
     warningBox.setText("Target values are not extracted from DoE data yet (and QC stage is not complete)!");

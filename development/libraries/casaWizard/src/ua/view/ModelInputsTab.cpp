@@ -1,9 +1,10 @@
-#include "doeTab.h"
+#include "ModelInputsTab.h"
 
 #include "doeOptionTable.h"
 #include "influentialParameterTable.h"
 #include "manualDesignPointTable.h"
 #include "model/doeOption.h"
+#include "view/components/customtitle.h"
 
 #include <QComboBox>
 #include <QFormLayout>
@@ -22,7 +23,7 @@ namespace casaWizard
 namespace ua
 {
 
-DoeTab::DoeTab(QWidget* parent) :
+ModelInputsTab::ModelInputsTab(QWidget* parent) :
   QWidget(parent),
   pushSelectProject3D_{new QPushButton("Select", this)},
   lineEditProject3D_{new QLineEdit(this)},
@@ -32,13 +33,14 @@ DoeTab::DoeTab(QWidget* parent) :
   comboBoxApplication_{new QComboBox(this)},
   comboBoxCluster_{new QComboBox(this)},
   spinBoxCPUs_{new QSpinBox(this)},
-  pushButtonDoErunCASA_{new QPushButton("Run CASA", this)},
+  m_spinBoxSubSampling{new QSpinBox(this)},
+  pushButtonDoErunCASA_{new QPushButton("Run DoE points", this)},
   pushButtonRunAddedCases_{new QPushButton("Run added points", this)}
 {
   comboBoxApplication_->insertItems(0, QStringList() << "fastcauldron \"-itcoupled\"" << "fastcauldron \"-temperature\"");
   comboBoxCluster_->insertItems(0, QStringList() << "LOCAL" << "CLUSTER");
   spinBoxCPUs_->setMinimum(1);
-  spinBoxCPUs_->setMaximum(999999);
+  spinBoxCPUs_->setMaximum(256);
 
   QHBoxLayout* layoutProject3D = new QHBoxLayout();
   layoutProject3D->addWidget(new QLabel("Project file", this));
@@ -48,16 +50,20 @@ DoeTab::DoeTab(QWidget* parent) :
   QFormLayout* layoutOptions = new QFormLayout();
   layoutOptions->addRow(new QLabel("Application", this), comboBoxApplication_);
   layoutOptions->addRow(new QLabel("Cluster", this), comboBoxCluster_);
-  layoutOptions->addRow(new QLabel("#CPUs", this), spinBoxCPUs_);
+  layoutOptions->addRow(new QLabel("Number of processors", this), spinBoxCPUs_);
+  m_spinBoxSubSampling->setMinimum(1);
+  m_spinBoxSubSampling->setValue(1);
+  layoutOptions->addRow(new QLabel("Sub sampling", this), m_spinBoxSubSampling);
+
   layoutOptions->addRow(new QWidget(this), pushButtonDoErunCASA_);
   layoutOptions->addRow(new QWidget(this), pushButtonRunAddedCases_);
 
   QVBoxLayout* layoutDoe = new QVBoxLayout();
-  layoutDoe->addWidget(new QLabel("Design of Experiments", this));
+  layoutDoe->addWidget(new CustomTitle("Design of Experiments", this));
   layoutDoe->addWidget(doeOptionTable_);
 
   QVBoxLayout* layoutPoints = new QVBoxLayout();
-  layoutPoints->addWidget(new QLabel("Manual design points", this));
+  layoutPoints->addWidget(new CustomTitle("Manual design points", this));
   layoutPoints->addWidget(manualDesignPointTable_);
 
   QHBoxLayout* layoutDoeAndOptions = new QHBoxLayout();
@@ -71,69 +77,73 @@ DoeTab::DoeTab(QWidget* parent) :
   verticalLayoutTab->addLayout(layoutDoeAndOptions);
 }
 
-InfluentialParameterTable* DoeTab::influentialParameterTable() const
+InfluentialParameterTable* ModelInputsTab::influentialParameterTable() const
 {
   return influentialParameterTable_;
 }
 
-ManualDesignPointTable* DoeTab::manualDesignPointTable() const
+ManualDesignPointTable* ModelInputsTab::manualDesignPointTable() const
 {
   return manualDesignPointTable_;
 }
 
-QLineEdit* DoeTab::lineEditProject3D() const
+QLineEdit* ModelInputsTab::lineEditProject3D() const
 {
   return lineEditProject3D_;
 }
 
-const QPushButton* DoeTab::pushSelectProject3D() const
+const QPushButton* ModelInputsTab::pushSelectProject3D() const
 {
   return pushSelectProject3D_;
 }
 
-QComboBox* DoeTab::comboBoxApplication() const
+QComboBox* ModelInputsTab::comboBoxApplication() const
 {
   return comboBoxApplication_;
 }
 
-QComboBox* DoeTab::comboBoxCluster() const
+QComboBox* ModelInputsTab::comboBoxCluster() const
 {
   return comboBoxCluster_;
 }
 
-QSpinBox* DoeTab::spinBoxCPUs() const
+QSpinBox* ModelInputsTab::spinBoxCPUs() const
 {
-  return spinBoxCPUs_;
+   return spinBoxCPUs_;
 }
 
+QSpinBox* ModelInputsTab::spinBoxSubSampling() const
+{
+   return m_spinBoxSubSampling;
+}
 
-const QPushButton* DoeTab::pushButtonDoeRunCASA() const
+QPushButton* ModelInputsTab::pushButtonDoeRunCASA() const
 {
   return pushButtonDoErunCASA_;
 }
 
-const QPushButton*DoeTab::pushButtonRunAddedCases() const
+QPushButton*ModelInputsTab::pushButtonRunAddedCases() const
 {
   return pushButtonRunAddedCases_;
 }
 
-void DoeTab::updateDoeOptionTable(const QVector<DoeOption*>& doeOptions, const QVector<bool>& isDoeOptionsSelected)
+void ModelInputsTab::updateDoeOptionTable(const QVector<DoeOption*>& doeOptions, const QVector<bool>& isDoeOptionsSelected)
 {
   doeOptionTable_->updateTable(doeOptions, isDoeOptionsSelected);
   doeOptionTable_->resizeColumnsToContents();
 }
 
-QTableWidget* DoeTab::doeOptionTable() const
+QTableWidget* ModelInputsTab::doeOptionTable() const
 {
   return doeOptionTable_;
 }
 
-int DoeTab::columnIndexCheckBoxDoeOptionTable() const
+int ModelInputsTab::columnIndexCheckBoxDoeOptionTable() const
 {
   return doeOptionTable_->columnCheckBoxDoeOptionTable();
 }
 
-int DoeTab::columnIndexNDesignPointsDoeOptionTable() const
+int ModelInputsTab::columnIndexNDesignPointsDoeOptionTable() const
 {
   return doeOptionTable_->columnIndexNDesignPointsDoeOptionTable();
 }

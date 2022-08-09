@@ -11,7 +11,7 @@ namespace ua
 TopCrustHeatProductionGrid::TopCrustHeatProductionGrid() :
   InfluentialParameter
   (
-    "Basement: Top Crust Heat Production Grid",
+    "Continental crust heat production (A0) grid",
     "\"BasementIoTbl:TopCrustHeatProdGrid\"",
     "Top Crust Heat Production",
     "[-]",

@@ -100,9 +100,9 @@ void MCMCController::slotUpdateTabGUI(int tabID)
    }
 
    m_mcmcTab->setEnabled(m_casaScenario.isStageComplete(StageTypesUA::doe) &&
-                         m_casaScenario.isStageComplete(StageTypesUA::qc));
+                         m_casaScenario.isStageComplete(StageTypesUA::responseSurfaces));
 
-   if (!m_casaScenario.isStageComplete(StageTypesUA::qc))
+   if (!m_casaScenario.isStageComplete(StageTypesUA::responseSurfaces))
    {
       Logger::log() << "QC data is not available! Complete QC stage in QC tab first." << Logger::endl();
    }
@@ -263,7 +263,7 @@ void MCMCController::slotPushButtonAddOptimalDesignPointClicked()
    m_casaScenario.setNumberOfManualDesignPoints();
    m_casaScenario.changeUserDefinedPointStatus(true);
    m_casaScenario.setStageComplete(StageTypesUA::doe, false);
-   m_casaScenario.setStageComplete(StageTypesUA::qc, false);
+   m_casaScenario.setStageComplete(StageTypesUA::responseSurfaces, false);
    m_casaScenario.setStageComplete(StageTypesUA::mcmc, false);
 
    scenarioBackup::backup(m_casaScenario);

@@ -15,7 +15,7 @@ namespace ua
 enum class StageTypesUA
 {
   doe = 0,
-  qc = 1,
+  responseSurfaces = 1,
   mcmc = 2,
   Count = 3 // holds number of stages
 };

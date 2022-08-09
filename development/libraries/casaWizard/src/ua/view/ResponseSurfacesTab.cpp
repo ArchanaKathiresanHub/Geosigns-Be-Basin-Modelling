@@ -1,4 +1,4 @@
-#include "qcTab.h"
+#include "ResponseSurfacesTab.h"
 
 #include "model/targetQC.h"
 #include "qcDoeOptionTable.h"
@@ -21,14 +21,12 @@ namespace casaWizard
 namespace ua
 {
 
-QCTab::QCTab(QWidget* parent) : QWidget(parent),
-  pushButtonQCrunCASA_{new QPushButton("Run CASA", this)},
+ResponseSurfacesTab::ResponseSurfacesTab(QWidget* parent) : QWidget(parent),
+  pushButtonQCrunCASA_{new QPushButton("Calculate response surfaces", this)},
   tableQC_{new QTableWidget(this)},
   qcPlot_{new QCPlot(this)},
   qcDoeOptionTable_{new QCDoeOptionTable(this)}
 {
-  pushButtonQCrunCASA_->setFixedSize(120, 30);
-
   tableQC_->setRowCount(0);
   tableQC_->setColumnCount(5);
   tableQC_->setHorizontalHeaderItem(0, new QTableWidgetItem("ID"));
@@ -58,12 +56,12 @@ QCTab::QCTab(QWidget* parent) : QWidget(parent),
   setLayout(gridLayout);
 }
 
-const QPushButton* QCTab::pushButtonQCrunCASA() const
+const QPushButton* ResponseSurfacesTab::pushButtonQCrunCASA() const
 {
   return pushButtonQCrunCASA_;
 }
 
-void QCTab::fillQCtable(const QVector<TargetQC>& targetQCs)
+void ResponseSurfacesTab::fillQCtable(const QVector<TargetQC>& targetQCs)
 {
   QSignalBlocker blocker(tableQC_);
   tableQC_->clearContents();
@@ -91,27 +89,27 @@ void QCTab::fillQCtable(const QVector<TargetQC>& targetQCs)
   tableQC_->setCurrentCell(0,0);
 }
 
-void QCTab::updateQCPlot(const TargetQC& targetQC)
+void ResponseSurfacesTab::updateQCPlot(const TargetQC& targetQC)
 {
   qcPlot_->setTargetQC(targetQC);
   qcPlot_->update();
 
   qcPlot_->setXLabel(targetQC.property() + " " + targetQC.unitSI() + " (simulation value)");
-  qcPlot_->setYLabel(targetQC.property() + " " + targetQC.unitSI() + " (proxy value)");
+  qcPlot_->setYLabel(targetQC.property() + " " + targetQC.unitSI() + " (response surface value)");
   qcPlot_->setFontStyle(FontStyle::small);
 }
 
-QCDoeOptionTable* QCTab::qcDoeOptionTable() const
+QCDoeOptionTable* ResponseSurfacesTab::qcDoeOptionTable() const
 {
   return qcDoeOptionTable_;
 }
 
-QTableWidget* QCTab::tableQC() const
+QTableWidget* ResponseSurfacesTab::tableQC() const
 {
   return tableQC_;
 }
 
-void QCTab::allowModification(bool allow)
+void ResponseSurfacesTab::allowModification(bool allow)
 {
   pushButtonQCrunCASA_->setEnabled(allow);
   qcDoeOptionTable_->setEnabled(allow);

@@ -14,15 +14,15 @@ namespace ua
 {
 
 class QCDoeOptionController;
-class QCTab;
+class ResponseSurfacesTab;
 class UAScenario;
 
-class QCController : public QObject
+class ResponseSurfacesController : public QObject
 {
   Q_OBJECT
 
 public:
-  QCController(QCTab* QCTab,
+  ResponseSurfacesController(ResponseSurfacesTab* responseSurfacesTab,
                UAScenario& casaScenario,
                ScriptRunController& scriptRunController,
                QObject* parent);
@@ -43,10 +43,10 @@ private:
 private:
   void refreshGUI();
 
-  QCTab* QCTab_;
-  UAScenario& casaScenario_;
-  ScriptRunController& scriptRunController_;
-  QCDoeOptionController* qcDoeOptionController_;
+  ResponseSurfacesTab* m_responseSurfacesTab;
+  UAScenario& m_casaScenario;
+  ScriptRunController& m_scriptRunController;
+  QCDoeOptionController* m_qcDoeOptionController;
 };
 
 } // namespace ua

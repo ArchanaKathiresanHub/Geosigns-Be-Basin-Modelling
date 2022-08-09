@@ -142,6 +142,19 @@ TEST( ManualDesignPointManagerTest, modifyCompletedCase )
   ASSERT_EQ(10, manager.getDesignPoint(0)[0]);
 }
 
+TEST( ManualDesignPointManagerTest, getNumberOfCasesToRun )
+{
+  casaWizard::ua::ManualDesignPointManager manager;
+  manager.addInfluentialParameter(2);
+  manager.addDesignPoint({1,2});
+  manager.addDesignPoint({3,4});
+
+  EXPECT_EQ(2, manager.numberOfCasesToRun());
+  manager.completeAll();
+
+  EXPECT_EQ(0, manager.numberOfCasesToRun());
+}
+
 TEST( ManualDesignPointManagerTest, writeToFile )
 {
   casaWizard::ua::ManualDesignPointManager manager;

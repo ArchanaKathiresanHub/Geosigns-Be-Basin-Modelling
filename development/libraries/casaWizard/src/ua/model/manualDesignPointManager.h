@@ -30,6 +30,8 @@ public:
   void completeAll();
   void setParameterValue(const int designPoint, const int parameterIndex, const double value);
 
+  int numberOfCasesToRun() const;
+
   QVector<double> getDesignPoint(const int index) const;
   QVector<QVector<double>> parameters() const;
   QVector<bool> completed() const;
@@ -43,7 +45,7 @@ private:
   ManualDesignPointManager& operator=(ManualDesignPointManager) = delete;
 
   QVector<QVector<double>> influentialParameterValues_;
-  QVector<bool> completed_;
+  QVector<bool> m_completed;
   int numberOfParameters_;
 };
 

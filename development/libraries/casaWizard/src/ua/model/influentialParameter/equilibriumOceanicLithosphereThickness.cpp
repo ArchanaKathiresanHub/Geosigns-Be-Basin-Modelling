@@ -11,7 +11,7 @@ namespace ua
 EquilibriumOceanicLithosphereThickness::EquilibriumOceanicLithosphereThickness() :
   InfluentialParameter
   (
-    "Basement: Equilibrium oceanic lithosphere thickness",
+    "Oceanic mantle thickness",
     "\"BasementIoTbl:EquilibriumOceanicLithosphereThickness\"",
     "Equilibrium Oceanic Lithosphere Thickness",
     "[m]",

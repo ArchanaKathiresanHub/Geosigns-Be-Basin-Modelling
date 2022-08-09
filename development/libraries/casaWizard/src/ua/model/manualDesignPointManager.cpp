@@ -11,7 +11,7 @@ namespace ua
 
 ManualDesignPointManager::ManualDesignPointManager() :
   influentialParameterValues_{},
-  completed_{},
+  m_completed{},
   numberOfParameters_{0}
 {
 }
@@ -28,18 +28,18 @@ void ManualDesignPointManager::addDesignPoint(const QVector<double> newPoint)
     return;
   }
   influentialParameterValues_.append(newPoint);
-  completed_.append(false);
+  m_completed.append(false);
 }
 
 void ManualDesignPointManager::removeDesignPoint(const int index)
 {
-  if (index > completed_.size() || completed_[index])
+  if (index > m_completed.size() || m_completed[index])
   {
     return;
   }
 
   influentialParameterValues_.remove(index);
-  completed_.remove(index);
+  m_completed.remove(index);
 }
 
 void ManualDesignPointManager::addInfluentialParameter(const int amount)
@@ -91,12 +91,23 @@ void ManualDesignPointManager::setParameterValue(const int designPoint, const in
 {
   if ( designPoint >= numberOfPoints() ||
        parameterIndex >= numberOfParameters_ ||
-       completed_[designPoint])
+       m_completed[designPoint])
   {
     return;
   }
 
   influentialParameterValues_[designPoint][parameterIndex] = value;
+}
+
+int ManualDesignPointManager::numberOfCasesToRun() const
+{
+   int result  = 0;
+   for (const bool completed : m_completed)
+   {
+      result += completed ? 0 : 1;
+   }
+
+   return result;
 }
 
 QVector<QVector<double>> ManualDesignPointManager::parameters() const
@@ -106,12 +117,12 @@ QVector<QVector<double>> ManualDesignPointManager::parameters() const
 
 QVector<bool> ManualDesignPointManager::completed() const
 {
-  return completed_;
+  return m_completed;
 }
 
 void ManualDesignPointManager::completeAll()
 {
-  for (bool& b : completed_)
+  for (bool& b : m_completed)
   {
     b = true;
   }
@@ -122,21 +133,21 @@ void ManualDesignPointManager::writeToFile(ScenarioWriter& writer) const
   writer.writeValue("ManualDesignPointManagerVersion", 0);
   writer.writeValue("manualDesignPoints", influentialParameterValues_);  
   writer.writeValue("manualDesignPointParameters", numberOfParameters_);
-  writer.writeValue("manualDesignPointCompleted", completed_);
+  writer.writeValue("manualDesignPointCompleted", m_completed);
 }
 
 void ManualDesignPointManager::readFromFile(const ScenarioReader& reader)
 {
   influentialParameterValues_ = reader.readVector<QVector<double>>("manualDesignPoints");
   numberOfParameters_ = reader.readInt("manualDesignPointParameters");
-  completed_ = reader.readVector<bool>("manualDesignPointCompleted");
+  m_completed = reader.readVector<bool>("manualDesignPointCompleted");
 }
 
 void ManualDesignPointManager::clear()
 {
   influentialParameterValues_.clear();  
   numberOfParameters_ = 0;
-  completed_.clear();
+  m_completed.clear();
 }
 
 } // namespace ua

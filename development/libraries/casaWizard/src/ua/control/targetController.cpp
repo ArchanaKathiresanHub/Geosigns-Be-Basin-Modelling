@@ -117,7 +117,7 @@ void TargetController::slotPushSelectAllTimeSeriesPredictionTargetsClicked()
 
 void TargetController::slotDataChanged()
 {
-   scenario_.setStageComplete(StageTypesUA::qc, false);
+   scenario_.setStageComplete(StageTypesUA::responseSurfaces, false);
    scenario_.setStageComplete(StageTypesUA::mcmc, false);
 }
 

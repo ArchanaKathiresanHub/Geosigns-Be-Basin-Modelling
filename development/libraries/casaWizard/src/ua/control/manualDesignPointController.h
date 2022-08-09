@@ -17,31 +17,31 @@ class ManualDesignPointTable;
 
 class ManualDesignPointController : public QObject
 {
-  Q_OBJECT
+   Q_OBJECT
 
 public:
-  ManualDesignPointController(ManualDesignPointTable* table, ManualDesignPointManager& manager, QObject* parent);
+   ManualDesignPointController(ManualDesignPointTable* table, ManualDesignPointManager& manager, QObject* parent);
 
-  void updateInfluentialParameters(const int number, const QStringList names);
+   void updateInfluentialParameters(const int number, const QStringList names);
 
 public slots:
-  void removeParameter(const int index);
+   void removeParameter(const int index);
 
 private slots:
-  void slotAddButtonClicked();
-  void slotDeleteButtonClicked();
-  void slotTableItemChanged(QTableWidgetItem* item);
+   void slotAddButtonClicked();
+   void slotDeleteButtonClicked();
+   void slotTableItemChanged(QTableWidgetItem* item);
 
-  void slotRefresh();
+   void slotRefresh();
 
 signals:
-  void designPointsChanged();
+   void designPointsChanged();
 
 private:
-  ManualDesignPointTable* table_;
-  ManualDesignPointManager& manager_;
+   ManualDesignPointTable* m_table;
+   ManualDesignPointManager& m_manager;
 
-  QStringList headerNames_;
+   QStringList m_headerNames;
 };
 
 } // namespace ua

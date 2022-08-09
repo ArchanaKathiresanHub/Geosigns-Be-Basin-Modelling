@@ -11,7 +11,7 @@ namespace ua
 ThermalConductivity::ThermalConductivity() :
   InfluentialParameter
   (
-    "Lithology: Standard TP Thermal Conductivity Coefficient (StpThCond )",
+    "Lithology: Thermal Conductivity",
     "\"LithotypeIoTbl:StpThCond\"",
     "StpThCond",
     "[W/m.K]",

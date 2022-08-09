@@ -1,5 +1,6 @@
 #include "influentialParameterTable.h"
 
+#include "view/components/customtitle.h"
 #include "view/tableRowPushButton.h"
 #include "view/tableRowComboBox.h"
 
@@ -47,9 +48,14 @@ InfluentialParameterTable::InfluentialParameterTable(QWidget *parent) :
   buttonsLayout->addWidget(pushButtonAddInfluentialParameter_);
   buttonsLayout->addWidget(pushButtonDelInfluentialParameter_);
 
-  QHBoxLayout* totalLayout = new QHBoxLayout(this);
-  totalLayout->addWidget(tableWidgetInfluentialParameter_);
-  totalLayout->addLayout(buttonsLayout);
+  QHBoxLayout* tableAndButtonsLayout = new QHBoxLayout();
+  tableAndButtonsLayout->addWidget(tableWidgetInfluentialParameter_);
+  tableAndButtonsLayout->addLayout(buttonsLayout);
+
+  CustomTitle* tableHeader = new CustomTitle("Parameters and Uncertainty ranges to explore", this);
+  QVBoxLayout* totalLayout = new QVBoxLayout(this);
+  totalLayout->addWidget(tableHeader);
+  totalLayout->addLayout(tableAndButtonsLayout);
 }
 
 void InfluentialParameterTable::updateTable(const QVector<InfluentialParameter*> influentialParameters,

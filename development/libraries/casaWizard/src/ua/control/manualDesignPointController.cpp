@@ -17,74 +17,84 @@ namespace ua
 ManualDesignPointController::ManualDesignPointController(ManualDesignPointTable* table,
                                                          ManualDesignPointManager& manager,
                                                          QObject* parent) :
-  QObject(parent),
-  table_{table},
-  manager_{manager},
-  headerNames_{}
+   QObject(parent),
+   m_table{table},
+   m_manager{manager},
+   m_headerNames{}
 {
-  connect(parent, SIGNAL(signalRefreshChildWidgets()), this, SLOT(slotRefresh()));
+   connect(parent, SIGNAL(signalRefreshChildWidgets()), this, SLOT(slotRefresh()));
 
-  connect(table_->buttonAdd(),    SIGNAL(clicked()), this, SLOT(slotAddButtonClicked()));
-  connect(table_->buttonDelete(), SIGNAL(clicked()), this, SLOT(slotDeleteButtonClicked()));
-  connect(table_->table(), SIGNAL(itemChanged(QTableWidgetItem*)), this, SLOT(slotTableItemChanged(QTableWidgetItem*)));
+   connect(m_table->buttonAdd(),    SIGNAL(clicked()), this, SLOT(slotAddButtonClicked()));
+   connect(m_table->buttonDelete(), SIGNAL(clicked()), this, SLOT(slotDeleteButtonClicked()));
+   connect(m_table->table(), SIGNAL(itemChanged(QTableWidgetItem*)), this, SLOT(slotTableItemChanged(QTableWidgetItem*)));
 }
 
 void ManualDesignPointController::updateInfluentialParameters(const int numberNew, const QStringList names)
 {
-  const int numberOld = manager_.numberOfParameters();
-  if (numberNew > numberOld)
-  {
-    manager_.addInfluentialParameter(numberNew - numberOld);
-  }
-  headerNames_ = names;
-  slotRefresh();
+   const int numberOld = m_manager.numberOfParameters();
+   if (numberNew > numberOld)
+   {
+      m_manager.addInfluentialParameter(numberNew - numberOld);
+   }
+   m_headerNames = names;
+   slotRefresh();
 }
 
 void ManualDesignPointController::removeParameter(const int index)
 {
-  manager_.removeInfluentialParameter(index);
-  slotRefresh();
+   m_manager.removeInfluentialParameter(index);
+   slotRefresh();
 }
 
 void ManualDesignPointController::slotAddButtonClicked()
 {
-  manager_.addDesignPoint();
-  emit designPointsChanged();
-  slotRefresh();
+   if (m_manager.numberOfParameters() == 0)
+   {
+      return;
+   }
+
+   m_manager.addDesignPoint();
+   emit designPointsChanged();
+   slotRefresh();
 }
 
 void ManualDesignPointController::slotDeleteButtonClicked()
 {
-  int row = table_->table()->currentRow();
-  if (row < 0)
-  {
-    row = manager_.numberOfPoints() - 1;
-  }
-  if (row < 0)
-  {
-    return;
-  }
+   if (m_manager.numberOfParameters() == 0)
+   {
+      return;
+   }
 
-  QVector<bool> completed = manager_.completed();
-  if (completed[row])
-  {
-    Logger::log() << "Design point " << (row + 1) << " cannot be removed because the case has already been run" << Logger::endl();
-    return;
-  }
-  manager_.removeDesignPoint(row);
-  emit designPointsChanged();
-  slotRefresh();
+   int row = m_table->table()->currentRow();
+   if (row < 0)
+   {
+      row = m_manager.numberOfPoints() - 1;
+   }
+   if (row < 0)
+   {
+      return;
+   }
+
+   QVector<bool> completed = m_manager.completed();
+   if (completed[row])
+   {
+      Logger::log() << "Design point " << (row + 1) << " cannot be removed because the case has already been run" << Logger::endl();
+      return;
+   }
+   m_manager.removeDesignPoint(row);
+   emit designPointsChanged();
+   slotRefresh();
 }
 
 void ManualDesignPointController::slotTableItemChanged(QTableWidgetItem* item)
 {
-  manager_.setParameterValue(item->row(), item->column(), item->data(0).toDouble());
+   m_manager.setParameterValue(item->row(), item->column(), item->data(0).toDouble());
 }
 
 void ManualDesignPointController::slotRefresh()
 {
-  QSignalBlocker blocker(table_);
-  table_->updateTable(manager_.parameters(), manager_.completed(), headerNames_);
+   QSignalBlocker blocker(m_table);
+   m_table->updateTable(m_manager.parameters(), m_manager.completed(), m_headerNames);
 }
 
 } // namespace ua

@@ -23,34 +23,35 @@ namespace ua
 
 UAScenario::UAScenario(ProjectReader* projectReader) :
    CasaScenario(projectReader),
-   stateFileNameDoE_{"casaStateDoE.txt"},
-   stateFileNameQC_{"casaStateQC.txt"},
-   stateFileNameMCMC_{"casaStateMCMC.txt"},
-   runCasesObservablesTextFileName_{"runCasesObservables.txt"},
-   doeIndicesTextFileName_{"doeIndices.txt"},
-   proxyEvaluationObservablesTextFileName_{"proxyEvalObservables.txt"},
-   proxyQualityEvaluationTextFileName_{"proxyEvalQuality.txt"},
-   doeTextFileName_{"doeResults.txt"},
-   mcTextFileName_{"mcResults.txt"},
-   proxy_{},
-   cmbMapReader_(new CMBMapReader()),
-   m_toDepthConverter(new SurfaceToDepthConverter(CasaScenario::projectReader(),*cmbMapReader_)),
-   influentialParameterManager_{CasaScenario::projectReader()},
-   predictionTargetManager_{CasaScenario::projectReader(),*m_toDepthConverter},
-   monteCarloDataManager_{},
-   manualDesignPointManager_{},
-   runCaseSetFileManager_{},
-   doeOptions_{DoeOption::getDoeOptions()},
-   targetQCs_{},
-   isDoeOptionSelected_{QVector<bool>(doeOptions_.size(), false)},
-   isQcDoeOptionSelected_{},
-   isStageComplete_{}
+   m_stateFileNameDoE{"casaStateDoE.txt"},
+   m_stateFileNameQC{"casaStateQC.txt"},
+   m_stateFileNameMCMC{"casaStateMCMC.txt"},
+   m_runCasesObservablesTextFileName{"runCasesObservables.txt"},
+   m_doeIndicesTextFileName{"doeIndices.txt"},
+   m_proxyEvaluationObservablesTextFileName{"proxyEvalObservables.txt"},
+   m_proxyQualityEvaluationTextFileName{"proxyEvalQuality.txt"},
+   m_doeTextFileName{"doeResults.txt"},
+   m_mcTextFileName{"mcResults.txt"},
+   m_proxy{},
+   m_cmbMapReader(new CMBMapReader()),
+   m_toDepthConverter(new SurfaceToDepthConverter(CasaScenario::projectReader(),*m_cmbMapReader)),
+   m_influentialParameterManager{CasaScenario::projectReader()},
+   m_predictionTargetManager{CasaScenario::projectReader(),*m_toDepthConverter},
+   m_monteCarloDataManager{},
+   m_manualDesignPointManager{},
+   m_runCaseSetFileManager{},
+   m_doeOptions{DoeOption::getDoeOptions()},
+   m_targetQCs{},
+   m_isDoeOptionSelected{QVector<bool>(m_doeOptions.size(), false)},
+   m_isQcDoeOptionSelected{},
+   m_isStageComplete{},
+   m_subSamplingFactor{1}
 {
 }
 
 UAScenario::~UAScenario()
 {
-   for (DoeOption* doe : doeOptions_)
+   for (DoeOption* doe : m_doeOptions)
    {
       delete doe;
    }
@@ -58,7 +59,7 @@ UAScenario::~UAScenario()
 
 const Proxy& UAScenario::proxy() const
 {
-   return proxy_;
+   return m_proxy;
 }
 
 double UAScenario::responseSurfacesL2NormBestMC() const
@@ -68,13 +69,13 @@ double UAScenario::responseSurfacesL2NormBestMC() const
 
 void UAScenario::setNumberOfManualDesignPoints()
 {
-   if (manualDesignPointManager_.numberOfPoints() == 0)
+   if (m_manualDesignPointManager.numberOfPoints() == 0)
    {
       changeUserDefinedPointStatus(false);
    }
 
-   const int n = manualDesignPointManager_.numberOfPoints();
-   for (DoeOption* option : doeOptions_)
+   const int n = m_manualDesignPointManager.numberOfPoints();
+   for (DoeOption* option : m_doeOptions)
    {
       if (dynamic_cast<DoeUserDefined*>(option))
       {
@@ -85,7 +86,7 @@ void UAScenario::setNumberOfManualDesignPoints()
 
 void UAScenario::changeUserDefinedPointStatus(const bool status)
 {
-   const int points = manualDesignPointManager_.numberOfPoints();
+   const int points = m_manualDesignPointManager.numberOfPoints();
 
    if ((points != 0 &&
         !status)      ||
@@ -97,7 +98,7 @@ void UAScenario::changeUserDefinedPointStatus(const bool status)
 
    int pos = 0;
 
-   for (DoeOption* option : doeOptions_)
+   for (DoeOption* option : m_doeOptions)
    {
       if (dynamic_cast<DoeUserDefined*>(option))
       {
@@ -165,14 +166,24 @@ void UAScenario::obtainMonteCarloDataForTimeStep(const int targetIndex, const in
    }
 }
 
+int UAScenario::subSamplingFactor() const
+{
+   return m_subSamplingFactor;
+}
+
+void UAScenario::setSubSamplingFactor(const int subSampling)
+{
+   m_subSamplingFactor = subSampling;
+}
+
 void UAScenario::setProxyOrder(int order)
 {
-   proxy_.setOrder(order);
+   m_proxy.setOrder(order);
 }
 
 void UAScenario::setProxyKrigingMethod(const QString& krigingMethod)
 {
-   proxy_.setKrigingMethod(krigingMethod);
+   m_proxy.setKrigingMethod(krigingMethod);
 }
 
 QVector<DoeOption*> UAScenario::doeSelected() const
@@ -180,11 +191,11 @@ QVector<DoeOption*> UAScenario::doeSelected() const
    QVector<DoeOption*> doeOptionsSelected;
 
    int i = 0;
-   for (const bool& isSelected : isDoeOptionSelected_)
+   for (const bool& isSelected : m_isDoeOptionSelected)
    {
       if (isSelected)
       {
-         doeOptionsSelected.push_back(doeOptions_[i]);
+         doeOptionsSelected.push_back(m_doeOptions[i]);
       }
       ++i;
    }
@@ -197,11 +208,11 @@ QStringList UAScenario::doeOptionSelectedNames() const
    QStringList doeOptionSelectedNames;
 
    int i = 0;
-   for (const bool& isSelected : isDoeOptionSelected_)
+   for (const bool& isSelected : m_isDoeOptionSelected)
    {
       if (isSelected)
       {
-         doeOptionSelectedNames.append(doeOptions_[i]->name());
+         doeOptionSelectedNames.append(m_doeOptions[i]->name());
       }
       ++i;
    }
@@ -214,7 +225,7 @@ QStringList UAScenario::qcDoeOptionSelectedNames() const
    QStringList qcDoeOptionSelectedNames;
 
    int i = 0;
-   for (const bool& isSelected : isQcDoeOptionSelected_)
+   for (const bool& isSelected : m_isQcDoeOptionSelected)
    {
       if (isSelected)
       {
@@ -228,24 +239,24 @@ QStringList UAScenario::qcDoeOptionSelectedNames() const
 
 QVector<bool> UAScenario::isDoeOptionSelected() const
 {
-   return isDoeOptionSelected_;
+   return m_isDoeOptionSelected;
 }
 
 QVector<DoeOption*> UAScenario::doeOptions() const
 {
-   return doeOptions_;
+   return m_doeOptions;
 }
 
 void UAScenario::setIsDoeOptionSelected(const int row, const bool isSelected)
 {
-   isDoeOptionSelected_[row] = isSelected;
+   m_isDoeOptionSelected[row] = isSelected;
 
-   isQcDoeOptionSelected_.clear();
-   for (const bool& isDoeInDoeTabSelected : isDoeOptionSelected_)
+   m_isQcDoeOptionSelected.clear();
+   for (const bool& isDoeInDoeTabSelected : m_isDoeOptionSelected)
    {
       if (isDoeInDoeTabSelected)
       {
-         isQcDoeOptionSelected_.append(false);
+         m_isQcDoeOptionSelected.append(false);
       }
    }
 }
@@ -271,22 +282,22 @@ QVector<int> UAScenario::indicesOfSelectedQCDoeOptionsInSelectedDoeOptions()
 
 QVector<bool> UAScenario::isQcDoeOptionSelected() const
 {
-   return isQcDoeOptionSelected_;
+   return m_isQcDoeOptionSelected;
 }
 
 void UAScenario::setIsQcDoeOptionSelected(const int row, const bool isSelected)
 {
-   isQcDoeOptionSelected_[row] = isSelected;
+   m_isQcDoeOptionSelected[row] = isSelected;
 }
 
 void UAScenario::updateDoeArbitraryNDesignPoints(const int row, const int nDesignPoints)
 {
-   doeOptions_[row]->setArbitraryNDesignPoints(nDesignPoints);
+   m_doeOptions[row]->setArbitraryNDesignPoints(nDesignPoints);
 }
 
 void UAScenario::updateDoeConstantNumberOfDesignPoints(const int totalNumberOfInfluentialParameters)
 {
-   for (DoeOption* doe: doeOptions_)
+   for (DoeOption* doe: m_doeOptions)
    {
       doe->calculateNDesignPoints(totalNumberOfInfluentialParameters);
    }
@@ -294,128 +305,128 @@ void UAScenario::updateDoeConstantNumberOfDesignPoints(const int totalNumberOfIn
 
 QString UAScenario::stateFileNameDoE() const
 {
-   return stateFileNameDoE_;
+   return m_stateFileNameDoE;
 }
 
 void UAScenario::setStateFileNameDoE(const QString &stateFilePathDoE)
 {
-   stateFileNameDoE_ = stateFilePathDoE;
+   m_stateFileNameDoE = stateFilePathDoE;
 }
 
 QString UAScenario::stateFileNameQC() const
 {
-   return stateFileNameQC_;
+   return m_stateFileNameQC;
 }
 
 void UAScenario::setStateFileNameQC(const QString& stateFileNameQC)
 {
-   stateFileNameQC_ = stateFileNameQC;
+   m_stateFileNameQC = stateFileNameQC;
 }
 
 QString UAScenario::stateFileNameMCMC() const
 {
-   return stateFileNameMCMC_;
+   return m_stateFileNameMCMC;
 }
 
 void UAScenario::setStateFileNameMCMC(const QString& stateFilePathMCMC)
 {
-   stateFileNameMCMC_ = stateFilePathMCMC;
+   m_stateFileNameMCMC = stateFilePathMCMC;
 }
 
 QString UAScenario::doeTextFileName() const
 {
-   return doeTextFileName_;
+   return m_doeTextFileName;
 }
 
 QString UAScenario::runCasesObservablesTextFileName() const
 {
-   return runCasesObservablesTextFileName_;
+   return m_runCasesObservablesTextFileName;
 }
 
 QString UAScenario::doeIndicesTextFileName() const
 {
-   return doeIndicesTextFileName_;
+   return m_doeIndicesTextFileName;
 }
 
 QString UAScenario::proxyEvaluationObservablesTextFileName() const
 {
-   return proxyEvaluationObservablesTextFileName_;
+   return m_proxyEvaluationObservablesTextFileName;
 }
 
 QString UAScenario::proxyQualityEvaluationTextFileName() const
 {
-   return proxyQualityEvaluationTextFileName_;
+   return m_proxyQualityEvaluationTextFileName;
 }
 
 InfluentialParameterManager& UAScenario::influentialParameterManager()
 {
-   return influentialParameterManager_;
+   return m_influentialParameterManager;
 }
 
 const InfluentialParameterManager& UAScenario::influentialParameterManager() const
 {
-   return influentialParameterManager_;
+   return m_influentialParameterManager;
 }
 
 PredictionTargetManager& UAScenario::predictionTargetManager()
 {
-   return predictionTargetManager_;
+   return m_predictionTargetManager;
 }
 
 const PredictionTargetManager& UAScenario::predictionTargetManager() const
 {
-   return predictionTargetManager_;
+   return m_predictionTargetManager;
 }
 
 MonteCarloDataManager& UAScenario::monteCarloDataManager()
 {
-   return monteCarloDataManager_;
+   return m_monteCarloDataManager;
 }
 
 const MonteCarloDataManager& UAScenario::monteCarloDataManager() const
 {
-   return monteCarloDataManager_;
+   return m_monteCarloDataManager;
 }
 
 ManualDesignPointManager& UAScenario::manualDesignPointManager()
 {
-   return manualDesignPointManager_;
+   return m_manualDesignPointManager;
 }
 
 const ManualDesignPointManager& UAScenario::manualDesignPointManager() const
 {
-   return manualDesignPointManager_;
+   return m_manualDesignPointManager;
 }
 
 RunCaseSetFileManager& UAScenario::runCaseSetFileManager()
 {
-   return runCaseSetFileManager_;
+   return m_runCaseSetFileManager;
 }
 
 const RunCaseSetFileManager& UAScenario::runCaseSetFileManager() const
 {
-   return runCaseSetFileManager_;
+   return m_runCaseSetFileManager;
 }
 
 QVector<TargetQC> UAScenario::targetQCs() const
 {
-   return targetQCs_;
+   return m_targetQCs;
 }
 
 void UAScenario::setTargetQCs(const QVector<TargetQC>& targetQCs)
 {
-   targetQCs_ = targetQCs;
+   m_targetQCs = targetQCs;
 }
 
 void UAScenario::setOptimalValuesTargetQCs(const QVector<double>& values, const QVector<QString> colNames)
 {
-   if (colNames.size() == targetQCs_.size() && values.size() == colNames.size())
+   if (colNames.size() == m_targetQCs.size() && values.size() == colNames.size())
    {
-      for (int i = 0; i < targetQCs_.size(); i++)
+      for (int i = 0; i < m_targetQCs.size(); i++)
       {
          for (int j = 0; j < colNames.size(); j++)
          {
-            TargetQC& targetQc = targetQCs_[i];
+            TargetQC& targetQc = m_targetQCs[i];
             if (targetQc.identifier() == colNames[j])
             {
                targetQc.setValOptimalSim(values.at(j));
@@ -433,7 +444,7 @@ void UAScenario::setOptimalValuesTargetQCs(const QVector<double>& values, const 
 QVector<double> UAScenario::calibrationTargetDataBestMC() const
 {
    QVector<double> calibrationTargetBestMCData;
-   const QVector<QVector<double>> mcDataCalibration = monteCarloDataManager_.calibrationTargetMatrix();
+   const QVector<QVector<double>> mcDataCalibration = m_monteCarloDataManager.calibrationTargetMatrix();
    const int amountOfActiveCalibTargets = calibrationTargetManager().amountOfActiveCalibrationTargets();
    if (mcDataCalibration.isEmpty() || mcDataCalibration.size() != amountOfActiveCalibTargets)
    {
@@ -442,7 +453,7 @@ QVector<double> UAScenario::calibrationTargetDataBestMC() const
 
    for (int i = 0; i < amountOfActiveCalibTargets; ++i)
    {
-      calibrationTargetBestMCData.push_back(monteCarloDataManager_.calibrationTargetMatrix()[i][0]);
+      calibrationTargetBestMCData.push_back(m_monteCarloDataManager.calibrationTargetMatrix()[i][0]);
    }
    return calibrationTargetBestMCData;
 }
@@ -456,8 +467,8 @@ QVector<double> UAScenario::predictionTargetDataBestMC() const
    }
 
    QVector<double> predictionTargetBestMCData;
-   const QVector<QVector<double>> mcDataPrediction = monteCarloDataManager_.predictionTargetMatrix();
-   const int amountOfPredictionTargets = predictionTargetManager_.amountOfPredictionTargetWithTimeSeriesAndProperties();
+   const QVector<QVector<double>> mcDataPrediction = m_monteCarloDataManager.predictionTargetMatrix();
+   const int amountOfPredictionTargets = m_predictionTargetManager.amountOfPredictionTargetWithTimeSeriesAndProperties();
    if (mcDataPrediction.isEmpty() || mcDataPrediction.size() != amountOfPredictionTargets)
    {
       return predictionTargetBestMCData;
@@ -497,100 +508,105 @@ QVector<int> UAScenario::calibrationDataObservablesIndexRange() const
 
 const QString UAScenario::mcTextFileName() const
 {
-   return mcTextFileName_;
+   return m_mcTextFileName;
 }
 
 void UAScenario::setMCtextFileName(const QString& mcTextFileName)
 {
-   mcTextFileName_ = mcTextFileName;
+   m_mcTextFileName = mcTextFileName;
 }
 
 QVector<InfluentialParameter*> UAScenario::influentialParametersWithRunData()
 {
-   const int sizeRunInfluentialParameters = monteCarloDataManager_.influentialParameterMatrix().size();
+   const int sizeRunInfluentialParameters = m_monteCarloDataManager.influentialParameterMatrix().size();
 
-   if (sizeRunInfluentialParameters > influentialParameterManager_.influentialParameters().size())
+   if (sizeRunInfluentialParameters > m_influentialParameterManager.influentialParameters().size())
    {
       Logger::log() << "Incompatible data size of the found influential parameters and the selected ones." << Logger::endl();
-      return influentialParameterManager_.influentialParameters();
+      return m_influentialParameterManager.influentialParameters();
    }
 
-   return influentialParameterManager_.influentialParameters().mid(0, sizeRunInfluentialParameters);
+   return m_influentialParameterManager.influentialParameters().mid(0, sizeRunInfluentialParameters);
 }
 
 void UAScenario::writeToFile(ScenarioWriter& writer) const
 {
    CasaScenario::writeToFile(writer);
-   writer.writeValue("UAScenarioVersion", 3);
-   influentialParameterManager_.writeToFile(writer);
-   predictionTargetManager_.writeToFile(writer);
-   monteCarloDataManager_.writeToFile(writer);
-   manualDesignPointManager_.writeToFile(writer);
-   runCaseSetFileManager_.writeToFile(writer);
-   isStageComplete_.writeToFile(writer);
-   proxy_.writeToFile(writer);
+   writer.writeValue("UAScenarioVersion", 4);
+   m_influentialParameterManager.writeToFile(writer);
+   m_predictionTargetManager.writeToFile(writer);
+   m_monteCarloDataManager.writeToFile(writer);
+   m_manualDesignPointManager.writeToFile(writer);
+   m_runCaseSetFileManager.writeToFile(writer);
+   m_isStageComplete.writeToFile(writer);
+   m_proxy.writeToFile(writer);
 
-   writer.writeValue("targetQC", targetQCs_);
+   writer.writeValue("targetQC", m_targetQCs);
 
-   writer.writeValue("isDoeSelected", isDoeOptionSelected_);
-   writer.writeValue("isQcDoeSelected", isQcDoeOptionSelected_);
+   writer.writeValue("isDoeSelected", m_isDoeOptionSelected);
+   writer.writeValue("isQcDoeSelected", m_isQcDoeOptionSelected);
    QVector<int> nDesignPoints;
-   for (const DoeOption* option : doeOptions_)
+   for (const DoeOption* option : m_doeOptions)
    {
       nDesignPoints.append(option->nDesignPoints());
    }
    writer.writeValue("nDesignPoints", nDesignPoints);
+   writer.writeValue("SubSampling", m_subSamplingFactor);
 }
 
 void UAScenario::readFromFile(const ScenarioReader& reader)
 {
    const int version = reader.readInt("UAScenarioVersion");
    CasaScenario::readFromFile(reader);
-   influentialParameterManager_.readFromFile(reader);
-   predictionTargetManager_.readFromFile(reader);
-   monteCarloDataManager_.readFromFile(reader);
-   proxy_.readFromFile(reader);
+   m_influentialParameterManager.readFromFile(reader);
+   m_predictionTargetManager.readFromFile(reader);
+   m_monteCarloDataManager.readFromFile(reader);
+   m_proxy.readFromFile(reader);
 
-   targetQCs_ = reader.readVector<TargetQC>("targetQC");
+   m_targetQCs = reader.readVector<TargetQC>("targetQC");
    const QVector<bool> isDoeOptionSelected = reader.readVector<bool>("isDoeSelected");
    const QVector<bool> isQcDoeOptionSelected = reader.readVector<bool>("isQcDoeSelected");
    const QVector<int> nDesignPoints = reader.readVector<int>("nDesignPoints");
-   const int iLast = (nDesignPoints.size()<doeOptions_.size()) ? nDesignPoints.size() : doeOptions_.size();
+   const int iLast = (nDesignPoints.size()<m_doeOptions.size()) ? nDesignPoints.size() : m_doeOptions.size();
 
    for (int i = 0; i < iLast; ++i)
    {
-      doeOptions_[i]->setArbitraryNDesignPoints(nDesignPoints[i]);
+      m_doeOptions[i]->setArbitraryNDesignPoints(nDesignPoints[i]);
    }
 
-   if (isDoeOptionSelected.size() == doeOptions_.size())
+   if (isDoeOptionSelected.size() == m_doeOptions.size())
    {
-      isDoeOptionSelected_ = isDoeOptionSelected;
-      isQcDoeOptionSelected_ = isQcDoeOptionSelected;
+      m_isDoeOptionSelected = isDoeOptionSelected;
+      m_isQcDoeOptionSelected = isQcDoeOptionSelected;
    }
 
-   updateDoeConstantNumberOfDesignPoints(influentialParameterManager_.totalNumberOfInfluentialParameters());
+   updateDoeConstantNumberOfDesignPoints(m_influentialParameterManager.totalNumberOfInfluentialParameters());
    if (version > 0)
    {
-      manualDesignPointManager_.readFromFile(reader);
+      m_manualDesignPointManager.readFromFile(reader);
    }
    else
    {
-      manualDesignPointManager_.clear();
-      manualDesignPointManager_.addInfluentialParameter(influentialParameterManager().influentialParameters().size());
+      m_manualDesignPointManager.clear();
+      m_manualDesignPointManager.addInfluentialParameter(influentialParameterManager().influentialParameters().size());
    }
 
    if (version > 1)
    {
-      isStageComplete_.readFromFile(reader);
+      m_isStageComplete.readFromFile(reader);
    }
    else
    {
-      isStageComplete_.setAllToCompleted();
+      m_isStageComplete.setAllToCompleted();
    }
 
    if (version > 2)
    {
-      runCaseSetFileManager_.readFromFile(reader);
+      m_runCaseSetFileManager.readFromFile(reader);
+   }
+   if (version > 3)
+   {
+      m_subSamplingFactor = reader.readInt("SubSampling");
    }
 }
 
@@ -598,23 +614,23 @@ void UAScenario::clear()
 {
    CasaScenario::clear();
 
-   influentialParameterManager_.clear();
-   predictionTargetManager_.clear();
-   monteCarloDataManager_.clear();
-   manualDesignPointManager_.clear();
-   runCaseSetFileManager_.clear();
-   proxy_.clear();
+   m_influentialParameterManager.clear();
+   m_predictionTargetManager.clear();
+   m_monteCarloDataManager.clear();
+   m_manualDesignPointManager.clear();
+   m_runCaseSetFileManager.clear();
+   m_proxy.clear();
 
-   targetQCs_.clear();
-   isDoeOptionSelected_.fill(false);
-   isQcDoeOptionSelected_.clear();
-   for ( DoeOption* option : doeOptions_)
+   m_targetQCs.clear();
+   m_isDoeOptionSelected.fill(false);
+   m_isQcDoeOptionSelected.clear();
+   for ( DoeOption* option : m_doeOptions)
    {
       option->setArbitraryNDesignPoints(0);
    }
-   updateDoeConstantNumberOfDesignPoints(influentialParameterManager_.totalNumberOfInfluentialParameters());
+   updateDoeConstantNumberOfDesignPoints(m_influentialParameterManager.totalNumberOfInfluentialParameters());
 
-   isStageComplete_.clear();
+   m_isStageComplete.clear();
 }
 
 QString UAScenario::iterationDirName() const
@@ -643,26 +659,26 @@ QString UAScenario::iterationDirName() const
 
 void UAScenario::loadProject3dFile() const
 {
-   if (cmbMapReader_)
+   if (m_cmbMapReader)
    {
-      cmbMapReader_->load(project3dPath().toStdString());
+      m_cmbMapReader->load(project3dPath().toStdString());
    }
    CasaScenario::loadProject3dFile();
 }
 
 const CMBMapReader& UAScenario::mapReader() const
 {
-   return *cmbMapReader_;
+   return *m_cmbMapReader;
 }
 
 bool UAScenario::isStageComplete(const StageTypesUA& stageType) const
 {
-   return isStageComplete_.isComplete(stageType);
+   return m_isStageComplete.isComplete(stageType);
 }
 
 void UAScenario::setStageComplete(const StageTypesUA& stageType, bool isComplete)
 {
-   isStageComplete_.setStageIsComplete(stageType, isComplete);
+   m_isStageComplete.setStageIsComplete(stageType, isComplete);
 }
 
 } // namespace ua

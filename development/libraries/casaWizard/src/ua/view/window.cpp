@@ -1,10 +1,10 @@
 #include "window.h"
 
 #include "view/correlationTab.h"
-#include "view/doeTab.h"
+#include "view/ModelInputsTab.h"
 #include "view/mcmcTab.h"
 #include "view/menuBarUA.h"
-#include "view/qcTab.h"
+#include "view/ResponseSurfacesTab.h"
 #include "view/targetTab.h"
 #include "view/uaTabIDs.h"
 
@@ -18,9 +18,9 @@ namespace ua
 
 Window::Window(QWidget* parent) :
   MainWindow(parent),
-  doeTab_{new DoeTab(this)},
+  m_modelInputsTab{new ModelInputsTab(this)},
   targetTab_{new TargetTab(this)},
-  qcTab_{new QCTab(this)},
+  m_responseSurfacesTab{new ResponseSurfacesTab(this)},
   mcmcTab_{new MCMCTab(this)},
   correlationsTab_{new CorrelationTab(this)},
   menuBarUA_{new MenuBarUA(this)}
@@ -29,18 +29,18 @@ Window::Window(QWidget* parent) :
 
   setWindowTitle("CASA Thermal Wizard");
 
-  tabWidget()->addTab(doeTab_, "DoE");
+  tabWidget()->addTab(m_modelInputsTab, "Model Inputs");
   tabWidget()->addTab(targetTab_, "Data and prediction targets");
-  tabWidget()->addTab(qcTab_, "QC");
+  tabWidget()->addTab(m_responseSurfacesTab, "Response Surfaces");
   tabWidget()->addTab(mcmcTab_, "MCMC");
   tabWidget()->addTab(correlationsTab_, "Correlations");
 
   assert(tabWidget()->count() == static_cast<int>(TabID::Count));
 }
 
-DoeTab* Window::doeTab() const
+ModelInputsTab* Window::modelInputsTab() const
 {
-  return doeTab_;
+  return m_modelInputsTab;
 }
 
 TargetTab* Window::targetTab() const
@@ -48,9 +48,9 @@ TargetTab* Window::targetTab() const
   return targetTab_;
 }
 
-QCTab* Window::qcTab() const
+ResponseSurfacesTab* Window::responseSurfacesTab() const
 {
-  return qcTab_;
+  return m_responseSurfacesTab;
 }
 
 MCMCTab* Window::mcmcTab() const

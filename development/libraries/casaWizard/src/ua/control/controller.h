@@ -12,8 +12,8 @@ namespace ua
 {
 
 class CorrelationController;
-class DoEcontroller;
-class QCController;
+class ModelInputsController;
+class ResponseSurfacesController;
 class TargetController;
 class MCMCController;
 
@@ -34,11 +34,11 @@ private:
   Window ui_;
   UAScenario scenario_;
 
-  DoEcontroller* doeController_;
-  TargetController* targetController_;
-  QCController* qcController_;
-  MCMCController* mcmcController_;
-  CorrelationController* correlationController_;
+  ModelInputsController* m_modelInputsController;
+  TargetController* m_targetController;
+  ResponseSurfacesController* m_responseSurfacesController;
+  MCMCController* m_mcmcController;
+  CorrelationController* m_correlationController;
 };
 
 } // namespace ua

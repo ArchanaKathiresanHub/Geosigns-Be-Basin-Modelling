@@ -11,7 +11,7 @@ namespace ua
 InitialLithosphericMantleThickness::InitialLithosphericMantleThickness() :
   InfluentialParameter
   (
-    "Basement: Initial mantle thickness",
+    "Initial continental mantle thickness",
     "\"BasementIoTbl:InitialLithosphericMantleThickness\"",
     "Initial Mantle Thickness",
     "[m]",

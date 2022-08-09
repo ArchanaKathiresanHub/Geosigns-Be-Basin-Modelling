@@ -10,11 +10,11 @@ namespace ua
 {
 
 class CorrelationTab;
-class DoeTab;
 class MenuBarUA;
-class QCTab;
-class TargetTab;
 class MCMCTab;
+class ModelInputsTab;
+class ResponseSurfacesTab;
+class TargetTab;
 
 class Window : public MainWindow
 {
@@ -23,18 +23,18 @@ class Window : public MainWindow
 public:
   Window(QWidget* parent = 0);
 
-  DoeTab* doeTab() const;
+  ModelInputsTab* modelInputsTab() const;
   TargetTab* targetTab() const;
-  QCTab* qcTab() const;
+  ResponseSurfacesTab* responseSurfacesTab() const;
   MCMCTab* mcmcTab() const;
   CorrelationTab* correlationsTab() const;
   MenuBar* menu() const override;
   MenuBarUA* menuUA() const;
 
 private:
-  DoeTab* doeTab_;
+  ModelInputsTab* m_modelInputsTab;
   TargetTab* targetTab_;
-  QCTab* qcTab_;
+  ResponseSurfacesTab* m_responseSurfacesTab;
   MCMCTab* mcmcTab_;
   CorrelationTab* correlationsTab_;
   MenuBarUA* menuBarUA_;

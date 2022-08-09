@@ -20,12 +20,12 @@ class DoeOptionTable;
 class InfluentialParameterTable;
 class ManualDesignPointTable;
 
-class DoeTab : public QWidget
+class ModelInputsTab : public QWidget
 {
   Q_OBJECT
 
 public:
-  explicit DoeTab(QWidget* parent = 0);
+  explicit ModelInputsTab(QWidget* parent = 0);
 
   InfluentialParameterTable* influentialParameterTable() const;
   ManualDesignPointTable* manualDesignPointTable() const;
@@ -35,8 +35,10 @@ public:
   QComboBox* comboBoxApplication() const;
   QComboBox* comboBoxCluster() const;
   QSpinBox* spinBoxCPUs() const;
-  const QPushButton* pushButtonDoeRunCASA() const;
-  const QPushButton* pushButtonRunAddedCases() const;
+  QSpinBox* spinBoxSubSampling() const;
+  QPushButton* pushButtonDoeRunCASA() const;
+  QPushButton* pushButtonRunAddedCases() const;
+
   QTableWidget* doeOptionTable() const;
   void updateDoeOptionTable(const QVector<DoeOption*>& doeOptions, const QVector<bool>& isDoeOptionsSelected);
   int columnIndexCheckBoxDoeOptionTable() const;
@@ -53,6 +55,7 @@ private:
   QComboBox* comboBoxApplication_;
   QComboBox* comboBoxCluster_;
   QSpinBox* spinBoxCPUs_;
+  QSpinBox* m_spinBoxSubSampling;
 
   QPushButton* pushButtonDoErunCASA_;
   QPushButton* pushButtonRunAddedCases_;

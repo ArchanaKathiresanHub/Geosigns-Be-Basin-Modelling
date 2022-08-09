@@ -16,16 +16,16 @@ namespace ua
 {
 
 class UAScenario;
-class DoeTab;
+class ModelInputsTab;
 class InfluentialParameterController;
 class ManualDesignPointController;
 
-class DoEcontroller : public QObject
+class ModelInputsController : public QObject
 {
   Q_OBJECT
 
 public:
-  DoEcontroller(DoeTab* doeTab,
+  ModelInputsController(ModelInputsTab* modelInputsTab,
                 UAScenario& casaScenario,
                 ScriptRunController& scriptRunController,
                 QObject* parent);
@@ -39,6 +39,7 @@ private slots:
   void slotComboBoxClusterCurrentTextChanged(const QString& clusterName);
   void slotLineEditProject3dTextChanged(const QString& project3dPath);
   void slotSpinBoxCpusValueChanged(int cpus);
+  void slotSpinBoxSubSamplingValueChanged(int subSamplingFactor);
   void slotManualDesignPointsChanged();
   void slotDoeSelectionItemChanged(QTableWidgetItem* item);
 
@@ -54,11 +55,14 @@ private:
   void refreshGUI();
   void setDoEstageIncomplete();
 
-  DoeTab* doeTab_;
-  UAScenario& casaScenario_;
-  ScriptRunController& scriptRunController_;
-  InfluentialParameterController* influentialParameterController_;
-  ManualDesignPointController* manualDesignPointController_;
+  bool buttonRunAddedCasesShouldBeDisabled();
+  bool buttonDoERunShouldBeDisabled();
+
+  ModelInputsTab* m_modelInputsTab;
+  UAScenario& m_casaScenario;
+  ScriptRunController& m_scriptRunController;
+  InfluentialParameterController* m_influentialParameterController;
+  ManualDesignPointController* m_manualDesignPointController;
 };
 
 } // namespace ua

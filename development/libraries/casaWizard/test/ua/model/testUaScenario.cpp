@@ -93,6 +93,7 @@ TEST( UAScenarioTest, TestWriteReadVersion0 )
 TEST( UAScenarioTest, TestWriteReadVersion1 )
 {
    casaWizard::ua::UAScenario writeScenario{new casaWizard::StubProjectReader()};
+   writeScenario.setSubSamplingFactor(10);
 
    casaWizard::ua::ManualDesignPointManager& mdpManagerWrite = writeScenario.manualDesignPointManager();
    mdpManagerWrite.addInfluentialParameter(3);
@@ -114,6 +115,7 @@ TEST( UAScenarioTest, TestWriteReadVersion1 )
    QVector<double> designPoint0 = mdpManagerRead.getDesignPoint(0);
    QVector<double> designPoint1 = mdpManagerRead.getDesignPoint(1);
 
+   EXPECT_EQ(10, readScenario.subSamplingFactor());
    EXPECT_EQ(11, designPoint0[0]);
    EXPECT_EQ(12, designPoint0[1]);
    EXPECT_EQ(13, designPoint0[2]);

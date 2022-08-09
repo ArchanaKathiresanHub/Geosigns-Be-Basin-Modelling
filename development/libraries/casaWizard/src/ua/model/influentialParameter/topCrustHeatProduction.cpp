@@ -11,7 +11,7 @@ namespace ua
 TopCrustHeatProduction::TopCrustHeatProduction() :
   InfluentialParameter
   (
-    "Basement: Top Crust Heat Production",
+    "Continental crust heat production (A0)",
     "\"BasementIoTbl:TopCrustHeatProd\"",
     "Top Crust Heat Production",
     "[uW/m^3]",
