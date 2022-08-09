@@ -13,7 +13,7 @@
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Version				Date of update
 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-Cauldron-v2.8.2		2022-04-29 10:40:19 +0000
+Cauldron-v2.8.3		2022-08-09 13:31:17 +0000
 =============================================================
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Third-party Software 		version
@@ -36,6 +36,17 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2022-08-09  Richard Faasse  <Richard.Faasse@shell.com>
+
+	chg: usr: Implement user requested improvements on the DoE tab of the UA wizard
+	* Includes:
+	* General renames to translate some of the developer language in the wizard to user language.
+	* Adding subsampling functionality to the wizard
+	* Disabling casa buttons when no run is possible.
+	================== COMMIT-END ========================
+	Commit-ID:<2c663aaa60d6793ac9650b65d40645f635e96c6b>	  (tag: refs/tags/v2.8.3, refs/heads/master)
+
+++
 2022-04-29  arijit.khan Khan  <arijit.khan@shell.com>
 
 	usr: dev: fix: Undefined HeatFlow values for invalid elements !bug.
