@@ -13,7 +13,7 @@
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Version				Date of update
 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-Cauldron-v2.8.3		2022-08-09 13:31:17 +0000
+Cauldron-v2.8.4		2022-08-09 13:59:33 +0000
 =============================================================
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Third-party Software 		version
@@ -36,6 +36,19 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2022-08-09  Sven-v.Leeuwen  <Sven-v.Leeuwen@shell.com>
+
+	chg: usr: Implemented PBI 454451, Implemented comma separated ascii import for prediction targets.
+	 * New functionality added to the "Data & prediction Targets Tab" in the UA tool.
+	 * People should be able to import prediction targets from comma separated ascii files now.
+
+	 * Refactored the TargetInputInfoFromWells:
+	 * In UA/Models/Temp a refactored method for importing prediction-targets to the prediction-target-table is available. This method combines the "add prediction targets from wells" with the new prediction targets from an ascii file and should be ready to be implemented as well.
+
+	================== COMMIT-END ========================
+	Commit-ID:<2ed8412e542548d41d657407f1be1d8cfb3ed94d>	  (tag: refs/tags/v2.8.4, refs/heads/master)
+
+++
 2022-08-09  Richard Faasse  <Richard.Faasse@shell.com>
 
 	chg: usr: Implement user requested improvements on the DoE tab of the UA wizard
