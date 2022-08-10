@@ -10,8 +10,6 @@
 
 #include "TargetImportPredictionTargetsController.h"
 
-#include "model/calibrationTargetManager.h"
-#include "model/predictionTargetManager.h"
 #include "model/PredictionTargetCreator.h"
 #include "model/TargetInputInfoFromASCII.h"
 
@@ -26,12 +24,10 @@ namespace casaWizard
 {
 namespace ua
 {
-TargetImportPredictionTargetsController::TargetImportPredictionTargetsController(const CalibrationTargetManager& calibrationTargetManager,
-                                                                                 PredictionTargetManager& predictionTargetManager,
+TargetImportPredictionTargetsController::TargetImportPredictionTargetsController(PredictionTargetManager& predictionTargetManager,
                                                                                  QObject *parent):
-   QObject(parent),
-   m_calibrationTargetManager(calibrationTargetManager),
-   m_predictionTargetManager(predictionTargetManager),
+   TargetImportController(predictionTargetManager,
+                          parent),
    m_targetImportDialogAscii(new TargetImportDialogAscii())
 {
    if (!slotPushSelectFileClicked())
@@ -39,7 +35,7 @@ TargetImportPredictionTargetsController::TargetImportPredictionTargetsController
       return;
    }
 
-   const QStringList surfaceNames = m_predictionTargetManager.validSurfaceNames();
+   const QStringList surfaceNames = getPredictionTargetManager().validSurfaceNames();
    m_targetImportDialogAscii->updateSurfaceTable(surfaceNames);
 
    connect(m_targetImportDialogAscii, SIGNAL(accepted()), this, SLOT(slotImportAccepted()));
@@ -53,25 +49,6 @@ TargetImportPredictionTargetsController::~TargetImportPredictionTargetsControlle
    delete m_targetImportDialogAscii;
 }
 
-void TargetImportPredictionTargetsController::slotImportAccepted()
-{
-   if (m_predictionTargetManager.amountAtAge0() > 0)
-   {
-      QMessageBox overwriteData(QMessageBox::Icon::Information,
-                                "The target table already has targets.",
-                                "Would you like to overwrite or append the new targets?");
-      QPushButton* appendButton = overwriteData.addButton("Append", QMessageBox::RejectRole);
-      QPushButton* overwriteButton = overwriteData.addButton("Overwrite", QMessageBox::AcceptRole);
-      connect(appendButton, SIGNAL(clicked()), this, SLOT(slotImportPredictionTargets()));
-      connect(overwriteButton, SIGNAL(clicked()), this, SLOT(slotClearAndWritePredictionTargets()));
-      overwriteData.exec();
-      //If the dialog is closed without selecting append or overwrite, no prediction targets are imported.
-   }
-   else
-   {
-      slotImportPredictionTargets();
-   }
-}
 
 void TargetImportPredictionTargetsController::slotImportPredictionTargets()
 {
@@ -83,14 +60,8 @@ void TargetImportPredictionTargetsController::slotImportPredictionTargets()
                                  m_targetImportDialogAscii->depthInput(),
                                  m_targetImportDialogAscii->lineEditName()->text());
 
-   PredictionTargetCreator creator(info, m_predictionTargetManager);
+   PredictionTargetCreator creator(info, this->getPredictionTargetManager());
    creator.createTargets();
-}
-
-void TargetImportPredictionTargetsController::slotClearAndWritePredictionTargets()
-{
-   m_predictionTargetManager.clear();
-   slotImportPredictionTargets();
 }
 
 bool TargetImportPredictionTargetsController::slotPushSelectFileClicked()

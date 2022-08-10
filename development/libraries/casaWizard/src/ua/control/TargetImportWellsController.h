@@ -8,6 +8,7 @@
 
 #pragma once
 #include <QObject>
+#include "control/TargetImportController.h"
 
 namespace casaWizard
 {
@@ -17,25 +18,23 @@ class CalibrationTargetManager;
 namespace ua
 {
 
-class PredictionTargetManager;
 class TargetImportDialogWells;
 
-class TargetImportWellsController: public QObject
+class TargetImportWellsController: public TargetImportController
 {
    Q_OBJECT
 
 public:
-   TargetImportWellsController(const CalibrationTargetManager& calibrationTargetManager
-                               ,PredictionTargetManager& predictionTargetManager
-                               ,QObject* parent = nullptr);
+   TargetImportWellsController(const CalibrationTargetManager& calibrationTargetManager,
+                               PredictionTargetManager& predictionTargetManager,
+                               QObject* parent = nullptr);
+   ~TargetImportWellsController() override;
+
 private slots:
-   void slotClearAndWritePredictionTargets();
-   void slotImportAccepted();
-   void slotImportPredictionTargets();
+   void slotImportPredictionTargets() override;
 
 private:
    const CalibrationTargetManager& m_calibrationTargetManager;
-   PredictionTargetManager& m_predictionTargetManager;
    TargetImportDialogWells* m_targetImportDialogWells;
 };
 

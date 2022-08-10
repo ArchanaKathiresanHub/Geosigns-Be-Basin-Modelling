@@ -8,8 +8,6 @@
 
 #include "TargetImportWellsController.h"
 
-#include "model/calibrationTargetManager.h"
-#include "model/predictionTargetManager.h"
 #include "model/PredictionTargetCreator.h"
 #include "model/TargetInputInfoFromWells.h"
 
@@ -21,15 +19,16 @@
 
 namespace casaWizard
 {
+
 namespace ua
 {
 
 TargetImportWellsController::TargetImportWellsController(const CalibrationTargetManager& calibrationTargetManager
                                                          ,PredictionTargetManager& predictionTargetManager
                                                          ,QObject* parent):
-   QObject(parent),
+   TargetImportController(predictionTargetManager,
+                          parent),
    m_calibrationTargetManager(calibrationTargetManager),
-   m_predictionTargetManager(predictionTargetManager),
    m_targetImportDialogWells(new TargetImportDialogWells())
 {
    connect(m_targetImportDialogWells, SIGNAL(accepted()), this, SLOT(slotImportAccepted()));
@@ -43,24 +42,8 @@ TargetImportWellsController::TargetImportWellsController(const CalibrationTarget
    m_targetImportDialogWells->exec();
 }
 
-void TargetImportWellsController::slotImportAccepted()
-{
-   if (m_predictionTargetManager.amountAtAge0() > 0)
-   {
-      QMessageBox overwriteData(QMessageBox::Icon::Information,
-                                "The target table already has targets.",
-                                "Would you like to overwrite or append the new targets?");
-      QPushButton* appendButton = overwriteData.addButton("Append", QMessageBox::RejectRole);
-      QPushButton* overwriteButton = overwriteData.addButton("Overwrite", QMessageBox::AcceptRole);
-      connect(appendButton, SIGNAL(clicked()), this, SLOT(slotImportPredictionTargets()));
-      connect(overwriteButton, SIGNAL(clicked()), this, SLOT(slotClearAndWritePredictionTargets()));
-      overwriteData.exec();
-      //If the dialog is closed without selecting append or overwrite, no prediction targets are imported.
-   }
-   else
-   {
-      slotImportPredictionTargets();
-   }
+TargetImportWellsController::~TargetImportWellsController(){
+   delete m_targetImportDialogWells;
 }
 
 void TargetImportWellsController::slotImportPredictionTargets()
@@ -72,14 +55,8 @@ void TargetImportWellsController::slotImportPredictionTargets()
                                              m_targetImportDialogWells->vreTargetsSelected(),
                                              m_targetImportDialogWells->depthInput());
 
-   PredictionTargetCreator creator(targetInputInfo, m_predictionTargetManager);
+   PredictionTargetCreator creator(targetInputInfo, getPredictionTargetManager());
    creator.createTargets();
-}
-
-void TargetImportWellsController::slotClearAndWritePredictionTargets()
-{
-   m_predictionTargetManager.clear();
-   slotImportPredictionTargets();
 }
 
 } // namespace ua

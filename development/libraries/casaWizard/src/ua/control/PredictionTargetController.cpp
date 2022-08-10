@@ -63,8 +63,7 @@ void PredictionTargetController::slotPushButtonAddTargetWellLocationsClicked()
 }
 
 void PredictionTargetController::slotPushButtonAddPredictionTargetsClicked(){
-    TargetImportPredictionTargetsController targetImportPredictionTargetsController(m_calibrationTargetManager,
-                                                                                    m_predictionTargetManager);
+    TargetImportPredictionTargetsController targetImportPredictionTargetsController(m_predictionTargetManager);
     refreshAndEmitDataChanged();
 }
 
