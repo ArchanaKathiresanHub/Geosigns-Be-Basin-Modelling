@@ -37,12 +37,12 @@ echo "Using the source directory location as "$srcdir
 		sha1_latest=`git -C $srcdir rev-list -n 1 HEAD`;
 		# avoid mutiple updates, Comparison
 		if [ "$sha1" != "$sha1_latest" ]; then
-			./perlSrForChangelog            															\
+			./perlSrForChangelog            														\
 				--srcdir=$srcdir																	\
 				--format="%s%n%bCommit-ID:<%H>%x09 %d" --no-cluster             					\
 				--ignore-matching=Revert															\
 				--strip-tab --strip-cherry-pick  --append-dot 										\
-				-- $sha1...HEAD --no-merges --grep=new: --grep=chg: --grep=fix: --decorate=full 			\
+				-- $sha1...HEAD --no-merges --grep=new: --grep=chg: --grep=fix: --decorate=full 	\
 				--simplify-by-decoration --decorate-refs=refs/tags	--decorate-refs=refs/heads		\
 				>Change.log.tmp;	
 			##_file="$Change.log.tmp"
