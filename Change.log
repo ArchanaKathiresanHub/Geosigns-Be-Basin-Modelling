@@ -13,7 +13,7 @@
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Version				Date of update
 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-Cauldron-v2.8.5		2022-08-10 11:01:59 +0000
+Cauldron-v2.8.6		2022-08-11 08:09:34 +0000
 =============================================================
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Third-party Software 		version
@@ -36,6 +36,14 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2022-08-11  Sumant.Kalra  <Sumant.Kalra@shell.com>
+
+	chg: dev: Reservoir Thickness Maps Retained by Prograde.
+	Related work items: #473414
+	================== COMMIT-END ========================
+	Commit-ID:<5d7bef407935e3d53cb953e5382636fa642770d6>	  (tag: refs/tags/v2.8.6, refs/heads/master, refs/heads/Developers/sumant.kalra/473414/UpdateChangeLog)
+
+++
 2022-08-09  Sven-v.Leeuwen  <Sven-v.Leeuwen@shell.com>
 
 	chg: usr: Implemented PBI 454451, Implemented comma separated ascii import for prediction targets.
