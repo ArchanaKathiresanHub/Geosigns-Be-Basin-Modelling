@@ -133,6 +133,11 @@ public:
   {
      return "Water_Bottom";
   }
+
+  int subSamplingFactor() const override
+  {
+     return 1;
+  }
 };
 
 } // namespace casaWizard

@@ -302,6 +302,7 @@ TEST_F( CMBProjectReaderTest, testNotLoadedReader)
   EXPECT_EQ(notLoadedReader.basementSurfaceHasTWT(), false);
   EXPECT_EQ(notLoadedReader.hasDepthDefinedInAllLayers(), false);
   EXPECT_EQ(notLoadedReader.getLayerID("Test"), NoDataIDValue);
+  EXPECT_EQ(notLoadedReader.subSamplingFactor(), 1);
   EXPECT_DOUBLE_EQ(notLoadedReader.heatProductionRate(), 0.0);
 }
 
@@ -333,5 +334,9 @@ TEST_F( CMBProjectReaderTest, testDepthDefinedInAllLayers)
   EXPECT_TRUE(reader_.hasDepthDefinedInAllLayers());
 }
 
+TEST_F(CMBProjectReaderTest, testReadSubSamplingFactor)
+{
+   EXPECT_EQ(5, reader_.subSamplingFactor());
+}
 
 

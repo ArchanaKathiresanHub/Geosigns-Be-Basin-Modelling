@@ -39,6 +39,8 @@ public:
   virtual QStringList mapNamesT2Z() const = 0;
   virtual QString getLayerUnderSurface(const QString& surfaceName) const = 0;
   virtual QString getSurfaceOnTopOfLayer(const QString& layerName) const = 0;
+
+  virtual int subSamplingFactor() const = 0;
 };
 
 } // namespace casaWizard

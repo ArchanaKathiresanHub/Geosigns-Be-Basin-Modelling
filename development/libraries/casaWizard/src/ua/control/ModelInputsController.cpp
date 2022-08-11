@@ -300,6 +300,7 @@ void ModelInputsController::slotPushSelectProject3dClicked()
    const QString projectName = m_casaScenario.project3dFilename();
 
    m_modelInputsTab->lineEditProject3D()->setText(workingDir + "/" + projectName);
+   m_modelInputsTab->spinBoxSubSampling()->setValue(m_casaScenario.projectReader().subSamplingFactor());
    refreshGUI();
 }
 

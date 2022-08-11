@@ -367,4 +367,20 @@ QString CMBProjectReader::getSurfaceOnTopOfLayer(const QString& layerName) const
    return "";
 }
 
+int CMBProjectReader::subSamplingFactor() const
+{
+   if (!loaded_)
+   {
+      return 1;
+   }
+
+   long subsamplingX = 1;
+   long subsamplingY = 1;
+   cmbModel_->subsampling(subsamplingX, subsamplingY);
+
+   // Return the largest value of subsampling, since we can only set one in the wizard workflow
+   // and don't allow for a different subsampling factor for x and y
+   return subsamplingX > subsamplingY ? subsamplingX : subsamplingY;
+}
+
 } // namespace casaWizard

@@ -27,7 +27,7 @@ Window::Window(QWidget* parent) :
 {
   setMenuBar(menuBarUA_);
 
-  setWindowTitle("CASA Thermal Wizard");
+  setWindowTitle("Thermal UA Wizard");
 
   tabWidget()->addTab(m_modelInputsTab, "Model Inputs");
   tabWidget()->addTab(targetTab_, "Data and prediction targets");

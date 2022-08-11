@@ -55,6 +55,7 @@ public:
   bool hasDepthDefinedInAllLayers() const override;
   QString getLayerUnderSurface(const QString& surfaceName) const override;
   QString getSurfaceOnTopOfLayer(const QString& layerName) const override;
+  int subSamplingFactor() const override;
 
 private:
   std::unique_ptr<mbapi::Model> cmbModel_;
