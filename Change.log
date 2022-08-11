@@ -13,7 +13,7 @@
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Version				Date of update
 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-Cauldron-v2.8.7		2022-08-11 12:00:18 +0000
+Cauldron-v2.8.8		2022-08-11 13:28:46 +0000
 =============================================================
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Third-party Software 		version
@@ -36,6 +36,14 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2022-08-11  Richard Faasse  <Richard.Faasse@shell.com>
+
+	chg: Added reading the subsampling factor from the base case !minor.
+	 * Added reading the subsampling factor from the base case for the UA workflow
+	================== COMMIT-END ========================
+	Commit-ID:<067db0a6a095f7523bc9b51c22c3cd80fd29ae1b>	  (tag: refs/tags/v2.8.8, refs/heads/master)
+
+++
 2022-08-11  Sven van Leeuwen  <Sven.van-Leeuwen@shell.com>
 
 	fix: usr: !minor Fixed a bug.
