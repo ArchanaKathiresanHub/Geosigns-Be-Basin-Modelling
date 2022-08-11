@@ -13,7 +13,7 @@
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Version				Date of update
 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-Cauldron-v2.8.6		2022-08-11 08:09:34 +0000
+Cauldron-v2.8.7		2022-08-11 12:00:18 +0000
 =============================================================
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Third-party Software 		version
@@ -36,6 +36,14 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2022-08-11  Sven van Leeuwen  <Sven.van-Leeuwen@shell.com>
+
+	fix: usr: !minor Fixed a bug.
+	* fixed a bug that caused the UA application to crash when a single Y value was given to the time series plot.
+	================== COMMIT-END ========================
+	Commit-ID:<53fe3a0a05cf2cf96e14714394021765f5b03036>	  (tag: refs/tags/v2.8.7, refs/heads/master)
+
+++
 2022-08-11  Sumant.Kalra  <Sumant.Kalra@shell.com>
 
 	chg: dev: Reservoir Thickness Maps Retained by Prograde.
