@@ -242,33 +242,38 @@ void Prograde::ReservoirUpgradeManager::upgrade()
 	   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Warning> Setting BlockingPorosity : " << globalBlockingPorosity;
    }
 
+
    /*	clearing the reference from GridmapIoTbl which are no longer used in ReservoirIoTbl
-   *	Since all the grid map related columns in ReservoirIoTbl are deprecated except NetToGrossGrid
+   *	Since all the grid map related columns in ReservoirIoTbl are deprecated except NetToGrossGrid and ThicknessGrid
    *	So, all the grid map references from GridMapIoTbl related to ReservoirIoTbl are cleared 
-   *	except the maps in NetToGrossGrid
+   *	except the maps in NetToGrossGrid and ThicknessGrid
    */
 
-   // collect the maps present in the NetToGrossGrid columns of the ReservoirIoTbl in a vector
+   // Collect the maps present in the NetToGrossGrid and ThicknessGrid columns of the ReservoirIoTbl in a vector
    std::string mapName;
-   std::vector<std::string> netToGrossGridMaps;
+   std::vector<std::string> mapsToBeRetained;
    database::Table* reservoirIoTbl = m_ph->getTable("ReservoirIoTbl");
    for (size_t id = 0; id < reservoirIoTbl->size(); ++id)
    {
-	   database::Record* rec = reservoirIoTbl->getRecord(static_cast<int>(id));
+	   const database::Record* rec = reservoirIoTbl->getRecord(static_cast<int>(id));
 	   mapName = rec->getValue<std::string>("NetToGrossGrid");
-	   netToGrossGridMaps.push_back(mapName);  
+	   if(mapName.compare(""))
+		   mapsToBeRetained.push_back(mapName);
+	   mapName = rec->getValue<std::string>("ThicknessGrid");
+	   if (mapName.compare(""))
+		   mapsToBeRetained.push_back(mapName);
    }
-   // Note that the NetToGrossGrid are collected after "NeverActive" reservoirs are cleared
-   // Hence, if there is any NetToGrossGrid map was present initially in a NeverActive reservoir,
-   // that will also get cleared
+   /// note that the gridmaps are collected after "NeverActive" reservoirs are cleared.
+   /// hence, if there is any NetToGrossGrid or ThicknessGrid map was present initially in a NeverActive reservoir,
+   /// that will also get cleared
 
-   // check the grid maps present in the GridMapIoTbl referred by ReservoirIoTbl
+   // Collect the grid maps present in the GridMapIoTbl referred by ReservoirIoTbl in another vector
    std::string referredBy;
    std::vector<std::string> gridmapsReservoirGridmapIoTbl;
    database::Table* gridmapIoTbl = m_ph->getTable("GridMapIoTbl");
    for (size_t id = 0; id < gridmapIoTbl->size(); ++id)
    {
-	   database::Record* rec = gridmapIoTbl->getRecord(static_cast<int>(id));
+	   const database::Record* rec = gridmapIoTbl->getRecord(static_cast<int>(id));
 	   referredBy = rec->getValue<std::string>("ReferredBy");
 	   if (!referredBy.compare("ReservoirIoTbl"))
 	   {
@@ -276,35 +281,38 @@ void Prograde::ReservoirUpgradeManager::upgrade()
 		   gridmapsReservoirGridmapIoTbl.push_back(mapName);
 	   }
    }
-   // condition to check that there are Reservoir maps in GridMapIoTbl
-   // if empty, then there is no need to clear anything from GridMapIoTbl
+
+   // Identify the ReservoirIoTbl maps to be cleared from GridMapIoTbl
+
+   /// if GridMapIoTbl does not have any Reservoir related maps, then there is no need to clear anything
    if (!gridmapsReservoirGridmapIoTbl.empty())
    {
-	   // clear all the maps referred by ReservoirIoTbl except those in the netToGrossGridMaps list
-	   bool isNetToGrossGridMap = false; //flag to check if any map is a isNetToGrossGridMap
-	   // loop through all the Reservoir maps in GridMapIoTbl
-	   for (auto reservoirMapGridmapIoTbl : gridmapsReservoirGridmapIoTbl)
+	   /// clear all the maps referred by ReservoirIoTbl except those in the mapsToBeRetained list   
+	   /// loop through all the Reservoir maps in GridMapIoTbl
+	   for (const auto& reservoirMapGridmapIoTbl : gridmapsReservoirGridmapIoTbl)
 	   {
-		   // check if the ReservoirMap in GridMapIoTbl is a netToGrossGridMap by
-		   // looping through all the NetToGrossGridmaps in the ReservoirIoTbl
-		   for (auto netToGrossMap : netToGrossGridMaps)
+		   bool toBeRetained = false; //flag to check if the map should be retained
+
+		   /// check if the ReservoirMap in GridMapIoTbl should be retained 
+		   for (const auto& gridmap : mapsToBeRetained)
 		   {
-			   // if yes, then change the isNetToGrossGridMap flag to true
-			   if (!reservoirMapGridmapIoTbl.compare(netToGrossMap))
+			   /// if yes, then change the toBeRetained flag to true
+			   if (!reservoirMapGridmapIoTbl.compare(gridmap))
 			   {
-				   isNetToGrossGridMap = true;
+				   toBeRetained = true;
+				   break;
 			   }
 		   }
-		   // isNetToGrossGridMap is false for a Reservoir map in GridMapIoTbl, then that map is cleared from GridMapIoTbl
-		   if (!isNetToGrossGridMap)
+
+		   /// toBeRetained is false for a Reservoir map in GridMapIoTbl, then that map is cleared from GridMapIoTbl
+		   if (!toBeRetained)
 		   {
 			   Prograde::GridMapIoTblUpgradeManager::clearTblNameMapNameReferenceGridMap("ReservoirIoTbl", reservoirMapGridmapIoTbl);
 			   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "<Basin-Info> Gridmap " << reservoirMapGridmapIoTbl << " ReferredBy ReservoirIoTbl will be cleared by GridMapIoTbl Upgrade Manager";
 		   }
-		   // reset the isNetToGrossGridMap flag to false for the next Reservoir map in GridMapIoTbl
-		   isNetToGrossGridMap = false;
 	   }
    }
+
 	// DetectedReservoirIoTbl is deprecated, hence all the maps in GridMapIoTbl related to DetectedReservoirIoTbl are cleared
    Prograde::GridMapIoTblUpgradeManager::clearTblNameMapNameReferenceGridMap("DetectedReservoirIoTbl");
 }
