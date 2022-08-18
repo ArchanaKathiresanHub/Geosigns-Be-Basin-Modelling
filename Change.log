@@ -13,7 +13,7 @@
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Version				Date of update
 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-Cauldron-v2.8.8		2022-08-11 13:28:46 +0000
+Cauldron-v2.8.9		2022-08-18 13:56:10 +0000
 =============================================================
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Third-party Software 		version
@@ -36,6 +36,20 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2022-08-18  Marnix.vandenBerg  <Marnix.vandenBerg@shell.com>
+
+	chg: usr: Rename and improvements to the UA Results tab in thermaluawizard
+	 * Changed behavior and labeling of buttons
+	 * Showing influential parameters of optimal case
+	 * Improved format of UA results tab targets table
+	 * Enabled sorting of the UA results tab targets table
+
+	Related work items: #454387
+
+	================== COMMIT-END ========================
+	Commit-ID:<5fa622c845ed9d84e9fbf10dcda9038dddf1b734>	  (refs/heads/master)
+
+++
 2022-08-11  Richard Faasse  <Richard.Faasse@shell.com>
 
 	chg: Added reading the subsampling factor from the base case !minor.
