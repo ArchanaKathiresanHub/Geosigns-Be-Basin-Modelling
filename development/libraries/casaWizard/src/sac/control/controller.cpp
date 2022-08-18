@@ -1,3 +1,11 @@
+//
+// Copyright (C) 2022 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #include "controller.h"
 
 #include "control/logDisplayController.h"
@@ -30,7 +38,6 @@ Controller::Controller() :
   connect(this, SIGNAL(signalUpdateTabGUI(int)), resultsController_,     SLOT(slotUpdateTabGUI(int)));
   connect(this, SIGNAL(signalUpdateTabGUI(int)), inputController_,         SLOT(slotUpdateTabGUI(int)));
   connect(this, SIGNAL(signalUpdateTabGUI(int)), t2zController_,         SLOT(slotUpdateTabGUI(int)));
-
   connect(wellPrepSACcontroller_, SIGNAL(switchToTab(int)), this, SLOT(slotSwitchToTab(int)));
 
   ui_.show();

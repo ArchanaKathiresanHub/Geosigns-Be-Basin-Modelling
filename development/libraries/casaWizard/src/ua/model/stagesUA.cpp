@@ -9,40 +9,46 @@ namespace casaWizard
 namespace ua
 {
 
-StageCompletionUA::StageCompletionUA() :
+StageStateUA::StageStateUA(const QString stateName, bool state) :
   Writable(),
-  isComplete_{QVector<bool>(static_cast<int>(StageTypesUA::Count), false)}
+  m_stageStates{QVector<bool>(static_cast<int>(StageTypesUA::Count), state)},
+  m_stateName(stateName)
 {
 }
 
-void StageCompletionUA::writeToFile(ScenarioWriter& writer) const
+void StageStateUA::writeToFile(ScenarioWriter& writer) const
 {
-  writer.writeValue("isStageComplete", isComplete_);
+  writer.writeValue(m_stateName, m_stageStates);
 }
 
-void StageCompletionUA::readFromFile(const ScenarioReader& reader)
+void StageStateUA::readFromFile(const ScenarioReader& reader)
 {
-  isComplete_ = reader.readVector<bool>("isStageComplete");
+  m_stageStates = reader.readVector<bool>(m_stateName);
+  int nStages = static_cast<int>(StageTypesUA::Count);
+  if (m_stageStates.size() != nStages)
+  {
+     m_stageStates = QVector<bool>(nStages, false);
+  }
 }
 
-void StageCompletionUA::clear()
+void StageStateUA::clear()
 {
-  std::fill(isComplete_.begin(), isComplete_.end(), false);
+  std::fill(m_stageStates.begin(), m_stageStates.end(), false);
 }
 
-void StageCompletionUA::setAllToCompleted()
+void StageStateUA::setAllToTrue()
 {
-  std::fill(isComplete_.begin(), isComplete_.end(), true);
+  std::fill(m_stageStates.begin(), m_stageStates.end(), true);
 }
 
-bool StageCompletionUA::isComplete(const StageTypesUA& stageType) const
+bool StageStateUA::isTrue(const StageTypesUA& stageType) const
 {
-  return isComplete_[static_cast<int>(stageType)];
+  return m_stageStates[static_cast<int>(stageType)];
 }
 
-void StageCompletionUA::setStageIsComplete(const StageTypesUA& stageType, const bool isComplete)
+void StageStateUA::setStageState(const StageTypesUA& stageType, const bool isComplete)
 {
-  isComplete_[static_cast<int>(stageType)] = isComplete;
+  m_stageStates[static_cast<int>(stageType)] = isComplete;
 }
 
 } // namespace ua

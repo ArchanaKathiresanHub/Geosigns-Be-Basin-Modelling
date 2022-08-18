@@ -15,24 +15,67 @@
 #include <iostream>
 #include <string>
 
-QString qtutils::getTimeStamp(const QString& prefix)
+namespace qtutils
+{
+
+QString doubleToQString(double d)
+{
+   return QString::number(d, 'g', 12);
+};
+
+QString doubleOneDigitToQString(double d)
+{
+   return QString::number(d, 'f', 1);
+};
+
+QStringList convertToQStringList(const QVector<int>& vec)
+{
+   QStringList out;
+   for( const int i : vec)
+   {
+      out << QString::number(i);
+   }
+   return out;
+}
+
+QStringList convertToQStringList(const QVector<double>& vec)
+{
+   QStringList out;
+   for( const double d : vec)
+   {
+      out << qtutils::doubleToQString(d);
+   }
+   return out;
+}
+
+QStringList mergeQStringLists(const QVector<QStringList>& vec, const QString& sublistSeparator)
+{
+   QStringList out;
+   for (const QStringList& l : vec)
+   {
+      out << l.join(sublistSeparator);
+   }
+   return out;
+}
+
+QString getTimeStamp(const QString& prefix)
 {
    const  QDateTime now{ QDateTime::currentDateTime() };
    return prefix + now.toString("yyyyMMdd-HHmmss");
 }
 
-QTextStream& qtutils::qStdOut()
+QTextStream& qStdOut()
 {
    static QTextStream ts(stdout);
    return ts;
 }
 
-QString qtutils::addDoubleQuotes(QString value)
+QString addDoubleQuotes(QString value)
 {
    return "\"" + value + "\"";
 }
 
-QString qtutils::escapeSpecialCharacters(QString str)
+QString escapeSpecialCharacters(QString str)
 {
    str = str.replace("\a","\\a")
          .replace("\b","\\b")
@@ -44,7 +87,7 @@ QString qtutils::escapeSpecialCharacters(QString str)
    return str;
 }
 
-QString qtutils::replaceCharsNotAllowedInExcelTabsBy_(QString str)
+QString replaceCharsNotAllowedInExcelTabsBy_(QString str)
 {
    //Characters not allowed in excel tab: \ / ? * [ ]
    str = str.replace("\\","_")
@@ -57,7 +100,7 @@ QString qtutils::replaceCharsNotAllowedInExcelTabsBy_(QString str)
    return str;
 }
 
-bool qtutils::isEqual(const QVector<QString>& strVec1, const QVector<QString>& strVec2)
+bool isEqual(const QVector<QString>& strVec1, const QVector<QString>& strVec2)
 {
    if (strVec1.size() != strVec2.size())
    {
@@ -83,7 +126,7 @@ std::string replaceFirstOccurrence(
    return s.replace(pos, toReplace.length(), replaceWith);
 }
 
-QString qtutils::exportApplicationPath(void)
+QString exportApplicationPath(void)
 {
    std::string applicationPath = QCoreApplication::applicationDirPath().toStdString();
    std::size_t index = applicationPath.find("/apps/sss");
@@ -100,7 +143,7 @@ QString qtutils::exportApplicationPath(void)
    return QString::fromStdString(applicationPath);
 }
 
-QString qtutils::isValidNoOfProcs(QString noOfProcs)
+QString isValidNoOfProcs(QString noOfProcs)
 {
    bool validate;
    auto value = noOfProcs.toInt(&validate);
@@ -112,14 +155,14 @@ QString qtutils::isValidNoOfProcs(QString noOfProcs)
    return ErrMsg;
 }
 
-QString qtutils::getOutpurDirNameFromP3FileName(QString pathToP3File)
+QString getOutpurDirNameFromP3FileName(QString pathToP3File)
 {
    QFileInfo info(pathToP3File);
    QStringList strLst = info.fileName().simplified().split(".");
    return info.dir().absolutePath() + "/" + strLst[0] + "_CauldronOutputDir";
 }
 
-bool qtutils::delay(int secs)
+bool delay(int secs)
 {
    QTime dieTime = QTime::currentTime().addSecs(secs);
    while (QTime::currentTime() < dieTime)
@@ -128,12 +171,12 @@ bool qtutils::delay(int secs)
    return true;
 }
 
-void qtutils::FileLogger::returnToLineNumber(int lineNumber)
+void FileLogger::returnToLineNumber(int lineNumber)
 {
    lineNr_ = lineNumber;
 }
 
-void qtutils::FileLogger::logFromFile(const QString& logFilePath, QTextEdit* theText) const
+void FileLogger::logFromFile(const QString& logFilePath, QTextEdit* theText) const
 {
    QFileInfo checkFile(logFilePath);
 
@@ -174,7 +217,7 @@ void qtutils::FileLogger::logFromFile(const QString& logFilePath, QTextEdit* the
    return;
 }
 
-void qtutils::FileLogger::finishupLogging(const QString& logFilePath, QTextEdit* theText) const
+void FileLogger::finishupLogging(const QString& logFilePath, QTextEdit* theText) const
 {
    QFileInfo checkFile(logFilePath);
    /// if the file is never read and is present
@@ -217,7 +260,7 @@ void qtutils::FileLogger::finishupLogging(const QString& logFilePath, QTextEdit*
 
 }
 
-int qtutils::FileLogger::readFileWhenCreated(const QString& logFilePath, QTextEdit* theText) const
+int FileLogger::readFileWhenCreated(const QString& logFilePath, QTextEdit* theText) const
 {
    QFileInfo checkFile(logFilePath);
    int maxRetryCounter = 0;
@@ -238,3 +281,5 @@ int qtutils::FileLogger::readFileWhenCreated(const QString& logFilePath, QTextEd
    }
    return 0;
 }
+
+} //qtutils

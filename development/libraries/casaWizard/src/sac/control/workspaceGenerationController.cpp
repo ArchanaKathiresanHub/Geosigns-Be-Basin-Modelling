@@ -8,7 +8,7 @@
 
 #include "workspaceGenerationController.h"
 
-#include "control/functions/folderOperations.h"
+#include "model/functions/folderOperations.h"
 #include "model/logger.h"
 #include "model/output/workspaceGenerator.h"
 #include "model/sacScenario.h"

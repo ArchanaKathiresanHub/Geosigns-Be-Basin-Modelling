@@ -38,9 +38,14 @@ add_casawizard_ua_gtest( NAME PredictionTargetSurface
 add_casawizard_ua_gtest( NAME TargetQC
    SOURCES TestTargetQC.cpp )
 
+add_casawizard_ua_gtest( NAME UAResultsTargetsData
+   SOURCES TestUAResultsTargetsData.cpp )
+
 configure_file( predictionTargetManager.dat predictionTargetManager.dat )
 configure_file( predictionTargetManagerv2.dat predictionTargetManagerv2.dat )
-configure_file( influentialParameterManager.dat influentialParameterManager.dat )
+configure_file( influentialParameterManagerV1.dat influentialParameterManagerV1.dat )
+configure_file( influentialParameterManagerV0.dat influentialParameterManagerV0.dat )
+configure_file( influentialParameterManagerV0NoCrustThinning.dat influentialParameterManagerV0NoCrustThinning.dat )
 configure_file( manualDesignPointManager.dat manualDesignPointManager.dat )
 configure_file( monteCarloDataManagerV0.dat monteCarloDataManagerV0.dat )
 configure_file( importTest.txt importTest.txt)

@@ -1,6 +1,14 @@
+//
+// Copyright (C) 2022 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #include "ModelInputsController.h"
 
-#include "control/functions/folderOperations.h"
+#include "model/functions/folderOperations.h"
 #include "control/casaScriptWriter.h"
 #include "control/scriptRunController.h"
 #include "influentialParameterController.h"
@@ -164,7 +172,7 @@ void ModelInputsController::slotUpdateDesignPointTable()
    const InfluentialParameterManager& influentialParameterManager = m_casaScenario.influentialParameterManager();
 
    const int numberNew = influentialParameterManager.influentialParameters().size();
-   const QStringList names = influentialParameterManager.nameList();
+   const QStringList names = influentialParameterManager.labelNameList();
 
    m_manualDesignPointController->updateInfluentialParameters(numberNew, names);
 
@@ -200,18 +208,7 @@ void ModelInputsController::slotPushButtonDoErunCasaClicked()
 
    m_casaScenario.setStageComplete(StageTypesUA::doe, true);
 
-   const QString source = m_casaScenario.workingDirectory() + "/" + m_casaScenario.stateFileNameDoE();
-   const QString target = m_casaScenario.workingDirectory() + "/" + m_casaScenario.runLocation() + "/" + m_casaScenario.iterationDirName() + "/" + m_casaScenario.stateFileNameDoE();
-
-   if (QFile::exists(target))
-   {
-      QFile::remove(target);
-   }
-
-   if (QFile::copy(source, target))
-   {
-      QFile::remove(source);
-   }
+   m_casaScenario.copyToIterationDir(m_casaScenario.stateFileNameDoE());
 
    slotUpdateIterationDir();
    slotUpdateTabGUI(static_cast<int>(TabID::DoE));
@@ -243,8 +240,7 @@ void ModelInputsController::slotPushButtonRunAddedCasesClicked()
    }
 
    AddCasesScript addCasesScript{m_casaScenario};
-   RunCaseSetFileManager& rcsFileManager = m_casaScenario.runCaseSetFileManager();
-   if (!casaScriptWriter::writeCasaScriptFilterOutDataDir(addCasesScript, rcsFileManager.caseSetDirPath()) ||
+   if (!casaScriptWriter::writeCasaScript(addCasesScript) ||
        !m_scriptRunController.runScript(addCasesScript))
    {
       return;

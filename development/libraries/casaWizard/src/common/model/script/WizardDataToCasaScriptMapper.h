@@ -17,9 +17,6 @@ namespace wizardDataToCasaScriptMapper
 
 QString mapName(const QString& wizardName);
 
-QString doubleToQString(double d);
-QString doubleOneDigitToQString(double d);
-
 }; //casaWizard
 }; //wizardDataToCasaScriptMapper
 

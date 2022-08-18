@@ -1,3 +1,11 @@
+//
+// Copyright (C) 2022 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 // Controller for the UA thermal wizard
 #pragma once
 
@@ -15,7 +23,7 @@ class CorrelationController;
 class ModelInputsController;
 class ResponseSurfacesController;
 class TargetController;
-class MCMCController;
+class UAResultsController;
 
 class Controller : public MainController
 {
@@ -37,7 +45,7 @@ private:
   ModelInputsController* m_modelInputsController;
   TargetController* m_targetController;
   ResponseSurfacesController* m_responseSurfacesController;
-  MCMCController* m_mcmcController;
+  UAResultsController* m_uaResultsController;
   CorrelationController* m_correlationController;
 };
 

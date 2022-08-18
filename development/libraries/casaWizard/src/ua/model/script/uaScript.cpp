@@ -6,6 +6,8 @@
 #include "model/proxy.h"
 #include "model/uaScenario.h"
 
+#include "Qt_Utils.h"
+
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
@@ -166,14 +168,14 @@ QString UAScript::writeCalibrationTarget(const CalibrationTarget& target, const 
    double SAWeightCalibrationTarget = 1.0;
 
    return QString("target XYZPoint \"" + mapName(scenario_.calibrationTargetManager().getCauldronPropertyName(target.propertyUserName())) + "\" "
-                  + doubleToQString(well->x()) + " "
-                  + doubleToQString(well->y()) + " "
-                  + doubleToQString(target.z()) + " "
-                  + doubleToQString(ageCalibrationTarget) + " "
-                  + doubleToQString(target.value()) + " "
-                  + doubleToQString(target.standardDeviation()) + " "
-                  + doubleToQString(SAWeightCalibrationTarget) + " "
-                  + doubleToQString(target.uaWeight()) + " "
+                  + qtutils::doubleToQString(well->x()) + " "
+                  + qtutils::doubleToQString(well->y()) + " "
+                  + qtutils::doubleToQString(target.z()) + " "
+                  + qtutils::doubleToQString(ageCalibrationTarget) + " "
+                  + qtutils::doubleToQString(target.value()) + " "
+                  + qtutils::doubleToQString(target.standardDeviation()) + " "
+                  + qtutils::doubleToQString(SAWeightCalibrationTarget) + " "
+                  + qtutils::doubleToQString(target.uaWeight()) + " "
                   + "\n"
                   );
 }

@@ -7,18 +7,19 @@ namespace ua
 {
 
 TopCrustHeatProductionGridScaling::TopCrustHeatProductionGridScaling() :
-  InfluentialParameter
-  (
-    "Continental crust heat production (A0) grid scaling",
-    "\"TopCrustHeatProductionGridScaling\"",
-    "Map scaling factor",
-    "[-]",
-    1
-    )
+   InfluentialParameter
+   (
+      "Continental crust heat production (A0) grid scaling",
+      "\"TopCrustHeatProductionGridScaling\"",
+      "Map scaling factor",
+      "[-]",
+      1,
+      InfluentialParameter::Type::TopCrustHeatProductionGridScaling
+   )
 {
-  arguments().addArgument("Minimum map scaling factor", 0.5);
-  arguments().addArgument("Maximum map scaling factor", 2.0);
-  addPDFArgument();
+   arguments().addArgument("Minimum map scaling factor", 0.5);
+   arguments().addArgument("Maximum map scaling factor", 2.0);
+   addPDFArgument();
 }
 
 void TopCrustHeatProductionGridScaling::fillArguments(const ProjectReader& /*projectReader*/)

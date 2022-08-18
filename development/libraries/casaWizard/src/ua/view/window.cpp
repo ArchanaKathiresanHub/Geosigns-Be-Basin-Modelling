@@ -2,7 +2,7 @@
 
 #include "view/correlationTab.h"
 #include "view/ModelInputsTab.h"
-#include "view/mcmcTab.h"
+#include "view/UAResultsTab.h"
 #include "view/menuBarUA.h"
 #include "view/ResponseSurfacesTab.h"
 #include "view/targetTab.h"
@@ -21,18 +21,17 @@ Window::Window(QWidget* parent) :
   m_modelInputsTab{new ModelInputsTab(this)},
   targetTab_{new TargetTab(this)},
   m_responseSurfacesTab{new ResponseSurfacesTab(this)},
-  mcmcTab_{new MCMCTab(this)},
+  m_uaResultsTab{new UAResultsTab(this)},
   correlationsTab_{new CorrelationTab(this)},
   menuBarUA_{new MenuBarUA(this)}
 {
   setMenuBar(menuBarUA_);
-
   setWindowTitle("Thermal UA Wizard");
 
   tabWidget()->addTab(m_modelInputsTab, "Model Inputs");
   tabWidget()->addTab(targetTab_, "Data and prediction targets");
   tabWidget()->addTab(m_responseSurfacesTab, "Response Surfaces");
-  tabWidget()->addTab(mcmcTab_, "MCMC");
+  tabWidget()->addTab(m_uaResultsTab, "UA results");
   tabWidget()->addTab(correlationsTab_, "Correlations");
 
   assert(tabWidget()->count() == static_cast<int>(TabID::Count));
@@ -53,9 +52,9 @@ ResponseSurfacesTab* Window::responseSurfacesTab() const
   return m_responseSurfacesTab;
 }
 
-MCMCTab* Window::mcmcTab() const
+UAResultsTab* Window::uaResultsTab() const
 {
-  return mcmcTab_;
+  return m_uaResultsTab;
 }
 
 CorrelationTab* Window::correlationsTab() const

@@ -13,7 +13,6 @@
 #include "stubCasaScenario.h"
 
 #include <QString>
-
 #include <gtest/gtest.h>
 
 using namespace casaWizard;

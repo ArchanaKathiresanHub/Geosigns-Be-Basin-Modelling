@@ -22,16 +22,6 @@ QString mapName(const QString& wizardName)
    return wizardName;
 }
 
-QString doubleToQString(double d)
-{
-   return QString::number(d, 'g', 12);
-};
-
-QString doubleOneDigitToQString(double d)
-{
-   return QString::number(d, 'f', 1);
-};
-
 }; //casaWizard
 }; //wizardDataToCasaScriptMapper
 

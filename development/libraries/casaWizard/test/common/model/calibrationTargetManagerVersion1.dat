@@ -2,8 +2,8 @@ CalibrationTargetManagerVersion|int|2
 well0version|int|5
 well0id|int|0
 well0name|string|testWell0
-well0x|double|0.000000
-well0y|double|1.000000
+well0x|double|0
+well0y|double|1
 well0isActive|bool|0
 well0isExcluded|bool|0
 well0isInvalid|bool|0
@@ -17,8 +17,8 @@ well0activeProperties|VRe|1
 well1version|int|5
 well1id|int|1
 well1name|string|testWell1
-well1x|double|4.000000
-well1y|double|5.000000
+well1x|double|4
+well1y|double|5
 well1isActive|bool|1
 well1isExcluded|bool|1
 well1isInvalid|bool|0

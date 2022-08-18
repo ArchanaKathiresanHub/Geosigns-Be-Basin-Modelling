@@ -10,11 +10,11 @@
 
 #include "control/activeWellsController.h"
 #include "control/casaScriptWriter.h"
-#include "control/functions/folderOperations.h"
 #include "control/lithofractionVisualisationController.h"
 #include "control/run3dCaseController.h"
 #include "control/scriptRunController.h"
 
+#include "model/functions/folderOperations.h"
 #include "model/input/cmbProjectReader.h"
 #include "model/logger.h"
 #include "model/output/LithoMapsInfoGenerator.h"

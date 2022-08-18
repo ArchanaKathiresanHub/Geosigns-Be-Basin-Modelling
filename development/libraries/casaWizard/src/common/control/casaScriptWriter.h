@@ -1,3 +1,11 @@
+//
+// Copyright (C) 2022 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 // Namespace with method to write casa scripts to file
 
 class QString;
@@ -9,10 +17,7 @@ class CasaScript;
 
 namespace casaScriptWriter
 {
-
-  bool writeCasaScript(CasaScript& script);
-  bool writeCasaScriptFilterOutDataDir(CasaScript& script, const QString& filteredDataDir);
-
+  bool writeCasaScript(const CasaScript& script);
 }
 
 } // namespace casaWizard

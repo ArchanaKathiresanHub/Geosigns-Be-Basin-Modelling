@@ -33,6 +33,13 @@ namespace qtutils {
    QString escapeSpecialCharacters(QString str);
    QString replaceCharsNotAllowedInExcelTabsBy_(QString str);
 
+   QString doubleToQString(double d);
+   QString doubleOneDigitToQString(double d);
+
+   QStringList convertToQStringList(const QVector<int>& vec);
+   QStringList convertToQStringList(const QVector<double>& vec);
+   QStringList mergeQStringLists(const QVector<QStringList>& vec, const QString& sublistSeparator);
+
    bool isEqual(const QVector<QString>& strVec1, const QVector<QString>& strVec2);
 
    QString isValidNoOfProcs(QString noOfProcs);

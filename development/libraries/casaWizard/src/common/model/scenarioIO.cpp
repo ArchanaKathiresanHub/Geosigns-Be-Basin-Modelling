@@ -1,4 +1,14 @@
+//
+// Copyright (C) 2022 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #include "scenarioIO.h"
+
+#include "Qt_Utils.h"
 
 #include <QStringList>
 #include <QVector>
@@ -37,7 +47,7 @@ QVector<double> vectorFromRead(const QString& string)
 
 QString doubleToQString(const double d)
 {
-  return QString::number(d, 'f');
+  return qtutils::doubleToQString(d);
 }
 
 } // namespace scenarioIO

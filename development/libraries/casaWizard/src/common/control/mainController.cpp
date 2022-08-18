@@ -1,3 +1,11 @@
+//
+// Copyright (C) 2022 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #include "mainController.h"
 
 #include "model/casaScenario.h"
@@ -101,7 +109,9 @@ void MainController::slotOpen()
    }
    catch (const std::exception& e)
    {
-      Logger::log() << e.what() << Logger::endl();
+      Logger::log() << "Failed to read saved file: " << e.what() << Logger::endl();
+      scenario().clear();
+      showFirstTab();
       return;
    }
 

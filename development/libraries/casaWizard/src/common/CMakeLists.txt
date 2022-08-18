@@ -15,14 +15,14 @@ file(GLOB CASAWIZARD_COMMON_H_HEADERS view/*.h
                                       view/plot/*.h
                                       view/components/*.h
                                       control/*.h
-                                      control/functions/*.h )
+                                      model/functions/*.h )
 
 file(GLOB CASAWIZARD_COMMON_CPP_SOURCES view/*.cpp
                                         view/plot/*.cpp
                                         view/components/*.cpp
                                         view/components/resources.qrc
                                         control/*.cpp
-                                        control/functions/*.cpp
+                                        model/functions/*.cpp
                                        )
 
 include_directories( SYSTEM

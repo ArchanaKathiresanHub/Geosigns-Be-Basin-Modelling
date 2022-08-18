@@ -20,21 +20,22 @@ enum class StageTypesUA
   Count = 3 // holds number of stages
 };
 
-class StageCompletionUA : public Writable
+class StageStateUA : public Writable
 {
 public:
-  StageCompletionUA();
+  StageStateUA(const QString stateName = "isStageComplete", bool state = false);
 
   void writeToFile(ScenarioWriter& writer) const override;
   void readFromFile(const ScenarioReader& reader) override;
   void clear() override;
 
-  bool isComplete(const StageTypesUA& stageType) const;
-  void setAllToCompleted();
-  void setStageIsComplete(const StageTypesUA& stageType, const bool isComplete = true);
+  bool isTrue(const StageTypesUA& stageType) const;
+  void setAllToTrue();
+  void setStageState(const StageTypesUA& stageType, const bool isTrue = true);
 
 private:
-  QVector<bool> isComplete_;
+  QVector<bool> m_stageStates;
+  QString m_stateName;
 };
 
 } // namespace ua

@@ -73,6 +73,8 @@ public:
   RunCaseSetFileManager& runCaseSetFileManager();
   const RunCaseSetFileManager& runCaseSetFileManager() const;
 
+  void copyToIterationDir(const QString& fileName) const;
+
   QVector<TargetQC> targetQCs() const;
   void setTargetQCs(const QVector<TargetQC>& targetQCs);
   void setOptimalValuesTargetQCs(const QVector<double>& values, const QVector<QString> colNames);
@@ -109,6 +111,10 @@ public:
   void setStageComplete(const StageTypesUA& stageType, bool isComplete = true);
   bool isStageComplete(const StageTypesUA& stageType) const;
 
+  bool isStageUpToDate(const StageTypesUA& stageType) const;
+  void setStageUpToDate(const StageTypesUA& stageType, bool isUpToDate = true);
+
+
   void changeUserDefinedPointStatus(const bool status);
 
   void obtainTimeSeriesMonteCarloData(const int targetIndex, QVector<double>& snapshotAges,
@@ -144,7 +150,8 @@ private:
   QVector<bool> m_isDoeOptionSelected;
   QVector<bool> m_isQcDoeOptionSelected;
 
-  StageCompletionUA m_isStageComplete;
+  StageStateUA m_isStageComplete;
+  StageStateUA m_isStageUpToDate; //Tracks if the state of the stage is consistent with that if preceding stages.
   int m_subSamplingFactor;
 };
 

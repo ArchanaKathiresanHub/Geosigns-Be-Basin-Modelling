@@ -15,7 +15,8 @@ InitialLithosphericMantleThickness::InitialLithosphericMantleThickness() :
     "\"BasementIoTbl:InitialLithosphericMantleThickness\"",
     "Initial Mantle Thickness",
     "[m]",
-    1
+    1,
+    InfluentialParameter::Type::InitialLithosphericMantleThickness
   )
 {
   arguments().addArgument("Minimum range value", 0.0);

@@ -39,7 +39,7 @@ void setData(UAScenario& scenario)
    QVector<QString> predictionTargetIdentifiers;
 
    const InfluentialParameterManager& ipManager = scenario.influentialParameterManager();
-   const int endInfluential = 2 + ipManager.influentialParameters().size();
+   const int endInfluential = 2 + ipManager.totalNumberOfInfluentialParameters();
 
    const CalibrationTargetManager& ctManager = scenario.calibrationTargetManager();
    const int endCalibration = endInfluential + ctManager.amountOfActiveCalibrationTargets();
@@ -66,6 +66,9 @@ void setData(UAScenario& scenario)
    monteCarloDataManager.setInfluentialParameterMatrix(influentialParameterMatrix,influentialParameterIdentifiers);
    monteCarloDataManager.setCalibrationTargetMatrix(calibrationTargetMatrix,calibrationTargetIdentifiers);
    monteCarloDataManager.setPredictionTargetMatrix(predictionTargetMatrix,predictionTargetIdentifiers);
+
+   InfluentialParameterManager& influentialParameterManager = scenario.influentialParameterManager();
+   influentialParameterManager.storeMCMCOutputInParameters(monteCarloDataManager.influentialParameterMatrix());
 }
 
 } // namespace mcDataCreator

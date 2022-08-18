@@ -9,9 +9,9 @@
 #include "t2zController.h"
 
 #include "control/casaScriptWriter.h"
-#include "control/functions/folderOperations.h"
 #include "control/scriptRunController.h"
 
+#include "model/functions/folderOperations.h"
 #include "model/input/calibrationTargetCreator.h"
 #include "model/input/cmbMapReader.h"
 #include "model/input/cmbProjectReader.h"

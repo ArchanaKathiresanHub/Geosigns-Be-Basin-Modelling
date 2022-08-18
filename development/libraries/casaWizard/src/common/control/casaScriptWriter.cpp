@@ -1,3 +1,11 @@
+//
+// Copyright (C) 2022 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #include "casaScriptWriter.h"
 
 #include "model/casaScenario.h"
@@ -45,27 +53,11 @@ void modifyCasaScript(const QString& filename)
   file.close();
 }
 
-bool writeCasaScript(CasaScript& script)
+bool writeCasaScript(const CasaScript& script)
 {
   if (!script.writeScript())
   {
     Logger::log() << "- Failed to write CASA script " << script.scriptFilename() << Logger::endl();
-    return false;
-  }
-
-  if (script.scenario().expertUser())
-  {
-    modifyCasaScript(script.scenario().workingDirectory() + "/" + script.scriptFilename());
-  }
-
-  return true;
-}
-
-bool writeCasaScriptFilterOutDataDir(CasaScript& script, const QString& filteredDataDir)
-{
-  if (!script.writeScript())
-  {
-    Logger::log() << "- Failed to write casa script " << script.scriptFilename() << Logger::endl();
     return false;
   }
 

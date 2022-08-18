@@ -13,7 +13,6 @@ using namespace casaWizard::ua;
 
 TEST( TestPredictionTargetSurface, TestStringOutput )
 {
-   //const QVector<QString>& properties, const double x, const double y, const QString& surfaceName, const double age, const ToDepthConverter* todepthConverter = nullptr, const QString& locationName = "");
    PredictionTargetSurface surfaceTarget({"Temperature","VRe"},23,46,"some surface name",100);
    surfaceTarget.setSurfaceAndLayerName("some surface name","some layer name");
    const QString id = surfaceTarget.identifier("Temperature");

@@ -22,6 +22,7 @@
 #include <cstring>
 #include <sstream>
 #include <vector>
+#include <regex>
 
 namespace casa
 {
@@ -348,7 +349,14 @@ namespace casa
       for (size_t j = 0; j < parametersNumber(); ++j)
       {
          const casa::Parameter* prm = parameter(j).get();
-         const std::vector<std::string>& names = prm->parent()->name();
+         std::vector<std::string> names = prm->parent()->name();
+
+         //Remove spaces:
+         for (auto& s : names)
+         {
+            s = std::regex_replace(s, std::regex(" "), "_");
+         }
+
          paramNames.insert(paramNames.end(),names.begin(),names.end());
       }
       return paramNames;

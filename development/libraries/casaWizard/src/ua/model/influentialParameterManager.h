@@ -20,7 +20,7 @@ class InfluentialParameterManager : public Writable
 {
 public:
   explicit InfluentialParameterManager(const ProjectReader& projectReader);
-  ~InfluentialParameterManager();
+  virtual ~InfluentialParameterManager();
 
   QVector<InfluentialParameter*> influentialParameters() const;
   void set(const int row, const int selected);
@@ -33,6 +33,10 @@ public:
   QVector<bool> isUsedInCorrelation() const;
   void setIsUsedInCorrelation(const QVector<bool>& isUsedInCorrelation);
 
+  void storeMCMCOutputInParameters(const QVector<QVector<double>>& mcmcInfluentialParameterMatrix);
+
+  QVector<double> optimalParameterValues() const;
+  QStringList labelNameList() const;
   QStringList nameList() const;
 
   void writeToFile(ScenarioWriter& writer) const override;
@@ -43,10 +47,11 @@ private:
   InfluentialParameterManager(const InfluentialParameterManager&) = delete;
   InfluentialParameterManager& operator=(InfluentialParameterManager) = delete;
 
-  QStringList options_;
-  QVector<InfluentialParameter*> influentialParameters_;
-  QVector<bool> isUsedInCorrelation_;
-  const ProjectReader& projectReader_;
+  int m_version;
+  QStringList m_options;
+  QVector<InfluentialParameter*> m_influentialParameters;
+  QVector<bool> m_isUsedInCorrelation;
+  const ProjectReader& m_projectReader;
 };
 
 } // namespace ua

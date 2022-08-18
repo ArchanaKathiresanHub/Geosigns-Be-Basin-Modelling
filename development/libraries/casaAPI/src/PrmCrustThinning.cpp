@@ -310,6 +310,7 @@ bool PrmCrustThinning::save( CasaSerializer & sz ) const
       ok = ok ? sz.save( parentID, "VarParameterID" ) : ok;
    }
 
+   ok = ok ? sz.save( m_eventsNumber,     "eventNumber" ) : ok;
    ok = ok ? sz.save( m_initialThickness, "initialThickness" ) : ok;
    ok = ok ? sz.save( m_t0,               "t0"               ) : ok;
    ok = ok ? sz.save( m_dt,               "dt"               ) : ok;
@@ -339,6 +340,7 @@ PrmCrustThinning::PrmCrustThinning( CasaDeserializer & dz, unsigned int objVer )
      ok = ok && dz.load( name, "name" );
    }
 
+   ok = ok ? dz.load( m_eventsNumber,     "eventNumber" ) : ok;
    ok = ok ? dz.load( m_initialThickness, "initialThickness" ) : ok;
    ok = ok ? dz.load( m_t0,               "t0" )               : ok;
    ok = ok ? dz.load( m_dt,               "dt" )               : ok;

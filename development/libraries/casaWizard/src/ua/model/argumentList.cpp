@@ -1,6 +1,7 @@
 #include "argumentList.h"
 
 #include "model/scenarioIO.h"
+#include "Qt_Utils.h"
 
 namespace casaWizard
 {
@@ -8,10 +9,7 @@ namespace casaWizard
 namespace ua
 {
 
-QStringList convertToQStringList(const QVector<int>& vec);
-QStringList convertToQStringList(const QVector<double>& vec);
 QStringList convertToQStringList(const QVector<ArgumentList::Type>& vec);
-QStringList convertToQStringList(const QVector<QStringList>& vec);
 
 void ArgumentList::addArgument(const QString& name, const double value)
 {
@@ -133,11 +131,11 @@ QString ArgumentList::write() const
 {
   QVector<QStringList> output;
   output.append(names_);
-  output.append(convertToQStringList(indices_));
+  output.append(qtutils::convertToQStringList(indices_));
   output.append(convertToQStringList(types_));
-  output.append(convertToQStringList(doubleArguments_));
-  output.append(convertToQStringList(selectedList_));
-  output.append(convertToQStringList(listOptions_));
+  output.append(qtutils::convertToQStringList(doubleArguments_));
+  output.append(qtutils::convertToQStringList(selectedList_));
+  output.append(qtutils::mergeQStringLists(listOptions_,scenarioIO::subSubListSeparator));
   QString out;
   for (const QStringList& l : output)
   {
@@ -174,13 +172,13 @@ void ArgumentList::read(const int /*version*/, const QString& input)
   doubleArguments_.clear();
   for (const QString& s : in[3].split(scenarioIO::subListSeparator))
   {
-    doubleArguments_.append(s.toDouble());
+    if (s != "") doubleArguments_.append(s.toDouble());
   }
 
   selectedList_.clear();
   for (const QString& s : in[4].split(scenarioIO::subListSeparator))
   {
-    selectedList_.append(s.toInt());
+    if (s != "") selectedList_.append(s.toInt());
   }
 
   listOptions_.clear();
@@ -188,26 +186,6 @@ void ArgumentList::read(const int /*version*/, const QString& input)
   {
     listOptions_.append(s.split(scenarioIO::subSubListSeparator));
   }
-}
-
-QStringList convertToQStringList(const QVector<int>& vec)
-{
-  QStringList out;
-  for( const int i : vec)
-  {
-    out << QString::number(i);
-  }
-  return out;
-}
-
-QStringList convertToQStringList(const QVector<double>& vec)
-{
-  QStringList out;
-  for( const double d : vec)
-  {
-    out << scenarioIO::doubleToQString(d);
-  }
-  return out;
 }
 
 QStringList convertToQStringList(const QVector<ArgumentList::Type>& vec)
@@ -226,16 +204,6 @@ QStringList convertToQStringList(const QVector<ArgumentList::Type>& vec)
       default:
         out << "";
     }
-  }
-  return out;
-}
-
-QStringList convertToQStringList(const QVector<QStringList>& vec)
-{
-  QStringList out;
-  for (const QStringList& l : vec)
-  {
-    out << l.join(scenarioIO::subSubListSeparator);
   }
   return out;
 }

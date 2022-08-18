@@ -4,6 +4,8 @@
 #include "casaCmdInterface.h"
 #include "model/script/WizardDataToCasaScriptMapper.h"
 
+#include "Qt_Utils.h"
+
 #include <regex>
 
 namespace casaWizard
@@ -113,10 +115,10 @@ std::vector<std::string> PredictionTargetSurface::identifierStringVec(const QStr
    std::vector<std::string> stringVec;
    stringVec.push_back(typeName().toStdString());
    stringVec.push_back(mapName(property).toStdString());
-   stringVec.push_back(doubleToQString(x()).toStdString());
-   stringVec.push_back(doubleToQString(y()).toStdString());
+   stringVec.push_back(qtutils::doubleToQString(x()).toStdString());
+   stringVec.push_back(qtutils::doubleToQString(y()).toStdString());
    stringVec.push_back(m_layer.toStdString());
-   stringVec.push_back(doubleOneDigitToQString(age()).toStdString());
+   stringVec.push_back(qtutils::doubleOneDigitToQString(age()).toStdString());
    stringVec.push_back("1.0");
    stringVec.push_back("1.0");
    return stringVec;

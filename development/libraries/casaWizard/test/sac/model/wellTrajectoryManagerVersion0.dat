@@ -1,13 +1,13 @@
 WellTrajectoryManagerVersion|int|0
 baseRunTrajectories|vector|2
-baseRunTrajectories|0|0|15|TemperatureUserName|1.000000><2.000000><3.000000|4.000000><5.000000><6.000000
+baseRunTrajectories|0|0|15|TemperatureUserName|1><2><3|4><5><6
 baseRunTrajectories|0|1|16|TemperatureUserName||
 bestMatchTrajectories|vector|2
-bestMatchTrajectories|0|0|15|TemperatureUserName|1.000000><2.000000><3.000000|7.000000><8.000000><9.000000
+bestMatchTrajectories|0|0|15|TemperatureUserName|1><2><3|7><8><9
 bestMatchTrajectories|0|1|16|TemperatureUserName||
 base3dTrajectories|vector|2
-base3dTrajectories|0|0|15|TemperatureUserName|1.000000><2.000000><3.000000|10.000000><11.000000><12.000000
+base3dTrajectories|0|0|15|TemperatureUserName|1><2><3|10><11><12
 base3dTrajectories|0|1|16|TemperatureUserName||
 optimized3dTrajectories|vector|2
-optimized3dTrajectories|0|0|15|TemperatureUserName|1.000000><2.000000><3.000000|13.000000><14.000000><15.000000
+optimized3dTrajectories|0|0|15|TemperatureUserName|1><2><3|13><14><15
 optimized3dTrajectories|0|1|16|TemperatureUserName||

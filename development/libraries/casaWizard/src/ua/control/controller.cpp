@@ -1,10 +1,18 @@
+//
+// Copyright (C) 2022 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #include "controller.h"
 
 #include "control/ModelInputsController.h"
 #include "control/logDisplayController.h"
 #include "control/ResponseSurfacesController.h"
 #include "control/targetController.h"
-#include "control/mcmcController.h"
+#include "control/UAResultsController.h"
 #include "control/correlationController.h"
 #include "model/output/runCaseSetFileManager.h"
 #include "view/menuBarUA.h"
@@ -28,12 +36,13 @@ Controller::Controller() :
   m_modelInputsController{new ModelInputsController{ui_.modelInputsTab(), scenario_, scriptRunController(), this}},
   m_targetController{new TargetController{ui_.targetTab(), scenario_, this}},
   m_responseSurfacesController{new ResponseSurfacesController{ui_.responseSurfacesTab(), scenario_, scriptRunController(), this}},
-  m_mcmcController{new MCMCController{ui_.mcmcTab(), scenario_, scriptRunController(), this}},
+  m_uaResultsController{new UAResultsController{ui_.uaResultsTab(), scenario_, scriptRunController(), this}},
   m_correlationController{new CorrelationController{ui_.correlationsTab(), scenario_, scriptRunController(), this}}
 {
   const MenuBarUA* menuBarUA = ui_.menuUA();
   connect(menuBarUA->actionRemoveDoeData(),    SIGNAL(triggered()), this, SLOT(slotPopupRemoveDoeData()));
   connect(menuBarUA->actionRemoveDoeDataAll(), SIGNAL(triggered()), this, SLOT(slotPopupRemoveDoeDataAll()));
+  connect(this, SIGNAL(signalProjectOpened()), m_uaResultsController, SLOT(slotProjectOpened()));
 
   ui_.show();
   constructWindow(new LogDisplayController(ui_.logDisplay(), this));

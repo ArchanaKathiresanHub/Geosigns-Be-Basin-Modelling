@@ -1,7 +1,7 @@
 testString|string|valueString
 testBool|bool|1
 testInt|int|123
-testDouble|double|3.140000
+testDouble|double|3.14
 testVector|vector|2
 testVector|0|testName|1
 testVector|0|testName2|12

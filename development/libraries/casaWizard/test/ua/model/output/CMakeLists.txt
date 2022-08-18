@@ -7,5 +7,11 @@ configure_file( McmcOutputExpectedSpecialCharacters.csv McmcOutputExpectedSpecia
 add_casawizard_ua_gtest( NAME McmcDataCollector
                          SOURCES TestMcmcDataCollector.cpp)
 
+add_casawizard_ua_gtest( NAME OptimalCaseExporter
+                         SOURCES TestOptimalCaseExporter.cpp)
+configure_file( Project.project3d Project.project3d COPYONLY )
+configure_file( Project.txt Project.txt COPYONLY )
+configure_file( Inputs.HDF Inputs.HDF )
+
 add_casawizard_ua_gtest( NAME RunCaseSetFileManager
                          SOURCES testRunCaseSetFileManager.cpp )

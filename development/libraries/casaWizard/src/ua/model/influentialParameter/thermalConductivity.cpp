@@ -15,7 +15,8 @@ ThermalConductivity::ThermalConductivity() :
     "\"LithotypeIoTbl:StpThCond\"",
     "StpThCond",
     "[W/m.K]",
-    1
+    1,
+     InfluentialParameter::Type::ThermalConductivity
   )
 {
   arguments().addArgument("Lithology name", QStringList("Select project3d file"));

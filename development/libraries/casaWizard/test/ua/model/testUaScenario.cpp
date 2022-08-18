@@ -5,6 +5,10 @@
 #include "model/scenarioWriter.h"
 #include "stubProjectReader.h"
 
+#include "expectFileEq.h"
+
+#include <QDir>
+
 #include <gtest/gtest.h>
 
 using namespace casaWizard;
@@ -28,13 +32,26 @@ TEST( UAScenarioTest, TestWriteReadVersion0 )
    mcManagerWrite.setInfluentialParameterMatrix({{33, 34}, {43, 44}});
    mcManagerWrite.setPredictionTargetMatrix({{55, 56}, {65, 66}});
 
-   casaWizard::ScenarioWriter writer{"scenario.dat"};
-   writeScenario.writeToFile(writer);
-   writer.close();
+   //Step is performed in read, thus is needed to ensure that written and read state is equal.
+   writeScenario.updateDoeConstantNumberOfDesignPoints(ipManagerWrite.totalNumberOfInfluentialParameters());
+
+   {
+      casaWizard::ScenarioWriter writer{"scenario.dat"};
+      writeScenario.writeToFile(writer);
+      writer.close();
+   }
 
    casaWizard::ua::UAScenario readScenario{new casaWizard::StubProjectReader()};
    casaWizard::ScenarioReader reader{"scenario.dat"};
    readScenario.readFromFile(reader);
+
+   {
+      casaWizard::ScenarioWriter writer{"scenarioRead.dat"};
+      readScenario.writeToFile(writer);
+      writer.close();
+   }
+
+   expectFileEq("scenario.dat","scenarioRead.dat");
 
    const casaWizard::ua::InfluentialParameterManager& ipManagerRead = readScenario.influentialParameterManager();
 
@@ -244,3 +261,80 @@ TEST(UAScenarioTest, setOptimalValuesTargetQCs)
    EXPECT_DOUBLE_EQ(targetQCs[1].yOptimalSim(),1);
    EXPECT_DOUBLE_EQ(targetQCs[2].yOptimalSim(),2);
 }
+
+TEST(UAScenarioTest, copyToIterationDir)
+{
+   UAScenario scenario(new casaWizard::StubProjectReader());
+
+   QString wDir = "wDir";
+   QString iDir  ="Iteration_1";
+   QString runLocation = "CaseSet";
+
+   //cleanup (in case folder still present)
+   QString wDirPath = QDir::currentPath() + "/" + wDir;
+   QDir dirToRemove(wDirPath);
+   dirToRemove.removeRecursively();
+
+   //Make file location:
+   QString testDirPath = QDir::currentPath() + "/" + wDir + "/" + runLocation + "/" + iDir;
+   QDir tmpTestDir;
+   tmpTestDir.mkpath(testDirPath);
+
+   scenario.setWorkingDirectory(wDirPath);
+   scenario.setRunLocation(runLocation);
+
+   QString fileName = "testFile";
+   QString filePath = QDir::currentPath() + "/" + wDir + "/" + fileName;
+
+   //Create empty file:
+   QFile file(filePath);
+   file.open(QFile::OpenModeFlag::WriteOnly);
+   file.close();
+
+   scenario.copyToIterationDir(fileName);
+
+   //File should be copied to testDirpath. Old file should be removed:
+   EXPECT_TRUE(QFile::exists(testDirPath + "/" + fileName));
+   EXPECT_FALSE(QFile::exists(filePath));
+
+   file.open(QFile::OpenModeFlag::WriteOnly);
+   QTextStream out(&file);
+   QString writeString("test");
+   out << writeString;
+   file.close();
+
+   scenario.copyToIterationDir(fileName);
+
+   //File should be replaced by new non-empty file:
+   QFile file2(testDirPath + "/" + fileName);
+   file2.open(QFile::OpenModeFlag::ReadOnly);
+   QTextStream out2(&file2);
+   QString content = out2.readLine();
+   EXPECT_EQ(content,writeString);
+
+   //cleanup
+   dirToRemove.removeRecursively();
+}
+
+TEST(UAScenarioTest, stageStates)
+{
+   UAScenario scenario(new casaWizard::StubProjectReader());
+
+   //Default false:
+   EXPECT_FALSE(scenario.isStageComplete(StageTypesUA::doe));
+   EXPECT_FALSE(scenario.isStageComplete(StageTypesUA::responseSurfaces));
+   EXPECT_FALSE(scenario.isStageComplete(StageTypesUA::mcmc));
+
+   //Default true:
+   EXPECT_TRUE(scenario.isStageUpToDate(StageTypesUA::doe));
+   EXPECT_TRUE(scenario.isStageUpToDate(StageTypesUA::responseSurfaces));
+   EXPECT_TRUE(scenario.isStageUpToDate(StageTypesUA::mcmc));
+
+   scenario.setStageComplete(StageTypesUA::responseSurfaces,true);
+   EXPECT_TRUE(scenario.isStageComplete(StageTypesUA::responseSurfaces));
+
+   scenario.setStageUpToDate(StageTypesUA::doe,false);
+   EXPECT_FALSE(scenario.isStageUpToDate(StageTypesUA::doe));
+}
+
+

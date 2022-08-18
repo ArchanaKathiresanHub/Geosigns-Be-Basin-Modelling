@@ -11,10 +11,10 @@ namespace ua
 
 class CorrelationTab;
 class MenuBarUA;
-class MCMCTab;
 class ModelInputsTab;
 class ResponseSurfacesTab;
 class TargetTab;
+class UAResultsTab;
 
 class Window : public MainWindow
 {
@@ -26,7 +26,7 @@ public:
   ModelInputsTab* modelInputsTab() const;
   TargetTab* targetTab() const;
   ResponseSurfacesTab* responseSurfacesTab() const;
-  MCMCTab* mcmcTab() const;
+  UAResultsTab* uaResultsTab() const;
   CorrelationTab* correlationsTab() const;
   MenuBar* menu() const override;
   MenuBarUA* menuUA() const;
@@ -35,7 +35,7 @@ private:
   ModelInputsTab* m_modelInputsTab;
   TargetTab* targetTab_;
   ResponseSurfacesTab* m_responseSurfacesTab;
-  MCMCTab* mcmcTab_;
+  UAResultsTab* m_uaResultsTab;
   CorrelationTab* correlationsTab_;
   MenuBarUA* menuBarUA_;
 };

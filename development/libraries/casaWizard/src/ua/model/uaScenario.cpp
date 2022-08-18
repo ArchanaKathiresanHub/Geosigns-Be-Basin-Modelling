@@ -45,6 +45,7 @@ UAScenario::UAScenario(ProjectReader* projectReader) :
    m_isDoeOptionSelected{QVector<bool>(m_doeOptions.size(), false)},
    m_isQcDoeOptionSelected{},
    m_isStageComplete{},
+   m_isStageUpToDate("IsStageUpToDate",true),
    m_subSamplingFactor{1}
 {
 }
@@ -430,6 +431,7 @@ void UAScenario::setOptimalValuesTargetQCs(const QVector<double>& values, const 
             if (targetQc.identifier() == colNames[j])
             {
                targetQc.setValOptimalSim(values.at(j));
+               break;
             }
          }
       }
@@ -532,13 +534,14 @@ QVector<InfluentialParameter*> UAScenario::influentialParametersWithRunData()
 void UAScenario::writeToFile(ScenarioWriter& writer) const
 {
    CasaScenario::writeToFile(writer);
-   writer.writeValue("UAScenarioVersion", 4);
+   writer.writeValue("UAScenarioVersion", 5);
    m_influentialParameterManager.writeToFile(writer);
    m_predictionTargetManager.writeToFile(writer);
    m_monteCarloDataManager.writeToFile(writer);
    m_manualDesignPointManager.writeToFile(writer);
    m_runCaseSetFileManager.writeToFile(writer);
    m_isStageComplete.writeToFile(writer);
+   m_isStageUpToDate.writeToFile(writer);
    m_proxy.writeToFile(writer);
 
    writer.writeValue("targetQC", m_targetQCs);
@@ -597,7 +600,7 @@ void UAScenario::readFromFile(const ScenarioReader& reader)
    }
    else
    {
-      m_isStageComplete.setAllToCompleted();
+      m_isStageComplete.setAllToTrue();
    }
 
    if (version > 2)
@@ -607,6 +610,15 @@ void UAScenario::readFromFile(const ScenarioReader& reader)
    if (version > 3)
    {
       m_subSamplingFactor = reader.readInt("SubSampling");
+   }
+
+   if (version > 4)
+   {
+      m_isStageUpToDate.readFromFile(reader);
+   }
+   else
+   {
+      m_isStageUpToDate.setAllToTrue();
    }
 }
 
@@ -631,6 +643,7 @@ void UAScenario::clear()
    updateDoeConstantNumberOfDesignPoints(m_influentialParameterManager.totalNumberOfInfluentialParameters());
 
    m_isStageComplete.clear();
+   m_isStageUpToDate.clear();
 }
 
 QString UAScenario::iterationDirName() const
@@ -673,12 +686,38 @@ const CMBMapReader& UAScenario::mapReader() const
 
 bool UAScenario::isStageComplete(const StageTypesUA& stageType) const
 {
-   return m_isStageComplete.isComplete(stageType);
+   return m_isStageComplete.isTrue(stageType);
 }
 
 void UAScenario::setStageComplete(const StageTypesUA& stageType, bool isComplete)
 {
-   m_isStageComplete.setStageIsComplete(stageType, isComplete);
+   m_isStageComplete.setStageState(stageType, isComplete);
+}
+
+bool UAScenario::isStageUpToDate(const StageTypesUA& stageType) const
+{
+   return m_isStageUpToDate.isTrue(stageType);
+}
+
+void UAScenario::setStageUpToDate(const StageTypesUA& stageType, bool isUpToDate)
+{
+   m_isStageUpToDate.setStageState(stageType, isUpToDate);
+}
+
+void UAScenario::copyToIterationDir(const QString& fileName) const
+{
+   const QString source = workingDirectory() + "/" + fileName;
+   const QString target = workingDirectory() + "/" + runLocation() + "/" + iterationDirName() + "/" + fileName;
+
+   if (QFile::exists(target))
+   {
+      QFile::remove(target);
+   }
+
+   if (QFile::copy(source, target))
+   {
+      QFile::remove(source);
+   }
 }
 
 } // namespace ua

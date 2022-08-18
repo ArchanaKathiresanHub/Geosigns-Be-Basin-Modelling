@@ -1,4 +1,4 @@
 ObjectiveFunctionManagerVersion|int|0
 objectiveFunction|vector|2
-objectiveFunction|2|Temperature|Temperature|1.000000|2.000000|3.000000|1
-objectiveFunction|2|VRe|VReUserName|4.000000|0.000000|1.000000|0
+objectiveFunction|2|Temperature|Temperature|1|2|3|1
+objectiveFunction|2|VRe|VReUserName|4|0|1|0

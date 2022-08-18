@@ -1,5 +1,15 @@
+//
+// Copyright (C) 2022 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 // Controller for the uncertainty analysis tab in the thermal wizard
 #pragma once
+
+#include "UAResultsTargetTableController.h"
 
 #include <QObject>
 
@@ -11,39 +21,46 @@ class ScriptRunController;
 namespace ua
 {
 
-class MCMCTab;
+class UAResultsTab;
 class UAScenario;
 
-class MCMCController : public QObject
+class UAResultsController : public QObject
 {
    Q_OBJECT
 
 public:
-   MCMCController(MCMCTab* mcmcTab,
+   UAResultsController(UAResultsTab* uaResultsTab,
                   UAScenario& casaScenario,
                   ScriptRunController& scriptRunController,
                   QObject* parent);
 
+public slots:
+   void slotProjectOpened();
+
 private slots:
    void slotPushButtonMCMCrunCasaClicked();
-   void slotTablePredictionTargetClicked(int row, int column);
+   void slotPredictionTargetClicked(int row);
    void slotPushButtonExportMcmcOutputClicked();
    void slotPushButtonExportOptimalCasesClicked();
    void slotPushButtonRunOptimalCasesClicked();
    void slotSliderHistogramsChanged(int indexTime);
    void slotCheckBoxHistoryPlotModeChanged(const int checkState);
-   void slotPushButtonAddOptimalDesignPointClicked();
+   void slotPushButtonRecalculateResponseSurfacesClicked();
 
    void slotUpdateTabGUI(int tabID);
 
 private:
    void refreshGUI();
 
-   bool doesOptimalCaseExist() const;
+   void loadObservablesOptimalRun();
+   void showOptimalCaseQuality();
 
-   MCMCTab* m_mcmcTab;
+   QVector<double> getOptimalSettings(QStringList& parameterNames) const;
+
+   UAResultsTab* m_uaResultsTab;
    UAScenario& m_casaScenario;
    ScriptRunController& m_scriptRunController;
+   UAResultsTargetTableController m_targetTableController;
 };
 
 } // namespace ua

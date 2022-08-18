@@ -15,7 +15,8 @@ EquilibriumOceanicLithosphereThickness::EquilibriumOceanicLithosphereThickness()
     "\"BasementIoTbl:EquilibriumOceanicLithosphereThickness\"",
     "Equilibrium Oceanic Lithosphere Thickness",
     "[m]",
-    1
+    1,
+    InfluentialParameter::Type::EquilibriumOceanicLithosphereThickness
   )
 {
   arguments().addArgument("Minimum range value", 0.0);

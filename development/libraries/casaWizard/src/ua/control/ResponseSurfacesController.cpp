@@ -132,18 +132,7 @@ void ResponseSurfacesController::slotPushButtonQCrunCasaClicked()
     Logger::log() << "Failed to read the targets for the quality check: " << e.what() << Logger::endl();
   }
 
-  const QString source = m_casaScenario.workingDirectory() + "/" + m_casaScenario.stateFileNameQC() ;
-  const QString target = m_casaScenario.workingDirectory() + "/" + m_casaScenario.runLocation() + "/" + m_casaScenario.iterationDirName() + "/" + m_casaScenario.stateFileNameQC();
-
-  if (QFile::exists(target))
-  {
-    QFile::remove(target);
-  }
-
-  if (QFile::copy(source, target))
-  {
-    QFile::remove(source);
-  }
+  m_casaScenario.copyToIterationDir(m_casaScenario.stateFileNameQC());
 
   m_casaScenario.setStageComplete(StageTypesUA::responseSurfaces);
   m_casaScenario.setStageComplete(StageTypesUA::mcmc, false);
