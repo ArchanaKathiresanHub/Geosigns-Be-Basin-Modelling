@@ -13,7 +13,7 @@
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Version				Date of update
 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-Cauldron-v2.8.9		2022-08-18 13:56:10 +0000
+Cauldron-v2.8.10		2022-08-19 11:47:27 +0000
 =============================================================
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Third-party Software 		version
@@ -36,6 +36,17 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2022-08-19  Sven van Leeuwen  <Sven.van-Leeuwen@shell.com>
+
+	chg: usr: implemented user feedback on Ascii import dialog in UA and fixed export from SAC
+	* Small changes:
+	* Added hover-over tooltip next to the name in the import prediction targets dialog.
+	* Matched the SAC and UA import/export file setup (comma seperated)
+	* Made the temp & vre on by default
+	================== COMMIT-END ========================
+	Commit-ID:<fbcb707a83a25d45fa3bd7d6ffc844a0d0362847>	  (tag: refs/tags/v2.8.10, refs/heads/master)
+
+++
 2022-08-18  Marnix.vandenBerg  <Marnix.vandenBerg@shell.com>
 
 	chg: usr: Rename and improvements to the UA Results tab in thermaluawizard
