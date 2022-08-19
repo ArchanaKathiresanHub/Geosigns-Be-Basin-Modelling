@@ -7,6 +7,7 @@ namespace casaWizard
 {
 
 class CustomCheckbox;
+class HelpLabel;
 
 namespace ua
 {
@@ -36,6 +37,7 @@ private:
    QLineEdit* m_lineEditFile;
    TargetImportLayout* m_targetImportLayout;
    QLineEdit* m_lineEditName;
+   HelpLabel* m_helpLabelName;
 };
 
 } // namespace ua

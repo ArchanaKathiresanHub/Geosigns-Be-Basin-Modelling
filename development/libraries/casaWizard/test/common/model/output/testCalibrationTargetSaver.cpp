@@ -14,6 +14,7 @@
 
 #include <QString>
 #include <gtest/gtest.h>
+#include <expectFileEq.h>
 
 using namespace casaWizard;
 
@@ -61,4 +62,19 @@ TEST(CalibrationTargetSaverTest, testSave)
 
   EXPECT_EQ(wellsRead[0]->metaData(), wellsWrite[0]->metaData());
   EXPECT_EQ(wellsRead[0]->metaData(), "SomeMetaData");
+}
+
+TEST(CalibrationTargetSaverTest, exportTest)
+{
+   casaWizard::StubCasaScenario scenario{};
+   std::remove("testExportASCII.txt");
+
+   scenario.calibrationTargetManager().addWell("name", 100, 100);
+   scenario.calibrationTargetManager().addWell("name2", 200, 200);
+   scenario.calibrationTargetManager().addWell("", 300.3, 2e13);
+
+   CalibrationTargetSaver saver(scenario.calibrationTargetManager());
+
+   saver.saveXYtoASCII("testExportASCII.txt");
+   expectFileEq("testExportASCII.txt", "testExpectedASCII.txt");
 }

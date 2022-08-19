@@ -96,7 +96,7 @@ bool CalibrationTargetSaver::saveXYtoASCII(const QString& filename) const
   QByteArray data;
   for ( const Well* well : calibrationTargetManager_.activeWells())
   {
-    data += QString::number(well->x()) + " " + QString::number(well->y()) + "\n";
+    data += QString::number(well->x()) + "," + QString::number(well->y()) + "," + well->name() + "\n";
   }
   file.write(data);
   file.close();

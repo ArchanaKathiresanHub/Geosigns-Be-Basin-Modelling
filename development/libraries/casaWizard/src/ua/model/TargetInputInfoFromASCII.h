@@ -21,7 +21,7 @@ public:
                             bool temperatureTargetsSelected = false,
                             bool vreTargetsSelected = false,
                             QString depthInput = "",
-                            QString defaultName = "PWS");
+                            QString defaultName = "PSW");
 
    QVector<XYName> getTargetLocations() const override;
    QString getFilePath();

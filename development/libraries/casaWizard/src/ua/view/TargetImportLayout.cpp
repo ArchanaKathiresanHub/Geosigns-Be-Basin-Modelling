@@ -40,6 +40,7 @@ TargetImportLayout::TargetImportLayout(QWidget* parent):
 
    QHBoxLayout* layoutTemperatureCheck = new QHBoxLayout();
    layoutTemperatureCheck->addWidget(new QLabel("Temperature:", parent));
+   m_checkBoxTemperature->setChecked(true);
    layoutTemperatureCheck->addWidget(m_checkBoxTemperature);
 
    HelpLabel* helpLabelZ = new HelpLabel(parent, "Enter multiple depth values by separating the entries with a comma, e.g.: '500, 1000, 1500, ...'");
@@ -53,6 +54,7 @@ TargetImportLayout::TargetImportLayout(QWidget* parent):
 
    QHBoxLayout* layoutVReCheck = new QHBoxLayout();
    layoutVReCheck->addWidget(new QLabel("VRe:", parent));
+   m_checkBoxVRe->setChecked(true);
    layoutVReCheck->addWidget(m_checkBoxVRe);
 
    addLayout(layoutSurfaceSelect);

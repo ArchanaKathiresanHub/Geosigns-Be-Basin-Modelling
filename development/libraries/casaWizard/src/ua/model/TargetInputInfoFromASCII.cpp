@@ -29,7 +29,7 @@ TargetInputInfoFromASCII::TargetInputInfoFromASCII(QString filePath,
    if(defaultName != ""){
       m_defaultName = defaultName;
    } else {
-      m_defaultName = "PWS";
+      m_defaultName = "PSW";
    }
 }
 
@@ -37,7 +37,7 @@ TargetInputInfoFromASCII::TargetInputInfoFromASCII(QString filePath,
 QVector<TargetInputInfo::XYName> TargetInputInfoFromASCII::getTargetLocations() const
 {
    //parse
-   //read file, parse, set in view (should be model)
+   //read file, parse, set in view
    QFile inputFile(m_filePath);
    QVector<TargetInputInfo::XYName> rowData;
 
@@ -64,12 +64,9 @@ QVector<TargetInputInfo::XYName> TargetInputInfoFromASCII::getTargetLocations() 
             }
             rowData.push_back(entry);
          }
-
-
       }
       inputFile.close();
    }
-
    return rowData;
 }
 

@@ -167,9 +167,7 @@ void ImportWellPopupVSET::slotSelectWellsFile()
    }
 
    selectedFileLabel_->setText(fileName);
-
    importOptions_.xyPairs.clear();
-
    std::string line;
    while (fileStream)
    {
@@ -178,10 +176,16 @@ void ImportWellPopupVSET::slotSelectWellsFile()
       {
          return;
       }
-      std::stringstream ss(line);
-      double x,y;
-      ss>>x; ss>>y;
-      importOptions_.xyPairs.append(QPair<double,double>(x,y));
+      std::istringstream ss(line);
+      std::string token;
+      QPair<double, double> xyPair;
+
+      std::getline(ss, token, ',');
+      xyPair.first = std::stod(token);
+
+      std::getline(ss, token, ',');
+      xyPair.second = std::stod(token);
+      importOptions_.xyPairs.append(xyPair);
    }
 }
 
