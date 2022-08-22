@@ -13,7 +13,7 @@
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Version				Date of update
 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-Cauldron-v2.8.10		2022-08-19 11:47:27 +0000
+Cauldron-v2.8.11		2022-08-22 14:20:42 +0000
 =============================================================
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Third-party Software 		version
@@ -36,6 +36,15 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2022-08-22  Richard Faasse  <Richard.Faasse@shell.com>
+
+	chg: usr: Keep the base subsampling value for the exported optimal case in the UA thermal workflow
+	 * Save the base subsampling value when importing a project3d file in the UA thermal wizard
+	 * Fix little issue with removing indices which are set in a different order than ascending in prediction target table
+	================== COMMIT-END ========================
+	Commit-ID:<0f5b585107c4c7579eacf9a1857c2a2f47b23078>	  (tag: refs/tags/v2.8.11, refs/heads/master)
+
+++
 2022-08-19  Sven van Leeuwen  <Sven.van-Leeuwen@shell.com>
 
 	chg: usr: implemented user feedback on Ascii import dialog in UA and fixed export from SAC
