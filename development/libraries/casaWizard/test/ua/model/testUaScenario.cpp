@@ -110,6 +110,7 @@ TEST( UAScenarioTest, TestWriteReadVersion0 )
 TEST( UAScenarioTest, TestWriteReadVersion1 )
 {
    casaWizard::ua::UAScenario writeScenario{new casaWizard::StubProjectReader()};
+   writeScenario.initializeBaseSubSamplingFactor();// Sets BaseSubSampling factor to 5, due to return value of stubprojectreader
    writeScenario.setSubSamplingFactor(10);
 
    casaWizard::ua::ManualDesignPointManager& mdpManagerWrite = writeScenario.manualDesignPointManager();
@@ -133,6 +134,7 @@ TEST( UAScenarioTest, TestWriteReadVersion1 )
    QVector<double> designPoint1 = mdpManagerRead.getDesignPoint(1);
 
    EXPECT_EQ(10, readScenario.subSamplingFactor());
+   EXPECT_EQ(5, readScenario.baseSubSamplingFactor());
    EXPECT_EQ(11, designPoint0[0]);
    EXPECT_EQ(12, designPoint0[1]);
    EXPECT_EQ(13, designPoint0[2]);

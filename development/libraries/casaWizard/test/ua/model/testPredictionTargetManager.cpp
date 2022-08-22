@@ -235,6 +235,17 @@ TEST_F( TestPredictionTargetManager, TestRemoveMultipleSurfaceTargets )
    ASSERT_EQ(0, targets.size());
 }
 
+TEST_F( TestPredictionTargetManager, TestRemoveMultipleSurfaceTargetsWrongIndexingOrder )
+{
+   casaWizard::CMBMapReader mapReader;
+   casaWizard::ua::PredictionTargetManager& manager = targetManager();
+   addMultipleSurfaceTargetsToManager(manager);
+   manager.removeTargets({1, 0});
+
+   const QVector<const casaWizard::ua::PredictionTarget*> targets = manager.predictionTargets();
+   ASSERT_EQ(0, targets.size());
+}
+
 TEST_F( TestPredictionTargetManager, TestRemoveSurfaceTargetNonExisting )
 {
    casaWizard::ua::PredictionTargetManager& manager = targetManager();

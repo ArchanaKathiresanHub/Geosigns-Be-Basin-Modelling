@@ -283,8 +283,9 @@ void PredictionTargetManager::copyTargets(const QVector<int>& indices)
    setPredictionTargetsAllTimes();
 }
 
-void PredictionTargetManager::removeTargets(const QVector<int>& indices)
+void PredictionTargetManager::removeTargets(QVector<int> indices)
 {
+   std::sort(indices.begin(), indices.end());
    for (int i = indices.size() - 1; i >= 0; i--)
    {
       const int index = indices[i];

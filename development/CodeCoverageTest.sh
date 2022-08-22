@@ -12,6 +12,7 @@
 
 #Define branch location
 BRANCH_LOCATION=$(pwd)
+ONLY_DIFF=FALSE
 
 # Define functions
 printHelp()
@@ -29,6 +30,8 @@ printHelp()
  echo If the [Path to code coverage build directory] does not exist, 
  echo it is created automatically.
  echo ""
+ echo If you only want to compare the files that were changes in the
+ echo feature branch, use the -d flag.
  echo First-time usage:
  echo If you want to create a new code coverage build directory, 
  echo do this using this script by specifying the name of your new 
@@ -60,10 +63,11 @@ excludeFromAnalysis()
 }
 
 # Read input arguments
-while getopts b: flag;
+while getopts b:d flag;
 do
     case "${flag}" in
         b) BUILD_LOCATION=${OPTARG};;
+        d) ONLY_DIFF=TRUE;;
     esac
 done
 
@@ -106,7 +110,19 @@ then
 fi
 
 rm $BUILD_LOCATION/includedFiles.txt
-find $BRANCH_LOCATION -name "*.h" -o -name "*.cpp" -o -name "*.hpp" -o -name "*.C" -o -name "*.c" | grep -v /tests/ | grep -v /test/ | sed 's|^\./||g' > $BUILD_LOCATION/includedFiles.txt
+if [[ $ONLY_DIFF == "TRUE" ]]
+then
+  git diff --name-only master > $BUILD_LOCATION/includedFiles.txt
+  excludeFromAnalysis /test/ # exclude the test folders from the analysis
+  excludeFromAnalysis libraries/casaWizard/src/common/view
+  excludeFromAnalysis libraries/casaWizard/src/common/control
+  excludeFromAnalysis libraries/casaWizard/src/sac/control
+  excludeFromAnalysis libraries/casaWizard/src/sac/view
+  excludeFromAnalysis libraries/casaWizard/src/ua/view
+  excludeFromAnalysis libraries/casaWizard/src/ua/control
+else
+  find $BRANCH_LOCATION -name "*.h" -o -name "*.cpp" -o -name "*.hpp" -o -name "*.C" -o -name "*.c" | grep -v /tests/ | grep -v /test/ | sed 's|^\./||g' > $BUILD_LOCATION/includedFiles.txt
+fi
 
 # Install binaries and run the codecov tool using the text file as argument value for -comp 
 buildAndAnalyze

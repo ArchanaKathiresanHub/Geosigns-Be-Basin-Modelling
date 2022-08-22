@@ -125,6 +125,10 @@ public:
 
   int subSamplingFactor() const;
   void setSubSamplingFactor(const int subSamplingFactor);
+
+  int baseSubSamplingFactor() const;
+  void initializeBaseSubSamplingFactor();
+
 private:
   QString m_stateFileNameDoE;
   QString m_stateFileNameQC;
@@ -153,6 +157,7 @@ private:
   StageStateUA m_isStageComplete;
   StageStateUA m_isStageUpToDate; //Tracks if the state of the stage is consistent with that if preceding stages.
   int m_subSamplingFactor;
+  int m_baseCaseSubSamplingFactor;
 };
 
 } // namespace ua

@@ -297,6 +297,7 @@ void ModelInputsController::slotPushSelectProject3dClicked()
 
    m_modelInputsTab->lineEditProject3D()->setText(workingDir + "/" + projectName);
    m_modelInputsTab->spinBoxSubSampling()->setValue(m_casaScenario.projectReader().subSamplingFactor());
+   m_casaScenario.initializeBaseSubSamplingFactor();
    refreshGUI();
 }
 

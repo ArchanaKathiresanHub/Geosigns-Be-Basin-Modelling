@@ -20,6 +20,7 @@
 #include "model/input/projectReader.h"
 #include "model/doeOption.h"
 #include "model/logger.h"
+#include "model/output/cmbProjectWriter.h"
 #include "model/output/McmcOutputDataCollector.h"
 #include "model/output/McmcOutputWriter.h"
 #include "model/output/McmcTargetExportData.h"
@@ -249,6 +250,9 @@ void UAResultsController::slotPushButtonExportOptimalCasesClicked()
 {
    scenarioBackup::backup(m_casaScenario);
 
+   CMBProjectWriter writer(m_casaScenario.project3dPath());
+   writer.setScaling(m_casaScenario.baseSubSamplingFactor(), m_casaScenario.baseSubSamplingFactor());
+
    OptimalCaseScript optimal{m_casaScenario};
    const QString directory{optimal.optimalCaseDirectory()};
 
@@ -271,6 +275,8 @@ void UAResultsController::slotPushButtonExportOptimalCasesClicked()
    }
 
    optimalCaseExporter::exportOptimalCase(optimal.optimalCaseDirectory(),m_casaScenario.workingDirectory());
+
+   writer.setScaling(m_casaScenario.subSamplingFactor(), m_casaScenario.subSamplingFactor());
 
    scenarioBackup::backup(m_casaScenario);
 }

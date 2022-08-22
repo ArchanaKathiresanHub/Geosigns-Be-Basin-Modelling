@@ -136,7 +136,7 @@ public:
 
   int subSamplingFactor() const override
   {
-     return 1;
+     return 5;
   }
 };
 

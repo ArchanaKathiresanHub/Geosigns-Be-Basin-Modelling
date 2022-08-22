@@ -46,7 +46,8 @@ UAScenario::UAScenario(ProjectReader* projectReader) :
    m_isQcDoeOptionSelected{},
    m_isStageComplete{},
    m_isStageUpToDate("IsStageUpToDate",true),
-   m_subSamplingFactor{1}
+   m_subSamplingFactor{1},
+   m_baseCaseSubSamplingFactor{1}
 {
 }
 
@@ -175,6 +176,16 @@ int UAScenario::subSamplingFactor() const
 void UAScenario::setSubSamplingFactor(const int subSampling)
 {
    m_subSamplingFactor = subSampling;
+}
+
+int UAScenario::baseSubSamplingFactor() const
+{
+   return m_baseCaseSubSamplingFactor;
+}
+
+void UAScenario::initializeBaseSubSamplingFactor()
+{
+   m_baseCaseSubSamplingFactor = projectReader().subSamplingFactor();
 }
 
 void UAScenario::setProxyOrder(int order)
@@ -534,7 +545,7 @@ QVector<InfluentialParameter*> UAScenario::influentialParametersWithRunData()
 void UAScenario::writeToFile(ScenarioWriter& writer) const
 {
    CasaScenario::writeToFile(writer);
-   writer.writeValue("UAScenarioVersion", 5);
+   writer.writeValue("UAScenarioVersion", 6);
    m_influentialParameterManager.writeToFile(writer);
    m_predictionTargetManager.writeToFile(writer);
    m_monteCarloDataManager.writeToFile(writer);
@@ -555,6 +566,7 @@ void UAScenario::writeToFile(ScenarioWriter& writer) const
    }
    writer.writeValue("nDesignPoints", nDesignPoints);
    writer.writeValue("SubSampling", m_subSamplingFactor);
+   writer.writeValue("BaseSubSampling", m_baseCaseSubSamplingFactor);
 }
 
 void UAScenario::readFromFile(const ScenarioReader& reader)
@@ -611,7 +623,6 @@ void UAScenario::readFromFile(const ScenarioReader& reader)
    {
       m_subSamplingFactor = reader.readInt("SubSampling");
    }
-
    if (version > 4)
    {
       m_isStageUpToDate.readFromFile(reader);
@@ -619,6 +630,10 @@ void UAScenario::readFromFile(const ScenarioReader& reader)
    else
    {
       m_isStageUpToDate.setAllToTrue();
+   }
+   if (version > 5)
+   {
+      m_baseCaseSubSamplingFactor = reader.readInt("BaseSubSampling");
    }
 }
 

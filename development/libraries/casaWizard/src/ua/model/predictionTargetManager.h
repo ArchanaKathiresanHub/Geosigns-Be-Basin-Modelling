@@ -41,7 +41,7 @@ public:
    void addSurfaceTarget(const double x, const double y, QString surface = "", const QVector<QString>& properties = s_targetVariables, const double age = 0.0, QString locationName = "");
 
    void copyTargets(const QVector<int>& indices);
-   void removeTargets(const QVector<int>& indices);
+   void removeTargets(QVector<int> indices);
    void setTarget(int row, int column, const QString& text);
 
    static QVector<QString> predictionTargetOptions();
