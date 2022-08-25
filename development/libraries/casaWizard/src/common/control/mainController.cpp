@@ -155,7 +155,7 @@ ScriptRunController& MainController::scriptRunController()
 
 void MainController::logMessage()
 {
-   logReceiver_->log(QString(scriptRunController_->readAllStandardOutput()));
+   logReceiver_->log(QString(scriptRunController_->processOutput()));
 }
 
 void MainController::slotTabSwitch(int tabIndex)

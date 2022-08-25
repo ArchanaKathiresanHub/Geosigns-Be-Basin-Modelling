@@ -15,38 +15,40 @@ namespace ua
 class ManualDesignPointManager : public Writable
 {
 public:
-  explicit ManualDesignPointManager();
+   explicit ManualDesignPointManager();
 
-  void addDesignPoint();
-  void addDesignPoint(const QVector<double> newPoint);
-  void removeDesignPoint(const int index);
+   void addDesignPoint();
+   bool addDesignPoint(const QVector<double> newPoint);
+   void removeDesignPoint(const int index);
 
-  void addInfluentialParameter(const int amount = 1);
-  void removeInfluentialParameter(const int index);
+   void addInfluentialParameter(const int amount = 1);
+   void removeInfluentialParameter(const int index);
 
-  int numberOfPoints() const;
-  int numberOfParameters() const;
+   int numberOfPoints() const;
+   int numberOfParameters() const;
 
-  void completeAll();
-  void setParameterValue(const int designPoint, const int parameterIndex, const double value);
+   void completeAll();
+   void setParameterValue(const int designPoint, const int parameterIndex, const double value);
 
-  int numberOfCasesToRun() const;
+   int numberOfCasesToRun() const;
 
-  QVector<double> getDesignPoint(const int index) const;
-  QVector<QVector<double>> parameters() const;
-  QVector<bool> completed() const;
+   QVector<double> getDesignPoint(const int index) const;
+   QVector<QVector<double>> parameters() const;
+   QVector<bool> completed() const;
 
-  void writeToFile(ScenarioWriter& writer) const override;
-  void readFromFile(const ScenarioReader& reader) override;
-  void clear() override;
+   void writeToFile(ScenarioWriter& writer) const override;
+   void readFromFile(const ScenarioReader& reader) override;
+   void clear() override;
 
 private:
-  ManualDesignPointManager(const ManualDesignPointManager&) = delete;
-  ManualDesignPointManager& operator=(ManualDesignPointManager) = delete;
+   ManualDesignPointManager(const ManualDesignPointManager&) = delete;
+   ManualDesignPointManager& operator=(ManualDesignPointManager) = delete;
 
-  QVector<QVector<double>> influentialParameterValues_;
-  QVector<bool> m_completed;
-  int numberOfParameters_;
+   bool pointTooCloseToExistingPoints(const QVector<double> point) const;
+
+   QVector<QVector<double>> influentialParameterValues_;
+   QVector<bool> m_completed;
+   int numberOfParameters_;
 };
 
 } // namespace ua

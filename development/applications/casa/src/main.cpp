@@ -91,7 +91,14 @@ int main( int argc, char ** argv )
       {
          LogHandler( LogHandler::ERROR_SEVERITY ) << "Exception on processing command: " << cmdQueue.curCmdName() << " located at line " << 
             cmdQueue.curCmdInputFileLineNumber() << " of input file " << cmdFileName << ". ";
-         sc->runManager().stopAllSubmittedJobs();
+         try
+         {
+            sc->runManager().stopAllSubmittedJobs();
+         }
+         catch ( const ErrorHandler::Exception & ex )
+         {
+            LogHandler( LogHandler::FATAL_SEVERITY ) << "CASA error ID:" << ex.errorCode() << ", message: " << ex.what();
+         }
       }
       LogHandler( LogHandler::FATAL_SEVERITY ) << "CASA error ID:" << ex.errorCode() << ", message: " << ex.what();
       return -1;
@@ -102,7 +109,14 @@ int main( int argc, char ** argv )
       {
          LogHandler( LogHandler::ERROR_SEVERITY ) << "Exception on processing command: " << cmdQueue.curCmdName() << " located at line " << 
             cmdQueue.curCmdInputFileLineNumber() << " of input file " << cmdFileName << ". ";
-         sc->runManager().stopAllSubmittedJobs();
+         try
+         {
+            sc->runManager().stopAllSubmittedJobs();
+         }
+         catch ( const ErrorHandler::Exception & ex )
+         {
+            LogHandler( LogHandler::FATAL_SEVERITY ) << "CASA error ID:" << ex.errorCode() << ", message: " << ex.what();
+         }
       }
       LogHandler( LogHandler::FATAL_SEVERITY ) << "CASA unknown exception, aborting...";
       return -1;

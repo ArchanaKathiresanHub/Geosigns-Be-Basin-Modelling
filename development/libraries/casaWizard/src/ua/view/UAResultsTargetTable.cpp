@@ -30,6 +30,12 @@ UAResultsTargetTable::UAResultsTargetTable(QWidget *parent):
    QTableWidget(parent),
    m_numDefaultCols(5)
 {
+   QIcon icon(":/Done.png");
+   QPixmap pixmapDone = icon.pixmap(20,20);
+   m_checkIcon = std::unique_ptr<QIcon>(new QIcon(pixmapDone));
+
+   connect(this, SIGNAL(cellClicked(int,int)), this, SLOT(slotCellClicked(int, int)));
+
    const QVector<QString>& targetOptions = PredictionTargetManager::predictionTargetOptions();
 
    setRowCount(0);
@@ -92,9 +98,18 @@ UAResultsTargetTable::UAResultsTargetTable(QWidget *parent):
    horizontalHeader()->setHighlightSections(false); //Don't show column names in bold upon selection.
 }
 
+void UAResultsTargetTable::slotCellClicked(int row, int col)
+{
+   if (!m_disabledRows.contains(row))
+   {
+      emit enabledCellClicked(row,col);
+   }
+}
+
 void UAResultsTargetTable::fillTable(const UAResultsTargetsData& targetsData)
 {
    clearContents();
+   m_disabledRows.clear();
 
    const QVector<UAResultsTargetData>& data = targetsData.targetData();
 
@@ -137,24 +152,12 @@ void UAResultsTargetTable::fillTable(const UAResultsTargetsData& targetsData)
       const QVector<bool>& propertyStates = target.propertyStates;
       assert(propertyStates.size() == columnCount()-m_numDefaultCols);
 
-      QIcon icon(":/Done.png");
-      QPixmap pixmapDone = icon.pixmap(20,20);
-
       for (int j = 0; j < propertyStates.size(); j++)
       {
          if (propertyStates[j])
          {
-            QWidget* checkWidget = new QWidget();
-            QLabel* checkItem = new QLabel();
-            checkItem->setPixmap(pixmapDone);
-            checkItem->setAlignment(Qt::AlignHCenter);
 
-            QHBoxLayout* layoutCheckBox = new QHBoxLayout(checkWidget);
-            layoutCheckBox->addWidget(checkItem);
-            layoutCheckBox->setAlignment(Qt::AlignCenter);
-            layoutCheckBox->setContentsMargins(0,0,0,0);
-
-            setCellWidget(i, m_numDefaultCols+j, checkWidget);
+            setItem(i, m_numDefaultCols+j, new QTableWidgetItem(*m_checkIcon,""));
          }
       }
    }
@@ -162,6 +165,73 @@ void UAResultsTargetTable::fillTable(const UAResultsTargetsData& targetsData)
    if (data.size() > 0)
    {
       setCurrentCell(0,0);
+   }
+}
+
+QStyleOptionViewItem UAResultsTargetTable::viewOptions() const
+{
+   QStyleOptionViewItem option = QTableWidget::viewOptions();
+   option.decorationAlignment = Qt::AlignBottom | Qt::AlignHCenter;
+   option.decorationPosition = QStyleOptionViewItem::Top;
+   return option;
+}
+
+void UAResultsTargetTable::disableRows(const QVector<int>& rowsToDisable)
+{
+   int colCount = columnCount();
+   int rCount = rowCount();
+
+   for (int row : rowsToDisable)
+   {
+      if (row > rCount)
+      {
+         continue;
+      }
+
+      m_disabledRows.insert(row);
+
+      for (int col = 0; col < colCount; col++)
+      {
+         QTableWidgetItem* it = item(row,col);
+         it->setFlags(Qt::NoItemFlags);
+      }
+   }
+
+   if (rowsToDisable.contains(currentRow()))
+   {
+      //Find first not disabled row:
+      for (int row = 0; row < rCount; row++)
+      {
+         if (!rowsToDisable.contains(row))
+         {
+            setCurrentCell(row,0);
+            emit cellClicked(row,0);
+            return;
+         }
+      }
+      clearSelection();
+   }
+
+}
+
+void UAResultsTargetTable::enableAllRows()
+{
+   int colCount = columnCount();
+   int rCount = rowCount();
+
+   m_disabledRows.clear();
+
+   for (int row = 0; row < rCount; row++)
+   {
+      for (int col = 0; col < colCount; col++)
+      {
+         QTableWidgetItem* it = item(row,col);
+         Qt::ItemFlags flags = it->flags();
+         flags |= Qt::ItemIsSelectable;
+         flags |= Qt::ItemIsEnabled;
+         flags &= ~Qt::ItemIsEditable;
+         it->setFlags(flags);
+      }
    }
 }
 

@@ -3,6 +3,13 @@
 #include "model/scenarioReader.h"
 #include "model/scenarioWriter.h"
 
+#include <cmath>
+
+namespace
+{
+double s_minManualPointDistance = 0.01;
+}
+
 namespace casaWizard
 {
 
@@ -21,14 +28,46 @@ void ManualDesignPointManager::addDesignPoint()
   addDesignPoint(QVector<double>(numberOfParameters_));
 }
 
-void ManualDesignPointManager::addDesignPoint(const QVector<double> newPoint)
+bool ManualDesignPointManager::addDesignPoint(const QVector<double> newPoint)
 {
   if (newPoint.size() != numberOfParameters_)
   {
-    return;
+    return false;
   }
+
+  if (pointTooCloseToExistingPoints(newPoint))
+  {
+     return false;
+  }
+
   influentialParameterValues_.append(newPoint);
   m_completed.append(false);
+  return true;
+}
+
+bool ManualDesignPointManager::pointTooCloseToExistingPoints(const QVector<double> point) const
+{
+   for (const auto & existingPoint : influentialParameterValues_)
+   {
+      if (existingPoint.size() != point.size())
+      {
+         return true;
+      }
+
+      double distance(0);
+      for (int i = 0; i < existingPoint.size(); i++)
+      {
+         double d = existingPoint[i]-point[i];
+         distance += d*d;
+      }
+      distance = std::sqrt(distance);
+
+      if (distance < s_minManualPointDistance)
+      {
+         return true;
+      }
+   }
+   return false;
 }
 
 void ManualDesignPointManager::removeDesignPoint(const int index)

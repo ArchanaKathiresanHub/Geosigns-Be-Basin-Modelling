@@ -25,16 +25,18 @@ struct UAResultsTargetData
       targetIndex(-1),
       x(0),
       y(0),
-      z(0)
+      z(0),
+      hasTimeSeriesData(false)
    {}
 
-   explicit UAResultsTargetData(const PredictionTarget& predictionTarget):
+   explicit UAResultsTargetData(const PredictionTarget& predictionTarget, bool hasTimeSeries = false):
       targetIndex(-1),
       locationName(predictionTarget.locationName()),
       x(predictionTarget.x()),
       y(predictionTarget.y()),
       z(predictionTarget.z()),
-      surfaceName(predictionTarget.surfaceName())
+      surfaceName(predictionTarget.surfaceName()),
+      hasTimeSeriesData(hasTimeSeries)
    {}
 
    int targetIndex;
@@ -44,6 +46,7 @@ struct UAResultsTargetData
    double z;
    QString surfaceName;
    QVector<bool> propertyStates; //enabled or disabled
+   bool hasTimeSeriesData;
 };
 
 class UAResultsTargetsData
@@ -52,22 +55,27 @@ public:
    UAResultsTargetsData();
 
    UAResultsTargetsData(const QVector<const PredictionTarget*> predictionTargets,
-                        const QVector<QString>& targetProperties);
+                        const QVector<QString>& targetProperties,
+                        const QVector<bool>& hasTimeSeries);
 
    const QVector<UAResultsTargetData>& targetData() const;
 
    void setData(const QVector<const PredictionTarget*> predictionTargets,
-           const QVector<QString>& targetProperties);
+                const QVector<QString>& targetProperties,
+                const QVector<bool>& hasTimeSeries);
 
    void sortData(int column);
 
    int targetIndex(int rowIdx) const;
    int rowIndex(int targetIdx) const;
 
+   QVector<int> tableRowsWithoutTimeSeries() const;
+
 private:
    QVector<UAResultsTargetData> m_targetData;
    QVector<QString> m_targetProperties;
    int m_sortedByCol;
+   int m_selectedRow;
 };
 
 } //ua

@@ -66,7 +66,9 @@ TEST( TestUAResultsTargetsData, testSorting )
 
    QVector<const PredictionTarget*> targets{&depthTarget0,&depthTarget1,&surfaceTarget0,&surfaceTarget1};
 
-   UAResultsTargetsData data(targets,{"Temperature","VRe"});
+   QVector<bool> hasTimeSeries(targets.size(),true);
+   hasTimeSeries[1] = false;
+   UAResultsTargetsData data(targets,{"Temperature","VRe"},hasTimeSeries);
 
    //Unsorted:
    QVector<int> expectedOrder{0,1,2,3};
@@ -74,14 +76,17 @@ TEST( TestUAResultsTargetsData, testSorting )
 
    //Initialization by setData
    QVector<const PredictionTarget*> targetsSetData{&depthTarget1,&depthTarget0,&surfaceTarget1,&surfaceTarget0};
-   data.setData(targetsSetData,{"Temperature","VRe"});
+   data.setData(targetsSetData,{"Temperature","VRe"},hasTimeSeries);
    expectedOrder = {0,1,2,3};
    compareTargetsVec(data,targetsSetData,expectedOrder);
    EXPECT_EQ(data.targetData().size(),4); //Targets should be replaced, not appended
-   data.setData(targets,{"Temperature","VRe"});
+   data.setData(targets,{"Temperature","VRe"},hasTimeSeries);
 
    checkOrder(data,targets,0,{0,2,1,3}); //Sort by name
+
    checkOrder(data,targets,1,{3,2,0,1}); //Sort by x
+   EXPECT_EQ(data.tableRowsWithoutTimeSeries()[0],0); //Check order reverses the sort, hence why target 1 is expected at position 0
+
    checkOrder(data,targets,2,{1,0,2,3}); //Sort by y
    checkOrder(data,targets,3,{3,2,0,1}); //Sort by z
    checkOrder(data,targets,4,{1,0,3,2}); //Sort by surface

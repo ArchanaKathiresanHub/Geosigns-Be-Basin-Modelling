@@ -78,6 +78,10 @@ TEST( ManualDesignPointManagerTest, addDesignPointByVector )
   QVector<double> newDesignPoint{11,12,13};
   manager.addDesignPoint(newDesignPoint);
 
+  QVector<double> newDesignPointTooClose{11,12,13.001};
+  EXPECT_FALSE(manager.addDesignPoint(newDesignPointTooClose));
+  EXPECT_EQ(manager.numberOfPoints(),1);
+
   ASSERT_EQ(3, manager.numberOfParameters());
   ASSERT_EQ(1, manager.numberOfPoints());
 

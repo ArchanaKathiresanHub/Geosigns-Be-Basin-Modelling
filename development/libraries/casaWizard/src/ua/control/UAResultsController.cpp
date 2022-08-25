@@ -37,10 +37,10 @@
 #include "view/UAResultsTargetTable.h"
 #include "view/uaTabIDs.h"
 
-
 #include "model/script/qcScript.h"
 #include "model/input/targetQCdataCreator.h"
 
+#include "ConstantsNumerical.h"
 
 #include <QCheckBox>
 #include <QComboBox>
@@ -77,12 +77,6 @@ UAResultsController::UAResultsController(UAResultsTab* uaResultsTab,
    connect(m_uaResultsTab->pushButtonRecalcResponseSurfaces(), SIGNAL(clicked()),           this, SLOT(slotPushButtonRecalculateResponseSurfacesClicked()));
    connect(m_uaResultsTab->sliderHistograms(),                SIGNAL(valueChanged(int)),    this, SLOT(slotSliderHistogramsChanged(int)));
    connect(m_uaResultsTab->checkBoxHistoryPlotsMode(),        SIGNAL(stateChanged(int)),    this, SLOT(slotCheckBoxHistoryPlotModeChanged(int)));
-
-   //Optimal case is only defined if there are calibration targets.
-   if (m_casaScenario.calibrationTargetManager().amountOfActiveCalibrationTargets() == 0)
-   {
-      m_uaResultsTab->setOptimalCaseButtonsDisabled();
-   }
 }
 
 void UAResultsController::refreshGUI()
@@ -92,12 +86,19 @@ void UAResultsController::refreshGUI()
    {
       m_uaResultsTab->disableAll(false);
       bool buttonEnabled = !(m_casaScenario.isStageUpToDate(StageTypesUA::responseSurfaces) && m_casaScenario.isStageUpToDate(StageTypesUA::mcmc));
+
+      //If response surfaces and mcmc are recalculated including the optimal DoE point, then the rmse of the optimal run case might have changed, and its value is reset
+      if (!buttonEnabled)
+      {
+         m_casaScenario.monteCarloDataManager().setRmseOptimalRunCase(0.0);
+      }
+
       m_uaResultsTab->setRecalcResponseSurfacesButtonEnabled(buttonEnabled);
       m_uaResultsTab->setUArunCASAButtonEnabled(false);
 
       if (!m_targetTableController.hasData()) //To make sure it only updates the data after loading from autosave.
       {
-         m_targetTableController.setTableData(predictionTargetManager.predictionTargets());
+         m_targetTableController.setTableData(predictionTargetManager.predictionTargets(),predictionTargetManager.targetHasTimeSeries());
       }
       slotPredictionTargetClicked(m_targetTableController.currentTarget());
 
@@ -112,9 +113,10 @@ void UAResultsController::refreshGUI()
          QStringList parameterNames;
          QVector<double> optimalValues = getOptimalSettings(parameterNames);
          m_uaResultsTab->displayOptimalParameterValues(optimalValues,parameterNames);
-
          m_uaResultsTab->setOptimalCaseButtonsEnabled();
       }
+
+      slotCheckBoxHistoryPlotModeChanged(m_uaResultsTab->checkBoxHistoryPlotsMode()->checkState());
    }
    else
    {
@@ -122,7 +124,7 @@ void UAResultsController::refreshGUI()
       m_uaResultsTab->clearOptimalResultsLayout();
       m_uaResultsTab->clearOptimalCaseQuality();
       m_uaResultsTab->setUArunCASAButtonEnabled();
-      m_targetTableController.setTableData({});
+      m_targetTableController.setTableData({},{});
       m_uaResultsTab->updateHistogram(nullptr, {{0}}, {});
    }
 
@@ -158,14 +160,13 @@ void UAResultsController::loadObservablesOptimalRun()
 void UAResultsController::showOptimalCaseQuality()
 {
    QStringList parNames{"RMSE response surface"};
-   QVector<double> rmses{m_casaScenario.responseSurfacesL2NormBestMC()};
+   QVector<double> rmses{m_casaScenario.responseSurfacesRsmeBestMC()};
    double rsmeOptimalRun = m_casaScenario.monteCarloDataManager().rmseOptimalRunCase();
-   if (rsmeOptimalRun > 0.0)
+   if (rsmeOptimalRun > Utilities::Numerical::DefaultNumericalTolerance)
    {
       rmses.push_back(rsmeOptimalRun);
       parNames.append("RMSE optimal simulation");
    }
-
    m_uaResultsTab->displayOptimalCaseQuality(rmses,parNames);
 }
 
@@ -200,7 +201,7 @@ void UAResultsController::slotUpdateTabGUI(int tabID)
 
 void UAResultsController::slotProjectOpened()
 {
-   m_targetTableController.setTableData({}); //Data in table should be loaded when opening another project or autosave.
+   m_targetTableController.setTableData({},{}); //Data in table should be loaded when opening another project or autosave.
 }
 
 void UAResultsController::slotPushButtonMCMCrunCasaClicked()
@@ -211,24 +212,30 @@ void UAResultsController::slotPushButtonMCMCrunCasaClicked()
    {
       return;
    }
-   if (m_scriptRunController.runScript(mcmc))
+
+   if (!m_scriptRunController.runScript(mcmc))
    {
-      try
-      {
-         mcDataCreator::setData(m_casaScenario);
-         const PredictionTargetManager& manager = m_casaScenario.predictionTargetManager();
-         m_targetTableController.setTableData(manager.predictionTargets());
-         scenarioBackup::backup(m_casaScenario);
-      }
-      catch (const std::exception& e)
-      {
-         Logger::log() << "Failed to import MCMC data file: " << e.what() << Logger::endl();
-      }
-      catch (...)
-      {
-         Logger::log() << "Failed to import MCMC data file with unknown cause." << Logger::endl();
-      }
+      return;
    }
+
+   try
+   {
+      mcDataCreator::setData(m_casaScenario);
+      const PredictionTargetManager& manager = m_casaScenario.predictionTargetManager();
+      m_targetTableController.setTableData(manager.predictionTargets(),manager.targetHasTimeSeries());
+      scenarioBackup::backup(m_casaScenario);
+   }
+   catch (const std::exception& e)
+   {
+      Logger::log() << "Failed to import MCMC data file: " << e.what() << Logger::endl();
+      return;
+   }
+   catch (...)
+   {
+      Logger::log() << "Failed to import MCMC data file with unknown cause." << Logger::endl();
+      return;
+   }
+
 
    if (QFile::copy(m_casaScenario.workingDirectory() + "/" + m_casaScenario.stateFileNameMCMC() ,
                    m_casaScenario.workingDirectory() + "/" + m_casaScenario.runLocation() + "/" + m_casaScenario.iterationDirName() + "/" + m_casaScenario.stateFileNameMCMC()))
@@ -236,10 +243,12 @@ void UAResultsController::slotPushButtonMCMCrunCasaClicked()
       if (!QFile::remove( m_casaScenario.workingDirectory() + "/" + m_casaScenario.stateFileNameMCMC()))
       {
          Logger::log() << "There was a problem while moving " << m_casaScenario.stateFileNameMCMC() << " file to " << m_casaScenario.iterationDirName() << " Folder." << Logger::endl();
+         return;
       }
    }
 
    m_casaScenario.setStageComplete(StageTypesUA::mcmc);
+   m_casaScenario.setStageUpToDate(StageTypesUA::mcmc);
 
    scenarioBackup::backup(m_casaScenario);
 
@@ -292,7 +301,12 @@ void UAResultsController::slotPushButtonRunOptimalCasesClicked()
    const MonteCarloDataManager& monteCarloDataManager = m_casaScenario.monteCarloDataManager();
 
    QVector<double> optimalMCPoint = monteCarloDataManager.getPoint(0);
-   manualDesignPointManager.addDesignPoint(optimalMCPoint);
+
+   if (!manualDesignPointManager.addDesignPoint(optimalMCPoint))
+   {
+      Logger::log() << "The optimal case is too close to an existing design point and is not added. Optimal case will not be run." << Logger::endl();
+      return;
+   }
 
    Logger::log() << "Adding the design point ( ";
    for (const double d : optimalMCPoint)
@@ -344,16 +358,6 @@ void UAResultsController::slotPushButtonRecalculateResponseSurfacesClicked()
 {
    scenarioBackup::backup(m_casaScenario);
 
-   //Keep the optimal values, as these will get lost when the targetQcs are recalculated:
-   QVector<double> optimalValues;
-   QVector<QString> identifiers;
-   QVector<TargetQC> targetQCs = m_casaScenario.targetQCs();
-   for (const auto& qc : targetQCs)
-   {
-      optimalValues.append(qc.yOptimalSim());
-      identifiers.append(qc.identifier());
-   }
-
    QCScript qc{m_casaScenario};
    if (!casaScriptWriter::writeCasaScript(qc) ||
        !m_scriptRunController.runScript(qc))
@@ -369,8 +373,6 @@ void UAResultsController::slotPushButtonRecalculateResponseSurfacesClicked()
    {
       Logger::log() << "Failed to read the targets for the quality check: " << e.what() << Logger::endl();
    }
-
-   m_casaScenario.setOptimalValuesTargetQCs(optimalValues,identifiers);
 
    m_casaScenario.copyToIterationDir(m_casaScenario.stateFileNameQC());
 
@@ -469,6 +471,15 @@ void UAResultsController::slotCheckBoxHistoryPlotModeChanged(const int checkStat
 {
    m_uaResultsTab->setEnableTimeSeries(checkState);
    slotPredictionTargetClicked(m_targetTableController.currentTarget());
+
+   if (checkState > 0)
+   {
+      m_targetTableController.disableRowsWithoutTimeSeries();
+   }
+   else
+   {
+      m_targetTableController.enableAllRows();
+   }
 }
 
 } // namespace ua

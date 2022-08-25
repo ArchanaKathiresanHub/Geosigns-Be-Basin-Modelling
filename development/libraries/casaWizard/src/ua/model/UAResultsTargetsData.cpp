@@ -11,6 +11,8 @@
 #include <functional>
 #include <algorithm>
 
+#include <assert.h>
+
 namespace casaWizard
 {
 
@@ -45,10 +47,11 @@ bool sortingFunction(const UAResultsTargetData& d0, const UAResultsTargetData& d
 }
 
 UAResultsTargetsData::UAResultsTargetsData(const QVector<const PredictionTarget*> predictionTargets,
-                                           const QVector<QString>& targetProperties):
+                                           const QVector<QString>& targetProperties,
+                                           const QVector<bool>& hasTimeSeries):
    m_sortedByCol(-1)
 {
-   setData(predictionTargets,targetProperties);
+   setData(predictionTargets,targetProperties,hasTimeSeries);
 }
 
 UAResultsTargetsData::UAResultsTargetsData():
@@ -56,7 +59,8 @@ UAResultsTargetsData::UAResultsTargetsData():
 {}
 
 void UAResultsTargetsData::setData(const QVector<const PredictionTarget*> predictionTargets,
-                                   const QVector<QString>& targetProperties)
+                                   const QVector<QString>& targetProperties,
+                                   const QVector<bool>& hasTimeSeries)
 {
    m_sortedByCol = -1;
    m_targetData.resize(0);
@@ -64,10 +68,13 @@ void UAResultsTargetsData::setData(const QVector<const PredictionTarget*> predic
 
    QVector<bool> propertyStates(m_targetProperties.size(),false);
 
+   assert(predictionTargets.size() == hasTimeSeries.size());
+
    int targetIdx = 0;
-   for (const auto target : predictionTargets)
+   for (int i = 0; i < predictionTargets.size(); i++)
    {
-      m_targetData.push_back(UAResultsTargetData(*target));
+      const PredictionTarget* target = predictionTargets[i];
+      m_targetData.push_back(UAResultsTargetData(*target,hasTimeSeries[i]));
 
       const QVector<QString>& properties = target->properties();
 
@@ -113,7 +120,7 @@ void UAResultsTargetsData::sortData(int column)
 
    if (m_sortedByCol != column)
    {
-      std::sort(m_targetData.begin(), m_targetData.end(), std::bind(sortingFunction,_1,_2,column));
+      std::stable_sort(m_targetData.begin(), m_targetData.end(), std::bind(sortingFunction,_1,_2,column));
    }
    else
    {
@@ -125,6 +132,19 @@ void UAResultsTargetsData::sortData(int column)
 const QVector<UAResultsTargetData>& UAResultsTargetsData::targetData() const
 {
    return m_targetData;
+}
+
+QVector<int> UAResultsTargetsData::tableRowsWithoutTimeSeries() const
+{
+   QVector<int> tableRows;
+   for (int i = 0; i < m_targetData.size(); i++)
+   {
+      if (!m_targetData[i].hasTimeSeriesData)
+      {
+         tableRows.push_back(i);
+      }
+   }
+   return tableRows;
 }
 
 } //ua

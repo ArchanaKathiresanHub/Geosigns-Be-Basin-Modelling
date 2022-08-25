@@ -64,7 +64,7 @@ const Proxy& UAScenario::proxy() const
    return m_proxy;
 }
 
-double UAScenario::responseSurfacesL2NormBestMC() const
+double UAScenario::responseSurfacesRsmeBestMC() const
 {
    return functions::rmseCalibrationTargets(calibrationTargetDataBestMC(), calibrationTargetManager());
 }

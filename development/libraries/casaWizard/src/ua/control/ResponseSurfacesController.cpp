@@ -135,6 +135,7 @@ void ResponseSurfacesController::slotPushButtonQCrunCasaClicked()
   m_casaScenario.copyToIterationDir(m_casaScenario.stateFileNameQC());
 
   m_casaScenario.setStageComplete(StageTypesUA::responseSurfaces);
+  m_casaScenario.setStageUpToDate(StageTypesUA::responseSurfaces);
   m_casaScenario.setStageComplete(StageTypesUA::mcmc, false);
 
   scenarioBackup::backup(m_casaScenario);

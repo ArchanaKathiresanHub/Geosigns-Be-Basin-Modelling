@@ -97,7 +97,7 @@ public:
 
   const Proxy& proxy() const;
 
-  double responseSurfacesL2NormBestMC() const;
+  double responseSurfacesRsmeBestMC() const;
   void setNumberOfManualDesignPoints();
 
   void writeToFile(ScenarioWriter& writer) const override;

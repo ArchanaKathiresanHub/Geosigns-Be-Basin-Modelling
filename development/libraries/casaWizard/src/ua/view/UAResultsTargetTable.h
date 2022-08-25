@@ -10,6 +10,8 @@
 
 #include <QTableWidget>
 
+#include <memory>
+
 namespace casaWizard
 {
 
@@ -21,12 +23,26 @@ class UAResultsTargetsData;
 
 class UAResultsTargetTable : public QTableWidget
 {
+   Q_OBJECT
 public:
    UAResultsTargetTable(QWidget *parent = Q_NULLPTR);
    void fillTable(const UAResultsTargetsData& targetsData);
 
+   void disableRows(const QVector<int>& rowsToDisable);
+   void enableAllRows();
+
+   QStyleOptionViewItem viewOptions() const override;
+
+signals:
+   void enabledCellClicked(int,int);
+
+private slots:
+   void slotCellClicked(int,int);
+
 private:
    int m_numDefaultCols;
+   QSet<int> m_disabledRows;
+   std::unique_ptr<QIcon> m_checkIcon;
 };
 
 } //ua

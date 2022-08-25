@@ -22,7 +22,7 @@ public:
   ScriptRunController(QObject* parent);
 
   bool runScript(RunScript& script, QObject* receiver = nullptr, const char* slot = nullptr, int timeout = 5000);
-  QByteArray readAllStandardOutput();
+  QByteArray processOutput();
 
 signals:
   void readyReadStandardOutput();
@@ -31,6 +31,7 @@ signals:
 
 private slots:
   void killProcess();
+  void slotReadStandardOutput();
 
 private:
   bool processCommand(const RunCommand& command);
@@ -40,6 +41,7 @@ private:
   QProcess* process_;
   QString baseDirectory_;
   RunScript* script_;
+  QByteArray processOutputs_;
 };
 
 } // namespace casaWizard

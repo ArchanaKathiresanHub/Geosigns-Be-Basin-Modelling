@@ -27,7 +27,10 @@ class UAResultsTargetTableController : public QObject
 
 public:
    UAResultsTargetTableController(UAResultsTargetTable* targetTable);
-   void setTableData(const QVector<const PredictionTarget*> predictionTargets);
+   void setTableData(const QVector<const PredictionTarget*> predictionTargets, const QVector<bool>& hasTimeSeries);
+
+   void disableRowsWithoutTimeSeries();
+   void enableAllRows();
 
    bool hasData();
    int currentTarget();
@@ -44,6 +47,7 @@ private slots:
 private:
    UAResultsTargetTable* m_targetTable;
    UAResultsTargetsData m_tableData;
+   bool m_rowsWithoutTimeSeriesDisabled;
 };
 
 } //ua
