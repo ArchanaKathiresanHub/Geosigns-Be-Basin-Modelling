@@ -156,8 +156,11 @@ void UAResultsTargetTable::fillTable(const UAResultsTargetsData& targetsData)
       {
          if (propertyStates[j])
          {
-
             setItem(i, m_numDefaultCols+j, new QTableWidgetItem(*m_checkIcon,""));
+         }
+         else
+         {
+            setItem(i, m_numDefaultCols+j, new QTableWidgetItem(""));
          }
       }
    }
@@ -193,7 +196,10 @@ void UAResultsTargetTable::disableRows(const QVector<int>& rowsToDisable)
       for (int col = 0; col < colCount; col++)
       {
          QTableWidgetItem* it = item(row,col);
-         it->setFlags(Qt::NoItemFlags);
+         if (it)
+         {
+            it->setFlags(Qt::NoItemFlags);
+         }
       }
    }
 
@@ -226,6 +232,10 @@ void UAResultsTargetTable::enableAllRows()
       for (int col = 0; col < colCount; col++)
       {
          QTableWidgetItem* it = item(row,col);
+         if (!it)
+         {
+            continue;
+         }
          Qt::ItemFlags flags = it->flags();
          flags |= Qt::ItemIsSelectable;
          flags |= Qt::ItemIsEnabled;
