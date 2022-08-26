@@ -13,7 +13,7 @@
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Version				Date of update
 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-Cauldron-v2.8.11		2022-08-22 14:20:42 +0000
+Cauldron-v2.8.12		2022-08-25 15:03:39 +0000
 =============================================================
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Third-party Software 		version
@@ -36,6 +36,18 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2022-08-25  Marnix.vandenBerg  <Marnix.vandenBerg@shell.com>
+
+	chg: usr: Changes to the casathermalwizard UA results tab.
+	 * When plotting time series data, targets without time series are disabled.
+	 * Stability improvements.
+
+	Related work items: #454387
+
+	================== COMMIT-END ========================
+	Commit-ID:<ddc9becda3fb092bad173ae2074d4f7414774383>	  (tag: refs/tags/v2.8.12, refs/heads/master)
+
+++
 2022-08-22  Richard Faasse  <Richard.Faasse@shell.com>
 
 	chg: usr: Keep the base subsampling value for the exported optimal case in the UA thermal workflow
