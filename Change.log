@@ -13,7 +13,7 @@
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Version				Date of update
 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-Cauldron-v2.8.12		2022-08-25 15:03:39 +0000
+Cauldron-v2.8.13		2022-08-26 14:36:29 +0000
 =============================================================
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Third-party Software 		version
@@ -36,6 +36,15 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2022-08-26  Marnix.vandenBerg  <Marnix.vandenBerg@shell.com>
+
+	fix: usr: Fix for bug in UAResults table.
+	Related work items: #454387
+
+	================== COMMIT-END ========================
+	Commit-ID:<8d553a2ae837834257f5153f8554b650c2936f1e>	  (tag: refs/tags/v2.8.13, refs/heads/master)
+
+++
 2022-08-25  Marnix.vandenBerg  <Marnix.vandenBerg@shell.com>
 
 	chg: usr: Changes to the casathermalwizard UA results tab.
