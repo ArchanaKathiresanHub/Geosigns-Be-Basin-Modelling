@@ -13,7 +13,7 @@
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Version				Date of update
 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-Cauldron-v2.8.13		2022-08-26 14:36:29 +0000
+Cauldron-v2.8.14		2022-09-02 15:07:19 +0000
 =============================================================
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Third-party Software 		version
@@ -36,6 +36,18 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2022-09-02  Marnix.vandenBerg  <Marnix.vandenBerg@shell.com>
+
+	chg: usr: Influential parameter names for optimal values on the UA wizard UA results tab
+	 * Changed the influential parameter names to include lithology and age data.
+	 * Changed the number of digits of the optimal parameter values to 4 significant digits.
+
+	Related work items: #454387
+
+	================== COMMIT-END ========================
+	Commit-ID:<fc6d63c3bdd5787f0d1e741783141e66bc9ce7fa>	  (refs/heads/master)
+
+++
 2022-08-26  Marnix.vandenBerg  <Marnix.vandenBerg@shell.com>
 
 	fix: usr: Fix for bug in UAResults table.
