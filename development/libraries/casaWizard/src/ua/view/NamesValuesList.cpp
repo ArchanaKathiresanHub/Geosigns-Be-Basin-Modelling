@@ -50,7 +50,7 @@ void NamesValuesList::displayList(const QVector<double>& optimalValues, const QS
    for (int i = 0; i < parameterNames.size(); i++)
    {
       QLabel* label = new QLabel(parameterNames[i] + ":");
-      QLabel* value = new QLabel(QString::number(optimalValues[i]));
+      QLabel* value = new QLabel(QString::number(optimalValues[i], 'g', 4));
       m_listWidgets.push_back(label);
       m_listWidgets.push_back(value);
 

@@ -130,7 +130,7 @@ QStringList InfluentialParameterManager::nameList() const
    QStringList names;
    for (const InfluentialParameter* influentialParameter : m_influentialParameters)
    {
-      names << influentialParameter->name();
+      names << influentialParameter->nameArgumentBased();
    }
    return names;
 }

@@ -143,8 +143,9 @@ TEST( InfluentialParameterManagerTest, nameLists)
    {
       manager.add(i);
       InfluentialParameter* p = InfluentialParameter::createFromIndex(i);
+      p->fillArguments(projectReader);
       expectedLabelNames.append(p->labelName());
-      expectedNames.append(p->name());
+      expectedNames.append(p->nameArgumentBased());
       delete p;
    }
 
