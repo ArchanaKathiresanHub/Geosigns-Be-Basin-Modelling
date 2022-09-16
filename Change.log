@@ -13,7 +13,7 @@
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Version				Date of update
 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-Cauldron-v2.8.14		2022-09-02 15:07:19 +0000
+Cauldron-v2.8.16		2022-09-16 09:17:49 +0000
 =============================================================
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Third-party Software 		version
@@ -36,6 +36,15 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2022-09-16  Sven van Leeuwen  <Sven.van-Leeuwen@shell.com>
+
+	chg: usr: small Gui changes, CVS implemented and UA Timeseries legend fixed
+	* Various changes in the GUI and UA Timeseries legend incorrect layout fixed.
+	* QC-tab changes: Kriging local is now deprecated, Order -1 is now deprecated
+	================== COMMIT-END ========================
+	Commit-ID:<462a3d6266a05e3ac112e438cc7a11a1606637b9>	  (tag: refs/tags/v2.8.16, refs/heads/master)
+
+++
 2022-09-02  Marnix.vandenBerg  <Marnix.vandenBerg@shell.com>
 
 	chg: usr: Influential parameter names for optimal values on the UA wizard UA results tab
