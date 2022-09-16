@@ -13,7 +13,7 @@
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Version				Date of update
 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-Cauldron-v2.8.16		2022-09-16 09:17:49 +0000
+Cauldron-v2.8.17		2022-09-16 11:05:11 +0000
 =============================================================
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Third-party Software 		version
@@ -36,6 +36,18 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2022-09-16  Sven van Leeuwen  <Sven.van-Leeuwen@shell.com>
+
+	chg: usr: Improved correlation workflow.
+	* New colorBar legend class added with multiple orientations,
+	* Colorbar legend implemented into the UA correlation tab.
+	* Bandaged the out of bounds axis name issue, when title was too long
+	* Added a new doubleToString function with set decimals to QTUtils
+
+	================== COMMIT-END ========================
+	Commit-ID:<26d21afc7d41c1f8f382e6cb0ce8cfc8099e70e8>	  (tag: refs/tags/v2.8.17, refs/heads/master)
+
+++
 2022-09-16  Sven van Leeuwen  <Sven.van-Leeuwen@shell.com>
 
 	chg: usr: small Gui changes, CVS implemented and UA Timeseries legend fixed
