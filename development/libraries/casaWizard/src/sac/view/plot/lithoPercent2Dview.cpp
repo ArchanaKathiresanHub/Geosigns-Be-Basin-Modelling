@@ -8,7 +8,7 @@
 
 #include "lithoPercent2Dview.h"
 
-#include "../colormap.h"
+#include "view/colormap.h"
 #include "../lithoMapsToolTip.h"
 #include "model/optimizedLithofraction.h"
 #include "model/input/cmbDataAccess.h"

@@ -1,3 +1,10 @@
+//
+// Copyright (C) 2022 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
 #pragma once
 
 #include <string>
@@ -5,9 +12,6 @@
 #include <QColor>
 
 namespace casaWizard
-{
-
-namespace sac
 {
 
 enum ColorMapType
@@ -21,7 +25,9 @@ class ColorMap
 {
 public:
   ColorMap();
+  ColorMap(ColorMapType);
   void setColorMapType(const std::string& colorMapType);  
+  void setColorMapType(const ColorMapType& colorMapType);
   QColor getColor(const double value, const double minValue, const double maxValue) const;
 
   QColor getBackgroundColor() const;
@@ -35,7 +41,4 @@ private:
   QColor interPolateColor(const QColor& startColor, const QColor& endColor, const double relativeSegmentValue) const;
 };
 
-} // namespace sac
 } // namespace casaWizard
-
-

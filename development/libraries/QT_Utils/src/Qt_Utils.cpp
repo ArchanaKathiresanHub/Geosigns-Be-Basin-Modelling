@@ -14,6 +14,9 @@
 #include <thread>
 #include <iostream>
 #include <string>
+#include <cmath>
+#include <sstream>
+#include <iomanip>
 
 namespace qtutils
 {
@@ -27,6 +30,41 @@ QString doubleOneDigitToQString(double d)
 {
    return QString::number(d, 'f', 1);
 };
+
+
+QString doubleToQString(double d, int decimals)
+{
+   std::stringstream tmp;
+   if (doubleToQString(d).split('.').size() > 1){
+      if (decimals <= 0){
+         tmp << std::setprecision(decimals) << d;
+         return QString::fromStdString(tmp.str());
+      }
+      else
+      {
+         tmp << d;
+         QStringList str = QString::fromStdString(tmp.str()).split('e');
+         tmp.str(std::string());
+         tmp << std::setprecision(decimals)
+             << std::fixed
+             << str.first().toDouble() + 5 * std::pow(10, -(decimals + 6));
+         if( str.size() == 2)
+         {
+            return QString::fromStdString(tmp.str()) + 'e' + str.last();
+         }
+         return QString::fromStdString(tmp.str());
+      }
+   }
+   else
+   {
+      tmp << d;
+      if (tmp.str().length() > 6){
+         tmp.str(std::string()); //clear
+         tmp << std::setprecision(decimals) << std::scientific << d;
+      }
+      return  QString::fromStdString(tmp.str());
+   }
+}
 
 QStringList convertToQStringList(const QVector<int>& vec)
 {

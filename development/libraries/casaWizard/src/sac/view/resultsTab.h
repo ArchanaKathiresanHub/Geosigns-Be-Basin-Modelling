@@ -17,13 +17,13 @@ namespace casaWizard
 {
 
 class ProjectReader;
+class ColorMap;
 struct CalibrationTarget;
 struct Well;
 
 namespace sac
 {
 
-class ColorMap;
 class MultiWellPlot;
 class PlotOptions;
 class WellBirdsView;

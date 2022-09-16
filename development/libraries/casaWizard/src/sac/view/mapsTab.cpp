@@ -275,8 +275,6 @@ QComboBox* MapsTab::interpolationType() const
   return interpolationType_;
 }
 
-
-
 } // namespace sac
 
 } // namespace casaWizard

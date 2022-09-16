@@ -8,7 +8,7 @@
 
 #include "grid2Dview.h"
 
-#include "../colormap.h"
+#include "view/colormap.h"
 #include "model/input/cmbDataAccess.h"
 
 // QT

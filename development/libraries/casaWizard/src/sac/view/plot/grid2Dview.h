@@ -16,10 +16,10 @@
 namespace casaWizard
 {
 
+class ColorMap;
+
 namespace sac
 {
-
-class ColorMap;
 
 class Grid2DView : public Plot
 {

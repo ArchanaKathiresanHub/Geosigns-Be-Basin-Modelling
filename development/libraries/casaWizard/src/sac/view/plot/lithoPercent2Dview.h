@@ -16,11 +16,12 @@
 namespace casaWizard
 {
 
+class ColorMap;
+
 namespace sac
 {
 
 class LithoMapsToolTip;
-class ColorMap;
 class OptimizedLithofraction;
 
 class LithoPercent2DView : public WellBirdsView

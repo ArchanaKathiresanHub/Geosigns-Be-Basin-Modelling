@@ -15,11 +15,12 @@ class CustomTitle;
 namespace casaWizard
 {
 
+class ColorMap;
+class ColorBar;
+
 namespace sac
 {
 
-class ColorBar;
-class ColorMap;
 class LithoPercent2DView;
 
 class Grid2DPlot : public QWidget
@@ -29,7 +30,8 @@ public:
   explicit Grid2DPlot(const ColorMap& colormap, QWidget *parent = nullptr);
   LithoPercent2DView* lithoPercent2DView() const;
   void setTitle(const QString& lithoType, int id, bool inputMap);
-  void updateColorBar();
+  void updateColorBar(const int& precision = 2);
+  void setColorBarMap(const ColorMap& map);
   void hideColorBar();
   void showColorBar();
   void refresh();

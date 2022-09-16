@@ -1,3 +1,11 @@
+//
+// Copyright (C) 2022 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #include "correlationController.h"
 
 #include "control/scriptRunController.h"
@@ -23,64 +31,64 @@ CorrelationController::CorrelationController(CorrelationTab* correlationTab,
                                              UAScenario& casaScenario,
                                              ScriptRunController& scriptRunController,
                                              QObject* parent) :
-  QObject(parent),
-  correlationTab_{correlationTab},
-  casaScenario_(casaScenario),
-  scriptRunController_{scriptRunController}
+   QObject(parent),
+   correlationTab_{correlationTab},
+   casaScenario_(casaScenario),
+   scriptRunController_{scriptRunController}
 {
-  connect(parent, SIGNAL(signalUpdateTabGUI(int)), this, SLOT(slotUpdateTabGUI(int)));
+   connect(parent, SIGNAL(signalUpdateTabGUI(int)), this, SLOT(slotUpdateTabGUI(int)));
 
-  connect(correlationTab_->tableParameters(), SIGNAL(itemChanged(QTableWidgetItem*)),
-          this,
-          SLOT(correlationSelectionItemChanged()));
+   connect(correlationTab_->tableParameters(), SIGNAL(itemChanged(QTableWidgetItem*)),
+           this,
+           SLOT(correlationSelectionItemChanged()));
 }
 
 void CorrelationController::refreshGUI()
 {
-  const InfluentialParameterManager& manager{casaScenario_.influentialParameterManager()};
+   const InfluentialParameterManager& manager{casaScenario_.influentialParameterManager()};
 
-  if (casaScenario_.isStageComplete(StageTypesUA::mcmc))
-  {
-    correlationTab_->fillCorrelationSelectionTable(manager.influentialParameters(), manager.isUsedInCorrelation());
-    updateCorrelationPlotLayout();
-  }
-  else
-  {
-    correlationTab_->fillCorrelationSelectionTable({},{});
-    correlationTab_->updateCorrelationPlotLayout({},{},{},{});
-  }
+   if (casaScenario_.isStageComplete(StageTypesUA::mcmc))
+   {
+      correlationTab_->fillCorrelationSelectionTable(manager.influentialParameters(), manager.isUsedInCorrelation());
+      updateCorrelationPlotLayout();
+   }
+   else
+   {
+      correlationTab_->fillCorrelationSelectionTable({},{});
+      correlationTab_->updateCorrelationPlotLayout({},{},{},{});
+   }
 }
 
 void CorrelationController::slotUpdateTabGUI(int tabID)
 {
-  if (tabID != static_cast<int>(TabID::Correlations))
-  {
-    return;
-  }
+   if (tabID != static_cast<int>(TabID::Correlations))
+   {
+      return;
+   }
 
-  correlationTab_->setEnabled(true);
-  if (!casaScenario_.isStageComplete(StageTypesUA::mcmc))
-  {
-    correlationTab_->setEnabled(false);
-    Logger::log() << "MCMC data is not available! Complete MCMC data creation stage in MCMC tab first." << Logger::endl();
-  }
+   correlationTab_->setEnabled(true);
+   if (!casaScenario_.isStageComplete(StageTypesUA::mcmc))
+   {
+      correlationTab_->setEnabled(false);
+      Logger::log() << "MCMC data is not available! Complete MCMC data creation stage in MCMC tab first." << Logger::endl();
+   }
 
-  refreshGUI();
+   refreshGUI();
 }
 
 void CorrelationController::updateCorrelationPlotLayout()
 {
-  const MonteCarloDataManager& mcData{casaScenario_.monteCarloDataManager()};
-  const InfluentialParameterManager& manager{casaScenario_.influentialParameterManager()};
-  correlationTab_->updateCorrelationPlotLayout(casaScenario_.influentialParametersWithRunData(), manager.isUsedInCorrelation(),
-                                               mcData.influentialParameterMatrix(), mcData.rmse());
+   const MonteCarloDataManager& mcData{casaScenario_.monteCarloDataManager()};
+   const InfluentialParameterManager& manager{casaScenario_.influentialParameterManager()};
+   correlationTab_->updateCorrelationPlotLayout(casaScenario_.influentialParametersWithRunData(), manager.isUsedInCorrelation(),
+                                                mcData.influentialParameterMatrix(), mcData.rmse());
 }
 
 void CorrelationController::correlationSelectionItemChanged()
 {
-  InfluentialParameterManager& manager{casaScenario_.influentialParameterManager()};
-  manager.setIsUsedInCorrelation(correlationTab_->isCorrelationSelectTableItemSelected());
-  updateCorrelationPlotLayout();
+   InfluentialParameterManager& manager{casaScenario_.influentialParameterManager()};
+   manager.setIsUsedInCorrelation(correlationTab_->isCorrelationSelectTableItemSelected());
+   updateCorrelationPlotLayout();
 }
 
 } // namespace ua

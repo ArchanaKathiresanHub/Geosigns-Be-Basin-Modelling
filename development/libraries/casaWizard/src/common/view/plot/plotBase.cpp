@@ -1,3 +1,11 @@
+//
+// Copyright (C) 2022 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #include "plotBase.h"
 #include "plotBasePrivate.h"
 
@@ -251,16 +259,18 @@ void PlotBase::PlotBasePrivate::drawLabels(QPainter& painter, const int height)
 {
    painter.save();
    QFontMetrics fm(font_);
+   QString tmpXLabel = fm.elidedText(xLabel_, Qt::ElideRight, std::abs(plotRangeBottomRight_.x() - plotRangeTopLeft_.x()));
+   QString tmpYLabel = fm.elidedText(yLabel_, Qt::ElideRight, std::abs(plotRangeBottomRight_.y() - plotRangeTopLeft_.y()));
 
    const QPointF plotCenter = valToPoint( (xAxisMinValue_+xAxisMaxValue_)/2, (yAxisMinValue_+yAxisMaxValue_)/2);
 
-   const QPointF xLabelPosition( plotCenter.x() - fm.width(xLabel_)/2, plotRangeBottomRight_.y() + textSpacing + 2*fm.height() + textSpacing);
-   painter.drawText(xLabelPosition, xLabel_);
+   const QPointF xLabelPosition( plotCenter.x() - fm.width(tmpXLabel)/2, plotRangeBottomRight_.y() + textSpacing + 2*fm.height() + textSpacing);
+   painter.drawText(xLabelPosition, tmpXLabel);
 
-   QPointF yLabelPosition( plotRangeTopLeft().x() - textSpacing - fm.height() - fm.width(QString::number(majorYticks_[0],'g',4)), plotCenter.y() + fm.width(yLabel_)/2);
+   QPointF yLabelPosition( plotRangeTopLeft().x() - textSpacing - fm.height() - fm.width(QString::number(majorYticks_[0],'g',4)), plotCenter.y() + fm.width(tmpYLabel)/2);
    painter.translate(yLabelPosition);
    painter.rotate(-90);
-   painter.drawText(QPoint(0,0), yLabel_);
+   painter.drawText(QPoint(0,0), tmpYLabel);
    painter.restore();
 }
 

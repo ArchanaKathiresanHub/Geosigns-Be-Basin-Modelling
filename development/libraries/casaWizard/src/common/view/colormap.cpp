@@ -1,16 +1,24 @@
-#include "colormap.h"
+//
+// Copyright (C) 2022 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
 
+#include "colormap.h"
 #include <cmath>
 
 namespace casaWizard
 {
 
-namespace sac
-{
-
-
 ColorMap::ColorMap() :
   m_colorMapType{ColorMapType::VIRIDIS}
+{
+}
+
+ColorMap::ColorMap(ColorMapType type) :
+   m_colorMapType{type}
 {
 }
 
@@ -35,9 +43,13 @@ void ColorMap::setColorMapType(const std::string& colorMapType)
   }
 }
 
+void ColorMap::setColorMapType(const ColorMapType& colorMapType){
+   m_colorMapType = colorMapType;
+}
+
 QColor ColorMap::getColor(const double value, const double minValue, const double maxValue) const
 {
-  if (minValue == maxValue)
+  if (abs(maxValue - minValue) < 1e-3)
   {
     return QColor(0,0,0);
   }
@@ -132,8 +144,4 @@ double ColorMap::interpolateDouble(const double start, const double end, const d
   return start + (end - start) * fraction;
 }
 
-} // namespace sac
-
 } // namespace casaWizard
-
-

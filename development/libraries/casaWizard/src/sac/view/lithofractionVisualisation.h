@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2021 Shell International Exploration & Production.
+// Copyright (C) 2022 Shell International Exploration & Production.
 // All rights reserved.
 //
 // Confidential and proprietary source code of Shell.
@@ -8,11 +8,9 @@
 
 #pragma once
 
-#include "colormap.h"
-
 #include <QWidget>
-
 #include <memory>
+#include "view/colormap.h"
 
 class QPushButton;
 class QComboBox;
@@ -28,8 +26,6 @@ class Well;
 
 namespace sac
 {
-
-class ColorBar;
 class Grid2DPlot;
 class OptimizedLithofraction;
 class MapPlotOptions;
@@ -86,5 +82,4 @@ private slots:
 };
 
 }
-
 }

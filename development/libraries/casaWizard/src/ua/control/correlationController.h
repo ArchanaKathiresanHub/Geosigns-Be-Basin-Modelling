@@ -1,3 +1,11 @@
+//
+// Copyright (C) 2022 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 // Controller for the correlations tab in the thermal wizard, plotting the correlation matrix
 // of the influential parameters for the MC samples.
 #pragma once

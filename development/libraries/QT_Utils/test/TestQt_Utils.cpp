@@ -27,19 +27,49 @@ TEST(Qt_UtilsTest, testdoubleToQString)
 {
    using namespace qtutils;
    QString outStr = doubleToQString(3.1415e66);
-   EXPECT_EQ(outStr,"3.1415e+66");
+   EXPECT_EQ(outStr, "3.1415e+66");
 
    outStr = doubleToQString(3.1415926535897932384626433832795028841971693993751058209749445923078164062862089986280348253421170679e66);
-   EXPECT_EQ(outStr,"3.14159265359e+66");
+   EXPECT_EQ(outStr, "3.14159265359e+66");
 
    outStr = doubleToQString(0.0000000000001234);
-   EXPECT_EQ(outStr,"1.234e-13");
+   EXPECT_EQ(outStr, "1.234e-13");
 
    outStr = doubleToQString(3.1415926535897932384626433832795028841971693993751058209749445923078164062862089986280348253421170679);
-   EXPECT_EQ(outStr,"3.14159265359");
+   EXPECT_EQ(outStr, "3.14159265359");
 
    outStr = doubleToQString(-3.1415926535897932384626433832795028841971693993751058209749445923078164062862089986280348253421170679);
-   EXPECT_EQ(outStr,"-3.14159265359");
+   EXPECT_EQ(outStr, "-3.14159265359");
+
+   QString roundedStr = doubleToQString(3.141000, -1);
+   EXPECT_EQ(roundedStr, "3.141");
+
+   roundedStr = doubleToQString(3.141000e-12, -1);
+   EXPECT_EQ(roundedStr, "3.141e-12");
+
+   roundedStr = doubleToQString(3.4999, 0);
+   EXPECT_EQ(roundedStr, "3");
+
+   roundedStr = doubleToQString(3.5, 0);
+   EXPECT_EQ(roundedStr, "4");
+
+   roundedStr = doubleToQString(10, 0);
+   EXPECT_EQ(roundedStr, "10");
+
+   roundedStr = doubleToQString(123456, 2);
+   EXPECT_EQ(roundedStr, "123456");
+
+   roundedStr = doubleToQString(1234567, 3);
+   EXPECT_EQ(roundedStr, "1.235e+06");
+
+   roundedStr = doubleToQString(0.000000000000123456879, 3);
+   EXPECT_EQ(roundedStr, "1.235e-13");
+
+   roundedStr = doubleToQString(13.1415, 3);
+   EXPECT_EQ(roundedStr, "13.142");
+
+   roundedStr = doubleToQString(3.1415e66, 3);
+   EXPECT_EQ(roundedStr, "3.142e+66");
 }
 
 TEST(Qt_UtilsTest, testdoubleOneDigitToQString)

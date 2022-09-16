@@ -1,6 +1,6 @@
 #include "resultsTab.h"
 
-#include "colormap.h"
+#include "view/colormap.h"
 #include "multiWellPlot.h"
 #include "plot/wellBirdsView.h"
 #include "plot/wellCorrelationPlot.h"

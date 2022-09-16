@@ -34,7 +34,9 @@ namespace qtutils {
    QString replaceCharsNotAllowedInExcelTabsBy_(QString str);
 
    QString doubleToQString(double d);
+   QString doubleToQString(double d, int precision);
    QString doubleOneDigitToQString(double d);
+
 
    QStringList convertToQStringList(const QVector<int>& vec);
    QStringList convertToQStringList(const QVector<double>& vec);
