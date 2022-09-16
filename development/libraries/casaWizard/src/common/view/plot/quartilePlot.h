@@ -45,7 +45,7 @@ private:
   void updateMinMaxData() final;
   void drawData(QPainter& painter) final;
   void drawMinMaxBar(QPainter& painter, const double xValue, const double y0, const double y1);
-  void drawLegend(QPainter& painter, const QPen& penPoint);
+  void drawLegend(QPainter& painter, const QPen& penPoint, const QStringList& items);
 
   QVector<Quartile> quartiles_;
   double quartileSpacing_;

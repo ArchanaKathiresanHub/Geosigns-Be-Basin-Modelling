@@ -40,6 +40,7 @@ public:
 
     // Set doe options for QC (also applied to UA).
     scenario.setIsQcDoeOptionSelected(0, true);
+    scenario.setIsQcDoeOptionSelected(1, false);
     scenario.setProxyOrder(2);
     scenario.setProxyKrigingMethod("Global");
 

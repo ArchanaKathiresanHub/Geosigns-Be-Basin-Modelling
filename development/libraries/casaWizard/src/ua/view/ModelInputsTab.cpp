@@ -130,7 +130,6 @@ QPushButton*ModelInputsTab::pushButtonRunAddedCases() const
 void ModelInputsTab::updateDoeOptionTable(const QVector<DoeOption*>& doeOptions, const QVector<bool>& isDoeOptionsSelected)
 {
   doeOptionTable_->updateTable(doeOptions, isDoeOptionsSelected);
-  doeOptionTable_->resizeColumnsToContents();
 }
 
 QTableWidget* ModelInputsTab::doeOptionTable() const

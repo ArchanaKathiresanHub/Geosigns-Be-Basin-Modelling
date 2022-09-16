@@ -83,7 +83,7 @@ void CalibrationTargetSaver::saveToExcel(const QString& excelFileName) const
   }
 }
 
-bool CalibrationTargetSaver::saveXYtoASCII(const QString& filename) const
+bool CalibrationTargetSaver::saveRawLocationsToCSV(const QString& filename) const
 {
   QFile file(filename);
   if (!file.open(QIODevice::WriteOnly | QIODevice::Text))

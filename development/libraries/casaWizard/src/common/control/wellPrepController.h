@@ -46,7 +46,7 @@ public slots:
   void slotUpdateTabGUI(int tabID);
 
 private slots:
-  void slotExportXYasciiClicked();
+  void slotExportToCSVClicked();
   void slotPushSaveDataClicked();
   void slotCloseWaitingDialog();
   void slotConvertDTtoTWT();

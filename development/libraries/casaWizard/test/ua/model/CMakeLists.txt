@@ -48,7 +48,7 @@ configure_file( influentialParameterManagerV0.dat influentialParameterManagerV0.
 configure_file( influentialParameterManagerV0NoCrustThinning.dat influentialParameterManagerV0NoCrustThinning.dat )
 configure_file( manualDesignPointManager.dat manualDesignPointManager.dat )
 configure_file( monteCarloDataManagerV0.dat monteCarloDataManagerV0.dat )
-configure_file( importTest.txt importTest.txt)
+configure_file( importTest.csv importTest.csv)
 
 add_subdirectory( input )
 add_subdirectory( output )

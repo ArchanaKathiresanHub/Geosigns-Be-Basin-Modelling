@@ -46,7 +46,7 @@ public:
   QPushButton* buttonDTtoTWT() const;
   QPushButton* buttonCropOutline() const;
   QPushButton* buttonCropBasement() const;
-  const QPushButton* buttonExportXYascii() const;
+  const QPushButton* buttonExportToCSV() const;
   const QPushButton* buttonExport() const;
   QPushButton* buttonToSAC() const;
 
@@ -74,7 +74,7 @@ private:
   QPushButton* buttonDTtoTWT_;
   QPushButton* buttonCropOutline_;
   QPushButton* buttonCropBasement_;
-  QPushButton* buttonXYascii_;
+  QPushButton* buttonExportCSV_;
   QPushButton* buttonExport_;
   QPushButton* buttonToSAC_;
 

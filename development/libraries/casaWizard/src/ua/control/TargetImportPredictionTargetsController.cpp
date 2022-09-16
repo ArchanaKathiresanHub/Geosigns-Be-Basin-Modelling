@@ -69,8 +69,7 @@ bool TargetImportPredictionTargetsController::slotPushSelectFileClicked()
    QString filename = QFileDialog::getOpenFileName(nullptr,
                                                    "Select Prediction targets",
                                                    m_targetImportDialogAscii->lineEditFile()->text(),
-                                                   "Text files (*.txt)");
-
+                                                   "comma separated value files (*.csv *.txt)");
    if (filename == "")
    {
       return false;

@@ -42,6 +42,7 @@ private:
 
 private:
   void refreshGUI();
+  int m_targetIndex;
 
   ResponseSurfacesTab* m_responseSurfacesTab;
   UAScenario& m_casaScenario;

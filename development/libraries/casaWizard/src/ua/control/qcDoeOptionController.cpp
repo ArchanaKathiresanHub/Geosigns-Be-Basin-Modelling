@@ -1,6 +1,7 @@
 #include "qcDoeOptionController.h"
 
 #include "model/uaScenario.h"
+#include "model/logger.h"
 #include "view/qcDoeOptionTable.h"
 
 #include <QComboBox>
@@ -30,6 +31,7 @@ QCDoeOptionController::QCDoeOptionController(QCDoeOptionTable* table,
           this,                             SLOT(slotComboBoxKrigingItemChanged(QString)));
 
   connect(parent, SIGNAL(signalRefreshChildWidgets()), this, SLOT(slotRefresh()));
+  slotRefresh();
 }
 
 void QCDoeOptionController::updateAfterModification()

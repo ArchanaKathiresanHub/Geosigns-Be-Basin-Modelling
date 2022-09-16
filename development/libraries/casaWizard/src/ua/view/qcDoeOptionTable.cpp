@@ -1,6 +1,7 @@
 #include "qcDoeOptionTable.h"
 
 #include "model/proxy.h"
+#include "view/components/helpLabel.h"
 
 #include <QComboBox>
 #include <QFormLayout>
@@ -8,6 +9,7 @@
 #include <QHeaderView>
 #include <QLabel>
 #include <QTableWidget>
+#include "model/logger.h"
 
 namespace casaWizard
 {
@@ -34,17 +36,23 @@ QCDoeOptionTable::QCDoeOptionTable(QWidget* parent) :
   tableWidgetQcDoeOption_->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
   tableWidgetQcDoeOption_->setRowCount(0);
   tableWidgetQcDoeOption_->setColumnCount(2);
+  tableWidgetQcDoeOption_->resizeColumnToContents(0);
   tableWidgetQcDoeOption_->setHorizontalHeaderItem(columnCheckBox, new QTableWidgetItem(""));
-  tableWidgetQcDoeOption_->setHorizontalHeaderItem(columnNames, new QTableWidgetItem("doe"));
+  tableWidgetQcDoeOption_->setHorizontalHeaderItem(columnNames, new QTableWidgetItem("DoE"));
 
   QFormLayout* layoutComboBoxes = new QFormLayout();
   for (const int& order : Proxy::orderOptions())
   {
     comboBoxProxyOrder_->addItem(QString::number(order));
   }
+  comboBoxProxyOrder_->setCurrentIndex(2); //default to '2'
   comboBoxKriging_->insertItems(0, Proxy::krigingMethodOptions());
 
-  layoutComboBoxes->addRow(new QLabel("RSP order", this), comboBoxProxyOrder_);
+  QHBoxLayout* hbox = new QHBoxLayout();
+  hbox->addWidget(comboBoxProxyOrder_);
+  hbox->addWidget(new HelpLabel(this, "Order 3 leads to an iterative search for the optimal terms in the response surface proxy"));
+
+  layoutComboBoxes->addRow(new QLabel("RSP order", this), hbox);
   layoutComboBoxes->addRow(new QLabel("Kriging", this), comboBoxKriging_);
 
   QHBoxLayout* layoutTableAndCombos = new QHBoxLayout(this);
@@ -62,18 +70,18 @@ void QCDoeOptionTable::updateTable(const QStringList& doeOptionNames, const QVec
   tableWidgetQcDoeOption_->setRowCount(doeOptionNames.size());
 
   int row = 0;
-  for (const QString doeOption : doeOptionNames)
+  for (const QString& doeOption : doeOptionNames)
   {
     QTableWidgetItem* itemCheckBox = new QTableWidgetItem("");
+    itemCheckBox->setCheckState(isQcDoeOptionsSelected[row] ? Qt::Checked : Qt::Unchecked);
+    tableWidgetQcDoeOption_->setItem(row, columnCheckBox, itemCheckBox);
+
     QTableWidgetItem* itemDoeName = new QTableWidgetItem(doeOption);
     itemDoeName->setFlags(itemDoeName->flags() ^ Qt::ItemIsEditable);
     tableWidgetQcDoeOption_->setItem(row, columnNames, itemDoeName);
-    itemCheckBox->setCheckState(isQcDoeOptionsSelected[row] ? Qt::Checked : Qt::Unchecked);
-    tableWidgetQcDoeOption_->setItem(row, columnCheckBox, itemCheckBox);
     ++row;
   }
-
-  tableWidgetQcDoeOption_->resizeColumnsToContents();
+  tableWidgetQcDoeOption_->resizeColumnToContents(0);
 }
 
 void QCDoeOptionTable::setProxyComboBoxes(const Proxy& proxy)

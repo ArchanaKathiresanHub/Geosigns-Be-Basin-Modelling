@@ -38,7 +38,7 @@ public:
 
    void SetUp() override
    {
-      m_asciiInputInfo.setFilePath("./importTest.txt");
+      m_asciiInputInfo.setFilePath("./importTest.csv");
       m_asciiInputInfo.setSurfaceSelectionStates(QVector<bool>(predictionTargetManager().validSurfaceNames().size(),false));
       m_asciiInputInfo.setTemperatureTargetsSelected(true);
       m_asciiInputInfo.setVreTargetsSelected(true);
@@ -66,7 +66,7 @@ TEST_F( PredictionTargetCreatorTest, testAsciiFileImport )
 TEST_F( PredictionTargetCreatorTest, testWrongAsciiFileImport )
 {
    //shouldn't find a file, so no entries should be made
-   asciiInfo().setFilePath("./non-existant-file.txt");
+   asciiInfo().setFilePath("./non-existant-file.csv");
    PredictionTargetCreator creator(asciiInfo(), predictionTargetManager());
    creator.createTargets();
 

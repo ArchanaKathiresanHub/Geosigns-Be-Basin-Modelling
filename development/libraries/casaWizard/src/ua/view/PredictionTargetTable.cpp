@@ -34,7 +34,7 @@ PredictionTargetTable::PredictionTargetTable(QWidget* parent) : QWidget(parent),
    m_pushButtonAddTargetsAtWellLocations{new QPushButton("Add targets at well locations", this)},
    m_pushButtonDelTarget{new QPushButton("Delete", this)},
    m_pushButtonCopyTarget{new QPushButton("Copy", this)},
-   m_pushButtonAddPredictionTargets{new QPushButton("Add prediction targets from File")},
+   m_pushButtonAddPredictionTargets{new QPushButton("Add prediction targets from file")},
    m_checkBoxColumnNumber{5},
    m_propertyColumns{}
 {

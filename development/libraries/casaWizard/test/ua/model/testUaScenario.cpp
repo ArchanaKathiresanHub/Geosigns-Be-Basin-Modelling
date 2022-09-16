@@ -32,9 +32,11 @@ TEST( UAScenarioTest, TestWriteReadVersion0 )
    mcManagerWrite.setInfluentialParameterMatrix({{33, 34}, {43, 44}});
    mcManagerWrite.setPredictionTargetMatrix({{55, 56}, {65, 66}});
 
+   writeScenario.setProxyOrder(-1); //should default to "2"
+   writeScenario.setProxyKrigingMethod("Local"); //should default to "No"
+
    //Step is performed in read, thus is needed to ensure that written and read state is equal.
    writeScenario.updateDoeConstantNumberOfDesignPoints(ipManagerWrite.totalNumberOfInfluentialParameters());
-
    {
       casaWizard::ScenarioWriter writer{"scenario.dat"};
       writeScenario.writeToFile(writer);
@@ -104,6 +106,10 @@ TEST( UAScenarioTest, TestWriteReadVersion0 )
    EXPECT_DOUBLE_EQ(pt[0][1], 56);
    EXPECT_DOUBLE_EQ(pt[1][0], 65);
    EXPECT_DOUBLE_EQ(pt[1][1], 66);
+
+   const casaWizard::ua::Proxy& proxyRead = readScenario.proxy();
+   EXPECT_EQ(proxyRead.krigingMethod(), "No");
+   EXPECT_EQ(proxyRead.order(), 2);
 }
 
 // This unit test only covers the additions

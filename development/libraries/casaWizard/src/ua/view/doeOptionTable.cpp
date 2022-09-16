@@ -31,6 +31,9 @@ DoeOptionTable::DoeOptionTable(QWidget* parent) :
   setHorizontalHeaderItem(columnNames, new QTableWidgetItem("Method"));
   setHorizontalHeaderItem(columnIndexNDesignPoints, new QTableWidgetItem("Points"));
   setHorizontalHeaderItem(columnCheckBox, new QTableWidgetItem(""));
+
+  resizeColumnToContents(0); //checkboxes
+  resizeColumnToContents(2); //points
 }
 
 void DoeOptionTable::updateTable(const QVector<DoeOption*>& doeOptions, const QVector<bool>& isDoeOptionsSelected)
@@ -62,7 +65,8 @@ void DoeOptionTable::updateTable(const QVector<DoeOption*>& doeOptions, const QV
 
     ++row;
   }
-  resizeColumnsToContents();
+  resizeColumnToContents(0); //checkboxes
+  resizeColumnToContents(2); //points
 }
 
 int DoeOptionTable::columnIndexNDesignPointsDoeOptionTable() const

@@ -17,7 +17,6 @@
 
 namespace casaWizard
 {
-
 namespace ua
 {
 
@@ -268,7 +267,7 @@ void UAScenario::setIsDoeOptionSelected(const int row, const bool isSelected)
    {
       if (isDoeInDoeTabSelected)
       {
-         m_isQcDoeOptionSelected.append(false);
+         m_isQcDoeOptionSelected.append(true);
       }
    }
 }

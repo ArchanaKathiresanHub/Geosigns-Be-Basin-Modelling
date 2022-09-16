@@ -67,7 +67,7 @@ TEST(CalibrationTargetSaverTest, testSave)
 TEST(CalibrationTargetSaverTest, exportTest)
 {
    casaWizard::StubCasaScenario scenario{};
-   std::remove("testExportASCII.txt");
+   std::remove("testExportASCII.csv");
 
    scenario.calibrationTargetManager().addWell("name", 100, 100);
    scenario.calibrationTargetManager().addWell("name2", 200, 200);
@@ -75,6 +75,6 @@ TEST(CalibrationTargetSaverTest, exportTest)
 
    CalibrationTargetSaver saver(scenario.calibrationTargetManager());
 
-   saver.saveXYtoASCII("testExportASCII.txt");
+   saver.saveRawLocationsToCSV("testExportASCII.csv");
    expectFileEq("testExportASCII.txt", "testExpectedASCII.txt");
 }

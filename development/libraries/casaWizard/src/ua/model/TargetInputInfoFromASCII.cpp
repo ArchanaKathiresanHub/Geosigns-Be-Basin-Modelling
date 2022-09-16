@@ -7,6 +7,7 @@
 //
 
 #include "model/TargetInputInfoFromASCII.h"
+#include "model/logger.h"
 #include <QFileDialog>
 #include <QTextStream>
 
@@ -40,7 +41,7 @@ QVector<TargetInputInfo::XYName> TargetInputInfoFromASCII::getTargetLocations() 
    //read file, parse, set in view
    QFile inputFile(m_filePath);
    QVector<TargetInputInfo::XYName> rowData;
-
+   Logger::log() << "Importing prediction targets:" << Logger::endl();
    //parser (bit unsafe)
    if (inputFile.open(QIODevice::ReadOnly))
    {
@@ -63,6 +64,11 @@ QVector<TargetInputInfo::XYName> TargetInputInfoFromASCII::getTargetLocations() 
                entry.name = variables[2];
             }
             rowData.push_back(entry);
+         }
+         else
+         {
+            Logger::log() << "Error on Line " + QString::number(counter - 1) + ": ";
+            Logger::log() << "Incorrect line format, targets should be formatted as: x,y,name" << Logger::endl();
          }
       }
       inputFile.close();

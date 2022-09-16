@@ -57,7 +57,7 @@ WellPrepController::WellPrepController(WellPrepTab* wellPrepTab,
    connect(wellPrepTab->buttonSelectAll(), SIGNAL(clicked()), calibrationTargetController_, SLOT(slotSelectAllWells()));
    connect(wellPrepTab->buttonDeselectAll(), SIGNAL(clicked()), calibrationTargetController_, SLOT(slotClearWellSelection()));
    connect(wellPrepTab->buttonDeleteSelection(), SIGNAL(clicked()), calibrationTargetController_, SLOT(slotDeleteSelectedWells()));
-   connect(wellPrepTab->buttonExportXYascii(), SIGNAL(clicked()), this, SLOT(slotExportXYasciiClicked()));
+   connect(wellPrepTab->buttonExportToCSV(), SIGNAL(clicked()), this, SLOT(slotExportToCSVClicked()));
    connect(wellPrepTab->buttonExport(), SIGNAL(clicked()), this, SLOT(slotPushSaveDataClicked()));
    connect(wellPrepTab->buttonDTtoTWT(), SIGNAL(clicked()), this, SLOT(slotConvertDTtoTWT()));
    connect(wellPrepTab->buttonVPtoDT(), SIGNAL(clicked()), this, SLOT(slotConvertVPToDT()));
@@ -330,7 +330,7 @@ void WellPrepController::slotPushSelectCalibrationClicked()
    refreshGUI();
 }
 
-void WellPrepController::slotExportXYasciiClicked()
+void WellPrepController::slotExportToCSVClicked()
 {
    if (casaScenario_.calibrationTargetManagerWellPrep().activeWells().empty())
    {
@@ -338,14 +338,19 @@ void WellPrepController::slotExportXYasciiClicked()
       return;
    }
 
-   const QString fileName = QFileDialog::getSaveFileName(wellPrepTab_, "Save as", QDir::currentPath(), "All files (*.*)");
+   QString fileName = QFileDialog::getSaveFileName(wellPrepTab_, "Save as", QDir::currentPath(), "comma seperated value file (*.csv)");
    if (fileName == "")
    {
       return;
    }
 
+   if (!fileName.endsWith(".csv"))
+   {
+      fileName += ".csv";
+   }
+
    CalibrationTargetSaver saver(casaScenario_.calibrationTargetManagerWellPrep());
-   if (saver.saveXYtoASCII(fileName))
+   if (saver.saveRawLocationsToCSV(fileName))
    {
       Logger::log() << "Done!" << Logger::endl();
    }

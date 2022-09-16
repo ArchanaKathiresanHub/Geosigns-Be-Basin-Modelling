@@ -30,10 +30,11 @@ ResponseSurfacesController::ResponseSurfacesController(ResponseSurfacesTab* resp
                            ScriptRunController& scriptRunController,
                            QObject* parent) :
   QObject(parent),
+  m_targetIndex{0},
   m_responseSurfacesTab{responseSurfacesTab},
   m_casaScenario{casaScenario},
   m_scriptRunController{scriptRunController},
-  m_qcDoeOptionController{new QCDoeOptionController(m_responseSurfacesTab->qcDoeOptionTable(), m_casaScenario, this)}
+  m_qcDoeOptionController{new QCDoeOptionController(m_responseSurfacesTab->qcDoeOptionTable(), casaScenario, this)}
 {
   connect(parent, SIGNAL(signalUpdateTabGUI(int)), this, SLOT(slotUpdateTabGUI(int)));
 
@@ -43,12 +44,15 @@ ResponseSurfacesController::ResponseSurfacesController(ResponseSurfacesTab* resp
           this,                          SLOT(slotTableQCCurrentItemChanged(QTableWidgetItem*, QTableWidgetItem*)));
 
   connect(m_qcDoeOptionController, SIGNAL(modelChange()), this, SLOT(slotModelChange()));
+
+  refreshGUI();
 }
 
 void ResponseSurfacesController::slotModelChange()
 {
   m_casaScenario.setStageComplete(StageTypesUA::responseSurfaces, false);
   m_casaScenario.setStageComplete(StageTypesUA::mcmc, false);
+  m_targetIndex = 0;
 
   m_casaScenario.setTargetQCs({});
   m_casaScenario.monteCarloDataManager().clear();
@@ -59,8 +63,9 @@ void ResponseSurfacesController::slotModelChange()
 void ResponseSurfacesController::refreshGUI()
 {
   m_responseSurfacesTab->fillQCtable(m_casaScenario.targetQCs());
-  m_responseSurfacesTab->updateQCPlot({});
-
+  if (m_casaScenario.targetQCs().size() > 0) {
+     m_responseSurfacesTab->updateQCPlot( m_casaScenario.targetQCs().at(m_targetIndex), m_targetIndex);
+  }
   emit signalRefreshChildWidgets();
 }
 
@@ -73,7 +78,6 @@ void ResponseSurfacesController::slotUpdateTabGUI(int tabID)
 
   m_responseSurfacesTab->allowModification();
   m_responseSurfacesTab->setEnabled(true);
-
   if (!m_casaScenario.isStageComplete(StageTypesUA::doe))
   {
     m_responseSurfacesTab->setEnabled(false);
@@ -149,10 +153,10 @@ void ResponseSurfacesController::slotTableQCCurrentItemChanged(QTableWidgetItem*
   {
     return;
   }
-  int row = current->row();
+  m_targetIndex = current->row();
 
-  m_responseSurfacesTab->updateQCPlot(m_casaScenario.targetQCs()[row]);
-  Logger::log() << "Displaying target " << m_casaScenario.targetQCs()[row].id() << Logger::endl();
+  m_responseSurfacesTab->updateQCPlot(m_casaScenario.targetQCs()[m_targetIndex], m_targetIndex);
+  Logger::log() << "Displaying target " << m_casaScenario.targetQCs()[m_targetIndex].id() << Logger::endl();
 }
 
 } // namespace ua

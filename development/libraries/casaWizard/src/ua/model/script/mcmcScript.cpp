@@ -34,7 +34,7 @@ void McmcScript::writeScriptContents(QFile& file) const
   const QString MCType = "MCMC"; // MC/MCMC/MCSolver
   const QString nSamples = "500";
   const QString nMaximumIterations = "100";
-  const QString proxyEvaluationType = "Polynomial"; // Polynomial/SmartKriging/GlobalKriging
+  const QString proxyEvaluationType = "Polynomial"; // Polynomial/GlobalKriging
   const QString distributionTypePDFVariables = "NoPrior"; // NoPrior/MarginalPrior/MultivariatePrior
   const QString standardDeviationFactor = "1.6";
 

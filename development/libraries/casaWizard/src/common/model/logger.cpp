@@ -7,36 +7,36 @@ Logger Logger::instance_ = Logger();
 QString Logger::logMessage_ = "";
 
 Logger::Logger() :
-  QObject()
+   QObject()
 {
 }
 
 Logger& Logger::log()
 {
-  return instance_;
+   return instance_;
 }
 
 Logger& Logger::endl()
 {
-  instance_.logSignal(logMessage_);
-  logMessage_.clear();
-  return instance_;
+   instance_.logSignal(logMessage_);
+   logMessage_.clear();
+   return instance_;
 }
 
 Logger& Logger::operator<<(Logger& logger)
 {
-  return logger;
+   return logger;
 }
 
 Logger& Logger::operator<<(const QString& message)
 {
-  logMessage_ += message;
-  return instance_;
+   logMessage_ += message;
+   return instance_;
 }
 
 Logger& Logger::operator<<(const double& value)
 {
-  return instance_.operator<<(QString::number(value));
+   return instance_.operator<<(QString::number(value));
 }
 
 } // namespace casaWizard
