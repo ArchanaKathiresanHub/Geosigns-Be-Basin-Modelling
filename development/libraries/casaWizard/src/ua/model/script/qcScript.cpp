@@ -13,7 +13,7 @@ namespace casaWizard
 namespace ua
 {
 
-QCScript::QCScript(const UAScenario& scenario) :
+QCScript::QCScript(UAScenario& scenario) :
   UAScript{scenario}
 {
 }
@@ -36,6 +36,7 @@ void QCScript::writeScriptContents(QFile& file) const
   out << writeResponse(doeList);
 
   out << writeExportDataTxt("DoeIndices", uaScenario().doeIndicesTextFileName());
+  out << writeExportDataTxt("RunCasesSimulationStates", uaScenario().simStatesTextFileName());
   out << writeExportDataTxt("RunCasesObservables", uaScenario().runCasesObservablesTextFileName());
   out << writeExportDataTxt("ProxyEvalObservables", uaScenario().proxyEvaluationObservablesTextFileName(), doeList, proxyName());
   out << writeExportDataTxt("ProxyEvaluateQuality", uaScenario().proxyQualityEvaluationTextFileName(), doeList, proxyName());

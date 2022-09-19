@@ -16,7 +16,7 @@ class UAScenario;
 class QCScript : public UAScript
 {
 public:
-  explicit QCScript(const UAScenario& scenario);
+  explicit QCScript(UAScenario& scenario);
   QString scriptFilename() const final;
 
 private:

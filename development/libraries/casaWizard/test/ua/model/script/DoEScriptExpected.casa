@@ -6,4 +6,6 @@ doe "SpaceFilling" 50
 addDesignPoint 1.2
 location "CaseSet"
 run "LOCAL" "Default"
-savestate "stateFileTestCasaScriptDoE.txt" "txt"
+exportDataTxt "DoeIndices" "doeIndices.txt"
+exportDataTxt "RunCasesSimulationStates" "RunCasesSimulationStates.txt"
+savestate "casaStateDoE-2022-09-14-16-51-39.txt" "txt"

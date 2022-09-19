@@ -6,6 +6,7 @@
 
 #include <QFile>
 #include <QTextStream>
+#include <QDateTime>
 
 namespace casaWizard
 {
@@ -13,7 +14,7 @@ namespace casaWizard
 namespace ua
 {
 
-DoEScript::DoEScript(const UAScenario& scenario) :
+DoEScript::DoEScript(UAScenario& scenario) :
   UAScript(scenario)
 {
 }
@@ -41,17 +42,27 @@ void DoEScript::writeScriptContents(QFile& file) const
     out << writeInfluentialParameter(influentialParameter);
   }
 
-  out << writeDOE(uaScenario().doeSelected());
+  QVector<DoeOption*> selectedOptions = uaScenario().doeSelected();
+  out << writeDOE(selectedOptions);
 
-  const ManualDesignPointManager& designPointManager = uaScenario().manualDesignPointManager();
-  for (int i = 0; i < designPointManager.numberOfPoints(); ++i)
+  for (auto option : selectedOptions)
   {
-    out << writeAddDesignPoint(designPointManager.getDesignPoint(i));
+     if (option->name() == "UserDefined")
+     {
+        QVector<QVector<double>> pointsToRun = uaScenario().manualDesignPointManager().pointsToRun();
+        for (int i = 0; i < pointsToRun.size(); ++i)
+        {
+          out << writeAddDesignPoint(pointsToRun[i]);
+        }
+        break;
+     }
   }
 
   out << writeLocation(uaScenario().runLocation());
   out << writeRun(uaScenario().clusterName());
-  out << writeSaveState(uaScenario().stateFileNameDoE());
+  out << writeExportDataTxt("DoeIndices", uaScenario().doeIndicesTextFileName());
+  out << writeExportDataTxt("RunCasesSimulationStates", uaScenario().simStatesTextFileName());
+  out << writeSaveState(uaScenario().updateStateFileNameDoE());
 }
 
 QString DoEScript::writeInfluentialParameter(const InfluentialParameter* influentialParameter) const

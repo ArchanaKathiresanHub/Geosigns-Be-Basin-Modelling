@@ -12,7 +12,7 @@ namespace ua
 class AddCasesScript : public UAScript
 {
 public:
-  explicit AddCasesScript(const UAScenario& scenario); 
+  explicit AddCasesScript(UAScenario& scenario);
   QString scriptFilename() const final;
 
 private:

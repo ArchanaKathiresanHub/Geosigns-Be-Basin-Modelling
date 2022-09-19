@@ -4,6 +4,7 @@
 
 #include <QFile>
 #include <QTextStream>
+#include <QDateTime>
 
 namespace casaWizard
 {
@@ -11,38 +12,39 @@ namespace casaWizard
 namespace ua
 {
 
-AddCasesScript::AddCasesScript(const UAScenario& scenario) :
-  UAScript(scenario)
+AddCasesScript::AddCasesScript(UAScenario& scenario) :
+   UAScript(scenario)
 {
 }
 
 void AddCasesScript::writeScriptContents(QFile& file) const
 {
-  const QString stateFileNameDoE = uaScenario().runLocation() + "/" + uaScenario().iterationDirName() + "/" + uaScenario().stateFileNameDoE();
+   QString stateFileNameDoE = uaScenario().runLocation() + "/" + uaScenario().iterationDirName() + "/" + uaScenario().stateFileNameDoE();
 
-  QTextStream out(&file);
+   QTextStream out(&file);
 
-  out << writeBaseProject(uaScenario().project3dFilename());
-  out << writeLoadState(stateFileNameDoE);
+   out << writeBaseProject(uaScenario().project3dFilename());
+   out << writeLoadState(stateFileNameDoE);
 
-  const ManualDesignPointManager& designPointManager = uaScenario().manualDesignPointManager();
-  const QVector<bool> completed = designPointManager.completed();
-  for (int i = 0; i < designPointManager.numberOfPoints(); ++i)
-  {
-    if (!completed[i])
-    {
-      out << writeAddDesignPoint(designPointManager.getDesignPoint(i));
-    }
-  }
+   QVector<QVector<double>> pointsToRun = uaScenario().manualDesignPointManager().pointsToRun();
+   for (int i = 0; i < pointsToRun.size(); ++i)
+   {
+     out << writeAddDesignPoint(pointsToRun[i]);
+   }
 
-  out << writeLocation(uaScenario().runLocation(), true);
-  out << writeRun(uaScenario().clusterName());
-  out << writeSaveState(stateFileNameDoE);
+   out << writeLocation(uaScenario().runLocation(), true);
+   out << writeRun(uaScenario().clusterName());
+   out << writeExportDataTxt("RunCasesSimulationStates", uaScenario().simStatesTextFileName());
+   out << writeExportDataTxt("DoeIndices", uaScenario().doeIndicesTextFileName());
+
+   QString newStateFileName =uaScenario().updateStateFileNameDoE();
+   stateFileNameDoE = uaScenario().runLocation() + "/" + uaScenario().iterationDirName() + "/" + newStateFileName;
+   out << writeSaveState(stateFileNameDoE);
 }
 
 QString AddCasesScript::scriptFilename() const
 {
-  return QString("addCasesScript.casa");
+   return QString("addCasesScript.casa");
 }
 
 } // namespace ua

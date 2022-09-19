@@ -85,7 +85,7 @@ void CmdRunDataDigger::execute( std::unique_ptr<casa::ScenarioAnalysis> & scenar
       casa::RunCase* runCase = runCaseSet.runCase(i);
       if (runCase->runStatus() == casa::RunCase::Failed || isExcluded)
       {
-        LogHandler( LogHandler::WARNING_SEVERITY ) << "  Run case " << i << " failed, hence no data digging case is sceduled";
+        LogHandler( LogHandler::WARNING_SEVERITY ) << "  Run case " << i << " failed, hence no data digging case is scheduled";
         continue;
       }
       runCase->setRunStatus(casa::RunCase::NotSubmitted);

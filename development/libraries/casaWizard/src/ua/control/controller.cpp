@@ -68,7 +68,7 @@ void Controller::slotPopupRemoveDoeData()
     return;
   }
 
-  if (runCaseSetFileManager.isIterationDirDeleted(scenario_.project3dPath()))
+  if (!scenario_.iterationDirExists())
   {
     Logger::log() << "DoE data has already been deleted!" << Logger::endl();
     return;

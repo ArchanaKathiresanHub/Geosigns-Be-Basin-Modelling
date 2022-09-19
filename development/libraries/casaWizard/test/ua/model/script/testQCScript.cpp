@@ -7,22 +7,27 @@
 
 #include <gtest/gtest.h>
 
+namespace
+{
 class QCScriptTest : public SetupTestCasaScript
 {
 public:
-  QCScriptTest()
-  {
-    scenario.setStateFileNameQC("stateFileTestCasaScriptQC.txt");
-  }
+   QCScriptTest()
+   {
+      scenario.setStateFileNameQC("stateFileTestCasaScriptQC.txt");
+   }
 };
+}
 
 TEST_F(QCScriptTest, testWriteScript)
 {
-  const std::string expectedFile{"QCScriptExpected.casa"};
-  const std::string actualFile{"qcScript.casa"};
+   const std::string expectedFile{"QCScriptExpected.casa"};
+   const std::string actualFile{"qcScript.casa"};
 
-  casaWizard::ua::QCScript script(scenario);
-  EXPECT_TRUE(script.writeScript());
+   scenario.updateIterationDir();
 
-  expectFileEq(expectedFile, actualFile);
+   casaWizard::ua::QCScript script(scenario);
+   EXPECT_TRUE(script.writeScript());
+
+   expectFileEq(expectedFile, actualFile);
 }

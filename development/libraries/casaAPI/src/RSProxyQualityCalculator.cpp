@@ -95,10 +95,9 @@ std::vector<std::vector<double>> RSProxyQualityCalculator::calculateR2AndR2adj(c
 
    size_t nRunCases = doeCaseSet.size();
 
-   std::vector<std::vector<double>> proxyEvaluationObservables(nRunCases);
-   std::vector<std::vector<double>> runCasesObservables(nRunCases);
+   std::vector<std::vector<double>> proxyEvaluationObservables;
+   std::vector<std::vector<double>> runCasesObservables;
 
-   size_t i = 0;
    doeCaseSet.filterByDoeList(doeList);
 
    for (size_t iRunCase = 0; iRunCase < nRunCases; ++iRunCase)
@@ -111,7 +110,8 @@ std::vector<std::vector<double>> RSProxyQualityCalculator::calculateR2AndR2adj(c
       }
 
       // Extract run case observables
-      extractObservableValues(runCasesObservables[i], runCase);
+      runCasesObservables.push_back({});
+      extractObservableValues(runCasesObservables.back(), runCase);
 
       // Extract proxy evaluation observables
       std::shared_ptr<casa::RunCase> proxyRunCase = runCase->shallowCopy();
@@ -120,9 +120,8 @@ std::vector<std::vector<double>> RSProxyQualityCalculator::calculateR2AndR2adj(c
          throw ErrorHandler::Exception(proxy->errorCode()) << proxy->errorMessage();
       }
 
-      extractObservableValues(proxyEvaluationObservables[i], proxyRunCase.get());
-
-      ++i;
+      proxyEvaluationObservables.push_back({});
+      extractObservableValues(proxyEvaluationObservables.back(), proxyRunCase.get());
    }
 
    const casa::RSProxy::CoefficientsMapList & cml = proxy->getCoefficientsMapList();
@@ -153,8 +152,8 @@ std::vector<double> RSProxyQualityCalculator::calculateQ2(const string& proxyNam
 
    doeCaseSet.filterByDoeList(doeList);
    const size_t nRunCases = doeCaseSet.size();
-   std::vector<std::vector<double>> proxyEvaluationObservables(nRunCases);
-   std::vector<std::vector<double>> runCasesObservables(nRunCases);
+   std::vector<std::vector<double>> proxyEvaluationObservables;
+   std::vector<std::vector<double>> runCasesObservables;
 
    int iGlobalRunCase = 0;
 
@@ -174,7 +173,8 @@ std::vector<double> RSProxyQualityCalculator::calculateQ2(const string& proxyNam
       LogHandler (LogHandler::DEBUG_SEVERITY)  << "Evaluating proxy No. " << iGlobalRunCase << "for Q2 calculation ...";
 
       // Extract run case observables
-      extractObservableValues(runCasesObservables[iGlobalRunCase], runCase);
+      runCasesObservables.push_back({});
+      extractObservableValues(runCasesObservables.back(), runCase);
 
       // Extract proxy evaluation observables
       std::shared_ptr<RunCase> proxyObservableRunCaseQ2 = runCase->shallowCopy();
@@ -184,7 +184,8 @@ std::vector<double> RSProxyQualityCalculator::calculateQ2(const string& proxyNam
          throw ErrorHandler::Exception(proxyQ2->errorCode()) << proxyQ2->errorMessage();
       }
 
-      extractObservableValues(proxyEvaluationObservables[iGlobalRunCase], proxyObservableRunCaseQ2.get());
+      proxyEvaluationObservables.push_back({});
+      extractObservableValues(proxyEvaluationObservables.back(), proxyObservableRunCaseQ2.get());
 
       ++iGlobalRunCase;
    }

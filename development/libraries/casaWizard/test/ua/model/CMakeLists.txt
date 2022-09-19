@@ -17,6 +17,9 @@ add_casawizard_ua_gtest( NAME InfluentialParameterManager
 add_casawizard_ua_gtest( NAME MonteCarloData
    SOURCES testMonteCarloData.cpp )
 
+add_casawizard_ua_gtest( NAME ManualDesignPoint
+   SOURCES TestManualDesignPoint.cpp )
+
 add_casawizard_ua_gtest( NAME ManualDesignPointManager
    SOURCES testManualDesignPointManager.cpp )
 
@@ -47,6 +50,7 @@ configure_file( influentialParameterManagerV1.dat influentialParameterManagerV1.
 configure_file( influentialParameterManagerV0.dat influentialParameterManagerV0.dat )
 configure_file( influentialParameterManagerV0NoCrustThinning.dat influentialParameterManagerV0NoCrustThinning.dat )
 configure_file( manualDesignPointManager.dat manualDesignPointManager.dat )
+configure_file( manualDesignPointManagerV0.dat manualDesignPointManagerV0.dat )
 configure_file( monteCarloDataManagerV0.dat monteCarloDataManagerV0.dat )
 configure_file( importTest.csv importTest.csv)
 

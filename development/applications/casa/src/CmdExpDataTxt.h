@@ -40,6 +40,7 @@ private:
    void exportProxyQC(std::unique_ptr<casa::ScenarioAnalysis>& scenario);
    void exportRSPQuality(std::unique_ptr<casa::ScenarioAnalysis>& scenario);
    void exportMCResults(std::unique_ptr<casa::ScenarioAnalysis>& scenario);
+   void exportSimulationStates(std::unique_ptr<casa::ScenarioAnalysis>& scenario);
    const std::vector<std::vector<double>> rsQualityR2AndR2adj(std::unique_ptr<casa::ScenarioAnalysis>& scenario) const;
    const std::vector<double> rsQualityQ2(std::unique_ptr<casa::ScenarioAnalysis>& scenario);
 

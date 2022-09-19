@@ -1,0 +1,8 @@
+ManualDesignPointManagerVersion|int|0
+manualDesignPoints|vector|2
+manualDesignPoints|11><12
+manualDesignPoints|21><22
+manualDesignPointParameters|int|2
+manualDesignPointCompleted|vector|2
+manualDesignPointCompleted|1
+manualDesignPointCompleted|0

@@ -12,7 +12,7 @@ namespace casaWizard
 namespace ua
 {
 
-RunOptimalCaseScript::RunOptimalCaseScript(const UAScenario& scenario) :
+RunOptimalCaseScript::RunOptimalCaseScript(UAScenario& scenario) :
   DoEScript(scenario),
   scenario_{scenario},
   projectFile_{"Project.project3d"}

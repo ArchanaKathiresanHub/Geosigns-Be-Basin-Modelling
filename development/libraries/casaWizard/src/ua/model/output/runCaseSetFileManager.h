@@ -27,14 +27,14 @@ public:
    explicit RunCaseSetFileManager();
    virtual ~RunCaseSetFileManager() = default;
 
-   void setIterationPath(const QString& project3dPath);
+   void setIterationPath(const QString& runLocationPath);
    double iterationDirFilesSize() const;
-   double allIterationDirsFilesSize(const QString& project3dPath) const;
+   double allIterationDirsFilesSize(const QString& runLocationPath) const;
    bool isIterationDirEmpty() const;
    bool removeIterationDir();
-   bool removeAllIterationDirs(const QString& project3dPath);
+   bool removeAllIterationDirs(const QString& runLocationPath);
    QString iterationDirName() const;
-   bool isIterationDirDeleted(const QString& project3dPath) const;
+   bool isIterationDirDeleted(const QString& runLocationPath) const;
    QString iterationDirPath() const;
    QString caseSetDirPath() const;
 
@@ -43,7 +43,7 @@ public:
    void clear() override;
 
 private:
-   QFileInfoList getIterationPathList(const QString& project3dPath) const;
+   QFileInfoList getIterationPathList(const QString& runLocation) const;
 
    QFileInfo iterationDirFileInfo_;
 };

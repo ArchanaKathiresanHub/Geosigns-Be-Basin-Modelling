@@ -24,12 +24,12 @@ struct PredictionTarget;
 class UAScript : public CasaScript
 {
 public:
-  explicit UAScript(const UAScenario& scenario);
+  explicit UAScript(UAScenario& scenario);
   const CasaScenario& scenario() const override;
   QString workingDirectory() const override;
 
 protected:
-  const UAScenario& uaScenario() const;
+  UAScenario& uaScenario() const;
   QString writeResponse(const QString& doeList) const;
   QString writeExportDataTxt(const QString& exportDataType, const QString& textFileName,
                                    const QString& doeList = "", const QString& proxyName = "") const;
@@ -41,7 +41,7 @@ protected:
 
 private:
   bool validateScenario() const override;
-  const UAScenario& scenario_;
+  UAScenario& scenario_;
   const Proxy& proxy_;
 
   QString writeCalibrationTarget(const CalibrationTarget& target, const Well* well) const;

@@ -1,10 +1,20 @@
+//
+// Copyright (C) 2022 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 // Model to manage the manual design points
 // Design points that are marked as completed can not be deleted
 #pragma once
 
+#include "ManualDesignPoint.h"
 #include "model/writable.h"
 
 #include <QVector>
+#include <QMap>
 
 namespace casaWizard
 {
@@ -19,20 +29,25 @@ public:
 
    void addDesignPoint();
    bool addDesignPoint(const QVector<double> newPoint);
-   void removeDesignPoint(const int index);
+   void removeDesignPoint(const int visiblePointIndex);
 
    void addInfluentialParameter(const int amount = 1);
    void removeInfluentialParameter(const int index);
 
-   int numberOfPoints() const;
+   int numberOfVisiblePoints() const;
    int numberOfParameters() const;
 
-   void completeAll();
-   void setParameterValue(const int designPoint, const int parameterIndex, const double value);
+   void readAndSetCompletionStates(const QString& stateFileName, const QString& doeIndicesFileName, const QStringList& namesDoeOptionsSelected);
+
+   void setCompleted(int idx, bool completionState = true);
+   bool isCompleted(int visiblePointIndex) const;
+   void setAllIncomplete();
+   void removeHiddenPoints();
+   void setParameterValue(const int visiblePointIndex, const int parameterIndex, const double value);
 
    int numberOfCasesToRun() const;
 
-   QVector<double> getDesignPoint(const int index) const;
+   QVector<QVector<double>> pointsToRun() const;
    QVector<QVector<double>> parameters() const;
    QVector<bool> completed() const;
 
@@ -44,11 +59,13 @@ private:
    ManualDesignPointManager(const ManualDesignPointManager&) = delete;
    ManualDesignPointManager& operator=(ManualDesignPointManager) = delete;
 
+   void updateVisualIndexToPointIndexMap();
    bool pointTooCloseToExistingPoints(const QVector<double> point) const;
 
-   QVector<QVector<double>> influentialParameterValues_;
-   QVector<bool> m_completed;
-   int numberOfParameters_;
+   QMap<int,int> m_visualIndexToPointIndexMap;
+
+   QVector<ManualDesignPoint> m_manualDesignPoints;
+   int m_numberOfParameters;
 };
 
 } // namespace ua

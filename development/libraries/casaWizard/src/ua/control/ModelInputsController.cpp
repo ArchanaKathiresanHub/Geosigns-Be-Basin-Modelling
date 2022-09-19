@@ -20,6 +20,7 @@
 #include "model/script/doeScript.h"
 #include "model/stagesUA.h"
 #include "model/uaScenario.h"
+#include "model/input/dataFileParser.h"
 #include "model/output/cmbProjectWriter.h"
 #include "model/output/runCaseSetFileManager.h"
 #include "model/output/workspaceGenerator.h"
@@ -38,6 +39,8 @@
 #include <QTableWidgetItem>
 #include <QVector>
 
+#include <assert.h>
+
 namespace casaWizard
 {
 
@@ -45,9 +48,9 @@ namespace ua
 {
 
 ModelInputsController::ModelInputsController(ModelInputsTab* modelInputsTab,
-                             UAScenario& casaScenario,
-                             ScriptRunController& scriptRunController,
-                             QObject* parent) :
+                                             UAScenario& casaScenario,
+                                             ScriptRunController& scriptRunController,
+                                             QObject* parent) :
    QObject(parent),
    m_modelInputsTab{modelInputsTab},
    m_casaScenario{casaScenario},
@@ -62,7 +65,6 @@ ModelInputsController::ModelInputsController(ModelInputsTab* modelInputsTab,
 
    slotUpdateDoeOptionTable();
 
-   connect(parent, SIGNAL(signalProjectOpened()),   this, SLOT(slotUpdateIterationDir()));
    connect(parent, SIGNAL(signalUpdateTabGUI(int)), this, SLOT(slotUpdateTabGUI(int)));
 
    connect(m_modelInputsTab->pushButtonDoeRunCASA(),    SIGNAL(clicked()),                          this, SLOT(slotPushButtonDoErunCasaClicked()));
@@ -82,14 +84,11 @@ ModelInputsController::ModelInputsController(ModelInputsTab* modelInputsTab,
    connect(m_manualDesignPointController,       SIGNAL(designPointsChanged()),              this, SLOT(slotManualDesignPointsChanged()));
 }
 
-void ModelInputsController::slotUpdateIterationDir()
+void ModelInputsController::resetDoEStage()
 {
-   RunCaseSetFileManager& runCaseSetFileManager = m_casaScenario.runCaseSetFileManager();
-   runCaseSetFileManager.setIterationPath(m_casaScenario.project3dPath());
-}
-
-void ModelInputsController::setDoEstageIncomplete()
-{
+   //When re-performing the DoE stage, the old casa state is no longer used, thus the manual design points should all be unlocked.
+   m_casaScenario.manualDesignPointManager().setAllIncomplete();
+   m_casaScenario.manualDesignPointManager().removeHiddenPoints();
    m_casaScenario.setStageComplete(StageTypesUA::doe, false);
    m_casaScenario.setStageComplete(StageTypesUA::responseSurfaces, false);
    m_casaScenario.setStageComplete(StageTypesUA::mcmc, false);
@@ -105,11 +104,10 @@ void ModelInputsController::slotUpdateTabGUI(int tabID)
    m_modelInputsTab->setEnabled(true);
    if (m_casaScenario.isStageComplete(StageTypesUA::doe))
    {
-      const RunCaseSetFileManager& runCaseSetFileManager = m_casaScenario.runCaseSetFileManager();
-      if (runCaseSetFileManager.isIterationDirDeleted(m_casaScenario.project3dPath()))
+      if (!m_casaScenario.iterationDirExists())
       {
-         m_modelInputsTab->setEnabled(false);
-         Logger::log() << "Disabled DoE tab!" << Logger::endl();
+         m_casaScenario.clear();
+         Logger::log() << "Error: Invalid iteration directory. Could not continue the workflow." << Logger::endl();
       }
    }
    else
@@ -149,13 +147,29 @@ void ModelInputsController::refreshGUI()
 bool ModelInputsController::buttonRunAddedCasesShouldBeDisabled()
 {
    ManualDesignPointManager& designPointManager = m_casaScenario.manualDesignPointManager();
-   return m_casaScenario.isStageComplete(StageTypesUA::doe) ||  designPointManager.numberOfCasesToRun() == 0;
+   return !m_casaScenario.isStageComplete(StageTypesUA::doe) ||  designPointManager.numberOfCasesToRun() == 0 || !doeOptionUserDefinedSelectionState();
+}
+
+bool ModelInputsController::doeOptionUserDefinedSelectionState()
+{
+   QVector<DoeOption*> doeOptions = m_casaScenario.doeOptions();
+   QVector<bool> selectionState = m_casaScenario.isDoeOptionSelected();
+   assert(doeOptions.size() == selectionState.size());
+
+   for (int i = 0; i<doeOptions.size(); i++)
+   {
+      if (doeOptions[i]->name() == "UserDefined")
+      {
+         return selectionState[i];
+      }
+   }
+   return false;
 }
 
 bool ModelInputsController::buttonDoERunShouldBeDisabled()
 {
    ManualDesignPointManager& designPointManager = m_casaScenario.manualDesignPointManager();
-   return m_casaScenario.isStageComplete(StageTypesUA::doe) || (m_casaScenario.doeSelected().isEmpty() && designPointManager.numberOfPoints() == 0);
+   return m_casaScenario.isStageComplete(StageTypesUA::doe) || (m_casaScenario.doeSelected().isEmpty() && designPointManager.numberOfVisiblePoints() == 0);
 }
 
 void ModelInputsController::slotUpdateDoeOptionTable()
@@ -164,7 +178,7 @@ void ModelInputsController::slotUpdateDoeOptionTable()
    m_casaScenario.updateDoeConstantNumberOfDesignPoints(manager.totalNumberOfInfluentialParameters());
    m_modelInputsTab->updateDoeOptionTable(m_casaScenario.doeOptions(), m_casaScenario.isDoeOptionSelected());
 
-   setDoEstageIncomplete();
+   resetDoEStage();
 }
 
 void ModelInputsController::slotUpdateDesignPointTable()
@@ -176,7 +190,7 @@ void ModelInputsController::slotUpdateDesignPointTable()
 
    m_manualDesignPointController->updateInfluentialParameters(numberNew, names);
 
-   setDoEstageIncomplete();
+   resetDoEStage();
 }
 
 void ModelInputsController::slotPushButtonDoErunCasaClicked()
@@ -189,7 +203,7 @@ void ModelInputsController::slotPushButtonDoErunCasaClicked()
 
    scenarioBackup::backup(m_casaScenario);
    ManualDesignPointManager& designPointManager = m_casaScenario.manualDesignPointManager();
-   if (m_casaScenario.doeSelected().isEmpty() && designPointManager.numberOfPoints() == 0)
+   if (m_casaScenario.doeSelected().isEmpty() && designPointManager.numberOfVisiblePoints() == 0)
    {
       Logger::log() << "Nothing to be done. At least one doe must be selected (non selected) or one design point must be added" << Logger::endl();
       return;
@@ -204,36 +218,39 @@ void ModelInputsController::slotPushButtonDoErunCasaClicked()
    {
       return;
    }
-   designPointManager.completeAll();
+
+   QString stateFileName = m_casaScenario.workingDirectory() + "/" + m_casaScenario.simStatesTextFileName();
+   QString doeIndicesFileName = m_casaScenario.workingDirectory() + "/" + m_casaScenario.doeIndicesTextFileName();
+   try
+   {
+      designPointManager.readAndSetCompletionStates(stateFileName, doeIndicesFileName, m_casaScenario.doeOptionSelectedNames());
+   }
+   catch (std::exception e)
+   {
+      Logger::log() << e.what() << Logger::endl();
+   }
 
    m_casaScenario.setStageComplete(StageTypesUA::doe, true);
 
+   m_casaScenario.updateIterationDir();
    m_casaScenario.copyToIterationDir(m_casaScenario.stateFileNameDoE());
 
-   slotUpdateIterationDir();
    slotUpdateTabGUI(static_cast<int>(TabID::DoE));
-
    scenarioBackup::backup(m_casaScenario);
 }
 
 void ModelInputsController::slotPushButtonRunAddedCasesClicked()
 {
-   if (m_casaScenario.isStageComplete(StageTypesUA::doe))
+   if (!m_casaScenario.isStageComplete(StageTypesUA::doe))
    {
-      Logger::log() << "Nothing to be done. DoE is already run with current settings" << Logger::endl();
+      Logger::log() << "Run DoE before running added cases." << Logger::endl();
       return;
    }
 
    scenarioBackup::backup(m_casaScenario);
    ManualDesignPointManager& designPointManager = m_casaScenario.manualDesignPointManager();
-   QVector<bool> completed = designPointManager.completed();
 
-   int numberToRun{0};
-   for (const bool b : completed)
-   {
-      numberToRun += b ? 0 : 1;
-   }
-   if (numberToRun == 0)
+   if (designPointManager.numberOfCasesToRun() == 0)
    {
       Logger::log() << "There are no manual design points to be run." << Logger::endl();
       return;
@@ -245,13 +262,25 @@ void ModelInputsController::slotPushButtonRunAddedCasesClicked()
    {
       return;
    }
-   designPointManager.completeAll();
 
-   m_casaScenario.setStageComplete(StageTypesUA::doe);
+   //Following stages should be unlocked, but reset.
+   m_casaScenario.setStageUpToDate(StageTypesUA::doe, true);
+   m_casaScenario.setStageComplete(StageTypesUA::doe, true);
+   m_casaScenario.setStageComplete(StageTypesUA::responseSurfaces, false);
+   m_casaScenario.setStageComplete(StageTypesUA::mcmc, false);
 
-   slotUpdateIterationDir();
+   QString stateFileName = m_casaScenario.workingDirectory() + "/" + m_casaScenario.simStatesTextFileName();
+   QString doeIndicesFileName = m_casaScenario.workingDirectory() + "/" + m_casaScenario.doeIndicesTextFileName();
+   try
+   {
+      designPointManager.readAndSetCompletionStates(stateFileName, doeIndicesFileName, m_casaScenario.doeOptionSelectedNames());
+   }
+   catch (std::exception e)
+   {
+      Logger::log() << e.what() << Logger::endl();
+   }
+
    slotUpdateTabGUI(static_cast<int>(TabID::DoE));
-
    scenarioBackup::backup(m_casaScenario);
 }
 
@@ -287,7 +316,7 @@ void ModelInputsController::slotPushSelectProject3dClicked()
       return;
    }
 
-   setDoEstageIncomplete();
+   resetDoEStage();
 
    m_casaScenario.setWorkingDirectory(popupWorkspace.optionSelected());
    m_casaScenario.setProject3dFileNameAndLoadFile(fileName);
@@ -303,14 +332,14 @@ void ModelInputsController::slotPushSelectProject3dClicked()
 
 void ModelInputsController::slotComboBoxApplicationCurrentTextChanged(const QString& applicationName)
 {
-   setDoEstageIncomplete();
+   resetDoEStage();
    m_casaScenario.setApplicationName(applicationName);
    refreshGUI();
 }
 
 void ModelInputsController::slotLineEditProject3dTextChanged(const QString& project3dPath)
 {
-   setDoEstageIncomplete();
+   resetDoEStage();
    m_casaScenario.setProject3dFileNameAndLoadFile(project3dPath);
    refreshGUI();
 }
@@ -323,13 +352,12 @@ void ModelInputsController::slotSpinBoxCpusValueChanged(int cpus)
 void ModelInputsController::slotSpinBoxSubSamplingValueChanged(int subSamplingFactor)
 {
    m_casaScenario.setSubSamplingFactor(subSamplingFactor);
-   setDoEstageIncomplete();
+   resetDoEStage();
    refreshGUI();
 }
 
 void ModelInputsController::slotManualDesignPointsChanged()
 {
-   setDoEstageIncomplete();
    m_casaScenario.setNumberOfManualDesignPoints();
    refreshGUI();
 }
@@ -341,10 +369,21 @@ void ModelInputsController::slotComboBoxClusterCurrentTextChanged(const QString&
 
 void ModelInputsController::slotDoeSelectionItemChanged(QTableWidgetItem* item)
 {
-   setDoEstageIncomplete();
    if (item->column() == m_modelInputsTab->columnIndexCheckBoxDoeOptionTable())
    {
       m_casaScenario.setIsDoeOptionSelected(item->row(), item->checkState() == Qt::Checked);
+      QVector<DoeOption*> doeOptions = m_casaScenario.doeOptions();
+      QVector<bool> selectionState = m_casaScenario.isDoeOptionSelected();
+      if (doeOptions[item->row()]->name() != "UserDefined")
+      {
+         resetDoEStage();
+      }
+      else
+      {  //Selecting or deselecting UserDefined points should only clear the following stages but should not lock them.
+         m_casaScenario.setStageUpToDate(StageTypesUA::doe, false);
+         m_casaScenario.setStageComplete(StageTypesUA::responseSurfaces, false);
+         m_casaScenario.setStageComplete(StageTypesUA::mcmc, false);
+      }
    }
    else if (item->column() == m_modelInputsTab->columnIndexNDesignPointsDoeOptionTable() && !m_casaScenario.doeOptions()[item->row()]->hasCalculatedDesignPoints())
    {

@@ -45,7 +45,6 @@ private slots:
 
   void slotUpdateDesignPointTable();
   void slotUpdateDoeOptionTable();
-  void slotUpdateIterationDir();
   void slotUpdateTabGUI(int tabID);
 
 signals:
@@ -53,10 +52,11 @@ signals:
 
 private:
   void refreshGUI();
-  void setDoEstageIncomplete();
-
+  void resetDoEStage();
   bool buttonRunAddedCasesShouldBeDisabled();
   bool buttonDoERunShouldBeDisabled();
+
+  bool doeOptionUserDefinedSelectionState();
 
   ModelInputsTab* m_modelInputsTab;
   UAScenario& m_casaScenario;

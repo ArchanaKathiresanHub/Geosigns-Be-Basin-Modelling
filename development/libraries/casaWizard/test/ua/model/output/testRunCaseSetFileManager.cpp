@@ -27,20 +27,17 @@ protected:
   void SetUp() final
   {
     caseSetPath_ = QDir::currentPath() + "/CaseSet";
-    dirCaseSetPath_.setPath(caseSetPath_);
-
-    if (dirCaseSetPath_.exists())
+    QDir dirCaseSetPath(caseSetPath_);
+    if (dirCaseSetPath.exists())
     {
-      dirCaseSetPath_.removeRecursively();
+      dirCaseSetPath.removeRecursively();
     }
 
-    EXPECT_TRUE(dirCaseSetPath_.mkpath(caseSetPath_));
+    EXPECT_TRUE(dirCaseSetPath.mkpath(caseSetPath_));
 
     sizeLastIterationDirFiles_ = createIterationDir(1);
     sizeAllDirsFiles_ = sizeLastIterationDirFiles_;
-
-    proj3dPath_ = QDir::currentPath() + QString("/Project.project3d");
-    rcFileManager_.setIterationPath(proj3dPath_);
+    rcFileManager_.setIterationPath(caseSetPath_);
   }
 
   void createFile(const QString& filePath)
@@ -72,8 +69,6 @@ protected:
   double sizeLastIterationDirFiles_;
   double sizeAllDirsFiles_;
   QString caseSetPath_;
-  QDir dirCaseSetPath_;
-  QString proj3dPath_;
   casaWizard::ua::RunCaseSetFileManager rcFileManager_;
 };
 
@@ -84,11 +79,11 @@ TEST_F( RunCaseSetFileManager, testFileWriteRead )
   writer.close();
 
   casaWizard::ua::RunCaseSetFileManager rcFileManagerForReading;
+
   casaWizard::ScenarioReader reader{"runCaseSetFileManager.dat"};
   rcFileManagerForReading.readFromFile(reader);
-  const QString& iterationDirPathExpected = rcFileManager_.iterationDirPath();
   const QString& iterationDirPathActual = rcFileManagerForReading.iterationDirPath();
-  EXPECT_EQ(iterationDirPathExpected, iterationDirPathActual);
+  EXPECT_EQ("/CaseSet/" + rcFileManager_.iterationDirName(), iterationDirPathActual);
 }
 
 TEST_F( RunCaseSetFileManager, testIterationDirSize )
@@ -99,14 +94,14 @@ TEST_F( RunCaseSetFileManager, testIterationDirSize )
   EXPECT_NEAR(dirFilesSizeExpected, dirFilesSizeActual, epsilon);
 
   const double dirSizeExpected = createIterationDir(2);
-  rcFileManager_.setIterationPath(proj3dPath_);
+  rcFileManager_.setIterationPath(caseSetPath_);
   const double dirSizeActual = rcFileManager_.iterationDirFilesSize();
   EXPECT_NEAR(dirSizeExpected, dirSizeActual, epsilon);
   sizeAllDirsFiles_ += dirSizeExpected;
 
   // Size of all the files for all directories
   const double allDirsFilesSizeExpected = sizeAllDirsFiles_;
-  const double allDirsFilesSizeSizeActual = rcFileManager_.allIterationDirsFilesSize(proj3dPath_);
+  const double allDirsFilesSizeSizeActual = rcFileManager_.allIterationDirsFilesSize(caseSetPath_);
   EXPECT_NEAR(allDirsFilesSizeExpected, allDirsFilesSizeSizeActual, epsilon);
 }
 
@@ -124,21 +119,21 @@ TEST_F( RunCaseSetFileManager, testIterationDirName )
 
 TEST_F( RunCaseSetFileManager, testIsIterationDirDeleted )
 {
-  EXPECT_FALSE(rcFileManager_.isIterationDirDeleted(proj3dPath_));
+  EXPECT_FALSE(rcFileManager_.isIterationDirDeleted(caseSetPath_));
 }
 
 TEST_F( RunCaseSetFileManager, testRemoveIterationDir )
 {
   EXPECT_TRUE(rcFileManager_.removeIterationDir());
-  EXPECT_TRUE(rcFileManager_.isIterationDirDeleted(proj3dPath_));
+  EXPECT_TRUE(rcFileManager_.isIterationDirDeleted(caseSetPath_));
 }
 
 TEST_F( RunCaseSetFileManager, testRemoveAllIterationDirs )
 {
   const double dirSizeExpected = createIterationDir(2);
-  rcFileManager_.setIterationPath(proj3dPath_);
+  rcFileManager_.setIterationPath(caseSetPath_);
   const double dirSizeActual = rcFileManager_.iterationDirFilesSize();
   EXPECT_NEAR(dirSizeExpected, dirSizeActual, epsilon);
-  EXPECT_TRUE(rcFileManager_.removeAllIterationDirs(proj3dPath_));
-  EXPECT_NEAR(rcFileManager_.allIterationDirsFilesSize(proj3dPath_), 0.0, epsilon);
+  EXPECT_TRUE(rcFileManager_.removeAllIterationDirs(caseSetPath_));
+  EXPECT_NEAR(rcFileManager_.allIterationDirsFilesSize(caseSetPath_), 0.0, epsilon);
 }

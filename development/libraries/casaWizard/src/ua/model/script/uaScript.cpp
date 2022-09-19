@@ -21,7 +21,7 @@ namespace ua
 {
 
 
-UAScript::UAScript(const UAScenario& scenario) :
+UAScript::UAScript(UAScenario& scenario) :
    CasaScript{scenario.workingDirectory()},
    scenario_{scenario},
    proxy_{scenario_.proxy()}
@@ -38,7 +38,7 @@ const CasaScenario& UAScript::scenario() const
    return scenario_;
 }
 
-const UAScenario& UAScript::uaScenario() const
+UAScenario& UAScript::uaScenario() const
 {
    return scenario_;
 }
@@ -52,17 +52,6 @@ bool UAScript::validateScenario() const
        !runFolderDir.isReadable())
    {
       return false;
-   }
-
-   QString dirName{""};
-
-   for (const QFileInfo& finfo : runFolderDir.entryInfoList())
-   {
-      const std::string name = finfo.fileName().toStdString();
-      if (name.find("Iteration_") == 0)
-      {
-         dirName = QString::fromStdString(name);
-      }
    }
 
    const QString absolutePathStateFile = runFolderStr + "/" + scenario_.iterationDirName() + "/" + scenario_.stateFileNameDoE();

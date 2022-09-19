@@ -256,7 +256,7 @@ namespace casa
 
       oss << "\n\n";
 
-      // add to scrip checking of the return code of the mpirun. If it is 0 - create file Stage_X.sh.success, or Stage_X.ch.failed otherwise
+      // add to script checking of the return code of the mpirun. If it is 0 - create file Stage_X.sh.success, or Stage_X.ch.failed otherwise
       switch ( m_sh )
       {
       case bash: oss << "if [ $? -eq 0 ];    then\n   touch $(basename $BASH_SOURCE).success\n   exit 0\nelse\n   touch $(basename $BASH_SOURCE).failed\n   exit 1\nfi\n";    break;
@@ -298,7 +298,9 @@ namespace casa
              << "if [ ! -e $APP ]; then\n"
              << "   APP=" << m_version << "/projdiff\n"
              << "fi\n"
-             << "if [ ! -e $APP ]; then\n   echo Could not find application executable: ${APP}\n   exit 1\nfi\n\nallOk=0;\n\n";
+             << "if [ ! -e $APP ]; then\n "
+             << "touch $(basename $BASH_SOURCE).failed\n"
+             << "echo Could not find application executable: ${APP}\n   exit 1\nfi\n\nallOk=0;\n\n";
          break;
 
       case cmd:
@@ -446,6 +448,7 @@ namespace casa
          }
 
          oss << "if [ ! -e $APP ]; then\n"
+            << "   touch $(basename $BASH_SOURCE).failed\n"
             << "   echo Could not find application ${APP}\n"
             << "   exit 1\n"
             << "fi\n\n";

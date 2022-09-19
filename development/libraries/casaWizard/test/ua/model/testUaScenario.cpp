@@ -37,6 +37,7 @@ TEST( UAScenarioTest, TestWriteReadVersion0 )
 
    //Step is performed in read, thus is needed to ensure that written and read state is equal.
    writeScenario.updateDoeConstantNumberOfDesignPoints(ipManagerWrite.totalNumberOfInfluentialParameters());
+   writeScenario.updateStateFileNameDoE();
    {
       casaWizard::ScenarioWriter writer{"scenario.dat"};
       writeScenario.writeToFile(writer);
@@ -46,7 +47,6 @@ TEST( UAScenarioTest, TestWriteReadVersion0 )
    casaWizard::ua::UAScenario readScenario{new casaWizard::StubProjectReader()};
    casaWizard::ScenarioReader reader{"scenario.dat"};
    readScenario.readFromFile(reader);
-
    {
       casaWizard::ScenarioWriter writer{"scenarioRead.dat"};
       readScenario.writeToFile(writer);
@@ -65,6 +65,8 @@ TEST( UAScenarioTest, TestWriteReadVersion0 )
 
    const casaWizard::ua::PredictionTargetManager& ptManagerRead = readScenario.predictionTargetManager();
    const QVector<const casaWizard::ua::PredictionTarget*> targets = ptManagerRead.predictionTargets();
+
+   EXPECT_EQ(writeScenario.stateFileNameDoE(),readScenario.stateFileNameDoE());
 
    ASSERT_EQ(targets.size(), 2);
 
@@ -134,10 +136,11 @@ TEST( UAScenarioTest, TestWriteReadVersion1 )
    const casaWizard::ua::ManualDesignPointManager& mdpManagerRead = readScenario.manualDesignPointManager();
 
    ASSERT_EQ(3, mdpManagerRead.numberOfParameters());
-   ASSERT_EQ(2, mdpManagerRead.numberOfPoints());
+   ASSERT_EQ(2, mdpManagerRead.numberOfVisiblePoints());
 
-   QVector<double> designPoint0 = mdpManagerRead.getDesignPoint(0);
-   QVector<double> designPoint1 = mdpManagerRead.getDesignPoint(1);
+   QVector<QVector<double>> pointsToRun = mdpManagerRead.parameters();
+   QVector<double> designPoint0 = pointsToRun[0];
+   QVector<double> designPoint1 = pointsToRun[1];
 
    EXPECT_EQ(10, readScenario.subSamplingFactor());
    EXPECT_EQ(5, readScenario.baseSubSamplingFactor());
@@ -298,7 +301,7 @@ TEST(UAScenarioTest, copyToIterationDir)
    QFile file(filePath);
    file.open(QFile::OpenModeFlag::WriteOnly);
    file.close();
-
+   scenario.updateIterationDir();
    scenario.copyToIterationDir(fileName);
 
    //File should be copied to testDirpath. Old file should be removed:
@@ -345,4 +348,37 @@ TEST(UAScenarioTest, stageStates)
    EXPECT_FALSE(scenario.isStageUpToDate(StageTypesUA::doe));
 }
 
+TEST(UAScenarioTest, updateStateFileNameDoE)
+{
+   UAScenario scenario(new casaWizard::StubProjectReader());
+   QString stateFileName = scenario.updateStateFileNameDoE();
+   QString sameStateFileName = scenario.stateFileNameDoE();
+   EXPECT_EQ(stateFileName,sameStateFileName);
+
+   QString otherStateFileName = scenario.updateStateFileNameDoE();
+   EXPECT_NE(stateFileName,otherStateFileName);
+}
+
+TEST(UAScenarioTest, simStatesTextFileName)
+{
+   UAScenario scenario(new casaWizard::StubProjectReader());
+   QString name = scenario.simStatesTextFileName();
+
+   //Changing the name should be no problem for the application, as long as the name is not empty. Therefore we only test for that.
+   EXPECT_TRUE(name != "");
+}
+
+TEST(UAScenarioTest, iterationDirExists)
+{
+   UAScenario scenario(new casaWizard::StubProjectReader());
+   scenario.setWorkingDirectory(QDir::currentPath());
+   EXPECT_FALSE(scenario.iterationDirExists());
+
+   QDir tmpTestDir(QDir::currentPath() + "/CaseSet");
+   tmpTestDir.removeRecursively();
+   tmpTestDir.mkpath(QDir::currentPath() + "/CaseSet/Iteration1");
+   scenario.updateIterationDir();
+   EXPECT_TRUE(scenario.iterationDirExists());
+   tmpTestDir.removeRecursively();
+}
 

@@ -12,6 +12,7 @@ target XYZPoint V 1000 1500 400 0.0 1.0 1.0
 runDataDigger
 response "proxySecondOrderGlobalKriging" "Tornado" 2 Global
 exportDataTxt "DoeIndices" "doeIndices.txt"
+exportDataTxt "RunCasesSimulationStates" "RunCasesSimulationStates.txt"
 exportDataTxt "RunCasesObservables" "runCasesObservables.txt"
 exportDataTxt "ProxyEvalObservables" "proxyEvalObservables.txt" "Tornado" "proxySecondOrderGlobalKriging"
 exportDataTxt "ProxyEvaluateQuality" "proxyEvalQuality.txt" "Tornado" "proxySecondOrderGlobalKriging"

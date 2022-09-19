@@ -10,21 +10,23 @@
 class OptimalCaseScriptTest : public SetupTestCasaScript
 {
 public:
-  OptimalCaseScriptTest()
-  {
-    scenario.setStateFileNameMCMC("stateFileTestCasaScriptMCMC.txt");
-    stateFile_ = scenario.stateFileNameMCMC().toStdString();
-  }
+   OptimalCaseScriptTest()
+   {
+      scenario.setStateFileNameMCMC("stateFileTestCasaScriptMCMC.txt");
+      stateFile_ = scenario.stateFileNameMCMC().toStdString();
+   }
 };
 
 TEST_F(OptimalCaseScriptTest, testWriteScript)
 {
-  const std::string expectedFile{"OptimalCaseScriptExpected.casa"};
-  const std::string actualFile{"optimalCaseScript.casa"};
+   const std::string expectedFile{"OptimalCaseScriptExpected.casa"};
+   const std::string actualFile{"optimalCaseScript.casa"};
 
-  casaWizard::ua::OptimalCaseScript script(scenario);
+   scenario.updateIterationDir();
 
-  EXPECT_TRUE(script.writeScript());
+   casaWizard::ua::OptimalCaseScript script(scenario);
 
-  expectFileEq(expectedFile, actualFile);
+   EXPECT_TRUE(script.writeScript());
+
+   expectFileEq(expectedFile, actualFile);
 }

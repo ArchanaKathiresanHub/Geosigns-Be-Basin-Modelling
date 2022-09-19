@@ -324,7 +324,19 @@ void UAResultsController::slotPushButtonRunOptimalCasesClicked()
    {
       return;
    }
-   m_casaScenario.manualDesignPointManager().completeAll();
+
+   QString stateFileName = m_casaScenario.workingDirectory() + "/" + m_casaScenario.simStatesTextFileName();
+   QString doeIndicesFileName = m_casaScenario.workingDirectory() + "/" + m_casaScenario.doeIndicesTextFileName();
+   try
+   {
+      m_casaScenario.manualDesignPointManager().readAndSetCompletionStates(stateFileName,
+                                                                           doeIndicesFileName,
+                                                                           m_casaScenario.doeOptionSelectedNames());
+   }
+   catch (std::exception e)
+   {
+      Logger::log() << e.what() << Logger::endl();
+   }
 
    try
    {

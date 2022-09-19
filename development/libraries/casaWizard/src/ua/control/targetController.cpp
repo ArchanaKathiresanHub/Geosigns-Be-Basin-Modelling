@@ -73,8 +73,7 @@ void TargetController::slotUpdateTabGUI(int tabID)
 
    if (scenario_.isStageComplete(StageTypesUA::doe))
    {
-      const RunCaseSetFileManager& runCaseSetFileManager = scenario_.runCaseSetFileManager();
-      targetTab_->setEnabled(!runCaseSetFileManager.isIterationDirDeleted(scenario_.project3dPath()));
+      targetTab_->setEnabled(scenario_.iterationDirExists());
    }
    else
    {

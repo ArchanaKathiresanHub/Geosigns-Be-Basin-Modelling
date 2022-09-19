@@ -12,7 +12,7 @@ namespace casaWizard
 namespace ua
 {
 
-McmcScript::McmcScript(const UAScenario& scenario) :
+McmcScript::McmcScript(UAScenario& scenario) :
   UAScript{scenario}
 {
 }

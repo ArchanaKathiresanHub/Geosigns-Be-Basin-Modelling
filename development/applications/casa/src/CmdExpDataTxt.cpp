@@ -41,6 +41,11 @@ template<> void writeOutputStream<size_t>(const size_t myRes, std::ofstream & of
    ofs << myRes << " ";
 }
 
+template<> void writeOutputStream<bool>(const bool myRes, std::ofstream & ofs)
+{
+   ofs << myRes << " ";
+}
+
 CmdExpDataTxt::CmdExpDataTxt(CasaCommander & parent, const std::vector<std::string>& cmdPrms)
    : CasaCmd(parent, cmdPrms)
 {
@@ -58,7 +63,7 @@ CmdExpDataTxt::CmdExpDataTxt(CasaCommander & parent, const std::vector<std::stri
       // convert list of DoEs or data files like: "Tornado,BoxBenken" into array of names
       if (m_prms.size() > 2) { m_expList = CfgFileParser::list2array(m_prms[2], ','); }
    }
-   else if ( m_whatToSave == "RunCasesObservables" || m_whatToSave == "DoeIndices" )
+   else if ( m_whatToSave == "RunCasesObservables" || m_whatToSave == "DoeIndices" || m_whatToSave == "RunCasesSimulationStates")
    {
       if (m_prms.size() > 2)
       {
@@ -101,6 +106,7 @@ void CmdExpDataTxt::execute(std::unique_ptr<casa::ScenarioAnalysis>& scenario)
    else if (m_whatToSave == "ProxyQC"             ) { exportProxyQC(   scenario); }
    else if (m_whatToSave == "ProxyEvaluateQuality") { exportRSPQuality(scenario); }
    else if (m_whatToSave == "MCResults"           ) { exportMCResults( scenario); }
+   else if (m_whatToSave == "RunCasesSimulationStates") { exportSimulationStates( scenario); }
 
    LogHandler(LogHandler::INFO_SEVERITY) << "Exporting CASA results succeeded.";
 }
@@ -387,4 +393,28 @@ void CmdExpDataTxt::exportMCResults(std::unique_ptr<casa::ScenarioAnalysis>& sce
       rsmpl.insert(rsmpl.end(),obsVals.begin(),obsVals.end());
    }
    saveResults(results,&columnNames);
+}
+
+void CmdExpDataTxt::exportSimulationStates(std::unique_ptr<casa::ScenarioAnalysis>& scenario)
+{
+   LogHandler(LogHandler::INFO_SEVERITY) << "Export simulation states of DoEs runs to " << m_dataFileName << "...";
+
+   casa::RunCaseSet & doeCaseSet = scenario->doeCaseSet();
+   std::vector<std::vector<bool>> runCaseStates;
+
+   for ( size_t c = 0; c < doeCaseSet.size(); ++c )
+   {
+
+      if (doeCaseSet.runCase(c)->runStatus() != casa::RunCase::Completed)
+      {
+         runCaseStates.push_back({false});
+      }
+      else
+      {
+         runCaseStates.push_back({true});
+      }
+
+   }
+
+   saveResults(runCaseStates);
 }

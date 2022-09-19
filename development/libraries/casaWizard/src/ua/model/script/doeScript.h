@@ -18,7 +18,7 @@ struct InfluentialParameter;
 class DoEScript : public UAScript
 {
 public:
-  explicit DoEScript(const UAScenario& scenario);
+  explicit DoEScript(UAScenario& scenario);
 
 private:
   void writeScriptContents(QFile& file) const override;

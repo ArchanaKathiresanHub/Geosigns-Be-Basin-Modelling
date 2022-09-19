@@ -1,6 +1,8 @@
 // Function to populate target QC data.
 #pragma once
 
+#include <QVector>
+
 namespace casaWizard
 {
 
@@ -13,6 +15,7 @@ namespace targetQCdataCreator
 {
 
   void readTargetQCs(ua::UAScenario& scenario);
+  void removeObservablesFailedSimulations(QVector<QVector<double>>& observables, const QVector<int>& simulationStates );
 
 } // namespace targetQCdataCreator
 

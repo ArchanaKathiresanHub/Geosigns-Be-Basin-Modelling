@@ -68,15 +68,14 @@ void ManualDesignPointController::slotDeleteButtonClicked()
    int row = m_table->table()->currentRow();
    if (row < 0)
    {
-      row = m_manager.numberOfPoints() - 1;
+      row = m_manager.numberOfVisiblePoints() - 1;
    }
    if (row < 0)
    {
       return;
    }
 
-   QVector<bool> completed = m_manager.completed();
-   if (completed[row])
+   if (m_manager.isCompleted(row))
    {
       Logger::log() << "Design point " << (row + 1) << " cannot be removed because the case has already been run" << Logger::endl();
       return;

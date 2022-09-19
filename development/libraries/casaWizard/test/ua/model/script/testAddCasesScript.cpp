@@ -7,23 +7,28 @@
 
 #include <gtest/gtest.h>
 
-class AddCasesScriptTest : public SetupTestCasaScript
+namespace
 {
-};
+class AddCasesScriptTest : public SetupTestCasaScript
+{};
+}
 
 TEST_F(AddCasesScriptTest, testWriteScript)
 {
-  casaWizard::ua::ManualDesignPointManager& manager = scenario.manualDesignPointManager();
-  manager.completeAll();
-  manager.addDesignPoint({1.4});
+   // user defined doe
+   scenario.setIsDoeOptionSelected(6, true);
 
+   casaWizard::ua::ManualDesignPointManager& manager = scenario.manualDesignPointManager();
+   manager.addInfluentialParameter(1);
+   manager.addDesignPoint({1.4});
 
-  const std::string expectedFile{"AddCasesScriptExpected.casa"};
-  const std::string actualFile{"addCasesScript.casa"};
+   scenario.updateIterationDir();
 
-  casaWizard::ua::AddCasesScript script(scenario);
+   const std::string expectedFile{"AddCasesScriptExpected.casa"};
+   const std::string actualFile{"addCasesScript.casa"};
 
-  EXPECT_TRUE(script.writeScript());
+   casaWizard::ua::AddCasesScript script(scenario);
+   EXPECT_TRUE(script.writeScript());
 
-  expectFileEq(expectedFile, actualFile);
+   expectFileEq(expectedFile, actualFile,{8});
 }

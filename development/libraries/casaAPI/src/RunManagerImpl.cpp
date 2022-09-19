@@ -375,7 +375,10 @@ ErrorHandler::ReturnCode RunManagerImpl::runScheduledCases( int updateStateTimeI
 
       do
       {
-         if ( stopExecution() ) { return stopAllSubmittedJobs(); }
+         if ( stopExecution() )
+         {
+            return stopAllSubmittedJobs();
+         }
 
          // loop over all cases
          for ( size_t i = 0; i < m_jobs.size(); ++i )
@@ -676,12 +679,6 @@ bool RunManagerImpl::save( CasaSerializer & sz ) const
    }
 
    ok = ok ? sz.save( *m_jobSched.get(), "JobScheduler"  ) : ok;
-   ok = ok ? sz.save( m_jobs.size(),     "NumberOfCases" ) : ok;
-
-   for ( size_t i = 0; i < m_jobs.size() && ok; ++i )
-   {
-      ok = ok ? sz.save( m_jobs[i], "CaseJobsQueueIDs" ) : ok;
-   }
 
    // save array of run case object ids, the size of array exactly the same as m_jobs size
    assert( m_jobs.size() == m_cases.size() );
@@ -717,14 +714,6 @@ RunManagerImpl::RunManagerImpl( CasaDeserializer & dz, const char * objName )
 
    m_jobSched.reset( ok ? JobScheduler::load( dz, "JobScheduler" ) : 0 );
    ok = ok ? (m_jobSched.get() ? true : false) : ok;
-
-   size_t sz = 0;
-   ok = ok ? dz.load( sz, "NumberOfCases" ) : ok;
-   for ( size_t i = 0; i < sz && ok; ++i )
-   {
-      m_jobs.push_back( std::vector<size_t>() );
-      ok = ok ? dz.load( m_jobs.back(), "CaseJobsQueueIDs" ) : ok;
-   }
 
    // load array of run case object ids, the size of array exactly the same as m_jobs size
    for ( size_t i = 0; i < m_jobs.size() && ok; ++i )

@@ -10,6 +10,7 @@
 #include "model/SurfaceToDepthConverter.h"
 #include "model/logger.h"
 #include "model/output/runCaseSetFileManager.h"
+#include "model/output/workspaceGenerator.h"
 
 #include <QDateTime>
 #include <QDir>
@@ -17,11 +18,18 @@
 
 namespace casaWizard
 {
+
+namespace
+{
+int s_stateFileIncrement(0); //To ensure that two state files never have the same name, even if created within the same second.
+}
+
 namespace ua
 {
 
 UAScenario::UAScenario(ProjectReader* projectReader) :
    CasaScenario(projectReader),
+   m_stateFileNameDoEBase{"casaStateDoE.txt"},
    m_stateFileNameDoE{"casaStateDoE.txt"},
    m_stateFileNameQC{"casaStateQC.txt"},
    m_stateFileNameMCMC{"casaStateMCMC.txt"},
@@ -30,6 +38,7 @@ UAScenario::UAScenario(ProjectReader* projectReader) :
    m_proxyEvaluationObservablesTextFileName{"proxyEvalObservables.txt"},
    m_proxyQualityEvaluationTextFileName{"proxyEvalQuality.txt"},
    m_doeTextFileName{"doeResults.txt"},
+   m_simStatesTextFileName{"RunCasesSimulationStates.txt"},
    m_mcTextFileName{"mcResults.txt"},
    m_proxy{},
    m_cmbMapReader(new CMBMapReader()),
@@ -70,12 +79,12 @@ double UAScenario::responseSurfacesRsmeBestMC() const
 
 void UAScenario::setNumberOfManualDesignPoints()
 {
-   if (m_manualDesignPointManager.numberOfPoints() == 0)
+   if (m_manualDesignPointManager.numberOfVisiblePoints() == 0)
    {
       changeUserDefinedPointStatus(false);
    }
 
-   const int n = m_manualDesignPointManager.numberOfPoints();
+   const int n = m_manualDesignPointManager.numberOfVisiblePoints();
    for (DoeOption* option : m_doeOptions)
    {
       if (dynamic_cast<DoeUserDefined*>(option))
@@ -87,7 +96,7 @@ void UAScenario::setNumberOfManualDesignPoints()
 
 void UAScenario::changeUserDefinedPointStatus(const bool status)
 {
-   const int points = m_manualDesignPointManager.numberOfPoints();
+   const int points = m_manualDesignPointManager.numberOfVisiblePoints();
 
    if ((points != 0 &&
         !status)      ||
@@ -319,6 +328,23 @@ QString UAScenario::stateFileNameDoE() const
    return m_stateFileNameDoE;
 }
 
+QString UAScenario::updateStateFileNameDoE()
+{
+   QString newStateFileName = m_stateFileNameDoEBase;
+
+   QFileInfo fi(newStateFileName);
+   newStateFileName = fi.baseName();
+   newStateFileName = newStateFileName
+         + "-"
+         + workspaceGenerator::getTimeStamp()
+         + "_"
+         + QString::number(s_stateFileIncrement)
+         + ".txt";
+   s_stateFileIncrement++;
+   setStateFileNameDoE(newStateFileName);
+   return newStateFileName;
+}
+
 void UAScenario::setStateFileNameDoE(const QString &stateFilePathDoE)
 {
    m_stateFileNameDoE = stateFilePathDoE;
@@ -347,6 +373,11 @@ void UAScenario::setStateFileNameMCMC(const QString& stateFilePathMCMC)
 QString UAScenario::doeTextFileName() const
 {
    return m_doeTextFileName;
+}
+
+QString UAScenario::simStatesTextFileName() const
+{
+   return m_simStatesTextFileName;
 }
 
 QString UAScenario::runCasesObservablesTextFileName() const
@@ -544,7 +575,7 @@ QVector<InfluentialParameter*> UAScenario::influentialParametersWithRunData()
 void UAScenario::writeToFile(ScenarioWriter& writer) const
 {
    CasaScenario::writeToFile(writer);
-   writer.writeValue("UAScenarioVersion", 6);
+   writer.writeValue("UAScenarioVersion", 7);
    m_influentialParameterManager.writeToFile(writer);
    m_predictionTargetManager.writeToFile(writer);
    m_monteCarloDataManager.writeToFile(writer);
@@ -566,6 +597,7 @@ void UAScenario::writeToFile(ScenarioWriter& writer) const
    writer.writeValue("nDesignPoints", nDesignPoints);
    writer.writeValue("SubSampling", m_subSamplingFactor);
    writer.writeValue("BaseSubSampling", m_baseCaseSubSamplingFactor);
+   writer.writeValue("stateFileNameDoE",m_stateFileNameDoE);
 }
 
 void UAScenario::readFromFile(const ScenarioReader& reader)
@@ -634,6 +666,10 @@ void UAScenario::readFromFile(const ScenarioReader& reader)
    {
       m_baseCaseSubSamplingFactor = reader.readInt("BaseSubSampling");
    }
+   if (version > 6)
+   {
+      m_stateFileNameDoE = reader.readString("stateFileNameDoE");
+   }
 }
 
 void UAScenario::clear()
@@ -662,26 +698,17 @@ void UAScenario::clear()
 
 QString UAScenario::iterationDirName() const
 {
-   const QString iterationPath = workingDirectory() + "/" + runLocation();
-   const QDir dir(iterationPath);
-   QDateTime dateTime;
-   QString dirName{""};
-   bool first{true};
-   for (const QString& entry : dir.entryList())
-   {
-      if (entry.toStdString().find("Iteration_") == 0)
-      {
-         const QFileInfo info{dir.path() + "/" + entry};
-         if (first || info.lastModified() >= dateTime)
-         {
-            dateTime = info.lastModified();
-            dirName = entry;
-            first = false;
-         }
-      }
-   }
+   return m_runCaseSetFileManager.iterationDirName();
+}
 
-   return dirName;
+void UAScenario::updateIterationDir()
+{
+   m_runCaseSetFileManager.setIterationPath(workingDirectory()+ "/" + runLocation());
+}
+
+bool UAScenario::iterationDirExists() const
+{
+   return !m_runCaseSetFileManager.isIterationDirDeleted(workingDirectory()+ "/" + runLocation());
 }
 
 void UAScenario::loadProject3dFile() const
@@ -721,7 +748,8 @@ void UAScenario::setStageUpToDate(const StageTypesUA& stageType, bool isUpToDate
 void UAScenario::copyToIterationDir(const QString& fileName) const
 {
    const QString source = workingDirectory() + "/" + fileName;
-   const QString target = workingDirectory() + "/" + runLocation() + "/" + iterationDirName() + "/" + fileName;
+   QString idn =  iterationDirName();
+   const QString target = workingDirectory() + "/" + runLocation() + "/" + idn + "/" + fileName;
 
    if (QFile::exists(target))
    {

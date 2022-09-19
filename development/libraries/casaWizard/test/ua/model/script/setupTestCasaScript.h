@@ -15,6 +15,7 @@
 class SetupTestCasaScript : public ::testing::Test
 {
 public:
+
   casaWizard::ua::UAScenario scenario{new casaWizard::StubProjectReader()};
   std::string stateFile_ = "stateFileTestCasaScriptDoE.txt";
   void SetUp() override
@@ -43,10 +44,6 @@ public:
     scenario.setIsQcDoeOptionSelected(1, false);
     scenario.setProxyOrder(2);
     scenario.setProxyKrigingMethod("Global");
-
-    casaWizard::ua::ManualDesignPointManager& mdpManager = scenario.manualDesignPointManager();
-    mdpManager.addInfluentialParameter();
-    mdpManager.addDesignPoint({1.2});
 
     std::ofstream createFile(stateFile_, std::ios::binary);
     if (createFile.is_open())

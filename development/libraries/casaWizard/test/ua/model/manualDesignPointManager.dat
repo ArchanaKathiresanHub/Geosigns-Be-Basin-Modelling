@@ -1,8 +1,5 @@
-ManualDesignPointManagerVersion|int|0
+ManualDesignPointManagerVersion|int|1
 manualDesignPoints|vector|2
-manualDesignPoints|11><12
-manualDesignPoints|21><22
+manualDesignPoints|0|11><12|0|Completed
+manualDesignPoints|0|21><22|0|NotRun
 manualDesignPointParameters|int|2
-manualDesignPointCompleted|vector|2
-manualDesignPointCompleted|1
-manualDesignPointCompleted|0

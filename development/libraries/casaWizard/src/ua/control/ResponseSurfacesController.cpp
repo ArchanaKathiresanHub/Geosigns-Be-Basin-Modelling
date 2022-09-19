@@ -78,7 +78,8 @@ void ResponseSurfacesController::slotUpdateTabGUI(int tabID)
 
   m_responseSurfacesTab->allowModification();
   m_responseSurfacesTab->setEnabled(true);
-  if (!m_casaScenario.isStageComplete(StageTypesUA::doe))
+
+  if (!m_casaScenario.isStageComplete(StageTypesUA::doe) || !m_casaScenario.isStageUpToDate(StageTypesUA::doe))
   {
     m_responseSurfacesTab->setEnabled(false);
     Logger::log() << "DoE data is not available! Complete DoE stage in DoE tab first." << Logger::endl();
@@ -90,8 +91,7 @@ void ResponseSurfacesController::slotUpdateTabGUI(int tabID)
   }
   else
   {
-    const RunCaseSetFileManager& runCaseSetFileManager = m_casaScenario.runCaseSetFileManager();
-    if (runCaseSetFileManager.isIterationDirDeleted(m_casaScenario.project3dPath()))
+    if (!m_casaScenario.iterationDirExists())
     {
       m_responseSurfacesTab->allowModification(false);
     }

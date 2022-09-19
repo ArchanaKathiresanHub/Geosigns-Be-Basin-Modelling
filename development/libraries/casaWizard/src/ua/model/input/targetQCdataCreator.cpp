@@ -39,7 +39,7 @@ void readTargetQCs(UAScenario& scenario)
    const QVector<QVector<int>> doeIndices = DataFileParser<int>::readFile(doeIndicesFileName);
 
    QVector<QString> obsIdentifiersEvalObservables;
-   const QVector<QVector<double>> proxyEvaluationObservables = DataFileParser<double>::parseMatrixFileWithHeaderColDominant(proxyEvalFileName,obsIdentifiersEvalObservables);
+   QVector<QVector<double>> proxyEvaluationObservables = DataFileParser<double>::parseMatrixFileWithHeaderColDominant(proxyEvalFileName,obsIdentifiersEvalObservables);
 
    QVector<QString> obsIdentifiersProxyQuality;
    const QVector<QVector<double>> proxyQualityEvaluation = DataFileParser<double>::parseMatrixFileWithHeaderColDominant(proxyQualityFileName,obsIdentifiersProxyQuality);
@@ -90,6 +90,11 @@ void readTargetQCs(UAScenario& scenario)
       }
       runCasesObservablesOfTargetQC.push_back(rowrunCase);
    }
+
+   QString stateFileName = scenario.workingDirectory() + "/" + scenario.simStatesTextFileName();
+   const QVector<int> simStates = DataFileParser<int>::colDominantMatrix(stateFileName).at(0);
+   removeObservablesFailedSimulations(runCasesObservablesOfTargetQC,simStates);
+   removeObservablesFailedSimulations(proxyEvaluationObservables,simStates);
 
    const int nTargets{runCasesObservables.size()};
 
@@ -170,6 +175,29 @@ void readTargetQCs(UAScenario& scenario)
    });
 
    scenario.setTargetQCs(targetQCs);
+}
+
+void removeObservablesFailedSimulations(QVector<QVector<double>>& observables, const QVector<int>& simulationStates )
+{
+   for (int i = 0; i < observables.size(); i++)
+   {
+      const QVector<double>& obsSingleTarget = observables[i];
+
+      if (obsSingleTarget.size() != simulationStates.size())
+      {
+         throw std::runtime_error("Obsevables data does not match with simulation states data.");
+      }
+
+      QVector<double> validObs;
+      for (int j = 0; j < simulationStates.size(); j++)
+      {
+         if (simulationStates[j] == 1) //valid
+         {
+            validObs.push_back(obsSingleTarget[j]);
+         }
+      }
+      observables[i] = validObs;
+   }
 }
 
 } // namespace targetQCdataCreator

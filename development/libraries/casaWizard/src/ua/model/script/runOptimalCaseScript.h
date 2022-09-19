@@ -18,7 +18,7 @@ class UAScenario;
 class RunOptimalCaseScript : public DoEScript
 {
 public:
-  explicit RunOptimalCaseScript(const UAScenario& scenario);
+  explicit RunOptimalCaseScript(UAScenario& scenario);
 
   QString scriptFilename() const final;
   QString workingDirectory() const final;
