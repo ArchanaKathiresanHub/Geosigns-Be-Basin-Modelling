@@ -13,7 +13,7 @@
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Version				Date of update
 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-Cauldron-v2.8.19		2022-09-19 09:10:31 +0000
+Cauldron-v2.8.20		2022-09-19 14:02:25 +0000
 =============================================================
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Third-party Software 		version
@@ -36,6 +36,19 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2022-09-19  Marnix.vandenBerg  <Marnix.vandenBerg@shell.com>
+
+	fix: usr: casathermalwizard improved manual points workflow.
+	 * Casa segfault bug fixed.
+	 * Wizard detects and processes failed simulation runs.
+	 * Improved tab states when running manual design points.
+
+	Related work items: #476486
+
+	================== COMMIT-END ========================
+	Commit-ID:<71db8934a50dc3cb582efb43e77e798e1c82f396>	  (refs/heads/master)
+
+++
 2022-09-19  Marnix.vandenBerg  <Marnix.vandenBerg@shell.com>
 
 	chg: test: Another fix for the CalibrationTargetSaver test.
