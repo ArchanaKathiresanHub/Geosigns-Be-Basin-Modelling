@@ -63,6 +63,7 @@ void ResponseSurfacesController::slotModelChange()
 void ResponseSurfacesController::refreshGUI()
 {
   m_responseSurfacesTab->fillQCtable(m_casaScenario.targetQCs());
+  m_responseSurfacesTab->resetQCPlot();
   if (m_casaScenario.targetQCs().size() > 0) {
      m_responseSurfacesTab->updateQCPlot( m_casaScenario.targetQCs().at(m_targetIndex), m_targetIndex);
   }

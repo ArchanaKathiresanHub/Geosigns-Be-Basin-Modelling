@@ -18,8 +18,6 @@ DoeOptionTable::DoeOptionTable(QWidget* parent) :
   setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
   setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
 
-  horizontalHeader()->sectionSizeHint(50);
-  horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
   QSizePolicy policy = sizePolicy();
   policy.setHorizontalPolicy(QSizePolicy::Policy::Expanding);
   policy.setVerticalPolicy(QSizePolicy::Policy::Expanding);
@@ -32,8 +30,9 @@ DoeOptionTable::DoeOptionTable(QWidget* parent) :
   setHorizontalHeaderItem(columnIndexNDesignPoints, new QTableWidgetItem("Points"));
   setHorizontalHeaderItem(columnCheckBox, new QTableWidgetItem(""));
 
-  resizeColumnToContents(0); //checkboxes
-  resizeColumnToContents(2); //points
+  horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
+  horizontalHeader()->setSectionResizeMode(2, QHeaderView::ResizeToContents);
+  horizontalHeader()->setSectionResizeMode(1, QHeaderView::Stretch);
 }
 
 void DoeOptionTable::updateTable(const QVector<DoeOption*>& doeOptions, const QVector<bool>& isDoeOptionsSelected)

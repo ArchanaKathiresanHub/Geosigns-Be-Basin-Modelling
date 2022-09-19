@@ -30,7 +30,7 @@ public:
   explicit Grid2DPlot(const ColorMap& colormap, QWidget *parent = nullptr);
   LithoPercent2DView* lithoPercent2DView() const;
   void setTitle(const QString& lithoType, int id, bool inputMap);
-  void updateColorBar(const int& precision = 2);
+  void updateColorBar(const int& maxDecimals = 2);
   void setColorBarMap(const ColorMap& map);
   void hideColorBar();
   void showColorBar();

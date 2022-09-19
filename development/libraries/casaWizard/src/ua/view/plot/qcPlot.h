@@ -18,6 +18,7 @@ class QCPlot : public Plot
 public:
   explicit QCPlot(QWidget* parent = 0);
   void setTargetQC(const TargetQC& targetQC);
+  void reset();
 
 protected:
   void paintEvent(QPaintEvent* event) override;

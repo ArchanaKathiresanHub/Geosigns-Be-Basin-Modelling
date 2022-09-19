@@ -30,10 +30,18 @@ CorrelationTab::CorrelationTab(QWidget* parent) :
 {
    m_colorBar->setColorMap(ColorMap(RAINBOW));
    m_colorBar->setTitle("Normalized RMSE");
+   m_colorBar->setDecimals(3);
+   m_colorBar->setFixedWidth(this->width());
+   m_colorBar->setVisible(false);
 
    QVBoxLayout* vBox = new QVBoxLayout();
    vBox->addWidget(correlationSelectTable_);
-   vBox->addWidget(m_colorBar);
+
+   QHBoxLayout* hBox = new QHBoxLayout();
+   hBox->addStretch(1);
+   hBox->addWidget(m_colorBar);
+
+   vBox->addLayout(hBox);
    vBox->setStretch(0, 1);
    vBox->setStretch(1, 2);
 
@@ -59,7 +67,6 @@ void CorrelationTab::updateCorrelationPlotLayout(const QVector<InfluentialParame
                                                  const QVector<QVector<double>>& parameterMatrix, const QVector<double>& rmse)
 {
    correlationWidget_->updateLayoutPlots(influentialParameters, isInfluentialParameterSelected, parameterMatrix, rmse);
-
    m_colorBar->setRange(*std::min_element(rmse.begin(), rmse.end()), *std::max_element(rmse.begin(), rmse.end()), 4); //change last parameter to fit desired amount of intervals
 }
 

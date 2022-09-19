@@ -37,6 +37,8 @@ public:
    void fillCorrelationSelectionTable(const QVector<InfluentialParameter*> influentialParameters, const QVector<bool>& isInfluentialParameterSelected);
    void updateCorrelationPlotLayout(const QVector<InfluentialParameter*> influentialParameters, const QVector<bool>& isInfluentialParameterSelected,
                                     const QVector<QVector<double>>& parameterMatrix, const QVector<double>& rmse);
+
+   ColorBar* colorbar() { return m_colorBar; }
    QTableWidget* tableParameters() const;
    QVector<bool> isCorrelationSelectTableItemSelected() const;
 

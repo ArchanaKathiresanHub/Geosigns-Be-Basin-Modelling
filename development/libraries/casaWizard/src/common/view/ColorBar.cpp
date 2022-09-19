@@ -78,7 +78,7 @@ void ColorBar::getColorBarDimentions()
 {
    const QSize pixels = size();
    //define the how much space the colorbar will use of the Widget
-   m_heigth = static_cast<int>(0.80*pixels.height());
+   m_heigth = static_cast<int>(0.90*pixels.height());
    m_width = static_cast<int>(0.20*pixels.width());
    m_Yoffset = (pixels.height() - m_heigth) / 2;
    m_Xoffset = (pixels.width() - m_width) / 2;
@@ -103,10 +103,6 @@ void ColorBar::drawTicksAndLabelsLeftSide ( QPainter* painter ) const
    painter->drawText(QRect(), 0, m_title, &box); //defines boundingBox size
    painter->drawText(box, Qt::AlignCenter, m_title);
    painter->restore();
-
-   //axis Line
-   painter->fillRect(QRectF(m_Xoffset, m_Yoffset, 1, m_heigth),
-                     QBrush("black"));
 
    //ticks & labels
    for (int tick = 0; tick <= m_intervals; tick++)
@@ -139,10 +135,6 @@ void ColorBar::drawTicksAndLabelsRightSide(QPainter *painter) const
    painter->drawText(QRect(), 0, m_title, &box); //defines boundingBox size
    painter->drawText(box, Qt::AlignCenter, m_title);
    painter->restore();
-
-   //axis line
-   painter->fillRect(QRectF(m_Xoffset + m_width, m_Yoffset, 1, m_heigth),
-                     QBrush("black"));
 
    //ticks & labels
    for (int tick = 0; tick <= m_intervals; tick++)
@@ -177,10 +169,14 @@ void ColorBar::drawTicksAndLabels( QPainter* painter ) const
 
 void ColorBar::drawColorBar( QPainter* painter ) const
 {
+   //colorbar
    for (int i = 0; i <= m_heigth; i++)
    {
       painter->fillRect(QRectF(m_Xoffset, m_Yoffset + (m_heigth - i), m_width, 1),
                         QBrush(m_colorMap.getColor(i, 0, m_heigth)));
    }
+
+   //black lining
+   painter->drawRect(QRectF(m_Xoffset, m_Yoffset, m_width, m_heigth));
 }
 } //casaWizard

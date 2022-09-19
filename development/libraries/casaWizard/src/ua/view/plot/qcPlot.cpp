@@ -51,6 +51,16 @@ void QCPlot::setTargetQC(const TargetQC& targetQC)
   hasData_ = true;
 }
 
+void QCPlot::reset()
+{
+   clearData();
+   targetValue_ = 0.0;
+   targetStandardDeviation_ = 0.0;
+   hasCalibrationValue_ = false;
+   hasData_ = false;
+   update();
+}
+
 void QCPlot::paintEvent(QPaintEvent* event)
 {
   QPainter painter(this);

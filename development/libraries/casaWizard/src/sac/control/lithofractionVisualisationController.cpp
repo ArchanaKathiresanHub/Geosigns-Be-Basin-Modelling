@@ -95,7 +95,7 @@ void LithofractionVisualisationController::slotUpdatePlots(const QString& layerN
                                                  xMax * Utilities::Maths::MeterToKilometer,
                                                  yMin * Utilities::Maths::MeterToKilometer,
                                                  yMax * Utilities::Maths::MeterToKilometer);
-    lithoPlot->updateColorBar(-1);
+    lithoPlot->updateColorBar(2);
     lithoPlot->setTitle(lithologyTypes[counter], counter, !optimizedLithomapsAvailable);
     lithoPlot->lithoPercent2DView()->setToolTipVisible(false);
     lithoPlot->lithoPercent2DView()->setToolTipLithotypes(lithologyTypes);

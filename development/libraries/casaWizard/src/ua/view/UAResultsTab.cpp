@@ -52,7 +52,8 @@ UAResultsTab::UAResultsTab(QWidget* parent) :
    lineEditTimeSeries_{new QLineEdit{"0", this}},
    checkBoxHistoryPlotsMode_{new QCheckBox{"Plot time series", this}},
    quartilePredictionTargetTimeSeries_{new QuartilePlot{this}},
-   layoutStackedPlots_{new QStackedLayout{}}
+   layoutStackedPlots_{new QStackedLayout{}},
+   timeSeriesPlots_{nullptr}
 {
    rmseList_->addToolTipToHeader("Normalized root mean squared error of model results at calibration targets with all calibration target values.\n"
                                  "Represents the average ratio between the model error at data points and the stated data standard deviations.");

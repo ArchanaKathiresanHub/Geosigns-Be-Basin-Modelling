@@ -184,7 +184,7 @@ void QuartilePlot::drawLegend(QPainter& painter, const QPen& penPoint, const QSt
    const int legendLineWidth = 2;
    const int verticalSpacing = 10;
    const int horizontalSpacing = 20;
-   const QPointF topLeft = valToPoint(xAxisMaxValue(), yAxisMaxValue()) - QPointF(2*horizontalSpacing + textWidth, 0);
+   const QPointF topLeft = valToPoint(xAxisMaxValue(), yAxisMaxValue()) - QPointF(2*horizontalSpacing + textWidth, 0) - QPoint(2,-2);
    const QPointF bottomRight = topLeft + QPointF(textWidth + 2*horizontalSpacing,
                                                  items.size() * textHeigth + 2*verticalSpacing);
 

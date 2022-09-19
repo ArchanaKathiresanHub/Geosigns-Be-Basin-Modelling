@@ -32,6 +32,7 @@ public:
   void allowModification(bool allow = true);
   void fillQCtable(const QVector<TargetQC>& targetQCs);
   void updateQCPlot(const TargetQC& targetQC, const int& tableIndex = 0);
+  void resetQCPlot();
 
 private:
   QPushButton* pushButtonQCrunCASA_;

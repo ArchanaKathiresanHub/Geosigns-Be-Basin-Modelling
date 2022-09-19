@@ -50,6 +50,7 @@ void CorrelationController::refreshGUI()
    if (casaScenario_.isStageComplete(StageTypesUA::mcmc))
    {
       correlationTab_->fillCorrelationSelectionTable(manager.influentialParameters(), manager.isUsedInCorrelation());
+      correlationTab_->colorbar()->setVisible(true);
       updateCorrelationPlotLayout();
    }
    else
@@ -70,6 +71,7 @@ void CorrelationController::slotUpdateTabGUI(int tabID)
    if (!casaScenario_.isStageComplete(StageTypesUA::mcmc))
    {
       correlationTab_->setEnabled(false);
+      correlationTab_->colorbar()->setVisible(false);
       Logger::log() << "MCMC data is not available! Complete MCMC data creation stage in MCMC tab first." << Logger::endl();
    }
 

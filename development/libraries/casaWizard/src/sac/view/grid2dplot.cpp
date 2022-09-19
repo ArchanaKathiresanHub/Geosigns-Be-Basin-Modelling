@@ -23,15 +23,15 @@ namespace sac
 
 Grid2DPlot::Grid2DPlot(const ColorMap& colormap, QWidget *parent) :
    QWidget(parent),
-   colorBar_(new ColorBar(ColorBar::left, this)),
+   colorBar_(new ColorBar(ColorBar::right, this)),
    lithoPercent2dView_(new LithoPercent2DView(colormap, this)),
    title_(new CustomTitle("Test Title", this))
 {
    QHBoxLayout* gridAndColorBar = new QHBoxLayout();
    gridAndColorBar->setMargin(0);
+   colorBar_->setDecimals(2);
    colorBar_->setColorMap(colormap);
    colorBar_->setFixedWidth(150);
-   colorBar_->setDecimals(2);
 
    gridAndColorBar->addWidget(lithoPercent2dView_);
    gridAndColorBar->addWidget(colorBar_);
@@ -61,11 +61,11 @@ LithoPercent2DView* Grid2DPlot::lithoPercent2DView() const
    return lithoPercent2dView_;
 }
 
-void Grid2DPlot::updateColorBar(const int& precision)
+void Grid2DPlot::updateColorBar(const int& maxDecimals)
 {
    std::pair<double, double> range = lithoPercent2dView_->getValueRange();
    colorBar_->setRange(range.first, range.second);
-   colorBar_->setDecimals(precision);
+   colorBar_->setDecimals(maxDecimals);
 }
 
 void Grid2DPlot::setColorBarMap(const ColorMap& map)

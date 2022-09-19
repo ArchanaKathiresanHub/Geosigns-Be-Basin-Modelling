@@ -102,6 +102,11 @@ void ResponseSurfacesTab::updateQCPlot(const TargetQC& targetQC, const int& tabl
    qcPlot_->setFontStyle(FontStyle::small);
 }
 
+void ResponseSurfacesTab::resetQCPlot()
+{
+   qcPlot_->reset();
+}
+
 QCDoeOptionTable* ResponseSurfacesTab::qcDoeOptionTable() const
 {
    return qcDoeOptionTable_;
