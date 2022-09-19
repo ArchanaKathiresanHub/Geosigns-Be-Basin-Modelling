@@ -13,7 +13,7 @@
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Version				Date of update
 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-Cauldron-v2.8.17		2022-09-16 11:05:11 +0000
+Cauldron-v2.8.19		2022-09-19 09:10:31 +0000
 =============================================================
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Third-party Software 		version
@@ -36,6 +36,15 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2022-09-19  Marnix.vandenBerg  <Marnix.vandenBerg@shell.com>
+
+	chg: test: Another fix for the CalibrationTargetSaver test.
+	Related work items: #476489
+
+	================== COMMIT-END ========================
+	Commit-ID:<cefc072496502faf600ac3534a04ac65920bd888>	  (refs/heads/master)
+
+++
 2022-09-16  Sven van Leeuwen  <Sven.van-Leeuwen@shell.com>
 
 	chg: usr: Improved correlation workflow.
