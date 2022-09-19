@@ -76,5 +76,5 @@ TEST(CalibrationTargetSaverTest, exportTest)
    CalibrationTargetSaver saver(scenario.calibrationTargetManager());
 
    saver.saveRawLocationsToCSV("testExportASCII.csv");
-   expectFileEq("testExportASCII.csv", "testExpectedASCII.txt");
+   expectFileEq("testExportASCII.csv", "testExpectedASCII.csv");
 }
