@@ -455,6 +455,11 @@ QVector<TargetQC> UAScenario::targetQCs() const
    return m_targetQCs;
 }
 
+void UAScenario::clearTargetQCs()
+{
+   m_targetQCs.clear();
+}
+
 void UAScenario::setTargetQCs(const QVector<TargetQC>& targetQCs)
 {
    m_targetQCs = targetQCs;

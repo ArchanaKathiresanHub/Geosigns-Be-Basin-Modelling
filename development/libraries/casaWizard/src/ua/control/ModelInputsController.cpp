@@ -230,6 +230,7 @@ void ModelInputsController::slotPushButtonDoErunCasaClicked()
       Logger::log() << e.what() << Logger::endl();
    }
 
+   m_casaScenario.setStageUpToDate(StageTypesUA::doe, true);
    m_casaScenario.setStageComplete(StageTypesUA::doe, true);
 
    m_casaScenario.updateIterationDir();

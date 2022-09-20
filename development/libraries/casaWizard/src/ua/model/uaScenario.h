@@ -80,6 +80,7 @@ public:
    bool iterationDirExists() const;
 
    QVector<TargetQC> targetQCs() const;
+   void clearTargetQCs();
    void setTargetQCs(const QVector<TargetQC>& targetQCs);
    void setOptimalValuesTargetQCs(const QVector<double>& values, const QVector<QString> colNames);
 
