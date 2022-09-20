@@ -13,7 +13,7 @@
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Version				Date of update
 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-Cauldron-v2.8.21		2022-09-19 15:11:54 +0000
+Cauldron-v2.8.22		2022-09-20 10:32:02 +0000
 =============================================================
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Third-party Software 		version
@@ -36,6 +36,15 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2022-09-20  Marnix.vandenBerg  <Marnix.vandenBerg@shell.com>
+
+	fix: usr: Fixing error in setting simulation state after running DoE.
+	Related work items: #476486
+
+	================== COMMIT-END ========================
+	Commit-ID:<53f0597d8b49dd05ba1c0729e9fe552653c43400>	  (tag: refs/tags/v2.8.22, refs/heads/master)
+
+++
 2022-09-19  Sven van Leeuwen  <Sven.van-Leeuwen@shell.com>
 
 	chg: usr: small Colorbar changes & bug fixes.
