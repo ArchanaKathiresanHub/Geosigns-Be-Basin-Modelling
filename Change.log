@@ -13,7 +13,7 @@
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Version				Date of update
 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-Cauldron-v2.8.22		2022-09-20 10:32:02 +0000
+Cauldron-v2.8.23		2022-09-20 12:14:04 +0000
 =============================================================
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Third-party Software 		version
@@ -36,6 +36,14 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2022-09-20  Sven van Leeuwen  <Sven.van-Leeuwen@shell.com>
+
+	chg: usr: Edit scenarioname in UA.
+	* Changed the scenario name when exporting the optimalcase from the UA wizard to:  originalscenarioname_UA_date-time
+	================== COMMIT-END ========================
+	Commit-ID:<7a7c3abde05bf82bdc0b03aa09998b0ae1fffe33>	  (tag: refs/tags/v2.8.23, refs/heads/master)
+
+++
 2022-09-20  Marnix.vandenBerg  <Marnix.vandenBerg@shell.com>
 
 	fix: usr: Fixing error in setting simulation state after running DoE.
