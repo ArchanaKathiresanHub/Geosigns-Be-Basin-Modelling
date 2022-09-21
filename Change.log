@@ -13,7 +13,7 @@
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Version				Date of update
 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-Cauldron-v2.8.23		2022-09-20 12:14:04 +0000
+Cauldron-v2.8.24		2022-09-21 11:04:33 +0000
 =============================================================
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Third-party Software 		version
@@ -36,6 +36,17 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2022-09-21  Marnix.vandenBerg  <Marnix.vandenBerg@shell.com>
+
+	fix: usr: Fixed final workflow issues related to running with manual points.
+	 * Fixed invalidation states Wizard.
+
+	Related work items: #476486
+
+	================== COMMIT-END ========================
+	Commit-ID:<db891fa6be7b8a5d23a5c01072278629faf9bf9b>	  (refs/heads/master)
+
+++
 2022-09-20  Sven van Leeuwen  <Sven.van-Leeuwen@shell.com>
 
 	chg: usr: Edit scenarioname in UA.
