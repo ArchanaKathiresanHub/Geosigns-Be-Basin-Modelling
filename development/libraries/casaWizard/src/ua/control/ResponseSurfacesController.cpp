@@ -62,12 +62,12 @@ void ResponseSurfacesController::slotModelChange()
 
 void ResponseSurfacesController::refreshGUI()
 {
-  m_responseSurfacesTab->fillQCtable(m_casaScenario.targetQCs());
-  m_responseSurfacesTab->resetQCPlot();
-  if (m_casaScenario.targetQCs().size() > 0) {
-     m_responseSurfacesTab->updateQCPlot( m_casaScenario.targetQCs().at(m_targetIndex), m_targetIndex);
-  }
-  emit signalRefreshChildWidgets();
+   m_responseSurfacesTab->fillQCtable(m_casaScenario.targetQCs());
+   m_responseSurfacesTab->resetQCPlot();
+   if (m_casaScenario.targetQCs().size() > 0) {
+      m_responseSurfacesTab->updateQCPlot( m_casaScenario.targetQCs().at(m_targetIndex), m_targetIndex);
+   }
+   emit signalRefreshChildWidgets();
 }
 
 void ResponseSurfacesController::slotUpdateTabGUI(int tabID)
@@ -80,11 +80,15 @@ void ResponseSurfacesController::slotUpdateTabGUI(int tabID)
    m_responseSurfacesTab->allowModification();
    m_responseSurfacesTab->setEnabled(true);
 
-   if (!m_casaScenario.isStageComplete(StageTypesUA::doe) || !m_casaScenario.isStageUpToDate(StageTypesUA::doe))
+   if (!m_casaScenario.isStageComplete(StageTypesUA::doe))
    {
       m_responseSurfacesTab->setEnabled(false);
       m_casaScenario.clearTargetQCs();
       Logger::log() << "DoE data is not available! Complete DoE stage in DoE tab first." << Logger::endl();
+   }
+   else if (!m_casaScenario.isStageUpToDate(StageTypesUA::doe))
+   {
+      m_casaScenario.clearTargetQCs();
    }
    else if (!m_casaScenario.isStageComplete(StageTypesUA::responseSurfaces))
    {

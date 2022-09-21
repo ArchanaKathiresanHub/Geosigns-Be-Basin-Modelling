@@ -169,7 +169,12 @@ bool ModelInputsController::doeOptionUserDefinedSelectionState()
 bool ModelInputsController::buttonDoERunShouldBeDisabled()
 {
    ManualDesignPointManager& designPointManager = m_casaScenario.manualDesignPointManager();
-   return m_casaScenario.isStageComplete(StageTypesUA::doe) || (m_casaScenario.doeSelected().isEmpty() && designPointManager.numberOfVisiblePoints() == 0);
+
+   //Should be disabled if:
+   return m_casaScenario.isStageComplete(StageTypesUA::doe) //Stage is complete, or
+         || m_casaScenario.doeSelected().isEmpty() //No does are selected, or
+         || (m_casaScenario.doeSelected().size()==1 && doeOptionUserDefinedSelectionState() && designPointManager.numberOfCasesToRun() == 0) //Only userDefined selected as DoE, but no manual design points to run, or
+         || m_casaScenario.influentialParameterManager().totalNumberOfInfluentialParameters() == 0; //No influential parameters
 }
 
 void ModelInputsController::slotUpdateDoeOptionTable()
@@ -202,8 +207,7 @@ void ModelInputsController::slotPushButtonDoErunCasaClicked()
    }
 
    scenarioBackup::backup(m_casaScenario);
-   ManualDesignPointManager& designPointManager = m_casaScenario.manualDesignPointManager();
-   if (m_casaScenario.doeSelected().isEmpty() && designPointManager.numberOfVisiblePoints() == 0)
+   if (m_casaScenario.doeSelected().isEmpty())
    {
       Logger::log() << "Nothing to be done. At least one doe must be selected (non selected) or one design point must be added" << Logger::endl();
       return;
@@ -221,6 +225,7 @@ void ModelInputsController::slotPushButtonDoErunCasaClicked()
 
    QString stateFileName = m_casaScenario.workingDirectory() + "/" + m_casaScenario.simStatesTextFileName();
    QString doeIndicesFileName = m_casaScenario.workingDirectory() + "/" + m_casaScenario.doeIndicesTextFileName();
+   ManualDesignPointManager& designPointManager = m_casaScenario.manualDesignPointManager();
    try
    {
       designPointManager.readAndSetCompletionStates(stateFileName, doeIndicesFileName, m_casaScenario.doeOptionSelectedNames());
@@ -380,8 +385,8 @@ void ModelInputsController::slotDoeSelectionItemChanged(QTableWidgetItem* item)
          resetDoEStage();
       }
       else
-      {  //Selecting or deselecting UserDefined points should only clear the following stages but should not lock them.
-         m_casaScenario.setStageUpToDate(StageTypesUA::doe, false);
+      {
+         m_casaScenario.setStageUpToDate(StageTypesUA::doe, !m_casaScenario.isStageUpToDate(StageTypesUA::doe));
          m_casaScenario.setStageComplete(StageTypesUA::responseSurfaces, false);
          m_casaScenario.setStageComplete(StageTypesUA::mcmc, false);
       }
