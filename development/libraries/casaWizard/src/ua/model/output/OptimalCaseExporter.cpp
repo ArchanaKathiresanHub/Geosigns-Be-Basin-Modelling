@@ -78,40 +78,44 @@ void exportOptimalCase(const QString& optimalCaseDirectory, const QString& worki
       return;
    }
 
-   QFile project(optimalCaseDirectory + "Project.txt");
-   if(!project.open(QIODevice::ReadWrite | QFile::Text)) {
-
-   }
-
-   QTextStream inOut(&project);
+   QFile project(optimalCaseDirectory + "/Project.txt");
    QString text;
-   QString scenarioTitle;
-
-   while(!inOut.atEnd()) {
-      QString line = inOut.readLine();
-      QStringList fields = line.split(":");
-      if(fields.size() >= 2 && fields.first() == "Scenario")
-      {
-         scenarioTitle = fields.last().simplified();
-         //check if the scenario didnt already have the tags added
-         if (!scenarioTitle.contains("_UA_"))
+   if(project.open(QIODevice::Text | QIODevice::ReadOnly))
+   {
+      QTextStream in(&project);
+      while(!in.atEnd()) {
+         QString line = in.readLine();
+         QStringList fields = line.split(":");
+         if(fields.size() >= 2 && fields.first() == "Scenario")
          {
-            if (workingDirectory.contains("/casaWorkspace-"))
+            QString scenarioTitle = fields.last().simplified();
+            //check if the scenario didnt already have the tags added
+            if (!scenarioTitle.contains("_UA_"))
             {
-               scenarioTitle = scenarioTitle + "_UA_" + workingDirectory.split("/casaWorkspace-").last().split("/").first();
+               scenarioTitle += "_UA_";
+               if (workingDirectory.contains("/casaWorkspace-"))
+               {
+                  scenarioTitle += workingDirectory.split("/casaWorkspace-").last().split("/").first();
+               }
+               else
+               {
+                  scenarioTitle = workspaceGenerator::getTimeStamp(scenarioTitle);
+               }
+               line = fields.first() + ": " + scenarioTitle;
             }
-            else
-            {
-               scenarioTitle = workspaceGenerator::getTimeStamp(scenarioTitle + "_UA_");
-            }
-            line = fields.first() + ": " + scenarioTitle;
          }
+         text.push_back(line + "\n");
       }
-      text.push_back(line + "\n");
    }
-   inOut << text;
-
    project.close();
+   //Write
+   if(project.open(QIODevice::WriteOnly | QFile::Truncate)) //Truncate clears the file
+   {
+      QTextStream out(&project);
+      out << text;
+   }
+   project.close();
+
    functions::zipFolderContent(tmpdir, optimalCaseDirectory, "optimal");
    tmpdir.removeRecursively();
 }

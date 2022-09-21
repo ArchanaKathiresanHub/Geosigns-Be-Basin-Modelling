@@ -283,7 +283,7 @@ void UAResultsController::slotPushButtonExportOptimalCasesClicked()
       return;
    }
 
-   optimalCaseExporter::exportOptimalCase(optimal.optimalCaseDirectory(),m_casaScenario.workingDirectory());
+   optimalCaseExporter::exportOptimalCase(optimal.optimalCaseDirectory(), m_casaScenario.workingDirectory());
 
    writer.setScaling(m_casaScenario.subSamplingFactor(), m_casaScenario.subSamplingFactor());
 

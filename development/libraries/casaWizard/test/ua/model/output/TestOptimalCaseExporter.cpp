@@ -11,6 +11,7 @@
 
 #include <QDir>
 #include <QProcess>
+#include <QTextStream>
 
 #include <gtest/gtest.h>
 
@@ -65,14 +66,35 @@ TEST(OptimalCaseExporter, testInvalidExport )
    tmpTestDir.removeRecursively();
 }
 
+TEST(OptimalCaseExporter, testScenarioName )
+{
+   using namespace casaWizard;
+   QDir tmpTestDir(QDir::currentPath() + "/casaWorkspace-NoTimeStamp");
+   tmpTestDir.removeRecursively();
+   tmpTestDir.mkdir(QDir::currentPath() + "/casaWorkspace-NoTimeStamp");
 
+   QFile::copy(QDir::currentPath() + "/Project.project3d", tmpTestDir.path() + "/Project.project3d");
 
+   ua::optimalCaseExporter::exportOptimalCase(tmpTestDir.path(),QDir::currentPath());
 
+   QProcess process;
+   process.setWorkingDirectory(QDir::currentPath());
+   functions::processCommand(process, QString("unzip -o " + tmpTestDir.path() + "/optimal.zip -d " + tmpTestDir.path() + "/zippedFolderContents"));
 
-
-
-
-
-
-
-
+   QFile project(tmpTestDir.path() + "zippedFolderContents/Project.txt");
+   QString text;
+   if(project.open(QIODevice::Text | QIODevice::ReadOnly))
+   {
+      QTextStream in(&project);
+      while(!in.atEnd()) {
+         QString line = in.readLine();
+         QStringList fields = line.split(":");
+         if(fields.size() >= 2 && fields.first() == "Scenario")
+         {
+            EXPECT_TRUE(fields.last().simplified() == "Test_UA_NoTimeStamp");
+            break;
+         }
+      }
+   }
+   tmpTestDir.removeRecursively();
+}
