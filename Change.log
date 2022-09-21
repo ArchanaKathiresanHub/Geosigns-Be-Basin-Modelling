@@ -13,7 +13,7 @@
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Version				Date of update
 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-Cauldron-v2.8.25		2022-09-21 11:28:36 +0000
+Cauldron-v2.8.26		2022-09-21 13:00:19 +0000
 =============================================================
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Third-party Software 		version
@@ -36,6 +36,13 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2022-09-21  Sven van Leeuwen  <Sven.van-Leeuwen@shell.com>
+
+	fix: now importing names & tests are actually working.
+	================== COMMIT-END ========================
+	Commit-ID:<8f34b1e8e1df83b7a218025c20cb19a6fffcff2c>	  (tag: refs/tags/v2.8.26, refs/heads/master)
+
+++
 2022-09-21  Sven van Leeuwen  <Sven.van-Leeuwen@shell.com>
 
 	fix: usr: Zip import to BPA2 scenario name fix.
