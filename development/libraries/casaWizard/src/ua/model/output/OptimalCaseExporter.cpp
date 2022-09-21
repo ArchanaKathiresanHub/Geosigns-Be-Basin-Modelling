@@ -61,23 +61,6 @@ void exportOptimalCase(const QString& optimalCaseDirectory, const QString& worki
    if (!tryCopy(workingDirectory, optimalCaseDirectory, "Project.txt")) return;
    if (!tryCopy(workingDirectory, optimalCaseDirectory, "Inputs.HDF")) return;
 
-   QDir tmpdir(optimalCaseDirectory + "/tmpDirectory");
-   tmpdir.removeRecursively();
-   tmpdir.mkdir(optimalCaseDirectory + "/tmpDirectory");
-
-   if (!functions::copyCaseFolder(QDir(optimalCaseDirectory), tmpdir))
-   {
-      Logger::log() << "Failed exporting, no files were copied" << Logger::endl();
-      tmpdir.removeRecursively();
-      return;
-   }
-
-   if (!tryCopy(optimalCaseDirectory,tmpdir.absolutePath(),"Project.txt"))
-   {
-      tmpdir.removeRecursively();
-      return;
-   }
-
    QFile project(optimalCaseDirectory + "/Project.txt");
    QString text;
    if(project.open(QIODevice::Text | QIODevice::ReadOnly))
@@ -115,6 +98,23 @@ void exportOptimalCase(const QString& optimalCaseDirectory, const QString& worki
       out << text;
    }
    project.close();
+
+   QDir tmpdir(optimalCaseDirectory + "/tmpDirectory");
+   tmpdir.removeRecursively();
+   tmpdir.mkdir(optimalCaseDirectory + "/tmpDirectory");
+
+   if (!functions::copyCaseFolder(QDir(optimalCaseDirectory), tmpdir))
+   {
+      Logger::log() << "Failed exporting, no files were copied" << Logger::endl();
+      tmpdir.removeRecursively();
+      return;
+   }
+
+   if (!tryCopy(optimalCaseDirectory, tmpdir.absolutePath(), "Project.txt"))
+   {
+      tmpdir.removeRecursively();
+      return;
+   }
 
    functions::zipFolderContent(tmpdir, optimalCaseDirectory, "optimal");
    tmpdir.removeRecursively();

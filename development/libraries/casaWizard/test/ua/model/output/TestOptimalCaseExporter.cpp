@@ -70,19 +70,24 @@ TEST(OptimalCaseExporter, testScenarioName )
 {
    using namespace casaWizard;
    QDir tmpTestDir(QDir::currentPath() + "/casaWorkspace-NoTimeStamp");
+   QDir tmpOptimalDir(QDir::currentPath() + "/casaWorkspace-NoTimeStamp/optimal");
    tmpTestDir.removeRecursively();
    tmpTestDir.mkdir(QDir::currentPath() + "/casaWorkspace-NoTimeStamp");
+   tmpOptimalDir.mkdir(QDir::currentPath() + "/casaWorkspace-NoTimeStamp/optimal");
 
-   QFile::copy(QDir::currentPath() + "/Project.project3d", tmpTestDir.path() + "/Project.project3d");
+   QFile::copy(QDir::currentPath() + "/Project.project3d", tmpOptimalDir.path() + "/Project.project3d");
+   QFile::copy(QDir::currentPath() + "/Project.txt", tmpTestDir.path() + "/Project.txt");
+   QFile::copy(QDir::currentPath() + "/Inputs.HDF", tmpTestDir.path() + "/Inputs.HDF");
 
-   ua::optimalCaseExporter::exportOptimalCase(tmpTestDir.path(),QDir::currentPath());
+   ua::optimalCaseExporter::exportOptimalCase(tmpOptimalDir.path() , tmpTestDir.path());
 
    QProcess process;
-   process.setWorkingDirectory(QDir::currentPath());
-   functions::processCommand(process, QString("unzip -o " + tmpTestDir.path() + "/optimal.zip -d " + tmpTestDir.path() + "/zippedFolderContents"));
+   process.setWorkingDirectory(tmpTestDir.path());
+   functions::processCommand(process, QString("unzip -o " + tmpOptimalDir.path() + "/optimal.zip -d " + tmpTestDir.path() + "/zippedFolderContents"));
 
-   QFile project(tmpTestDir.path() + "zippedFolderContents/Project.txt");
+   QFile project(tmpTestDir.path() + "/zippedFolderContents/Project.txt");
    QString text;
+   bool readNameSuccefully = false;
    if(project.open(QIODevice::Text | QIODevice::ReadOnly))
    {
       QTextStream in(&project);
@@ -91,10 +96,11 @@ TEST(OptimalCaseExporter, testScenarioName )
          QStringList fields = line.split(":");
          if(fields.size() >= 2 && fields.first() == "Scenario")
          {
-            EXPECT_TRUE(fields.last().simplified() == "Test_UA_NoTimeStamp");
+            readNameSuccefully = fields.last().simplified() == "Test_UA_NoTimeStamp";
             break;
          }
       }
    }
+   EXPECT_TRUE(readNameSuccefully);
    tmpTestDir.removeRecursively();
 }
