@@ -13,7 +13,7 @@
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Version				Date of update
 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-Cauldron-v2.8.24		2022-09-21 11:04:33 +0000
+Cauldron-v2.8.25		2022-09-21 11:28:36 +0000
 =============================================================
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Third-party Software 		version
@@ -36,6 +36,13 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2022-09-21  Sven van Leeuwen  <Sven.van-Leeuwen@shell.com>
+
+	fix: usr: Zip import to BPA2 scenario name fix.
+	================== COMMIT-END ========================
+	Commit-ID:<012216b5c2f3151ad69b23fe387d3ac3b504b023>	  (tag: refs/tags/v2.8.25, refs/heads/master)
+
+++
 2022-09-21  Marnix.vandenBerg  <Marnix.vandenBerg@shell.com>
 
 	fix: usr: Fixed final workflow issues related to running with manual points.
