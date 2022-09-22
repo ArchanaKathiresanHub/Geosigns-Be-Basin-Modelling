@@ -12,6 +12,10 @@
 
 cmake_minimum_required(VERSION 3.2.1)
 cmake_policy(SET CMP0054 NEW)
+#cmake_policy(SET CMP0074 NEW)	# New in Version 3.12
+#cmake_policy(SET CMP0078 NEW)	# New in Version 3.13
+#cmake_policy(SET CMP0086 NEW)	# New in Version 3.14
+#cmake_policy(SET CMP0122 NEW)	# New in Version 3.21
 
 set_property( GLOBAL PROPERTY USE_FOLDERS ON )
 

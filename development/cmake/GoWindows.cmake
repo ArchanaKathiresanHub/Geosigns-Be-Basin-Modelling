@@ -17,23 +17,22 @@ set(DONET_TARGET_VERSION "4.8.0")
 STRING(REPLACE "." "" DONET_TARGET_VERSION_SHORT ${DONET_TARGET_VERSION})
 
 # Check that platform was chosen correctly
-if (IS_DIRECTORY "c:/Apps/3rdparty/")
-   set(CBM_HOME "c:/Apps")
-
-elseif (IS_DIRECTORY "e:/Apps/3rdparty/")
-   set(CBM_HOME "e:/Apps")
-
-elseif (IS_DIRECTORY "c:/opt/3rdparty/")
+if (IS_DIRECTORY "c:/opt/3rdparty/")
   set(CBM_HOME "c:/opt")
+  
+elseif (IS_DIRECTORY "e:/opt/3rdparty/")
+   set(CBM_HOME "e:/opt")
 
 else()
-   message(FATAL_ERROR "Can not find 3rdparty tools set in the standard places: c:/Appa, c:/opt, e:/Apps.")
+   message(FATAL_ERROR "Can not find 3rdparty tools set in the standard places: c:/opt, e:/opt.")
 endif()
 
 set(BM_EXTERNAL_COMPONENTS_DIR "${CBM_HOME}/3rdparty" CACHE PATH "The path to the directory of prebuilt libraries")
 
 find_program( MSTEST "mstest.exe"
-       PATHS "C:/Program Files (x86)/Microsoft Visual Studio/2019/Enterprise/Common7/IDE"
+       PATHS "C:/Program Files/Microsoft Visual Studio/2022/Professional/Common7/IDE"
+			 "C:/Program Files/Microsoft Visual Studio/2022/Enterprise/Common7/IDE"
+			 "C:/Program Files (x86)/Microsoft Visual Studio/2019/Enterprise/Common7/IDE"
              "C:/Program Files (x86)/Microsoft Visual Studio 14.0/Common7/IDE"
              "C:/Program Files (x86)/Microsoft Visual Studio 12.0/Common7/IDE"
              "C:/Program Files (x86)/Microsoft Visual Studio 11.0/Common7/IDE" 
