@@ -13,7 +13,7 @@
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Version				Date of update
 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-Cauldron-v2.8.26		2022-09-21 13:00:19 +0000
+Cauldron-v2.8.27		2022-09-22 05:00:33 +0000
 =============================================================
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Third-party Software 		version
@@ -36,6 +36,16 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2022-09-22  Subhra-Sankar.Kalita  <Subhra-Sankar.Kalita@shell.com>
+
+	chg: dev: Changed the Cauldron 3rd party path from C:\Apps to C:\opt.
+	* The default location of the third party libraries has been changed from C:\Apps to C:\opt
+
+	Related work items: #478405
+	================== COMMIT-END ========================
+	Commit-ID:<d72a085f9b3d02e78bcb5cbe26a77c75f9c5074e>	  (tag: refs/tags/v2.8.27, tag: refs/tags/2.8.27, refs/heads/master, refs/heads/Developers/Subhra-Sankar.Kalita/feature-478405/Change-Log-Update)
+
+++
 2022-09-21  Sven van Leeuwen  <Sven.van-Leeuwen@shell.com>
 
 	fix: now importing names & tests are actually working.
