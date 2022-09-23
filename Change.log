@@ -13,7 +13,7 @@
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Version				Date of update
 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-Cauldron-v2.8.28		2022-09-23 13:38:01 +0000
+Cauldron-v2.8.29		2022-09-23 13:45:15 +0000
 =============================================================
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Third-party Software 		version
@@ -36,6 +36,15 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2022-09-23  Marnix.vandenBerg  <Marnix.vandenBerg@shell.com>
+
+	fix: usr: Fix for continuing with workflow if a simulation is cancelled.
+	Related work items: #476486
+
+	================== COMMIT-END ========================
+	Commit-ID:<2777031ea8c6eccae9ecea3d529e6788c6af6a87>	  (refs/heads/master)
+
+++
 2022-09-23  Marnix.vandenBerg  <Marnix.vandenBerg@shell.com>
 
 	fix: usr: Bug fix for SAC/UA wizard getting stuck in an infinite loop.
