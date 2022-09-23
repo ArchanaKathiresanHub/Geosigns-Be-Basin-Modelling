@@ -47,7 +47,10 @@ bool ScriptRunController::processCommand(const RunCommand& command)
       return false;
    }
 
-   while (!process_->waitForFinished(100))
+   qApp->processEvents(); //When running a long series of commands that mostly complete within 100 ms, this processEvents is needed to make sure that the log gets updated.
+
+   //If the process finishes while the code in the while loop is being executed, the wizard might get stuck in the while loop without the second statement.
+   while (!process_->waitForFinished(100) && process_->state() == QProcess::ProcessState::Running)
    {
       if (!processCancelled_ && dialog_.isHidden())
       {
