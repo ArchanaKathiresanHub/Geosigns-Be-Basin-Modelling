@@ -13,7 +13,7 @@
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Version				Date of update
 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-Cauldron-v2.8.27		2022-09-22 05:00:33 +0000
+Cauldron-v2.8.28		2022-09-23 13:38:01 +0000
 =============================================================
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Third-party Software 		version
@@ -36,6 +36,17 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2022-09-23  Marnix.vandenBerg  <Marnix.vandenBerg@shell.com>
+
+	fix: usr: Bug fix for SAC/UA wizard getting stuck in an infinite loop.
+	 * Added additional stopping condition to stop this from happening
+
+	Related work items: #480306
+
+	================== COMMIT-END ========================
+	Commit-ID:<9adc89175b0a4c1536f8fa95f9b7d91b2a34ba14>	  (refs/heads/master)
+
+++
 2022-09-22  Subhra-Sankar.Kalita  <Subhra-Sankar.Kalita@shell.com>
 
 	chg: dev: Changed the Cauldron 3rd party path from C:\Apps to C:\opt.
