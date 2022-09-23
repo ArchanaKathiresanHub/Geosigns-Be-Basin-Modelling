@@ -216,10 +216,13 @@ void ModelInputsController::slotPushButtonDoErunCasaClicked()
    CMBProjectWriter writer(m_casaScenario.project3dPath());
    writer.setScaling(m_casaScenario.subSamplingFactor(), m_casaScenario.subSamplingFactor());
 
+   QString oldStateFileNameDoE = m_casaScenario.stateFileNameDoE();
+
    DoEScript doe{m_casaScenario};
    if (!casaScriptWriter::writeCasaScript(doe) ||
        !m_scriptRunController.runScript(doe))
    {
+      m_casaScenario.setStateFileNameDoE(oldStateFileNameDoE); //State file is not updated, so its still the old one.
       return;
    }
 
@@ -262,10 +265,12 @@ void ModelInputsController::slotPushButtonRunAddedCasesClicked()
       return;
    }
 
+   QString oldStateFileNameDoE = m_casaScenario.stateFileNameDoE();
    AddCasesScript addCasesScript{m_casaScenario};
    if (!casaScriptWriter::writeCasaScript(addCasesScript) ||
        !m_scriptRunController.runScript(addCasesScript))
    {
+      m_casaScenario.setStateFileNameDoE(oldStateFileNameDoE);
       return;
    }
 

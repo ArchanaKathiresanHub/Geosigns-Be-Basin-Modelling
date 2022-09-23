@@ -144,6 +144,7 @@ void ResponseSurfacesController::slotPushButtonQCrunCasaClicked()
 
    m_casaScenario.copyToIterationDir(m_casaScenario.stateFileNameQC());
 
+   m_casaScenario.setStageUpToDate(StageTypesUA::doe); //doe stage is up to date with the response surfaces after running the response surfaces
    m_casaScenario.setStageComplete(StageTypesUA::responseSurfaces);
    m_casaScenario.setStageUpToDate(StageTypesUA::responseSurfaces);
    m_casaScenario.setStageComplete(StageTypesUA::mcmc, false);

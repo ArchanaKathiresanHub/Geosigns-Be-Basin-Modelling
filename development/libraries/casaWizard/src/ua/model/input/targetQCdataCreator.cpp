@@ -81,6 +81,7 @@ void readTargetQCs(UAScenario& scenario)
    }
 
    QVector<QVector<double>> runCasesObservablesOfTargetQC;
+
    for (int i = 0; i < runCasesObservables.size(); ++i)
    {
       QVector<double> rowrunCase;
@@ -93,8 +94,14 @@ void readTargetQCs(UAScenario& scenario)
 
    QString stateFileName = scenario.workingDirectory() + "/" + scenario.simStatesTextFileName();
    const QVector<int> simStates = DataFileParser<int>::colDominantMatrix(stateFileName).at(0);
-   removeObservablesFailedSimulations(runCasesObservablesOfTargetQC,simStates);
-   removeObservablesFailedSimulations(proxyEvaluationObservables,simStates);
+   QVector<int> simStatesOfTargetQC;
+   for (const int& indSetRQC : setOfindicesOfRunCasesForQC)
+   {
+      simStatesOfTargetQC.push_back(simStates[indSetRQC]);
+   }
+
+   removeObservablesFailedSimulations(runCasesObservablesOfTargetQC,simStatesOfTargetQC);
+   removeObservablesFailedSimulations(proxyEvaluationObservables,simStatesOfTargetQC);
 
    const int nTargets{runCasesObservables.size()};
 
