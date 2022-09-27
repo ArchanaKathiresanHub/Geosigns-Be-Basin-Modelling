@@ -49,7 +49,7 @@ void ColorMap::setColorMapType(const ColorMapType& colorMapType){
 
 QColor ColorMap::getColor(const double value, const double minValue, const double maxValue) const
 {
-  if (abs(maxValue - minValue) < 1e-3)
+  if (minValue == maxValue)
   {
     return QColor(0,0,0);
   }

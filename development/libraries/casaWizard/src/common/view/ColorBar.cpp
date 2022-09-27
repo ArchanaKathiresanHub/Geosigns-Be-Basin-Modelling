@@ -22,7 +22,8 @@ ColorBar::ColorBar( enum orientation o, QWidget *parent ):
    m_maxDecimals(-1),
    m_rangeMin(0),
    m_rangeMax(100),
-   m_intervals(10)
+   m_intervals(10),
+   m_resolution(1e-6)
 {
 }
 
@@ -69,6 +70,11 @@ void ColorBar::paintEvent( QPaintEvent * )
       painter.translate(m_Xoffset + m_width/2.0, m_Yoffset + m_heigth/2.0); //move to middle
       painter.rotate(90); //rotate
       painter.translate(-m_Xoffset - m_width/2.0, -m_Yoffset - m_heigth/2.0); //move to right top corner
+   }
+
+   if (std::abs(m_rangeMin - m_rangeMax) < m_resolution)
+   {
+      m_intervals = 2;
    }
    drawColorBar( &painter );
    drawTicksAndLabels( &painter );
@@ -170,10 +176,18 @@ void ColorBar::drawTicksAndLabels( QPainter* painter ) const
 void ColorBar::drawColorBar( QPainter* painter ) const
 {
    //colorbar
-   for (int i = 0; i <= m_heigth; i++)
+   if(std::abs(m_rangeMin - m_rangeMax) < m_resolution)
    {
-      painter->fillRect(QRectF(m_Xoffset, m_Yoffset + (m_heigth - i), m_width, 1),
-                        QBrush(m_colorMap.getColor(i, 0, m_heigth)));
+      painter->fillRect(QRectF(m_Xoffset, m_Yoffset, m_width, m_heigth),
+                        QBrush(m_colorMap.getColor(0.5, 0, 1))); //plain color
+   }
+   else
+   {
+      for (int i = 0; i <= m_heigth; i++)
+      {
+         painter->fillRect(QRectF(m_Xoffset, m_Yoffset + (m_heigth - i), m_width, 1),
+                           QBrush(m_colorMap.getColor(i, 0, m_heigth)));
+      }
    }
 
    //black lining

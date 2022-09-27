@@ -58,8 +58,8 @@ QCDoeOptionTable::QCDoeOptionTable(QWidget* parent) :
   QHBoxLayout* layoutTableAndCombos = new QHBoxLayout(this);
   layoutTableAndCombos->addWidget(tableWidgetQcDoeOption_);
   layoutTableAndCombos->addLayout(layoutComboBoxes);
-  layoutTableAndCombos->addWidget(new QWidget(this));
-  layoutTableAndCombos->setStretch(2, 1);
+  layoutTableAndCombos->addStretch(1);
+  layoutTableAndCombos->setMargin(0);
 }
 
 void QCDoeOptionTable::updateTable(const QStringList& doeOptionNames, const QVector<bool>& isQcDoeOptionsSelected)

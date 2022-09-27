@@ -59,6 +59,7 @@ private:
    double m_rangeMin;
    double m_rangeMax;
    double m_intervals;
+   double m_resolution;
 
    QString getTickLabel(const int& tick) const;
    void getColorBarDimentions();

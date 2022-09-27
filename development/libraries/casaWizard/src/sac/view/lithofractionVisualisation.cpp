@@ -130,7 +130,7 @@ void LithofractionVisualisation::slotUpdatePercentageRanges(const QString& perce
       for (Grid2DPlot* plot : lithoFractionPlots_)
       {
          plot->lithoPercent2DView()->setVariableValueRange();
-         plot->updateColorBar();
+         plot->updateColorBar(2);
       }
    }
    else if (percentageRangeType == "Fixed between 0 and 100")
@@ -153,7 +153,7 @@ void LithofractionVisualisation::slotUpdatePercentageRanges(const QString& perce
       for (Grid2DPlot* plot : lithoFractionPlots_)
       {
          plot->lithoPercent2DView()->setFixedValueRange(globalRange);
-         plot->updateColorBar();
+         plot->updateColorBar(2);
       }
    }
 

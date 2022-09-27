@@ -3,6 +3,7 @@
 #include "model/targetQC.h"
 #include "qcDoeOptionTable.h"
 #include "view/plot/qcPlot.h"
+#include "view/components/customtitle.h"
 
 #include <QCheckBox>
 #include <QHBoxLayout>
@@ -45,14 +46,17 @@ ResponseSurfacesTab::ResponseSurfacesTab(QWidget* parent) : QWidget(parent),
    tableQC_->horizontalHeader()->setStretchLastSection(true);
    tableQC_->verticalHeader()->setProperty("showSortIndicator", QVariant(false));
 
+   QVBoxLayout* DoEOptionTableLayout = new QVBoxLayout();
+   DoEOptionTableLayout->addWidget(new CustomTitle("Response surface settings", this));
+   DoEOptionTableLayout->addWidget(qcDoeOptionTable_);
+
    QGridLayout* gridLayout = new QGridLayout();
    gridLayout->addWidget(tableQC_, 0, 0, 2, 1);
    gridLayout->addWidget(qcPlot_, 0, 1, 2, 2);
-   gridLayout->addWidget(qcDoeOptionTable_, 2, 0);
+   gridLayout->addLayout(DoEOptionTableLayout, 2, 0);
    gridLayout->addWidget(pushButtonQCrunCASA_, 2, 2);
    gridLayout->setColumnStretch(1, 1);
    gridLayout->setRowStretch(2, 1);
-
    setLayout(gridLayout);
 }
 
