@@ -13,7 +13,7 @@
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Version				Date of update
 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-Cauldron-v2.8.30		2022-09-27 15:07:46 +0000
+Cauldron-v2.8.31		2022-09-28 11:17:28 +0000
 =============================================================
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Third-party Software 		version
@@ -36,6 +36,17 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2022-09-28  Richard Faasse  <Richard.Faasse@shell.com>
+
+	chg: usr: Workflow fix SAC !minor.
+	* In this PR two issues are tackled which prevented the user from continuing the workflow when some (but not all) simulations fail:
+	 * The indexing of which wells to disable in the maps tab was wrong, leading to the wrong wells being disabled (and not the ones which actually had failed simulations)
+	 * Some scripts shouldn't be completely killed when a failure is encountered, so that is implemented in the scriptruncontroller
+
+	================== COMMIT-END ========================
+	Commit-ID:<069e20999ed2e31c385ef96acfbf8afcd576fb10>	  (tag: refs/tags/v2.8.31, refs/heads/master)
+
+++
 2022-09-27  Sven van Leeuwen  <Sven.van-Leeuwen@shell.com>
 
 	chg: usr: Hotfix.
