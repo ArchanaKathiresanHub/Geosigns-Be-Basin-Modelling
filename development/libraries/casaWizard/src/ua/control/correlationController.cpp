@@ -8,7 +8,7 @@
 
 #include "correlationController.h"
 
-#include "control/scriptRunController.h"
+#include "control/ScriptRunController.h"
 #include "model/influentialParameterManager.h"
 #include "model/logger.h"
 #include "model/uaScenario.h"

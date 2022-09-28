@@ -1,6 +1,14 @@
+//
+// Copyright (C) 2022 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #include "dataExtractionController.h"
 
-#include "control/scriptRunController.h"
+#include "control/ScriptRunController.h"
 #include "model/extractor/optimizedLithofractionExtractor.h"
 #include "model/extractor/wellTrajectoryExtractor.h"
 #include "model/logger.h"

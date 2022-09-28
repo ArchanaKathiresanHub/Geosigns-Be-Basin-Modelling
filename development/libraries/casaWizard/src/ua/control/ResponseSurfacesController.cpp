@@ -1,7 +1,7 @@
 #include "ResponseSurfacesController.h"
 
 #include "control/casaScriptWriter.h"
-#include "control/scriptRunController.h"
+#include "control/ScriptRunController.h"
 #include "model/input/targetQCdataCreator.h"
 #include "model/logger.h"
 #include "model/scenarioBackup.h"

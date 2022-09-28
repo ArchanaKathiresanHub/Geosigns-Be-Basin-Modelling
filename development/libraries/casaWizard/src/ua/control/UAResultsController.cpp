@@ -9,7 +9,7 @@
 #include "UAResultsController.h"
 
 #include "control/casaScriptWriter.h"
-#include "control/scriptRunController.h"
+#include "control/ScriptRunController.h"
 #include "control/UAResultsTargetTableController.h"
 
 #include "model/calibrationTargetManager.h"

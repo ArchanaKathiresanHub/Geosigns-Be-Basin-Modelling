@@ -10,7 +10,7 @@
 
 #include "model/functions/folderOperations.h"
 #include "control/casaScriptWriter.h"
-#include "control/scriptRunController.h"
+#include "control/ScriptRunController.h"
 #include "influentialParameterController.h"
 #include "manualDesignPointController.h"
 #include "model/doeOption.h"

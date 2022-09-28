@@ -1,3 +1,11 @@
+//
+// Copyright (C) 2022 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #include "sacScenario.h"
 
 #include "model/functions/sortedByXWellIndices.h"
@@ -332,7 +340,8 @@ QVector<int> SACScenario::getIncludedWellIndicesFromSelectedWells(const QVector<
 bool SACScenario::hasOptimizedSuccessfully(const int caseIndex)
 {
   const QVector<int> sortedIndices = casaWizard::functions::sortedByXYWellIndices(calibrationTargetManager().activeWells());
-  QFile successFile(calibrationDirectory() + "/" + runLocation() + "/" + iterationDirName() + "/Case_" + QString::number(sortedIndices[caseIndex] + 1) + "/Stage_0.sh.success");
+  const QString caseFolderNumber = QString::number(sortedIndices.indexOf(caseIndex) + 1);
+  QFile successFile(calibrationDirectory() + "/" + runLocation() + "/" + iterationDirName() + "/Case_" + caseFolderNumber + "/Stage_0.sh.success");
 
   return successFile.exists();
 }

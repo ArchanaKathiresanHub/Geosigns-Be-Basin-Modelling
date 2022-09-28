@@ -9,7 +9,7 @@
 #include "resultsController.h"
 
 #include "control/casaScriptWriter.h"
-#include "control/scriptRunController.h"
+#include "control/ScriptRunController.h"
 #include "model/case3DTrajectoryConvertor.h"
 #include "model/functions/cauldronPropertyUnits.h"
 #include "model/functions/interpolateVector.h"

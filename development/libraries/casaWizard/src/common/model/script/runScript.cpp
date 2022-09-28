@@ -1,3 +1,11 @@
+//
+// Copyright (C) 2022 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #include "runScript.h"
 
 #include <QDir>
@@ -27,7 +35,12 @@ QVector<RunCommand> RunScript::commands() const
 
 QString RunScript::baseDirectory() const
 {
-  return baseDirectory_;
+   return baseDirectory_;
+}
+
+bool RunScript::scriptShouldCancelWhenFailureIsEncountered() const
+{
+   return true;
 }
 
 } // namespace casaWizard

@@ -9,7 +9,7 @@
 #include "wellPrepSACcontroller.h"
 #include "workspaceGenerationController.h"
 
-#include "control/scriptRunController.h"
+#include "control/ScriptRunController.h"
 #include "model/logger.h"
 #include "model/sacScenario.h"
 #include "model/scenarioBackup.h"

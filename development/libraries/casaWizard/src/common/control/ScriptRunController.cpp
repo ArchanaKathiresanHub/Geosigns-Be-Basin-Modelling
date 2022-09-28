@@ -1,4 +1,12 @@
-#include "scriptRunController.h"
+//
+// Copyright (C) 2022 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
+#include "ScriptRunController.h"
 
 #include "model/logger.h"
 #include "model/script/runScript.h"
@@ -15,46 +23,45 @@ namespace casaWizard
 
 ScriptRunController::ScriptRunController(QObject* parent) :
    QObject(parent),
-   processCancelled_{false},
-   dialog_{},
-   process_{new QProcess(this)},
-   baseDirectory_{""},
-   script_{nullptr}
+   m_processCancelled{false},
+   m_dialog{},
+   m_process{new QProcess(this)},
+   m_script{nullptr}
 {
-   dialog_.close();
-   dialog_.setModal(false);
-   QSizePolicy policy = dialog_.sizePolicy();
+   m_dialog.close();
+   m_dialog.setModal(false);
+   QSizePolicy policy = m_dialog.sizePolicy();
    policy.setHorizontalPolicy(QSizePolicy::Policy::Expanding);
    policy.setVerticalPolicy(QSizePolicy::Policy::Expanding);
-   dialog_.setSizePolicy(policy);
-   dialog_.setWindowTitle("Executing");
+   m_dialog.setSizePolicy(policy);
+   m_dialog.setWindowTitle("Executing");
 
-   dialog_.setStandardButtons(QMessageBox::StandardButton::Cancel);
-   dialog_.setDefaultButton(QMessageBox::StandardButton::Cancel);
+   m_dialog.setStandardButtons(QMessageBox::StandardButton::Cancel);
+   m_dialog.setDefaultButton(QMessageBox::StandardButton::Cancel);
 
-   connect(process_, SIGNAL(readyReadStandardOutput()), this, SLOT(slotReadStandardOutput()));
-   connect(dialog_.defaultButton(), SIGNAL(clicked()),  this, SLOT(killProcess()));
-   connect(&dialog_, SIGNAL(rejected()),                this, SLOT(killProcess()));
+   connect(m_process, SIGNAL(readyReadStandardOutput()), this, SLOT(slotReadStandardOutput()));
+   connect(m_dialog.defaultButton(), SIGNAL(clicked()),  this, SLOT(killProcess()));
+   connect(&m_dialog, SIGNAL(rejected()),                this, SLOT(killProcess()));
 }
 
 bool ScriptRunController::processCommand(const RunCommand& command)
 {
-   process_->setWorkingDirectory(script_->baseDirectory() + "/" + command.relativeDirectory);
-   process_->start(command.command);
-   if (!process_->waitForStarted())
+   m_process->setWorkingDirectory(m_script->baseDirectory() + "/" + command.relativeDirectory);
+   m_process->start(command.command);
+   if (!m_process->waitForStarted())
    {
-      process_->kill();
+      m_process->kill();
       return false;
    }
 
    qApp->processEvents(); //When running a long series of commands that mostly complete within 100 ms, this processEvents is needed to make sure that the log gets updated.
 
    //If the process finishes while the code in the while loop is being executed, the wizard might get stuck in the while loop without the second statement.
-   while (!process_->waitForFinished(100) && process_->state() == QProcess::ProcessState::Running)
+   while (!m_process->waitForFinished(100) && m_process->state() == QProcess::ProcessState::Running)
    {
-      if (!processCancelled_ && dialog_.isHidden())
+      if (!m_processCancelled && m_dialog.isHidden())
       {
-         dialog_.show(); //Only show waiting dialog if process takes longer than 100 ms.
+         m_dialog.show(); //Only show waiting dialog if process takes longer than 100 ms.
       }
       qApp->processEvents();
    }
@@ -64,8 +71,8 @@ bool ScriptRunController::processCommand(const RunCommand& command)
 
 bool ScriptRunController::runScript(RunScript& script, QObject * receiver, const char* slot, int timeout)
 {
-   script_ = &script;
-   processCancelled_ = false;
+   m_script = &script;
+   m_processCancelled = false;
 
    emit runStarted();
 
@@ -93,27 +100,27 @@ bool ScriptRunController::runScript(RunScript& script, QObject * receiver, const
 
    for (const RunCommand& command : script.commands())
    {
-      if (processCancelled_) break;
+      if (m_processCancelled) break;
 
-      dialog_.setText( command.command );
-      dialog_.raise();
+      m_dialog.setText( command.command );
+      m_dialog.raise();
       Logger::log() << command.command << Logger::endl();
 
       if (!processCommand(command))
       {
          Logger::log() << "Last command failed: " << command.command << Logger::endl();
-         processCancelled_ = true;
+         m_processCancelled = true;
          break;
       }
    }
-   if (processCancelled_)
+   if (m_processCancelled)
    {
       Logger::log() << "Command pipeline interrupted" << Logger::endl();
-      dialog_.close();
+      m_dialog.close();
    }
    else
    {
-      dialog_.accept();
+      m_dialog.accept();
    }
 
    if (slot != nullptr)
@@ -131,40 +138,40 @@ bool ScriptRunController::runScript(RunScript& script, QObject * receiver, const
 
    emit runEnded();
 
-   script_ = nullptr;
-   return !processCancelled_;
+   m_script = nullptr;
+   return !m_processCancelled;
 }
 
 QByteArray ScriptRunController::processOutput()
 {
-   QByteArray outcpy = processOutputs_;
-   processOutputs_.clear();
+   QByteArray outcpy = m_processOutputs;
+   m_processOutputs.clear();
    return outcpy;
 }
 
 void ScriptRunController::killProcess()
 {
-   processCancelled_ = true;
+   m_processCancelled = true;
    Logger::log() << "Preparing interruption ... "  << Logger::endl();
-   if (script_ != nullptr && script_->killAsync())
+   if (m_script != nullptr && m_script->killAsync())
    {
       Logger::log() << "Interrupting running process" << Logger::endl();
    }
    else
    {
-      process_->terminate();
+      m_process->terminate();
       Logger::log() << "Killed running process" << Logger::endl();
    }
 }
 
 void ScriptRunController::slotReadStandardOutput()
 {
-   processOutputs_.append(process_->readAllStandardOutput());
-   QString outStr(processOutputs_);
+   m_processOutputs.append(m_process->readAllStandardOutput());
+   QString outStr(m_processOutputs);
 
-   if (outStr.contains("Basin_Fatal"))
+   if (outStr.contains("Basin_Fatal") && m_script->scriptShouldCancelWhenFailureIsEncountered())
    {
-      processCancelled_ = true;
+      m_processCancelled = true;
    }
 
    emit readyReadStandardOutput();

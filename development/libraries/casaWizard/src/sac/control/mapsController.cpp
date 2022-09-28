@@ -12,7 +12,7 @@
 #include "control/casaScriptWriter.h"
 #include "control/lithofractionVisualisationController.h"
 #include "control/run3dCaseController.h"
-#include "control/scriptRunController.h"
+#include "control/ScriptRunController.h"
 
 #include "model/functions/folderOperations.h"
 #include "model/input/cmbProjectReader.h"

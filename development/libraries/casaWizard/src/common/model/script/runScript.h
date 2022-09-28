@@ -1,3 +1,11 @@
+//
+// Copyright (C) 2022 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 // Abstract base class for writing a casa script
 #pragma once
 
@@ -17,6 +25,7 @@ public:
 
   virtual bool generateCommands() = 0;
   virtual bool killAsync() const;
+  virtual bool scriptShouldCancelWhenFailureIsEncountered() const;
 
   void addCommand(const QString& command, const QString& relativeDirectory = "");
   QVector<RunCommand> commands() const;

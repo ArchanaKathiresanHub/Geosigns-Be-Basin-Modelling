@@ -15,7 +15,7 @@
 #include "control/lithofractionController.h"
 #include "control/objectiveFunctionControllerSAC.h"
 #include "control/run3dCaseController.h"
-#include "control/scriptRunController.h"
+#include "control/ScriptRunController.h"
 #include "model/functions/folderOperations.h"
 #include "model/input/calibrationTargetCreator.h"
 #include "model/input/cmbMapReader.h"

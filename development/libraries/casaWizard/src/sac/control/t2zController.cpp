@@ -9,7 +9,7 @@
 #include "t2zController.h"
 
 #include "control/casaScriptWriter.h"
-#include "control/scriptRunController.h"
+#include "control/ScriptRunController.h"
 
 #include "model/functions/folderOperations.h"
 #include "model/input/calibrationTargetCreator.h"

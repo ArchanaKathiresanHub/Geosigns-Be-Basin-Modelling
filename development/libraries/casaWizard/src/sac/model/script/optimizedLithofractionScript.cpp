@@ -1,3 +1,11 @@
+//
+// Copyright (C) 2022 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #include "optimizedLithofractionScript.h"
 
 #include "model/logger.h"
@@ -33,7 +41,12 @@ bool OptimizedLithofractionScript::generateCommands()
 
 void OptimizedLithofractionScript::addCase(const QString& runFolder)
 {
-  runFolders_.append(runFolder);
+   runFolders_.append(runFolder);
+}
+
+bool OptimizedLithofractionScript::scriptShouldCancelWhenFailureIsEncountered() const
+{
+   return false;
 }
 
 void OptimizedLithofractionScript::createScriptInFolder(const QString& folderName)

@@ -1,3 +1,11 @@
+//
+// Copyright (C) 2022 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 // Class to execute casa scripts
 #pragma once
 
@@ -36,12 +44,11 @@ private slots:
 private:
   bool processCommand(const RunCommand& command);
 
-  bool processCancelled_;
-  QMessageBox dialog_;
-  QProcess* process_;
-  QString baseDirectory_;
-  RunScript* script_;
-  QByteArray processOutputs_;
+  bool m_processCancelled;
+  QMessageBox m_dialog;
+  QProcess* m_process;
+  RunScript* m_script;
+  QByteArray m_processOutputs;
 };
 
 } // namespace casaWizard

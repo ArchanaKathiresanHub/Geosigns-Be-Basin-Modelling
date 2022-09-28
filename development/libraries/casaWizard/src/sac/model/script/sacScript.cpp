@@ -41,7 +41,7 @@ QString SACScript::scriptFilename() const
 
 QString SACScript::workingDirectory() const
 {
-  return QString(scenario_.workingDirectory());
+   return QString(scenario_.workingDirectory());
 }
 
 bool SACScript::validateScenario() const

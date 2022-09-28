@@ -9,7 +9,7 @@
 #include "run3dCaseController.h"
 
 #include "control/casaScriptWriter.h"
-#include "control/scriptRunController.h"
+#include "control/ScriptRunController.h"
 
 #include "model/case3DTrajectoryConvertor.h"
 #include "model/input/case3DTrajectoryReader.h"

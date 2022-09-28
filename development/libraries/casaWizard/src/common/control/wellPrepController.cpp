@@ -8,7 +8,7 @@
 
 #include "wellPrepController.h"
 
-#include "scriptRunController.h"
+#include "ScriptRunController.h"
 #include "calibrationTargetWellPrepController.h"
 
 #include "control/applySmoothingThread.h"

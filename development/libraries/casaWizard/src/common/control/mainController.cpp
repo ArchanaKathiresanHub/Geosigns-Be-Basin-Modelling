@@ -13,7 +13,7 @@
 #include "model/scenarioReader.h"
 #include "model/scenarioWriter.h"
 #include "model/script/runScript.h"
-#include "scriptRunController.h"
+#include "ScriptRunController.h"
 #include "view/mainWindow.h"
 #include "view/menuBar.h"
 
