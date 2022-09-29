@@ -13,7 +13,7 @@
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Version				Date of update
 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-Cauldron-v2.8.31		2022-09-28 11:17:28 +0000
+Cauldron-v2.9.0		2022-09-29 16:25:17 +0000
 =============================================================
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Third-party Software 		version
@@ -36,6 +36,17 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2022-09-29  Subhra-Sankar.Kalita  <Subhra-Sankar.Kalita@shell.com>
+
+	chg: dev: Goodbye OFPP !major.
+	 * OFPP functionality has been removed from Cauldron
+	 * Chunking (-lustre) and -primaryPod has been retained
+
+	Related work items: #475807, #475808
+	================== COMMIT-END ========================
+	Commit-ID:<0aecd73fa949f0b62364cb0b6a746f35c7d18f48>	  (tag: refs/tags/v2.9.0, refs/heads/master, refs/heads/Developers/Subhra-Sankar.Kalita/masterChangeLog)
+
+++
 2022-09-28  Richard Faasse  <Richard.Faasse@shell.com>
 
 	chg: usr: Workflow fix SAC !minor.
