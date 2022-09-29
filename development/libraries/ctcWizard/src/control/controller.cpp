@@ -138,14 +138,12 @@ namespace ctcWizard
 		}
 		// This path is added during MSMPI installation
 		QString MPI_BIN = getenv("MSMPI_BIN") + QString("mpiexec.exe");
-		std::string fpp = "";
 		QString MPI_OPTIONS = "-logfile cauldron-mpi-output-rank-0.log";
 		fileToLog = "cauldron-mpi-output-rank-0.log";
 #else
 		//The following will now call whatever is loaded in the OS PATH variable
 		QString CLDRN_BIN = qtutils::exportApplicationPath() + '/' + "fastcauldron";
 		QString MPI_BIN = "mpirun";
-		std::string fpp = " -noofpp";
 		QString MPI_OPTIONS = "";//"-outfile-pattern 'cauldron-mpi-output-rank-%r.log'";
 #endif // Q_OS_WIN
 
@@ -154,6 +152,7 @@ namespace ctcWizard
 		connect(&process, static_cast<void (QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished),
 			this, [&] {Controller::processFinished(process.exitCode(), process.exitStatus(), myLogger, info.absoluteDir().path() + "/" + fileToLog
 				, ui_.lineEditLog(), wlm->getWlmType()); });
+
 		QString runPT = QString::fromStdString
 		(
 			wlm->JobSubmissionCommand
@@ -161,7 +160,7 @@ namespace ctcWizard
 				"cldrn", "", 1800, "ctcPressureJob", fileToLog.toStdString(),
 				"", numProc.toStdString(), "", "", qtutils::addDoubleQuotes(process.workingDirectory()).toStdString(), false, false,
 				(qtutils::addDoubleQuotes(MPI_BIN).toStdString() + " -n " +
-					numProc.toStdString() + ' ' + (MPI_OPTIONS).toStdString() + ' ' + qtutils::addDoubleQuotes(CLDRN_BIN).toStdString() + fpp +
+					numProc.toStdString() + ' ' + (MPI_OPTIONS).toStdString() + ' ' + qtutils::addDoubleQuotes(CLDRN_BIN).toStdString() +
 					" -project " + qtutils::addDoubleQuotes(filePath).toStdString() + " " + cldrnRunMode.toStdString()
 					),
 				true
@@ -239,14 +238,12 @@ namespace ctcWizard
 		}
 		// This path is added during MSMPI installation
 		QString MPI_BIN = getenv("MSMPI_BIN") + QString("mpiexec.exe");
-		std::string fpp = "";
 		QString MPI_OPTIONS = "-logfile ctc-mpi-output-rank-0.log";
 		fileToLog = "ctc-mpi-output-rank-0.log";
 #else
 		//The following will now call whatever is loaded in the OS PATH variable
 		QString CTC_BIN = qtutils::exportApplicationPath() + '/' + "fastctc";
 		QString MPI_BIN = "mpirun";
-		std::string fpp = "-noofpp";
 		QString MPI_OPTIONS = "";//"-outfile-pattern 'ctc-mpi-output-rank-%r.log'";
 #endif // WIN32
 		QProcess process;
@@ -278,7 +275,7 @@ namespace ctcWizard
 				(
 					qtutils::addDoubleQuotes(MPI_BIN).toStdString() + " -n " +
 					numProc.toStdString() + ' ' + (MPI_OPTIONS).toStdString() + ' ' + qtutils::addDoubleQuotes(CTC_BIN).toStdString() +
-					" -merge " + fpp + " -project " + qtutils::addDoubleQuotes(ctcFilenameWithPath).toStdString() + (" -save ") + saveP3
+					" -merge " + " -project " + qtutils::addDoubleQuotes(ctcFilenameWithPath).toStdString() + (" -save ") + saveP3
 					),
 				true
 			)

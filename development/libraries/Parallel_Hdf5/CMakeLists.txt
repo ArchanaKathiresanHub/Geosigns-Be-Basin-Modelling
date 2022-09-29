@@ -13,9 +13,9 @@
 if (BM_PARALLEL)
    set( LIB_NAME "Parallel_Hdf5" )
 
-   set (OFPP "")
+   set (OPP "")
    if (UNIX)
-      set (OFPP OneFilePerProcess)
+      set (OPP OtherParallelProcess)
    endif ()
 
    include_directories( SYSTEM
@@ -29,7 +29,7 @@ if (BM_PARALLEL)
                                 Serial_Hdf5
                                 FileSystem
                                 utilities
-                                ${OFPP}
+                                ${OPP}
                                 ${PETSC_LIBRARIES}
                                 ${MPI_LIBRARIES}
                       INSTALLTARGET )

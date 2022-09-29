@@ -1,5 +1,5 @@
 #include "mpi.h"
-#include "strings.h"
+#include <string.h>
 #include "stdlib.h"
 #include <sstream>
 #include <iostream>
@@ -8,7 +8,6 @@
 #include "fileHandler.h"
 
 #include "H5FDmpio.h"
-#include "HDF5VirtualFileDriver.h"
 //#define SAFE_RUN 1
 
 bool errorFlag = false;
@@ -119,10 +118,6 @@ bool FileHandler::mergeFiles( const bool appendRank ) {
   } else {
     tmpName << m_tempDirName << "/{NAME}";
   }
-
-#ifdef _ACTIVATE_OFPP_MODE
-  H5Pset_fapl_ofpp ( fileAccessPList, m_comm, tmpName.str().c_str(), 0 );
-#endif
 
   openLocalFile( fileAccessPList );
 

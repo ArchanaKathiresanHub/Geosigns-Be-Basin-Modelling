@@ -216,7 +216,7 @@ int main (int argc, char ** argv)
 
      status = (theGenexSimulator != 0);
 
-     H5_Parallel_PropertyList::setOneFilePerProcessOption(false);
+     H5_Parallel_PropertyList::setOtherFileProcessOptions(false);
 
      //delete existent properties
      if (status) {

@@ -7,11 +7,9 @@
 #include "FilePath.h"
 
 #ifndef _MSC_VER
-#include "HDF5VirtualFileDriver.h"
 #include "h5merge.h"
 #endif
 
-bool        H5_Parallel_PropertyList :: s_oneFilePerProcess = false;
 bool        H5_Parallel_PropertyList :: s_primaryPod = false;
 bool        H5_Parallel_PropertyList :: s_oneFileLustre = false;
 
@@ -25,57 +23,42 @@ hid_t H5_Parallel_PropertyList :: createFilePropertyList( ) const
    hid_t plist = H5Pcreate (H5P_FILE_ACCESS);
 
 #ifndef _MSC_VER
-#ifdef _ACTIVATE_OFPP_MODE
-   if( s_oneFilePerProcess )
-   {
-      ibs::FilePath fileName( s_temporaryDirName );
-      fileName << "{NAME}_{MPI_RANK}";
+   H5Pset_fapl_mpio (plist, PETSC_COMM_WORLD, s_mpiInfo);
 
-      H5Pset_fapl_ofpp (plist, PETSC_COMM_WORLD, fileName.cpath(), 0);
+   if( s_primaryPod or s_oneFileLustre ) {
+      // Disable cache
+      // set B-tree to roughly same size as 'stripe size' (default stripe size 1Mb)
+      // https://www.nersc.gov/users/training/online-tutorials/introduction-to-scientific-i-o/?start=5
+      // hsize_t btree_ik = 10880; //(chunkSize - 4096) / 96;
+      // H5Pset_istore_k(plist, btree_ik);
+
+      // disable cache evictions
+      H5AC_cache_config_t mdc_config;
+      memset(&mdc_config, 0, sizeof(mdc_config));
+      mdc_config.version = H5AC__CURR_CACHE_CONFIG_VERSION;
+      H5Pget_mdc_config(plist, &mdc_config);
+      mdc_config.evictions_enabled = 0;
+      mdc_config.flash_incr_mode = H5C_flash_incr__off;
+      mdc_config.incr_mode = H5C_incr__off;
+      mdc_config.decr_mode = H5C_decr__off;
+      H5Pset_mdc_config(plist, &mdc_config);
    }
-   else
-#endif
-   {
-         H5Pset_fapl_mpio (plist, PETSC_COMM_WORLD, s_mpiInfo);
-
-         if( s_primaryPod or s_oneFileLustre ) {
-            // Disable cache
-            // set B-tree to roughly same size as 'stripe size' (default stripe size 1Mb)
-            // https://www.nersc.gov/users/training/online-tutorials/introduction-to-scientific-i-o/?start=5
-            // hsize_t btree_ik = 10880; //(chunkSize - 4096) / 96;
-            // H5Pset_istore_k(plist, btree_ik);
-
-            // disable cache evictions
-            H5AC_cache_config_t mdc_config;
-            memset(&mdc_config, 0, sizeof(mdc_config));
-            mdc_config.version = H5AC__CURR_CACHE_CONFIG_VERSION;
-            H5Pget_mdc_config(plist, &mdc_config);
-            mdc_config.evictions_enabled = 0;
-            mdc_config.flash_incr_mode = H5C_flash_incr__off;
-            mdc_config.incr_mode = H5C_incr__off;
-            mdc_config.decr_mode = H5C_decr__off;
-            H5Pset_mdc_config(plist, &mdc_config);
-         }
-
-   }
-
-
 #else
    H5Pset_fapl_mpio (plist, PETSC_COMM_WORLD, s_mpiInfo);
 #endif
    return plist;
 }
 
+// H5Pset_dxpl_mpio works only on data transfer, hence remove dxpl from the rest
+// of the operations and set the pList correctly
 hid_t H5_Parallel_PropertyList :: createCreateDatasetPropertyList() const
 {
    // set parallel read/write on file
    hid_t pList = H5P_DEFAULT;
 
-   if( not s_oneFilePerProcess)
-   {
-      pList = H5Pcreate (H5P_DATASET_CREATE);
-      H5Pset_dxpl_mpio (pList, H5FD_MPIO_COLLECTIVE);
-   }
+   pList = H5Pcreate (H5P_DATASET_CREATE);
+   H5Pset_dxpl_mpio (pList, H5FD_MPIO_COLLECTIVE);
+ 
 
    return pList;
 }
@@ -85,11 +68,8 @@ hid_t H5_Parallel_PropertyList :: createAccessDatasetPropertyList() const
    // set parallel read/write on file
    hid_t pList = H5P_DEFAULT;
 
-   if( not s_oneFilePerProcess)
-   {
-      pList = H5Pcreate (H5P_DATASET_ACCESS);
-      H5Pset_dxpl_mpio (pList, H5FD_MPIO_COLLECTIVE);
-   }
+   pList = H5Pcreate (H5P_DATASET_ACCESS);
+   H5Pset_dxpl_mpio (pList, H5FD_MPIO_COLLECTIVE);
 
    return pList;
 }
@@ -99,38 +79,27 @@ hid_t H5_Parallel_PropertyList :: createRawTransferDatasetPropertyList() const
    // set parallel read/write on file
    hid_t pList = H5P_DEFAULT;
 
-   if( not s_oneFilePerProcess)
-   {
-      pList = H5Pcreate (H5P_DATASET_XFER);
-      H5Pset_dxpl_mpio (pList, H5FD_MPIO_COLLECTIVE);
-   }
+   pList = H5Pcreate (H5P_DATASET_XFER);
+   H5Pset_dxpl_mpio (pList, H5FD_MPIO_COLLECTIVE);
 
    return pList;
 }
 
-bool H5_Parallel_PropertyList :: setOneFilePerProcessOption( const bool createDir )
+void H5_Parallel_PropertyList ::setOtherFileProcessOptions( const bool createDir )
 {
-   PetscBool noOfpp     = PETSC_TRUE;
    PetscBool primaryPod = PETSC_FALSE;
    PetscBool ofLustre   = PETSC_FALSE;
 
 #ifndef _MSC_VER
-   PetscOptionsHasName (PETSC_IGNORE, PETSC_IGNORE, "-noofpp", &noOfpp );
    PetscOptionsHasName (PETSC_IGNORE, PETSC_IGNORE, "-lustre", &ofLustre );
-
-   // noOfpp is set to true here in order to Disable OFPP and make NOOFPP as the default and only option 
-   // for CauldronV2 after the HDF5 library is upgraded to version 1.12.0
-   noOfpp = PETSC_TRUE;
-
-   if( !noOfpp and !ofLustre ) {
-
+   
+   if( !ofLustre ) 
+   {
       const char * tmpDir = 0;
 
       char temporaryDirName [ PETSC_MAX_PATH_LEN ];
       memset ( temporaryDirName, 0, PETSC_MAX_PATH_LEN );
 
-      PetscBool oneFilePerProcess;
-      PetscOptionsGetString ( PETSC_IGNORE, PETSC_IGNORE, "-onefileperprocess", temporaryDirName, PETSC_MAX_PATH_LEN, &oneFilePerProcess );
       PetscOptionsGetString ( PETSC_IGNORE, PETSC_IGNORE, "-primaryPod", temporaryDirName, PETSC_MAX_PATH_LEN, &primaryPod );
 
       setPrimaryPod ( primaryPod );
@@ -183,25 +152,20 @@ bool H5_Parallel_PropertyList :: setOneFilePerProcessOption( const bool createDi
          }
       }
 
-      if( tmpDir == NULL ) {
-         noOfpp = PETSC_TRUE;
-      } else {
-         setTempDirName ( tmpDir );
-         PetscPrintf ( PETSC_COMM_WORLD, "Set %s for output or/and input\n", tmpDir );
+      if (tmpDir != NULL) 
+      {
+         setTempDirName(tmpDir);
+         PetscPrintf(PETSC_COMM_WORLD, "Set %s for output or/and input\n", tmpDir);
       }
    }
-#else
-   noOfpp = PETSC_TRUE;
 #endif
 
    if( not primaryPod ) {
-      if( not ofLustre ) {
-         setOneFilePerProcess ( !noOfpp );
-      } else {
-         setOneFileLustre ( true );
+
+      if (ofLustre) {
+         setOneFileLustre(true);
       }
    }
-   return !noOfpp;
 }
 
 bool H5_Parallel_PropertyList :: copyMergedFile( const std::string & filePathName, const bool appendRank )
@@ -257,7 +221,7 @@ void H5_Parallel_PropertyList ::  setOneNodeCollectiveBufferingOption()
 }
 bool H5_Parallel_PropertyList ::mergeOutputFiles ( const string & activityName, const std::string & localPath ) {
 
-   if( not H5_Parallel_PropertyList::isOneFilePerProcessEnabled() and not H5_Parallel_PropertyList::isPrimaryPodEnabled ()) {
+   if( not H5_Parallel_PropertyList::isPrimaryPodEnabled ()) {
       return true;
    }
 
@@ -325,7 +289,3 @@ bool H5_Parallel_PropertyList ::removeOutputFile ( const string & filePathName )
    }
    return true;
 }
-
-
-
-

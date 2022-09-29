@@ -17,12 +17,9 @@ public:
    virtual hid_t createAccessDatasetPropertyList( ) const;
    virtual hid_t createRawTransferDatasetPropertyList( ) const;
          
-   static bool setOneFilePerProcessOption( const bool createDir =  true ) ;
+   static void setOtherFileProcessOptions( const bool createDir =  true ) ;
 
    static void setOneNodeCollectiveBufferingOption();
-
-   static bool isOneFilePerProcessEnabled() 
-   { return s_oneFilePerProcess; }
 
    static bool isOneFileLustreEnabled() 
    { return s_oneFileLustre; }
@@ -33,14 +30,11 @@ public:
    static std::string getTempDirName() 
    { return s_temporaryDirName; }
 
-   static void setOneFilePerProcess ( bool oneFilePerProcess )
-   {  s_oneFilePerProcess = oneFilePerProcess; }
-
    static void setOneFileLustre ( bool oneFileLustre )
    {  s_oneFileLustre = oneFileLustre; }
 
-   static void setPrimaryPod ( bool oneFilePerProcess )
-   {  s_primaryPod = oneFilePerProcess; }
+   static void setPrimaryPod ( bool isPrimaryPod )
+   {  s_primaryPod = isPrimaryPod; }
    
    static bool copyMergedFile( const std::string & fileName, const bool rank = true );
 
@@ -48,16 +42,6 @@ public:
 
    static bool removeOutputFile ( const string & filePathName );
 private:
-
-   // "OneFilePerProcess" mode is a default mode for all the simulators.
-   // 
-   // If TMPDIR environment variable is defined it will be used to create temporary output files - one file per each MPI process.
-   // All temporary files will be merged at the end of the simulation into a one file and saved in the project output directory. 
-   // Alternatively a temporary directory can be specified with a command-line option "-onefileperprocess <pathToTempDir>".
-
-   // To disable oneFilePerProcess mode use a command-line option "-noofpp"
-   // Output files will be written directly to the project file output directory.
-   static bool s_oneFilePerProcess;
 
    // "PrimaryPod" is an option to write the results to a shared Lustre directory on a cluster
    // To enable primaryPod mode use a command-line option "-primaryPod <pathToSharedLustreDirOnCluster>"

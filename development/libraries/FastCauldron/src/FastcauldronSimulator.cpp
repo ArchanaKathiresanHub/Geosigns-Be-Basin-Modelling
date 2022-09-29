@@ -631,20 +631,16 @@ bool FastcauldronSimulator::setCalculationMode ( const CalculationMode mode, con
 void FastcauldronSimulator::updateSnapshotFileCreationFlags () {
 
    if ( getCalculationMode () == OVERPRESSURED_TEMPERATURE_MODE ) {
-      if( !H5_Parallel_PropertyList::isOneFilePerProcessEnabled() ) {
-         Interface::MutableSnapshotList::const_iterator snapshotIter;
+      Interface::MutableSnapshotList::const_iterator snapshotIter;
 
-         for ( snapshotIter = m_snapshots.begin (); snapshotIter != m_snapshots.end (); ++snapshotIter ) {
+      for ( snapshotIter = m_snapshots.begin (); snapshotIter != m_snapshots.end (); ++snapshotIter ) {
 
-            if ( (*snapshotIter)->getFileName () != "" ) {
-               ibs::FilePath fileName( getFullOutputDir () );
-               fileName << (*snapshotIter)->getFileName ();
+         if ( (*snapshotIter)->getFileName () != "" ) {
+            ibs::FilePath fileName( getFullOutputDir () );
+            fileName << (*snapshotIter)->getFileName ();
 
-               (*snapshotIter)->setAppendFile ( File_Exists ( fileName.cpath () ));
-            }
-
+            (*snapshotIter)->setAppendFile ( File_Exists ( fileName.cpath () ));
          }
-
       }
    }
 }
@@ -798,15 +794,15 @@ bool FastcauldronSimulator::nodeIsDefined ( const int i, const int j ) const {
 }
 
 //------------------------------------------------------------//
-bool FastcauldronSimulator::mergeOutputFiles ( ) {
-
-   if( ! H5_Parallel_PropertyList::isOneFilePerProcessEnabled() && ! H5_Parallel_PropertyList::isPrimaryPodEnabled () )
+bool FastcauldronSimulator::mergeOutputFiles ( ) 
+{
+   if( !H5_Parallel_PropertyList::isPrimaryPodEnabled () )
    {
-
       return true;
    }
 
-   if(  H5_Parallel_PropertyList::isPrimaryPodEnabled () or isPrimaryDouble() ) {
+   if(  H5_Parallel_PropertyList::isPrimaryPodEnabled () or isPrimaryDouble() ) 
+   {
       return mergeSharedOutputFiles();
    }
 #ifndef _MSC_VER
@@ -1653,8 +1649,8 @@ void FastcauldronSimulator::correctAllPropertyLists () {
 
 //------------------------------------------------------------//
 
-void FastcauldronSimulator::deleteMinorSnapshots () {
-
+void FastcauldronSimulator::deleteMinorSnapshots () 
+{
    Interface::MutableSnapshotList::iterator snapshotIter;
    database::Table::iterator timeTableIter;
    database::Table* snapshotTable = getTable ( "SnapshotIoTbl" );
@@ -1664,36 +1660,37 @@ void FastcauldronSimulator::deleteMinorSnapshots () {
 
    assert ( snapshotTable != 0 );
 
-   for ( snapshotIter = m_minorSnapshots.begin (); snapshotIter != m_minorSnapshots.end (); ++snapshotIter ) {
-
-      for ( timeTableIter = snapshotTable->begin (); timeTableIter != snapshotTable->end (); ++timeTableIter ) {
-
-         if ((*snapshotIter)->getTime () == database::getTime ( *timeTableIter )) {
+   for ( snapshotIter = m_minorSnapshots.begin (); snapshotIter != m_minorSnapshots.end (); ++snapshotIter ) 
+   {
+      for ( timeTableIter = snapshotTable->begin (); timeTableIter != snapshotTable->end (); ++timeTableIter ) 
+      {
+         if ((*snapshotIter)->getTime () == database::getTime ( *timeTableIter )) 
+         {
             recordsForDeletion.push_back ( *timeTableIter );
             break;
          }
-
       }
 
-      if( ! H5_Parallel_PropertyList::isOneFilePerProcessEnabled() ) {
-         if ( getRank () == 0 ) {
-            ibs::FilePath fileName( getFullOutputDir () );
-            fileName << (*snapshotIter)->getFileName ();
-            int status = std::remove( fileName.cpath () );
+      if ( getRank () == 0 ) 
+      {
+         ibs::FilePath fileName( getFullOutputDir () );
+         fileName << (*snapshotIter)->getFileName ();
+         int status = std::remove( fileName.cpath () );
 
-            if (status == -1)
-               cerr << "Basin_Warning:  Unable to remove minor snapshot file, because '"
-                    << std::strerror(errno) << "'" << endl;
+         if (status == -1) 
+         {
+            cerr << "Basin_Warning:  Unable to remove minor snapshot file, because '"
+               << std::strerror(errno) << "'" << endl;
          }
       }
    }
 
-   for ( recordsForDeletionIter = recordsForDeletion.begin (); recordsForDeletionIter != recordsForDeletion.end (); ++recordsForDeletionIter ) {
+   for ( recordsForDeletionIter = recordsForDeletion.begin (); recordsForDeletionIter != recordsForDeletion.end (); ++recordsForDeletionIter ) 
+   {
       snapshotTable->deleteRecord ( *recordsForDeletionIter );
    }
 
    m_minorSnapshots.clear ();
-
 }
 
 //------------------------------------------------------------//
@@ -2054,8 +2051,8 @@ MultiComponentFlowHandler& FastcauldronSimulator::getMcfHandler () {
 
 //------------------------------------------------------------//
 
-void FastcauldronSimulator::readCommandLineParametersEarlyStage( const int argc, char **argv ) {
-
+void FastcauldronSimulator::readCommandLineParametersEarlyStage( const int argc, char **argv ) 
+{
    // Should move all command line parameters from appctx to fastcauldron-simulator.
 
    // Read the command line options setting up the simulation mode, etc.
@@ -2076,12 +2073,7 @@ void FastcauldronSimulator::readCommandLineParametersEarlyStage( const int argc,
    m_cauldron->setOnlyPrimaryOutput( doPrimary );
    m_cauldron->setNo2Doutput( doPrimary );
 
-   H5_Parallel_PropertyList::setOneFilePerProcessOption ();
-
-   if( onlyPrimaryDouble && !H5_Parallel_PropertyList::isPrimaryPodEnabled() )
-   {
-     H5_Parallel_PropertyList::setOneFilePerProcess( false );
-   }
+   H5_Parallel_PropertyList::setOtherFileProcessOptions();
 
    double    fctScaling;
    PetscBool fctScalingChanged;
@@ -2104,28 +2096,6 @@ void FastcauldronSimulator::readCommandLineParametersEarlyStage( const int argc,
    }
 
    H5_Parallel_PropertyList::setOneNodeCollectiveBufferingOption();
-}
-
-//------------------------------------------------------------//
-void FastcauldronSimulator::deleteTemporaryDirSnapshots()
-{
-   if( getCauldron ()->getCalculationMode() == OVERPRESSURED_TEMPERATURE_MODE && H5_Parallel_PropertyList::isOneFilePerProcessEnabled() ) {
-
-      database::Table::iterator timeTableIter;
-      database::Table* snapshotTable = getTable ( "SnapshotIoTbl" );
-
-      assert ( snapshotTable != 0 );
-
-      for ( timeTableIter = snapshotTable->begin (); timeTableIter != snapshotTable->end (); ++timeTableIter ) {
-
-         string snapshotFileName = database::getSnapshotFileName ( *timeTableIter );
-         if ( !snapshotFileName.empty() && ! database::getIsMinorSnapshot ( *timeTableIter ) ) {
-            ibs::FilePath filePath( H5_Parallel_PropertyList::getTempDirName() );
-            filePath <<  getProjectPath () << getOutputDir() << (snapshotFileName + "_" + ibs::to_string( PetscGlobalRank ));
-            std::remove ( filePath.cpath ());
-         }
-      }
-   }
 }
 
 //------------------------------------------------------------//

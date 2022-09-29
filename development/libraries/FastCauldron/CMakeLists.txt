@@ -89,8 +89,8 @@ target_link_libraries(${FASTCAULDRONAPP_TARGET_NAME}
 )
 
 if(UNIX)
-   # The OneFilePerProcess library is only available on Unix
-   target_link_libraries(${FASTCAULDRONAPP_TARGET_NAME} OneFilePerProcess)
+   # The OtherParallelProcess library is only available on Unix
+   target_link_libraries(${FASTCAULDRONAPP_TARGET_NAME} OtherParallelProcess)
 endif()
 
 if (WIN32)

@@ -9,7 +9,12 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+
+#ifdef WIN32
+#include <io.h>
+#else
 #include <unistd.h>
+#endif // WIN_32
 
 bool copyFile( const std::string & dstPath, const std::string & curPath )    
 {

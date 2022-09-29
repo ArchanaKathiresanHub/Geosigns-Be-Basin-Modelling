@@ -61,9 +61,9 @@ target_link_libraries( ${APP_NAME}
     ${PETSC_LIBRARIES}
 )
 
-# OFPP only for Linux
+# OtherParallelProcess library is only for Linux
 if (UNIX)
-    target_link_libraries(${APP_NAME} OneFilePerProcess)
+    target_link_libraries(${APP_NAME} OtherParallelProcess)
 endif (UNIX)
 
 set_target_properties(${APP_NAME}

@@ -52,11 +52,11 @@ add_subdirectory(FastCauldron)
 add_subdirectory(ctcWizard)
 add_subdirectory(WorkLoadManagers)
 add_subdirectory(QT_Utils)
+add_subdirectory(OtherParallelProcess)
 
 if(UNIX)
    # Libraries that can only be built on Unix at the moment.
    add_subdirectory(ParaViewPlugin)
-   add_subdirectory(OneFilePerProcess)
    add_subdirectory(casaWizard)
 
    if(CMAKE_COMPILER_IS_GNUCXX)

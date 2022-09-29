@@ -25,7 +25,7 @@
 //   Typical: Empty, Valid memory block of size bufferSize
 //   Atypical: bufferSize > 0 && buffer == NULL
 
-TEST( OneFilePerProcess, rewriteFileName)
+TEST(OtherParallelProcess, rewriteFileName)
 {
    ::testing::FLAGS_gtest_death_test_style="threadsafe";
 

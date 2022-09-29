@@ -76,8 +76,8 @@ target_link_libraries( ${FDC_LIB_NAME}
 )
 
 if(UNIX)
-   # The OneFilePerProcess library is only available on Unix
-   target_link_libraries(${FDC_LIB_NAME} OneFilePerProcess)
+   # The OtherParallelProcess library is only available on Unix
+   target_link_libraries(${FDC_LIB_NAME} OtherParallelProcess)
 endif()
 
 if (WIN32)

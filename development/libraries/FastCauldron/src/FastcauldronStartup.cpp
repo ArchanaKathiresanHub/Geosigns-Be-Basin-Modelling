@@ -168,7 +168,6 @@ bool FastcauldronStartup::startup( int        argc,
   FastcauldronSimulator::CreateFrom( m_cauldron, m_factory, getOutputTables() );
 
   FastcauldronSimulator::getInstance().readCommandLineParametersEarlyStage( argc, argv );
-  FastcauldronSimulator::getInstance().deleteTemporaryDirSnapshots();
   FastcauldronSimulator::getInstance().setFormationElementHeightScalingFactors();
 
   if ( not FastcauldronSimulator::getInstance().setCalculationMode( m_cauldron->getCalculationMode(), saveAsInputGrid, createResultsFile ) )

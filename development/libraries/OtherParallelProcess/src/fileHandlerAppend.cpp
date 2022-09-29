@@ -1,5 +1,5 @@
 #include "mpi.h"
-#include "strings.h"
+#include <string.h>
 #include "stdlib.h"
 #include <sstream>
 #include <iostream>

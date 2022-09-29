@@ -13,9 +13,9 @@
 if (BM_PARALLEL)
    set( LIB_NAME "DistributedDataAccess" )
 
-   set (OFPP "")
+   set (OPP "")
    if (UNIX)
-      set (OFPP OneFilePerProcess)
+      set (OPP OtherParallelProcess)
    endif ()
 
    include_directories( SYSTEM
@@ -37,7 +37,7 @@ if (BM_PARALLEL)
                                 ${HDF5_LIBRARIES}
                                 ${MPI_LIBRARIES}
                                 ${PETSC_LIBRARIES}
-                                ${OFPP}
+                                ${OPP}
                       INSTALLTARGET )
 
    if (UNIX)

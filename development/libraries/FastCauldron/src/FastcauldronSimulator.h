@@ -244,9 +244,6 @@ public :
 
    const Interface::OutputProperty* findOutputProperty ( const Interface::Property* property ) const;
 
-   /// \brief Delete major snapshots files from TMPDIR
-   void deleteTemporaryDirSnapshots();
-
    /// \brief Read the command-line parameters that can be processed during early stage
    void readCommandLineParametersEarlyStage( const int argc, char **argv );
 

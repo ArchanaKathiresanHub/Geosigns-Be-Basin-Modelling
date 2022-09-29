@@ -84,8 +84,8 @@ set_target_properties(${APP_NAME}
 )
    
 if (UNIX)
-   # The OneFilePerProcess library is only available on Unix
-   target_link_libraries(${APP_NAME} OneFilePerProcess)
+   # The OtherParallelProcess library is only available on Unix
+   target_link_libraries(${APP_NAME} OtherParallelProcess)
 endif ()
 
 if (BM_USE_FLEXLM)

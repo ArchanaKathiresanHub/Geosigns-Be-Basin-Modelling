@@ -31,7 +31,6 @@ int main(int argc, char** argv)
   std::set_new_handler( abortOnBadAlloc );
 
   PetscInitialize( &argc, &argv, (char *)0, PETSC_IGNORE );
-  PetscOptionsInsertString(PETSC_IGNORE, "-noofpp");
   PetscOptionsInsertString(PETSC_IGNORE, "-allproperties");
 
   try

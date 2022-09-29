@@ -64,9 +64,9 @@ target_link_libraries(${APP_NAME}
 )
 
 
-# OFPP only for Linux
+# OtherParallelProcess library is only for Linux
 if (UNIX)
-   target_link_libraries(${APP_NAME} OneFilePerProcess)
+   target_link_libraries(${APP_NAME} OtherParallelProcess)
 endif (UNIX)
 
 # Add FLEXLM if enabled

@@ -214,13 +214,11 @@ GridMap * ProjectHandle::loadGridMap (const Parent * parent, unsigned int childI
          gridMapFile.close ();
          mapFileCache.fileName = "";
       }      
-
-      // In case of OFPP use the parallel property list, otherwise use default property list
-      // It would be better to use a parallel mpio property list for read only NOOFPP also (same as write), but it drops performance for some cases
-      // on non-parallel file system (but works fine)
+            
+      // It would be better to use a parallel mpio property list, but it drops performance for some cases on non-parallel file system (but works fine)
       H5_Parallel_PropertyList parPropertyList;
       H5_PropertyList propertyList;
-      H5_PropertyList* propertyListPointer = H5_Parallel_PropertyList::isOneFilePerProcessEnabled() ? &parPropertyList : &propertyList;
+      H5_PropertyList* propertyListPointer = &propertyList;
 
       int fileOpen = 0;
       int globalFileOpen = 0;
@@ -354,29 +352,14 @@ GridMap * ProjectHandle::loadGridMap (const Parent * parent, unsigned int childI
 
    return gridMap;
 }
+
 //------------------------------------------------------------//
 bool ProjectHandle::makeOutputDir() const
 {
    using namespace ibs;
-   if( H5_Parallel_PropertyList::isOneFilePerProcessEnabled() )
-   {  // in case we need a temporary location
-
-      // Create the directory in the temporary location
-      FolderPath tmpdir( H5_Parallel_PropertyList::getTempDirName() );
-      tmpdir << getFullOutputDir();
-      try
-      {
-         tmpdir.create();
-      }
-      catch( PathException & e)
-      {
-         PetscPrintf ( PETSC_COMM_WORLD, "  Basin_Error: TMPDIR '%s' couldn't be created, because: %s\n", tmpdir.path().c_str(),  e.what() );
-         return false;
-      }
-   }
 
    if( H5_Parallel_PropertyList::isPrimaryPodEnabled() ) {
-     // in this case getFullOutputDir() points to the temporary dir (shared scratch) and we need to create the dir in the final location
+      // in this case getFullOutputDir() points to the temporary dir (shared scratch) and we need to create the dir in the final location
 
       // Create the directory in the final location
       FolderPath dirpath ( getProjectPath() );
@@ -405,6 +388,7 @@ bool ProjectHandle::makeOutputDir() const
 
    return true;
 }
+
 //------------------------------------------------------------//
 const std::string ProjectHandle::getFullOutputDir() const
 {

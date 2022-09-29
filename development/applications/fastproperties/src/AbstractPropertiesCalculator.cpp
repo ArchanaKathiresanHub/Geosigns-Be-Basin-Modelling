@@ -203,7 +203,7 @@ bool AbstractPropertiesCalculator::createFrom (DataAccess::Interface::ObjectFact
 
    if (m_primaryPod)
    {
-      H5_Parallel_PropertyList::setOneFilePerProcessOption(false);
+      H5_Parallel_PropertyList::setOtherFileProcessOptions(false);
    }
 
    return true;

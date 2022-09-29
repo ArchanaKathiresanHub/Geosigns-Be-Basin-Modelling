@@ -108,9 +108,8 @@ QString DepthConversionScript::getDepthConversionCommand() const
                    " -project " + scenario_.project3dFilename() + " " + runMode + " -onlyat 0" +
                    " -referenceSurface " + QString::number(scenario_.t2zReferenceSurface()) +
                    " -endSurface " + QString::number(scenario_.t2zLastSurface()) +
-                   " -noofpp" +
                    " -preserveErosion" +
-                   " -noCalculatedTWToutput");
+                   " -noCalculatedTWToutput");				   
 }
 
 } // namespace sac
