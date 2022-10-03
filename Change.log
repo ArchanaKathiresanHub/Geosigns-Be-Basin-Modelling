@@ -13,7 +13,7 @@
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Version				Date of update
 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-Cauldron-v2.9.0		2022-09-29 16:25:17 +0000
+Cauldron-v2.9.1		2022-10-03 09:29:56 +0000
 =============================================================
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Third-party Software 		version
@@ -36,6 +36,15 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2022-10-03  Marnix.vandenBerg  <Marnix.vandenBerg@shell.com>
+
+	chg: dev: Refactor of classes used in SAC input tab to separate common functionality in Thermal and Lithology wizards
+	Related work items: #467016
+
+	================== COMMIT-END ========================
+	Commit-ID:<82995d44ecd31a88980e608eec959847170f1820>	  (tag: refs/tags/v2.9.1, refs/heads/master)
+
+++
 2022-09-29  Subhra-Sankar.Kalita  <Subhra-Sankar.Kalita@shell.com>
 
 	chg: dev: Goodbye OFPP !major.
