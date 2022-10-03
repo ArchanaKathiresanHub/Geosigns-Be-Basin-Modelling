@@ -16,7 +16,7 @@
 #include "model/targetParameterMapCreator.h"
 #include "model/UAResultsTargetsData.h"
 
-#include "view/components/helpLabel.h"
+#include "view/sharedComponents/helpLabel.h"
 #include "view/plot/histogram.h"
 #include "view/plot/quartilePlot.h"
 

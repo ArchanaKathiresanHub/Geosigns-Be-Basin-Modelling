@@ -13,7 +13,7 @@
 #include "model/casaScenario.h"
 #include "model/input/calibrationTargetCreator.h"
 #include "view/importWellPopup.h"
-#include "view/components/ErrorMessageBox.h"
+#include "view/sharedComponents/ErrorMessageBox.h"
 
 #include <QMessageBox>
 #include <QSet>

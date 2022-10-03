@@ -3,7 +3,7 @@
 #include "initresources.h"
 #include "logDisplay.h"
 #include "menuBar.h"
-#include "view/components/customtab.h"
+#include "view/sharedComponents/customtab.h"
 #include "view/lithoTypeBackgroundMapping.h"
 
 #include <QStatusBar>

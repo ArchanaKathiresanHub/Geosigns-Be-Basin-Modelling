@@ -8,8 +8,8 @@
 
 #include "userPropertyChoicePopup.h"
 
-#include "view/components/customtitle.h"
-#include "view/components/customcheckbox.h"
+#include "view/sharedComponents/customtitle.h"
+#include "view/sharedComponents/customcheckbox.h"
 
 #include <QDialogButtonBox>
 #include <QLabel>

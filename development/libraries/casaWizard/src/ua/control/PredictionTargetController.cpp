@@ -33,12 +33,11 @@ PredictionTargetController::PredictionTargetController(PredictionTargetTable* ta
   m_predictionTargetManager(manager),
   m_calibrationTargetManager(calibrationTargetManager)
 {
-  connect(m_table->pushButtonAddSurfaceTarget(),  SIGNAL(clicked()), this, SLOT(slotPushButtonAddPredictionTargetClicked()));
   connect(m_table->pushButtonAddTargetsAtWellLocations(),  SIGNAL(clicked()), this, SLOT(slotPushButtonAddTargetWellLocationsClicked()));
   connect(m_table->pushButtonAddPredictionTargets(), SIGNAL(clicked()), this, SLOT(slotPushButtonAddPredictionTargetsClicked()));
-  connect(m_table->pushButtonDelSurfaceTarget(),  SIGNAL(clicked()), this, SLOT(slotPushButtonDelPredictionTargetClicked()));
-  connect(m_table->pushButtonCopySurfaceTarget(), SIGNAL(clicked()), this, SLOT(slotPushButtonCopyPredictionTargetClicked()));
-  connect(m_table->tableWidgetSurfaceTargets(),   SIGNAL(itemChanged(QTableWidgetItem*)),
+  connect(m_table->pushButtonDelTarget(),  SIGNAL(clicked()), this, SLOT(slotPushButtonDelPredictionTargetClicked()));
+  connect(m_table->pushButtonCopyTarget(), SIGNAL(clicked()), this, SLOT(slotPushButtonCopyPredictionTargetClicked()));
+  connect(m_table->tableWidgetTargets(),   SIGNAL(itemChanged(QTableWidgetItem*)),
           this,                                  SLOT(slotTableWidgetPredictionTargetsItemChanged(QTableWidgetItem*)));
   connect(m_table,   SIGNAL(targetHasTimeSeriesChanged(int, int)),
           this,                                  SLOT(slotTargetHasTimeSeriesChanged(int, int)));
@@ -75,7 +74,7 @@ void PredictionTargetController::slotPushButtonDelPredictionTargetClicked()
 
 QVector<int> PredictionTargetController::getSelectedRows()
 {
-   const auto selectedItems = m_table->tableWidgetSurfaceTargets()->selectedItems();
+   const auto selectedItems = m_table->tableWidgetTargets()->selectedItems();
 
    QVector<int> rows;
    for (const auto& item : selectedItems)

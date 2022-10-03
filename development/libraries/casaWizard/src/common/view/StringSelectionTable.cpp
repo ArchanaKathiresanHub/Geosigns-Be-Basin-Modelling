@@ -7,7 +7,7 @@
 //
 
 #include "StringSelectionTable.h"
-#include "view/components/customcheckbox.h"
+#include "view/sharedComponents/customcheckbox.h"
 
 #include <QHBoxLayout>
 #include <QHeaderView>

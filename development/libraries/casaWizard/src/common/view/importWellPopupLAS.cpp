@@ -8,7 +8,7 @@
 
 #include "importWellPopupLAS.h"
 
-#include "view/components/customcheckbox.h"
+#include "view/sharedComponents/customcheckbox.h"
 
 #include <QComboBox>
 #include <QDialogButtonBox>

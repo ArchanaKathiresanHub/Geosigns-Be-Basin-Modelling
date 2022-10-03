@@ -10,7 +10,7 @@
 
 #include "model/predictionTargetManager.h"
 #include "model/UAResultsTargetsData.h"
-#include "view/components/customcheckbox.h"
+#include "view/sharedComponents/customcheckbox.h"
 
 #include <QHeaderView>
 #include <QHBoxLayout>

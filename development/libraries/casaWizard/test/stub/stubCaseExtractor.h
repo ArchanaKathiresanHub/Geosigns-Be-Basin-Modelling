@@ -16,13 +16,15 @@
 namespace casaWizard
 {
 
+class RunScript;
+
 namespace sac
 {
 class StubCaseExtractor : public CaseExtractor
 {
 public :
-  explicit StubCaseExtractor(SACScenario& scenario);
-  casaWizard::RunScript& script() override { throw std::out_of_range("Does not exist in this stub extractor"); }
+  explicit StubCaseExtractor(SacLithologyScenario& scenario);
+  RunScript& script() override { throw std::out_of_range("Does not exist in this stub extractor"); }
   CaseDataCreator& dataCreator() override { throw std::out_of_range("Does not exist in this stub extractor"); }
 
   const std::map<int, QString>& updatedCases() const {return updatedCases_;}
@@ -32,7 +34,7 @@ private:
   std::map<int, QString> updatedCases_;
 };
 
-StubCaseExtractor::StubCaseExtractor(SACScenario& scenario) :
+StubCaseExtractor::StubCaseExtractor(SacLithologyScenario& scenario) :
   CaseExtractor(scenario),
   updatedCases_{}
 {

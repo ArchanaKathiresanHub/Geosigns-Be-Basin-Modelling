@@ -7,7 +7,7 @@
 #include <QHeaderView>
 #include <QSignalBlocker>
 
-#include "view/components/customcheckbox.h"
+#include "view/sharedComponents/customcheckbox.h"
 
 namespace casaWizard
 {

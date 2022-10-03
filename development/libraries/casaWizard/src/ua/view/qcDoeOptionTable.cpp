@@ -1,7 +1,7 @@
 #include "qcDoeOptionTable.h"
 
 #include "model/proxy.h"
-#include "view/components/helpLabel.h"
+#include "view/sharedComponents/helpLabel.h"
 
 #include <QComboBox>
 #include <QFormLayout>

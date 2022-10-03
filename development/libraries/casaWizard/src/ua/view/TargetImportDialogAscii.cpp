@@ -1,7 +1,7 @@
 #include "TargetImportDialogAscii.h"
 #include "TargetImportLayout.h"
 
-#include "view/components/helpLabel.h"
+#include "view/sharedComponents/helpLabel.h"
 
 #include <QLabel>
 #include <QHBoxLayout>

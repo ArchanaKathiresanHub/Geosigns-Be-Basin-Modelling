@@ -83,7 +83,6 @@ private:
   std::unique_ptr<ProjectReader> projectReader_;
   QString original1dDirectory_;
   QString runLocation_;
-  QString timeStamp_;
   QString workingDirectory_;
 };
 

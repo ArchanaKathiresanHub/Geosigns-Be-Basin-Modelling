@@ -4,7 +4,7 @@
 #include "influentialParameterTable.h"
 #include "manualDesignPointTable.h"
 #include "model/doeOption.h"
-#include "view/components/customtitle.h"
+#include "view/sharedComponents/customtitle.h"
 
 #include <QComboBox>
 #include <QFormLayout>

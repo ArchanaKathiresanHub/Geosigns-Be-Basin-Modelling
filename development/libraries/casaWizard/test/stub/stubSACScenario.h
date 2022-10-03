@@ -7,7 +7,7 @@
 //
 
 #pragma once
-#include "model/sacScenario.h"
+#include "model/sacLithologyScenario.h"
 #include "stubProjectReader.h"
 
 #include <memory>
@@ -17,11 +17,11 @@ namespace casaWizard
 namespace sac
 {
 
-class StubSACScenario : public SACScenario
+class StubSacLithologyScenario : public SacLithologyScenario
 {
 public:
-  explicit StubSACScenario() :
-    SACScenario(new StubProjectReader())
+  explicit StubSacLithologyScenario() :
+    SacLithologyScenario(new StubProjectReader())
   {
   }
 };

@@ -1,7 +1,7 @@
 #include "targetTab.h"
 
 #include "view/CalibrationTargetTableUA.h"
-#include "view/components/customtitle.h"
+#include "view/sharedComponents/customtitle.h"
 #include "view/objectiveFunctionTable.h"
 #include "view/PredictionTargetTable.h"
 

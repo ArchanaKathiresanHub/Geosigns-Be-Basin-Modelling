@@ -11,6 +11,7 @@
 #include "model/functions/folderOperations.h"
 #include "control/casaScriptWriter.h"
 #include "control/ScriptRunController.h"
+#include "control/workspaceGenerationController.h"
 #include "influentialParameterController.h"
 #include "manualDesignPointController.h"
 #include "model/doeOption.h"
@@ -309,27 +310,12 @@ void ModelInputsController::slotPushSelectProject3dClicked()
    const QDir fileNamePath = QFileInfo(fileName).absoluteDir();
    const QString originalWorkspaceLocation = fileNamePath.absolutePath();
 
-   WorkspaceDialog popupWorkspace{originalWorkspaceLocation, casaWizard::workspaceGenerator::getSuggestedWorkspace(fileName) };
-   if (popupWorkspace.exec() != QDialog::Accepted)
+   if (!workspaceGenerationController::generateWorkSpace(originalWorkspaceLocation, m_casaScenario))
    {
-      return;
-   }
-
-   const QString workingDirectory = popupWorkspace.optionSelected();
-   if (!functions::overwriteIfDirectoryExists(workingDirectory))
-   {
-      return;
-   }
-
-   if (!casaWizard::workspaceGenerator::createWorkspace(originalWorkspaceLocation, popupWorkspace.optionSelected()))
-   {
-      Logger::log() << "Unable to create workspace, do you have write access to: " << popupWorkspace.optionSelected() << Logger::endl();
       return;
    }
 
    resetDoEStage();
-
-   m_casaScenario.setWorkingDirectory(popupWorkspace.optionSelected());
    m_casaScenario.setProject3dFileNameAndLoadFile(fileName);
 
    const QString workingDir = m_casaScenario.workingDirectory();

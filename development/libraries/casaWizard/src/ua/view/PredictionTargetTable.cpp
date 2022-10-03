@@ -10,7 +10,7 @@
 
 #include "model/predictionTargetSurface.h"
 #include "view/tableRowComboBox.h"
-#include "view/components/customcheckbox.h"
+#include "view/sharedComponents/customcheckbox.h"
 
 #include <QComboBox>
 #include <QCheckBox>
@@ -179,14 +179,9 @@ void PredictionTargetTable::updateTableAtRow(const PredictionTarget* predictionT
    }
 }
 
-const QTableWidget* PredictionTargetTable::tableWidgetSurfaceTargets() const
+const QTableWidget* PredictionTargetTable::tableWidgetTargets() const
 {
    return m_tableWidgetTargets;
-}
-
-const QPushButton* PredictionTargetTable::pushButtonAddSurfaceTarget() const
-{
-   return m_pushButtonAddTarget;
 }
 
 const QPushButton* PredictionTargetTable::pushButtonAddTargetsAtWellLocations() const
@@ -204,12 +199,12 @@ const QPushButton* PredictionTargetTable::pushButtonAddPredictionTargets() const
    return m_pushButtonAddPredictionTargets;
 }
 
-const QPushButton* PredictionTargetTable::pushButtonDelSurfaceTarget() const
+const QPushButton* PredictionTargetTable::pushButtonDelTarget() const
 {
    return m_pushButtonDelTarget;
 }
 
-const QPushButton* PredictionTargetTable::pushButtonCopySurfaceTarget() const
+const QPushButton* PredictionTargetTable::pushButtonCopyTarget() const
 {
    return m_pushButtonCopyTarget;
 }

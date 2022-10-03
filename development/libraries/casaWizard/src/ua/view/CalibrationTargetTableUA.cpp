@@ -1,6 +1,6 @@
 #include "CalibrationTargetTableUA.h"
 
-#include "view/components/customcheckbox.h"
+#include "view/sharedComponents/customcheckbox.h"
 #include <QHBoxLayout>
 
 namespace casaWizard

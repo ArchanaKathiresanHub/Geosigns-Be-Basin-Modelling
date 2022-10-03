@@ -8,8 +8,8 @@
 
 #include "TargetImportLayout.h"
 
-#include "view/components/customcheckbox.h"
-#include "view/components/helpLabel.h"
+#include "view/sharedComponents/customcheckbox.h"
+#include "view/sharedComponents/helpLabel.h"
 #include "view/StringSelectionTable.h"
 
 #include <QHBoxLayout>

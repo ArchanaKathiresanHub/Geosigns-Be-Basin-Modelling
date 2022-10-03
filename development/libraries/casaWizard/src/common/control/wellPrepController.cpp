@@ -25,8 +25,8 @@
 #include "model/wellValidator.h"
 
 #include "view/calibrationTargetTable.h"
-#include "view/components/emphasisbutton.h"
-#include "view/components/ErrorMessageBox.h"
+#include "view/sharedComponents/emphasisbutton.h"
+#include "view/sharedComponents/ErrorMessageBox.h"
 #include "view/userPropertyChoiceCutOffPopup.h"
 #include "view/userPropertyChoicePopup.h"
 #include "view/wellPrepTab.h"

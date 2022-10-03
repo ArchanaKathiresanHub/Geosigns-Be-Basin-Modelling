@@ -35,14 +35,13 @@ public:
 
    void updateTableAtRow(const PredictionTarget* predictionTarget, const int row);
 
-   const QTableWidget* tableWidgetSurfaceTargets() const;
+   const QTableWidget* tableWidgetTargets() const;
 
    void setTargetsAtWellLocationsButtonEnabled(bool state);
 
-   const QPushButton* pushButtonAddSurfaceTarget() const;
    const QPushButton* pushButtonAddTargetsAtWellLocations() const;
-   const QPushButton* pushButtonDelSurfaceTarget() const;
-   const QPushButton* pushButtonCopySurfaceTarget() const;
+   const QPushButton* pushButtonDelTarget() const;
+   const QPushButton* pushButtonCopyTarget() const;
    const QPushButton* pushButtonAddPredictionTargets() const;
 
    int checkBoxColumnNumber() const;

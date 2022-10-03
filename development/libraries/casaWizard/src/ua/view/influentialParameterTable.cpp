@@ -1,6 +1,6 @@
 #include "influentialParameterTable.h"
 
-#include "view/components/customtitle.h"
+#include "view/sharedComponents/customtitle.h"
 #include "view/tableRowPushButton.h"
 #include "view/tableRowComboBox.h"
 

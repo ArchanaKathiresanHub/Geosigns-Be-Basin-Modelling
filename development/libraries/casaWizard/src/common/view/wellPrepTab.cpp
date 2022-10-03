@@ -10,9 +10,9 @@
 
 #include "calibrationTargetTable.h"
 
-#include "view/components/emphasisbutton.h"
-#include "view/components/customtitle.h"
-#include "view/components/helpLabel.h"
+#include "view/sharedComponents/emphasisbutton.h"
+#include "view/sharedComponents/customtitle.h"
+#include "view/sharedComponents/helpLabel.h"
 #include "view/importWellPopup.h"
 
 #include <QLabel>

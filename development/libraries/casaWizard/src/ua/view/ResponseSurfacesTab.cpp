@@ -3,7 +3,7 @@
 #include "model/targetQC.h"
 #include "qcDoeOptionTable.h"
 #include "view/plot/qcPlot.h"
-#include "view/components/customtitle.h"
+#include "view/sharedComponents/customtitle.h"
 
 #include <QCheckBox>
 #include <QHBoxLayout>

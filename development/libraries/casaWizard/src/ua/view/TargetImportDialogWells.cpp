@@ -8,7 +8,7 @@
 
 #include "TargetImportDialogWells.h"
 #include "TargetImportLayout.h"
-#include "view/components/customcheckbox.h"
+#include "view/sharedComponents/customcheckbox.h"
 #include "view/StringSelectionTable.h"
 
 #include <QLabel>

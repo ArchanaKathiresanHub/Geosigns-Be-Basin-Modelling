@@ -1,6 +1,6 @@
 #include "workspaceDialog.h"
 
-#include "view/components/customradiobutton.h"
+#include "view/sharedComponents/customradiobutton.h"
 
 #include <QComboBox>
 #include <QDialogButtonBox>

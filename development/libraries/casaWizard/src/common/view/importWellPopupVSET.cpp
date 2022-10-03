@@ -8,8 +8,8 @@
 
 #include "importWellPopupVSET.h"
 
-#include "view/components/customComboBox.h"
-#include "view/components/ErrorMessageBox.h"
+#include "view/sharedComponents/customComboBox.h"
+#include "view/sharedComponents/ErrorMessageBox.h"
 #include "model/logger.h"
 
 #include <QComboBox>

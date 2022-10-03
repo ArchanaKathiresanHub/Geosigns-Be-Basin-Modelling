@@ -13,14 +13,14 @@ file(GLOB CASAWIZARD_COMMON_MODEL_CPP_SOURCES model/*.cpp
 
 file(GLOB CASAWIZARD_COMMON_H_HEADERS view/*.h
                                       view/plot/*.h
-                                      view/components/*.h
+                                      view/sharedComponents/*.h
                                       control/*.h
                                       model/functions/*.h )
 
 file(GLOB CASAWIZARD_COMMON_CPP_SOURCES view/*.cpp
                                         view/plot/*.cpp
-                                        view/components/*.cpp
-                                        view/components/resources.qrc
+                                        view/sharedComponents/*.cpp
+                                        view/sharedComponents/resources.qrc
                                         control/*.cpp
                                         model/functions/*.cpp
                                        )

@@ -25,7 +25,7 @@ bool RunScript::killAsync() const
 
 void RunScript::addCommand(const QString& command, const QString& relativeDirectory)
 {
-  commands_.append({command, relativeDirectory});
+  commands_.push_back({command, relativeDirectory});
 }
 
 QVector<RunCommand> RunScript::commands() const
