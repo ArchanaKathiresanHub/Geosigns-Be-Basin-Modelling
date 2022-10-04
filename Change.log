@@ -13,7 +13,7 @@
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Version				Date of update
 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-Cauldron-v2.9.1		2022-10-03 09:29:56 +0000
+Cauldron-v2.9.2		2022-10-04 07:07:10 +0000
 =============================================================
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Third-party Software 		version
@@ -36,6 +36,14 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2022-10-04  Richard Faasse  <Richard.Faasse@shell.com>
+
+	chg: Enable optimization of A0 (top crust heat production) in casa.
+	 * This PR fixes a few issues which prohibited the multi-1d optimization of TopCrustHeatProd (A0) values in casa, as well as a mapping issue between the wizards VRe and the cauldron name Vr
+	================== COMMIT-END ========================
+	Commit-ID:<40fe466ecb12d6ccd16e9e86fe4da4d3fc2ef280>	  (tag: refs/tags/v2.9.2, refs/heads/master)
+
+++
 2022-10-03  Marnix.vandenBerg  <Marnix.vandenBerg@shell.com>
 
 	chg: dev: Refactor of classes used in SAC input tab to separate common functionality in Thermal and Lithology wizards
