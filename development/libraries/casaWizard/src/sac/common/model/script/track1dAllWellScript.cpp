@@ -1,5 +1,7 @@
 #include "track1dAllWellScript.h"
 
+#include "model/script/WizardDataToCasaScriptMapper.h"
+
 #include <assert.h>
 
 namespace casaWizard
@@ -19,6 +21,10 @@ Track1DAllWellScript::Track1DAllWellScript(const QString& baseDirectory,
   properties_{properties},
   projectFileName_{projectFileName}
 {
+   for (QString& property : properties_)
+   {
+      property = wizardDataToCasaScriptMapper::mapName(property);
+   }
 }
 
 bool Track1DAllWellScript::generateCommands()

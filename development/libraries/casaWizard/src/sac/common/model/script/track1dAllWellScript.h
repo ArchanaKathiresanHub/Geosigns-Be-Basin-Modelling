@@ -25,7 +25,7 @@ public:
 private:
   const QVector<double> xCoordinates_;
   const QVector<double> yCoordinates_;
-  const QStringList properties_;
+  QStringList properties_;
   const QString projectFileName_;
 };
 

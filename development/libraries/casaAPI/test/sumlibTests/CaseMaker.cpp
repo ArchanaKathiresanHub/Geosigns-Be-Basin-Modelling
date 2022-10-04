@@ -10,6 +10,7 @@
 
 #include "SumLibTestUtils.h"
 #include <algorithm>
+#include <iterator>
 
 const std::vector<SUMlib::Case>& GridCaseMaker::createCaseCollection(int nDataPointsPerDim, int nDims)
 {

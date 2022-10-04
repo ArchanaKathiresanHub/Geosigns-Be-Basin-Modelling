@@ -30,7 +30,7 @@ void OptimizedLithofractionDataCreator::readCase(const int wellIndex, const int 
   catch( const std::exception& e )
   {
     Logger::log() << e.what()
-                  << "\nDid not read optimized lithofraction for well " << wellIndex << Logger::endl();
+                  << "\nDid not read optimized lithofraction for well " << calibrationTargetManager().well(wellIndex).name() << Logger::endl();
     values.clear();
   }
 

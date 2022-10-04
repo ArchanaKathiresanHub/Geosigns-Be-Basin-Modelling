@@ -10,6 +10,7 @@
 
 #include "model/SacScenario.h"
 #include "model/logger.h"
+#include "model/script/WizardDataToCasaScriptMapper.h"
 
 #include <QDir>
 #include <QFile>
@@ -78,7 +79,8 @@ QString SACScript::writeWellTrajectory(const QString& wellName, const int wellIn
    const QString& propertyCauldronName = scenario().calibrationTargetManager().getCauldronPropertyName(propertyUserName);
    const QString folder{scenario().workingDirectory() + "/wells"};
    const QString filename{folder + "/" + wellName + "_" + propertyUserName + "_" + propertyCauldronName + ".in"};
-   return QString("target \"" + QString::number(wellIndex) + "_" + propertyCauldronName + "\" WellTraj \"" + filename + "\" \"" + propertyCauldronName + "\" 0 0.0 1.0 1.0\n");
+   return QString("target \"" + QString::number(wellIndex) + "_" + propertyCauldronName + "\" WellTraj \"" + filename + "\" \""
+                  + wizardDataToCasaScriptMapper::mapName(propertyCauldronName) + "\" 0 0.0 1.0 1.0\n");
 }
 
 } // sac

@@ -1,5 +1,7 @@
 #include "track1dScript.h"
 
+#include "model/script/WizardDataToCasaScriptMapper.h"
+
 namespace casaWizard
 {
 
@@ -31,7 +33,7 @@ void Track1DScript::addCommandProject(const int call, const QString& projectName
 {
   addCommand("track1d -coordinates " + QString::number(xCoordinate_[call], 'f') +
              "," + QString::number(yCoordinate_[call],'f') +
-             " -properties " + propertiesCauldronName_[call] +
+             " -properties " + wizardDataToCasaScriptMapper::mapName(propertiesCauldronName_[call]) +
              " -age 0" +
              " -project " + projectName + ".project3d" +
              " -save wellTrajectory-" + projectName + "-" + propertiesUserName_[call] + ".csv" +

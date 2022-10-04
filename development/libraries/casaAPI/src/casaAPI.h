@@ -19,6 +19,9 @@
 
 #include "VarPrmContinuousTemplate.h"
 
+#include "ConstantsNumerical.h"
+#include <cmath>
+
 /// @page CASA_API_Descr Computer Aided Scenario Analysis API
 /// API for Computer Aided Scenario Analysis (CASA) provides set of classes for performing
 /// Uncertainty/Sensitivity analysis using Design of Experiments (DoE) and response surface methodology (RSM)
@@ -169,7 +172,11 @@ namespace casa
    {
      const Prm baseCase(sa.baseCase(), parameters);
      const double baseVal = baseCase.asDoubleArray()[0];
-     if ( baseVal < minVal || baseVal > maxVal )
+
+     // When the baseVal is the default undefined number, there is probably a map value that could be within limits, so we don't report an error.
+     // If there is no map value extracted later on, the limits are checked at a later stage as well.
+     if ( std::fabs(baseVal - Utilities::Numerical::IbsNoDataValueInt) > Utilities::Numerical::DefaultNumericalTolerance &&
+          (baseVal < minVal || baseVal > maxVal) )
      {
        std::stringstream s;
        s << "Value of " << Prm::key() << " in base case, " << baseVal << ", is outside of the given range (" << minVal << ", " << maxVal << ").";

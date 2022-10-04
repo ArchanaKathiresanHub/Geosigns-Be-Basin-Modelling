@@ -787,15 +787,6 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::extractOneDProjects( const std::str
       wellCoord.push_back( minI );
       wellCoord.push_back( minJ );
 
-      // for other influential parameters, set the values read from the model
-      for ( size_t par = 0; par < var.size(); ++par )
-      {
-         const casa::VarParameter * vprm = var.parameter( par );
-         // get the parameter value at the specific x, y location (bottom left corner)
-         SharedParameterPtr prm( vprm->newParameterFromModel( mdl, wellCoord ) );
-         newCase->addParameter( prm );
-      }
-
       // push back the new case in the experiment set
       expSet.push_back( newCase );
    }
