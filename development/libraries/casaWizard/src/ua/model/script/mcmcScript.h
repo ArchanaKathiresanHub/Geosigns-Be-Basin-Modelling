@@ -11,6 +11,7 @@ namespace casaWizard
 namespace ua
 {
 
+class McmcSettings;
 class Proxy;
 class UAScenario;
 
@@ -24,6 +25,8 @@ private:
   void writeScriptContents(QFile& file) const final;
   QString writeMC(const QString& MCType, const QString& nSamples, const QString& nMaximumIterations, const QString& proxyEvaluationType,
                   const QString& distributionTypePDFVariables, const QString& standardDeviationFactor) const;
+
+   const McmcSettings& m_mcmcSettings;
 };
 
 } // namespace ua

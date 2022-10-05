@@ -4,6 +4,7 @@
 #include "influentialParameterManager.h"
 #include "manualDesignPointManager.h"
 #include "model/casaScenario.h"
+#include "model/McmcSettings.h"
 #include "model/scenarioReader.h"
 #include "model/scenarioWriter.h"
 #include "model/stagesUA.h"
@@ -74,6 +75,9 @@ public:
 
    RunCaseSetFileManager& runCaseSetFileManager();
    const RunCaseSetFileManager& runCaseSetFileManager() const;
+
+   void setMcmcSettings(const McmcSettings& mcmcSettings);
+   const McmcSettings& mcmcSettings() const;
 
    void copyToIterationDir(const QString& fileName) const;
    void updateIterationDir();
@@ -153,6 +157,7 @@ private:
    MonteCarloDataManager m_monteCarloDataManager;
    ManualDesignPointManager m_manualDesignPointManager;
    RunCaseSetFileManager m_runCaseSetFileManager;
+   McmcSettings m_mcmcSettings;
 
    QVector<DoeOption*> m_doeOptions;
 

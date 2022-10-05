@@ -74,7 +74,9 @@ const Proxy& UAScenario::proxy() const
 
 double UAScenario::responseSurfacesRsmeBestMC() const
 {
-   return functions::rmseCalibrationTargets(calibrationTargetDataBestMC(), calibrationTargetManager());
+   return functions::rmseCalibrationTargets(calibrationTargetDataBestMC(),
+                                            calibrationTargetManager(),
+                                            mcmcSettings().standardDeviationFactor());
 }
 
 void UAScenario::setNumberOfManualDesignPoints()
@@ -450,6 +452,16 @@ const RunCaseSetFileManager& UAScenario::runCaseSetFileManager() const
    return m_runCaseSetFileManager;
 }
 
+void UAScenario::setMcmcSettings(const McmcSettings& mcmcSettings)
+{
+   m_mcmcSettings = mcmcSettings;
+}
+
+const McmcSettings& UAScenario::mcmcSettings() const
+{
+   return m_mcmcSettings;
+}
+
 QVector<TargetQC> UAScenario::targetQCs() const
 {
    return m_targetQCs;
@@ -580,7 +592,7 @@ QVector<InfluentialParameter*> UAScenario::influentialParametersWithRunData()
 void UAScenario::writeToFile(ScenarioWriter& writer) const
 {
    CasaScenario::writeToFile(writer);
-   writer.writeValue("UAScenarioVersion", 7);
+   writer.writeValue("UAScenarioVersion", 8);
    m_influentialParameterManager.writeToFile(writer);
    m_predictionTargetManager.writeToFile(writer);
    m_monteCarloDataManager.writeToFile(writer);
@@ -589,6 +601,7 @@ void UAScenario::writeToFile(ScenarioWriter& writer) const
    m_isStageComplete.writeToFile(writer);
    m_isStageUpToDate.writeToFile(writer);
    m_proxy.writeToFile(writer);
+   m_mcmcSettings.writeToFile(writer);
 
    writer.writeValue("targetQC", m_targetQCs);
 
@@ -675,6 +688,10 @@ void UAScenario::readFromFile(const ScenarioReader& reader)
    {
       m_stateFileNameDoE = reader.readString("stateFileNameDoE");
    }
+   if (version > 7)
+   {
+      m_mcmcSettings.readFromFile(reader);
+   }
 }
 
 void UAScenario::clear()
@@ -687,6 +704,7 @@ void UAScenario::clear()
    m_manualDesignPointManager.clear();
    m_runCaseSetFileManager.clear();
    m_proxy.clear();
+   m_mcmcSettings.clear();
 
    m_targetQCs.clear();
    m_isDoeOptionSelected.fill(false);

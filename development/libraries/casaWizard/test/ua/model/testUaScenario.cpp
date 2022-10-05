@@ -121,6 +121,11 @@ TEST( UAScenarioTest, TestWriteReadVersion1 )
    writeScenario.initializeBaseSubSamplingFactor();// Sets BaseSubSampling factor to 5, due to return value of stubprojectreader
    writeScenario.setSubSamplingFactor(10);
 
+   McmcSettings mcmcSettings;
+   mcmcSettings.setNumSamples(600);
+   mcmcSettings.setStandardDeviationFactor(2.0);
+   writeScenario.setMcmcSettings(mcmcSettings);
+
    casaWizard::ua::ManualDesignPointManager& mdpManagerWrite = writeScenario.manualDesignPointManager();
    mdpManagerWrite.addInfluentialParameter(3);
    mdpManagerWrite.addDesignPoint({11, 12, 13});
@@ -141,6 +146,9 @@ TEST( UAScenarioTest, TestWriteReadVersion1 )
    QVector<QVector<double>> pointsToRun = mdpManagerRead.parameters();
    QVector<double> designPoint0 = pointsToRun[0];
    QVector<double> designPoint1 = pointsToRun[1];
+
+   EXPECT_EQ(600, readScenario.mcmcSettings().nSamples());
+   EXPECT_DOUBLE_EQ(2.0, readScenario.mcmcSettings().standardDeviationFactor());
 
    EXPECT_EQ(10, readScenario.subSamplingFactor());
    EXPECT_EQ(5, readScenario.baseSubSamplingFactor());
@@ -219,6 +227,19 @@ TEST(UAScenarioTest, TestGetDataAtTimeStep)
 
    EXPECT_DOUBLE_EQ(4.1, data[0][0]);
    EXPECT_DOUBLE_EQ(0.039, data[1][1]);
+}
+
+TEST(UAScenarioTest, TestClear)
+{
+   UAScenario scenario(new casaWizard::StubProjectReader());
+   McmcSettings mcmcSettings;
+   mcmcSettings.setNumSamples(600);
+   mcmcSettings.setStandardDeviationFactor(2.0);
+   scenario.setMcmcSettings(mcmcSettings);
+
+   scenario.clear();
+   EXPECT_EQ(500, scenario.mcmcSettings().nSamples());
+   EXPECT_DOUBLE_EQ(1.6, scenario.mcmcSettings().standardDeviationFactor());
 }
 
 TEST(UAScenarioTest, PredictionTargetDataBestMC)

@@ -13,9 +13,9 @@ namespace ua
 {
 
 McmcScript::McmcScript(UAScenario& scenario) :
-  UAScript{scenario}
-{
-}
+  UAScript{scenario},
+  m_mcmcSettings(scenario.mcmcSettings())
+{}
 
 QString McmcScript::scriptFilename() const
 {
@@ -32,11 +32,11 @@ void McmcScript::writeScriptContents(QFile& file) const
   const QString doeList = writeDoeTextList(uaScenario().qcDoeOptionSelectedNames());
 
   const QString MCType = "MCMC"; // MC/MCMC/MCSolver
-  const QString nSamples = "500";
+  const QString nSamples = QString::number(m_mcmcSettings.nSamples());
   const QString nMaximumIterations = "100";
   const QString proxyEvaluationType = "Polynomial"; // Polynomial/GlobalKriging
   const QString distributionTypePDFVariables = "NoPrior"; // NoPrior/MarginalPrior/MultivariatePrior
-  const QString standardDeviationFactor = "1.6";
+  const QString standardDeviationFactor = QString::number(m_mcmcSettings.standardDeviationFactor());
 
   out << writeMC(MCType, nSamples, nMaximumIterations, proxyEvaluationType, distributionTypePDFVariables, standardDeviationFactor);
   out << writeExportDataTxt("DoEParameters", uaScenario().doeTextFileName(), doeList);

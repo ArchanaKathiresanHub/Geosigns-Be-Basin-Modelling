@@ -11,7 +11,7 @@ namespace casaWizard
 namespace functions
 {
 
-double rmseCalibrationTargets(const QVector<double> targetValues, const CalibrationTargetManager& calibrationTargetManager);
+double rmseCalibrationTargets(const QVector<double> targetValues, const CalibrationTargetManager& calibrationTargetManager, double standardDeviationFactor = 1.6);
 
 } // namespace functions
 

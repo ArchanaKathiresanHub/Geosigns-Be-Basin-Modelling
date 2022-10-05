@@ -17,6 +17,9 @@ add_casawizard_ua_gtest( NAME InfluentialParameterManager
 add_casawizard_ua_gtest( NAME MonteCarloData
    SOURCES testMonteCarloData.cpp )
 
+add_casawizard_ua_gtest( NAME McmcSettings
+   SOURCES TestMcmcSettings.cpp )
+
 add_casawizard_ua_gtest( NAME ManualDesignPoint
    SOURCES TestManualDesignPoint.cpp )
 

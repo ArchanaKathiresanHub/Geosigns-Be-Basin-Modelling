@@ -20,6 +20,7 @@
 #include "model/input/projectReader.h"
 #include "model/doeOption.h"
 #include "model/logger.h"
+#include "model/McmcSettings.h"
 #include "model/output/cmbProjectWriter.h"
 #include "model/output/McmcOutputDataCollector.h"
 #include "model/output/McmcOutputWriter.h"
@@ -152,7 +153,9 @@ void UAResultsController::loadObservablesOptimalRun()
       calibrationTargets.push_back(observableValues.at(idx));
    }
 
-   const double rmse = functions::rmseCalibrationTargets(calibrationTargets, m_casaScenario.calibrationTargetManager());
+   const double rmse = functions::rmseCalibrationTargets(calibrationTargets,
+                                                         m_casaScenario.calibrationTargetManager(),
+                                                         m_casaScenario.mcmcSettings().standardDeviationFactor());
    MonteCarloDataManager& manager = m_casaScenario.monteCarloDataManager();
    manager.setRmseOptimalRunCase(rmse);
 }

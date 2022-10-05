@@ -19,7 +19,7 @@ bool isNotUndefined(double value)
    return std::abs(value - Utilities::Numerical::IbsNoDataValue) > Utilities::Numerical::DefaultNumericalTolerance;
 }
 
-double rmseCalibrationTargets(const QVector<double> targetValues, const CalibrationTargetManager& calibrationTargetManager)
+double rmseCalibrationTargets(const QVector<double> targetValues, const CalibrationTargetManager& calibrationTargetManager, double standardDeviationFactor)
 {
    if (targetValues.isEmpty())
    {
@@ -43,7 +43,8 @@ double rmseCalibrationTargets(const QVector<double> targetValues, const Calibrat
       double targetValue = targetValues[i];
       if (isNotUndefined(targetValue))
       {
-         const double v = (activeTarget->value() - targetValue) / (activeTarget->standardDeviation() + std::numeric_limits<double>::epsilon());
+         double scaledStd = (activeTarget->standardDeviation() + std::numeric_limits<double>::epsilon()) * standardDeviationFactor;
+         const double v = (activeTarget->value() - targetValue) / scaledStd;
          rmse += v * v;
          ++numConsideredTargets;
       }

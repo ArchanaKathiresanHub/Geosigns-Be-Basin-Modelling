@@ -1,4 +1,4 @@
-#include "manualDesignPointTable.h"
+﻿#include "manualDesignPointTable.h"
 
 #include <QBoxLayout>
 #include <QPushButton>
@@ -25,6 +25,7 @@ ManualDesignPointTable::ManualDesignPointTable(QWidget* parent) :
   buttonLayout->addWidget(buttonDelete_);
 
   QVBoxLayout* totalLayout = new QVBoxLayout(this);
+  totalLayout->setContentsMargins(0,0,0,0);
   totalLayout->addWidget(tableDesignPoints_);
   totalLayout->addLayout(buttonLayout);  
 }

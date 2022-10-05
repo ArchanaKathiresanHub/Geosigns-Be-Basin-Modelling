@@ -1,5 +1,6 @@
 #include "correlationSelectionTable.h"
 #include "model/influentialParameter.h"
+#include "view/sharedComponents/customtitle.h"
 
 #include <QVBoxLayout>
 #include <QHeaderView>
@@ -27,7 +28,7 @@ CorrelationSelectionTable::CorrelationSelectionTable(QWidget* parent) :
 
   QVBoxLayout* totalLayout = new QVBoxLayout();
 
-  totalLayout->addWidget(new QLabel("Influential parameters"));
+  totalLayout->addWidget(new CustomTitle("Influential parameters"));
   totalLayout->addWidget(tableParameters_, 1);
 
   setLayout(totalLayout);
