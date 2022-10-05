@@ -13,7 +13,7 @@
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Version				Date of update
 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-Cauldron-v2.9.2		2022-10-04 07:07:10 +0000
+Cauldron-v2.9.3		2022-10-05 14:55:40 +0000
 =============================================================
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Third-party Software 		version
@@ -36,6 +36,15 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2022-10-05  Marnix.vandenBerg  <Marnix.vandenBerg@shell.com>
+
+	usr: fix: Fixed difference in RMSE values shown on the UAWizard Results and correlations tabs
+	Related work items: #478609
+
+	================== COMMIT-END ========================
+	Commit-ID:<1dd2865b4a7043ee97998b8a01590cc5d4895f05>	  (tag: refs/tags/v2.9.3, refs/heads/master)
+
+++
 2022-10-04  Richard Faasse  <Richard.Faasse@shell.com>
 
 	chg: Enable optimization of A0 (top crust heat production) in casa.
