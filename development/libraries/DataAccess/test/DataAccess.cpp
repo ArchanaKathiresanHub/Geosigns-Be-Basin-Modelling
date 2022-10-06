@@ -19,6 +19,21 @@
 
 #include <memory>
 #include <gtest/gtest.h>
+#include <sstream> //std::stringstream
+
+struct DisplayedMsgs
+{
+    const std::string mobLayMissMsg = "Basin_Warning:  Missing thickness history encountered for an active MobileLayer, neglecting use of mobile layer! check MobLayThicknIoTbl for further details!\n";
+
+#ifdef _WIN32
+    // dunno why the behaviour is different??
+    const std::string match = "(database::ProjectFileHandler::loadOutputTables) Output tables file does not exist: Project_mobLay_CauldronOutputDir/Output.iotables3d\n";
+#else
+    const std::string match = "(loadOutputTables) Output tables file does not exist: Project_mobLay_CauldronOutputDir/Output.iotables3d\n";
+
+#endif // _WIN32
+
+};
 
 TEST(DataAccess, OpenCauldronProjectFail)
 {
@@ -148,4 +163,57 @@ TEST(DataAccess, OpenCauldronProject)
    std::unique_ptr<DataAccess::Interface::FluidHeatCapacitySampleList> fhcList(ph->getFluidHeatCapacitySampleList( ph->findFluid("Std. Water") ));
    if( fhcList == nullptr ) FAIL();
    EXPECT_EQ( fhcList->size(), 156 );
+}
+
+#include "LogHandler.h"
+
+TEST(DataAccess, MobileLayerMissingEntries)
+{
+    DataAccess::Interface::ObjectFactory factory;
+    DataAccess::Interface::ObjectFactory* factoryptr = &factory;
+    // create the actual log file
+    LogHandler logUnitTestDiagnostic("logHandler", LogHandler::DIAGNOSTIC_LEVEL);
+    // try and capture the console output also
+    testing::internal::CaptureStdout();
+    std::unique_ptr<DataAccess::Interface::ProjectHandle> ph;
+    try
+    {
+        ph.reset(DataAccess::Interface::OpenCauldronProject("Project_mobLay.project3d", factoryptr));
+        // for this scenario a log file with the active mobile layer history missing warning should be created
+        bool fileExisits = false;
+        DisplayedMsgs msg;
+        std::ifstream myfile(logUnitTestDiagnostic.getName().c_str());
+            if (myfile.is_open()) {
+
+                // read the file content as a string and that should
+                // contain the said ML missing msg
+                std::stringstream strStream;
+                strStream << myfile.rdbuf(); //read the file
+                std::string str = strStream.str(); //str holds the content of the file
+
+                EXPECT_TRUE((str.find(msg.mobLayMissMsg) != std::string::npos));
+
+                fileExisits = true;
+            }
+            // the file should be created with the msg and...
+            EXPECT_EQ(fileExisits, true);
+
+            // the same warning message should apear in the console
+            std::string output = testing::internal::GetCapturedStdout();
+            EXPECT_EQ(output, msg.match + msg.mobLayMissMsg);
+            
+    }
+    catch (std::exception& ex) {
+        EXPECT_STREQ("My exception happened", ex.what());
+    }
+    catch (...)
+    {
+        FAIL() << "Unexpected exception caught";
+    }
+    
+    if (nullptr == ph) FAIL();
+
+    // Check name
+    EXPECT_EQ(ph->getName(), "Project_mobLay.project3d");
+    EXPECT_EQ(ph->getProjectName(), "Project_mobLay");
 }

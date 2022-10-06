@@ -1681,17 +1681,65 @@ bool ProjectHandle::loadGlobalReservoirOptions (void)
 
 bool ProjectHandle::loadMobileLayers( void )
 {
-   database::Table* mobileLayerTbl = getTable( "MobLayThicknIoTbl" );
-   database::Table::iterator tblIter;
-   for ( tblIter = mobileLayerTbl->begin(); tblIter != mobileLayerTbl->end(); ++tblIter )
-   {
-      Record * mobileLayerRecord = *tblIter;
-      m_mobileLayers.push_back( getFactory()->produceMobileLayer( *this, mobileLayerRecord ) );
-   }
+    /// if there are no mobile layers from the StratIoTbl then 
+    // dont even bother to read the MobLayThicknIoTbl
+    vector<std::string> MobileLayers;
+    for (const auto& formation : this->m_formations) {
+        // collect the names of the layers marked as "mobile layer"
+        if (formation->isMobileLayer()) {
+            MobileLayers.push_back( formation->getName());
+        }
+    }
 
-   std::sort( m_mobileLayers.begin(), m_mobileLayers.end(), PaleoPropertyTimeLessThan() );
+    std::vector<std::string> MLfromMobLayThicknIoTbl;
+    // if there is atleast one ML
+    if (!MobileLayers.empty())
+    {
+        // no presumtion that this table was wrtitten out correctly by the UI
+        database::Table* mobileLayerTbl = getTable("MobLayThicknIoTbl");
+        database::Table::iterator tblIter;
+        std::vector<std::string> missigMLHist;
+        for (tblIter = mobileLayerTbl->begin(); tblIter != mobileLayerTbl->end(); ++tblIter)
+        {
+            Record* mobileLayerRecord = *tblIter;
+            // For all the rows in this table
+            // collect only the entries that were actually ear-maked as mobile layer
+            // in the StratIoTbl, as this table might contain superfluous entries
+            // from previous experiments in the UI
+            for (const auto& MobileLayer : MobileLayers)
+            {
+                if (!mobileLayerRecord->getValue<std::string>("LayerName").compare(MobileLayer)) {
+                    m_mobileLayers.push_back(getFactory()->produceMobileLayer(*this, mobileLayerRecord));
+                    if (std::find(MLfromMobLayThicknIoTbl.begin(), MLfromMobLayThicknIoTbl.end(), MobileLayer) == MLfromMobLayThicknIoTbl.end()) {
+                        MLfromMobLayThicknIoTbl.push_back(MobileLayer);
+                    }
+                }
+            }
+        }
 
-   return true;
+        std::sort(m_mobileLayers.begin(), m_mobileLayers.end(), PaleoPropertyTimeLessThan());
+
+        if (MobileLayers.size() != MLfromMobLayThicknIoTbl.size()) {
+            LogHandler(LogHandler::WARNING_SEVERITY) << "Missing thickness history encountered for an active MobileLayer, neglecting use of mobile layer!"
+                << " check MobLayThicknIoTbl for further details!";
+        }
+
+#ifdef ML_DEBUG
+        // Print all elements in vector
+        std::for_each(m_mobileLayers.begin(),
+            m_mobileLayers.end(),
+            [](const auto& elem) {
+                std::string str;
+                (*elem).asString(str);
+                std::cout << str << " ";
+            });
+        std::cout << std::endl;
+
+#endif // ML_DEBUG
+
+        return true;
+    }
+    return false;
 }
 
 

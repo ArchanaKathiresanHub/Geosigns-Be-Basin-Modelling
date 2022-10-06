@@ -255,3 +255,12 @@ add_gtest( NAME ${LIB_NAME}::FracturePressureCalculator
       ENV_VARS CTCDIR=${PROJECT_SOURCE_DIR}/geocase/misc
       FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
+
+copy_test_file(Project_mobLay.project3d)
+
+add_gtest( NAME ${LIB_NAME}::MobileLayerInvalidMobLayThikn
+      SOURCES test/MobileLayerInvalidMobLayThikn.cpp
+      LIBRARIES ${LIB_NAME} DataAccess SerialDataAccess
+      ENV_VARS CTCDIR=${PROJECT_SOURCE_DIR}/geocase/misc
+      FOLDER "${BASE_FOLDER}/${LIB_NAME}"
+)

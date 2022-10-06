@@ -37,6 +37,7 @@ add_gtest( NAME DA::DataAccess
            FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 copy_test_file(DataAccessTest.project3d)
+copy_test_file(Project_mobLay.project3d)
 
 add_gtest( NAME DA::GenerateSnapshots
            SOURCES test/GenerateSnapshots.cpp

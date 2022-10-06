@@ -31,6 +31,10 @@
 #include "LithologyManager.h"
 
 #include "NumericFunctions.h"
+#include "FormattingException.h"
+
+typedef formattingexception::GeneralException GeoPhysicsFormationException;
+
 
 using namespace DataAccess;
 
@@ -370,9 +374,6 @@ void GeoPhysics::GeoPhysicsFormation::determineMinMaxThickness () {
       m_minimumDepositedThickness =  1.0e10;
       m_maximumDepositedThickness = -1.0e10;
 
-      Interface::MobileLayerList::const_iterator mobIt;
-      Interface::MobileLayerList* mobileLayers = getMobileLayers ();
-
       double gridMapMinimum;
       double gridMapMaximum;
 
@@ -386,25 +387,36 @@ void GeoPhysics::GeoPhysicsFormation::determineMinMaxThickness () {
       m_minimumDepositedThickness = NumericFunctions::Minimum ( m_minimumDepositedThickness, gridMapMinimum );
       m_maximumDepositedThickness = NumericFunctions::Maximum ( m_maximumDepositedThickness, gridMapMaximum );
 
-      for ( mobIt = mobileLayers->begin (); mobIt != mobileLayers->end (); ++mobIt ) {
+      // at this point only valid MobileLayerList was collected from MobLayThicknIoTbl
+      // still never hurts to check
+      if (this->isMobileLayer())
+      {
+          Interface::MobileLayerList::const_iterator mobIt;
+          Interface::MobileLayerList* mobileLayersList = getMobileLayers(); 
+          for (mobIt = mobileLayersList->begin(); mobIt != mobileLayersList->end(); ++mobIt) {
+              auto age = (*mobIt)->getSnapshot();
+              // The map at present day will be handled by the input-thickness map.
+              if (age != presentDay) {
+                  gridMap = dynamic_cast<const Interface::GridMap*>((*mobIt)->getMap(Interface::MobileLayerThicknessMap));
+                  if (gridMap) {
+                      gridMap->retrieveData();
+                      gridMap->getMinMaxValue(gridMapMinimum, gridMapMaximum);
 
-         // The map at present day will be handled by the input-thickness map.
-         if ((*mobIt)->getSnapshot () != presentDay ) {
-            gridMap = dynamic_cast<const Interface::GridMap*>((*mobIt)->getMap ( Interface::MobileLayerThicknessMap ));
+                      m_minimumDepositedThickness = NumericFunctions::Minimum(m_minimumDepositedThickness, gridMapMinimum);
+                      m_maximumDepositedThickness = NumericFunctions::Maximum(m_maximumDepositedThickness, gridMapMaximum);
 
-            gridMap->retrieveData ();
-            gridMap->getMinMaxValue ( gridMapMinimum, gridMapMaximum );
+                      gridMap->restoreData(false);
+                      gridMap->release();
+                  }
+                  else
+                      throw GeoPhysicsFormationException() << "Invalid thickness entry encountered for this layer, "
+                      << this->getName() << ", at " << age->asString() << " Ma. check MobLayThicknIoTbl!";
+              }
 
-            m_minimumDepositedThickness = NumericFunctions::Minimum ( m_minimumDepositedThickness, gridMapMinimum );
-            m_maximumDepositedThickness = NumericFunctions::Maximum ( m_maximumDepositedThickness, gridMapMaximum );
+          }
 
-            gridMap->restoreData ( false );
-            gridMap->release();
-         }
-
+          delete mobileLayersList;
       }
-
-      delete mobileLayers;
    }
 
 }
