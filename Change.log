@@ -13,7 +13,7 @@
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Version				Date of update
 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-Cauldron-v2.9.3		2022-10-05 14:55:40 +0000
+Cauldron-v2.9.4		2022-10-06 09:25:21 +0000
 =============================================================
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Third-party Software 		version
@@ -36,6 +36,17 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2022-10-06  arijit.khan Khan  <arijit.khan@shell.com>
+
+	usr: fix: Exceptions handled for invalid mobile layer inputs !minor.
+	 * Exceptions handled for invalid mobile layer inputs written out in the MobLayThicknIoTbl
+	 * For inactive Mobile Layers the entire MobLayThicknIoTbl is ignored, with Basin warring
+
+	Related work items: #466729
+	================== COMMIT-END ========================
+	Commit-ID:<d018801d7b5a84e90c09d87d07292e66ccaf4a29>	  (tag: refs/tags/v2.9.4, refs/heads/master)
+
+++
 2022-10-05  Marnix.vandenBerg  <Marnix.vandenBerg@shell.com>
 
 	usr: fix: Fixed difference in RMSE values shown on the UAWizard Results and correlations tabs
