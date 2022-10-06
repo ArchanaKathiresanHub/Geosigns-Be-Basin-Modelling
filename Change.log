@@ -13,7 +13,7 @@
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Version				Date of update
 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-Cauldron-v2.9.4		2022-10-06 09:25:21 +0000
+Cauldron-v2.9.5		2022-10-06 14:54:19 +0000
 =============================================================
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Third-party Software 		version
@@ -36,6 +36,14 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2022-10-06  Richard Faasse  <Richard.Faasse@shell.com>
+
+	fix: Small fix for adding prediction targets in UA !minor.
+	* A connection between a signal and slot was lost in the refactor and re-instated in this commit
+	================== COMMIT-END ========================
+	Commit-ID:<34f765db6744decdfa4f49a96a83662b2351a6cb>	  (refs/heads/master)
+
+++
 2022-10-06  arijit.khan Khan  <arijit.khan@shell.com>
 
 	usr: fix: Exceptions handled for invalid mobile layer inputs !minor.
