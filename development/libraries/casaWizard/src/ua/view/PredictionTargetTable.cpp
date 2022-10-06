@@ -199,6 +199,11 @@ const QPushButton* PredictionTargetTable::pushButtonAddPredictionTargets() const
    return m_pushButtonAddPredictionTargets;
 }
 
+const QPushButton* PredictionTargetTable::pushButtonAddTarget() const
+{
+   return m_pushButtonAddTarget;
+}
+
 const QPushButton* PredictionTargetTable::pushButtonDelTarget() const
 {
    return m_pushButtonDelTarget;

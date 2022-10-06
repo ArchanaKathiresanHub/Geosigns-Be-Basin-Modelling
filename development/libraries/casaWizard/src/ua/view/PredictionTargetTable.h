@@ -43,6 +43,7 @@ public:
    const QPushButton* pushButtonDelTarget() const;
    const QPushButton* pushButtonCopyTarget() const;
    const QPushButton* pushButtonAddPredictionTargets() const;
+   const QPushButton* pushButtonAddTarget() const;
 
    int checkBoxColumnNumber() const;
 

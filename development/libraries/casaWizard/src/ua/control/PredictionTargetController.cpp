@@ -35,6 +35,7 @@ PredictionTargetController::PredictionTargetController(PredictionTargetTable* ta
 {
   connect(m_table->pushButtonAddTargetsAtWellLocations(),  SIGNAL(clicked()), this, SLOT(slotPushButtonAddTargetWellLocationsClicked()));
   connect(m_table->pushButtonAddPredictionTargets(), SIGNAL(clicked()), this, SLOT(slotPushButtonAddPredictionTargetsClicked()));
+  connect(m_table->pushButtonAddTarget(),  SIGNAL(clicked()), this, SLOT(slotPushButtonAddPredictionTargetClicked()));
   connect(m_table->pushButtonDelTarget(),  SIGNAL(clicked()), this, SLOT(slotPushButtonDelPredictionTargetClicked()));
   connect(m_table->pushButtonCopyTarget(), SIGNAL(clicked()), this, SLOT(slotPushButtonCopyPredictionTargetClicked()));
   connect(m_table->tableWidgetTargets(),   SIGNAL(itemChanged(QTableWidgetItem*)),
