@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2022 Shell International Exploration & Production.
+// Copyright (C) 2012-2022 Shell International Exploration & Production.
 // All rights reserved.
 //
 // Confidential and proprietary source code of Shell.
@@ -46,13 +46,11 @@ signals:
 
 
 protected slots:
-
    virtual void slotUpdateTabGUI(int tabID) = 0;
-   virtual bool slotPushButtonSelectProject3dClicked();
+   virtual void slotPushButtonSelectProject3dClicked() = 0;
 
    void slotRunOriginal1D();
    void slotRunOriginal3D();
-
    void slotPushButton1DOptimalizationClicked();
 
 protected:
@@ -69,6 +67,7 @@ protected:
    void prepareOptimizationRun() const;
    void prepareRun1D() const;
 
+   SacInputTab* inputTab();
    const SacInputTab* inputTab() const;
    ScriptRunController& scriptRunController();
    CalibrationTargetController* calibrationTargetController();

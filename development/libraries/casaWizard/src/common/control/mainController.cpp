@@ -16,6 +16,7 @@
 #include "ScriptRunController.h"
 #include "view/mainWindow.h"
 #include "view/menuBar.h"
+#include "view/logDisplay.h"
 
 #include <QAction>
 #include <QDir>
@@ -48,6 +49,8 @@ void MainController::constructWindow(LogReceiver* logReceiver)
 
    connect(mainWindow().menu()->actionExpertUser(), SIGNAL(toggled(bool)), this, SLOT(slotExpertUser(bool)));
    connect(mainWindow().menu()->actionReload1Dresults(), SIGNAL(triggered()), SIGNAL(signalReload1Ddata()));
+
+   connect(mainWindow().logDisplay(), SIGNAL(resizeLog(int)), &mainWindow(), SLOT(slotResizeLog(int)));
 
    showFirstTab();
 }

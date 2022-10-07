@@ -1,3 +1,11 @@
+//
+// Copyright (C) 2012-2022 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #include "SacInputTab.h"
 
 #include "view/calibrationTargetTable.h"
@@ -23,18 +31,20 @@ namespace sac
 
 SacInputTab::SacInputTab(QWidget* parent) :
    QWidget(parent),
+   m_subLayoutActivationWidget{new QWidget(this)},
    m_pushSelectProject3D{new QPushButton("Select", this)},
    m_lineEditProject3D{new QLineEdit(this)},
-   m_layoutTablesAndOptions{new QGridLayout()},
-   m_calibrationTargetTable{new CalibrationTargetTable(this)},
-   m_objectiveFunctionTable{new ObjectiveFunctionTableSAC(this)},
-   m_pushSelectAllWells{new QPushButton("Select all", this)},
-   m_pushClearSelection{new QPushButton("Deselect all", this)},
-   m_comboBoxApplication{new QComboBox(this)},
-   m_comboBoxCluster{new QComboBox(this)},
-   m_pushButtonRun1DOptimalization{new EmphasisButton("Run 1D optimization", this)},
-   m_buttonRunOriginal1D{new QPushButton("Run original 1D", this)},
-   m_buttonRunOriginal3D{new QPushButton("Run original 3D", this)}
+   m_layoutTablesAndOptions{new QGridLayout(m_subLayoutActivationWidget)},
+   m_layoutRunOptions{new QVBoxLayout()},
+   m_calibrationTargetTable{new CalibrationTargetTable(m_subLayoutActivationWidget)},
+   m_objectiveFunctionTable{new ObjectiveFunctionTableSAC(m_subLayoutActivationWidget)},
+   m_pushSelectAllWells{new QPushButton("Select all", m_subLayoutActivationWidget)},
+   m_pushClearSelection{new QPushButton("Deselect all", m_subLayoutActivationWidget)},
+   m_comboBoxApplication{new QComboBox(m_subLayoutActivationWidget)},
+   m_comboBoxCluster{new QComboBox(m_subLayoutActivationWidget)},
+   m_pushButtonRun1DOptimalization{new EmphasisButton("Run 1D optimization", m_subLayoutActivationWidget)},
+   m_buttonRunOriginal1D{new QPushButton("Run original 1D", m_subLayoutActivationWidget)},
+   m_buttonRunOriginal3D{new QPushButton("Run original 3D", m_subLayoutActivationWidget)}
 {
    m_comboBoxApplication->insertItems(0, {"Iteratively Coupled", "Hydrostatic"});
    m_comboBoxCluster->insertItems(0, {"LOCAL", "CLUSTER"});
@@ -43,6 +53,7 @@ SacInputTab::SacInputTab(QWidget* parent) :
    layoutProject3D->addWidget(new QLabel("Project file", this));
    layoutProject3D->addWidget(m_lineEditProject3D);
    layoutProject3D->addWidget(m_pushSelectProject3D);
+   layoutProject3D->setContentsMargins(11, 0, 11, 0);
 
    m_lineEditProject3D->setReadOnly(true);
 
@@ -52,61 +63,69 @@ SacInputTab::SacInputTab(QWidget* parent) :
    m_layoutCalibrationOptions->addWidget(m_pushClearSelection);
    m_layoutCalibrationOptions->setStretch(0,4);
 
-   QWidget* runOptions = new QWidget(this);
-   QGridLayout* layoutOption = new QGridLayout(runOptions);
-   layoutOption->addWidget(new CustomTitle("Run Options", this), 0, 0);
-   layoutOption->addWidget(new QLabel("Run Mode", this), 1, 0);
-   layoutOption->addWidget(m_comboBoxApplication, 1, 1);
-   layoutOption->addWidget(new QLabel("Run Location", this), 2, 0);
-   layoutOption->addWidget(m_comboBoxCluster, 2, 1);
-
-   layoutOption->addWidget(m_pushButtonRun1DOptimalization, 3, 0, 1, 2);
+   QGridLayout* layoutOptions = new QGridLayout();
+   layoutOptions->addWidget(new QLabel("Run Mode", m_subLayoutActivationWidget), 1, 0);
+   layoutOptions->addWidget(m_comboBoxApplication, 1, 1);
+   layoutOptions->addWidget(new QLabel("Run Location", m_subLayoutActivationWidget), 2, 0);
+   layoutOptions->addWidget(m_comboBoxCluster, 2, 1);
+   layoutOptions->addWidget(m_pushButtonRun1DOptimalization, 3, 0, 1, 2);
 
    QHBoxLayout* run1D = new QHBoxLayout();
    run1D->addWidget(m_buttonRunOriginal1D);
-   HelpLabel* helpLabelRun1D = new HelpLabel(this, "For plotting and QC purposes under 'Well log plots and Results' tab");
+   HelpLabel* helpLabelRun1D = new HelpLabel(m_subLayoutActivationWidget, "For plotting and QC purposes under 'Well log plots and Results' tab");
    run1D->addWidget(helpLabelRun1D);
-   layoutOption->addLayout(run1D, 4, 0, 1, 2);
+   layoutOptions->addLayout(run1D, 4, 0, 1, 2);
 
    QHBoxLayout* run3D = new QHBoxLayout();
    run3D->addWidget(m_buttonRunOriginal3D);
-   HelpLabel* helpLabelRun3D = new HelpLabel(this, "For plotting and QC purposes under 'Well log plots and Results' tab");
+   HelpLabel* helpLabelRun3D = new HelpLabel(m_subLayoutActivationWidget, "For plotting and QC purposes under 'Well log plots and Results' tab");
    run3D->addWidget(helpLabelRun3D);
-   layoutOption->addLayout(run3D, 5, 0, 1, 2);
-   layoutOption->setMargin(0);
+   layoutOptions->addLayout(run3D, 5, 0, 1, 2);
 
-   runOptions->setMaximumHeight(160);
+   layoutOptions->setMargin(0);
+   m_layoutRunOptions->addLayout(layoutOptions);
 
-   QVBoxLayout* calibrationTargetTableLayout = new QVBoxLayout();
-   calibrationTargetTableLayout->addLayout(m_layoutCalibrationOptions);
-   calibrationTargetTableLayout->addWidget(m_calibrationTargetTable);
+   m_layoutTablesAndOptions->addLayout(m_layoutCalibrationOptions, 1, 0);
+   m_layoutTablesAndOptions->addWidget(m_calibrationTargetTable, 2,0);
 
-   m_layoutTablesAndOptions->addLayout(calibrationTargetTableLayout, 1,0);
+   m_layoutTablesAndOptions->addWidget(new CustomTitle("Data series and uncertainty ranges"), 1, 1);
+   m_objectiveFunctionTable->setMinimumWidth(600);
+   m_layoutTablesAndOptions->addWidget(m_objectiveFunctionTable, 2, 1);
 
-   QVBoxLayout* objectiveFunctionLayout = new QVBoxLayout();
+   m_layoutTablesAndOptions->addWidget(new CustomTitle("Run Options"), 1,2);
+   m_layoutTablesAndOptions->addLayout(m_layoutRunOptions, 2, 2, Qt::Alignment(Qt::AlignmentFlag::AlignTop));
 
-   objectiveFunctionLayout->addWidget(new CustomTitle("Data series and uncertainty ranges"));
-   objectiveFunctionLayout->addWidget(m_objectiveFunctionTable);
-
-   m_layoutTablesAndOptions->addLayout(objectiveFunctionLayout,1,1);
-   m_layoutTablesAndOptions->addWidget(runOptions,1,2, Qt::Alignment(Qt::AlignmentFlag::AlignTop));
+   m_layoutTablesAndOptions->setColumnStretch(0, 3);
+   m_layoutTablesAndOptions->setColumnStretch(1, 2);
+   m_layoutTablesAndOptions->setColumnStretch(2, 0);
 
    QVBoxLayout* verticalLayoutTab = new QVBoxLayout(this);
    verticalLayoutTab->addLayout(layoutProject3D);
-   verticalLayoutTab->addLayout(m_layoutTablesAndOptions);
+   verticalLayoutTab->addWidget(m_subLayoutActivationWidget,5);
+   m_subLayoutActivationWidget->setEnabled(false);
 }
 
-void SacInputTab::addTable(QTableWidget* table, QString tableTitle)
+void SacInputTab::setContentsActive(bool state)
+{
+   m_subLayoutActivationWidget->setEnabled(state);
+}
+
+void SacInputTab::addWidget(QWidget* widget, QString title)
 {
    QVBoxLayout* layout = new QVBoxLayout();
-   layout->addWidget(new CustomTitle(tableTitle));
-   layout->addWidget(table);
+   layout->addWidget(new CustomTitle(title));
+   layout->addWidget(widget);
    m_layoutTablesAndOptions->addLayout(layout,0,0,1,3);
 }
 
-void SacInputTab::addImportButton(QPushButton* button)
+QHBoxLayout* SacInputTab::layoutCalibrationOptions() const
 {
-   m_layoutCalibrationOptions->insertWidget(1, button);
+   return m_layoutCalibrationOptions;
+}
+
+QVBoxLayout* SacInputTab::layoutRunOptions() const
+{
+   return m_layoutRunOptions;
 }
 
 CalibrationTargetTable* SacInputTab::calibrationTargetTable() const

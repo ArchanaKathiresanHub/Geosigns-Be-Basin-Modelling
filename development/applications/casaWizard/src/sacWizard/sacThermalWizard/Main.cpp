@@ -7,7 +7,7 @@
 //
 
 // SAC themal wizard user interface
-#include "control/ControllerThermal.h"
+#include "control/ThermalController.h"
 
 #include <QApplication>
 #include <QDebug>
@@ -17,7 +17,7 @@
 int main(int argc, char* argv[])
 {
   QApplication a(argc, argv);
-  casaWizard::sac::thermal::ControllerThermal controller;
+  casaWizard::sac::thermal::ThermalController controller;
 
   try
   {

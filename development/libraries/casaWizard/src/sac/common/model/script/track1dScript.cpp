@@ -1,5 +1,4 @@
 #include "track1dScript.h"
-
 #include "model/script/WizardDataToCasaScriptMapper.h"
 
 namespace casaWizard

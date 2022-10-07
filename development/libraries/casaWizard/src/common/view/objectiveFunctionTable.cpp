@@ -16,6 +16,7 @@ ObjectiveFunctionTable::ObjectiveFunctionTable(QWidget* parent)
 
   horizontalHeader()->sectionSizeHint(50);
   horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+
   QSizePolicy policy = sizePolicy();
   policy.setHorizontalPolicy(QSizePolicy::Policy::Expanding);
   policy.setVerticalPolicy(QSizePolicy::Policy::Expanding);

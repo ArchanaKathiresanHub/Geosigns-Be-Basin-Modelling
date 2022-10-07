@@ -29,7 +29,7 @@ public:
    const SacLithologyScenario& scenario() const override;
 
 private:
-   void writeScriptContents(QFile& file) const override;
+   void writeParameters(QTextStream& stream) const override;
    QString writeLithofraction(const Lithofraction& lithofraction) const;
 
    const SacLithologyScenario& m_scenario;

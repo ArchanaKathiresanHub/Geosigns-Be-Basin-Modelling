@@ -33,41 +33,13 @@ const SacLithologyScenario& SACLithologyScript::scenario() const
    return m_scenario;
 }
 
-void SACLithologyScript::writeScriptContents(QFile& file) const
+void SACLithologyScript::writeParameters(QTextStream& stream) const
 {
-   QTextStream out(&file);
-
-   out << writeApp(1, scenario().applicationName() + " \"-allproperties\" \"-onlyat 0\"");
-
-   // Project filename should not contain path information
-   out << writeBaseProject(scenario().project3dFilename());
-
    const LithofractionManager& manager{scenario().lithofractionManager()};
    for (const Lithofraction& lithofraction : manager.lithofractions())
    {
-      out << writeLithofraction(lithofraction);
+      stream << writeLithofraction(lithofraction);
    }
-
-   const CalibrationTargetManager& ctManager = scenario().calibrationTargetManager();
-   const QVector<const Well*>& wells = ctManager.wells();
-   for (const Well* well : wells)
-   {
-      if ( well->isActive())
-      {
-         for (const QString& propertyUserName : ctManager.getPropertyUserNamesForWell(well->id()))
-         {
-            if (scenario().propertyIsActive(propertyUserName))
-            {
-               out << writeWellTrajectory(well->name(), well->id(), propertyUserName);
-            }
-         }
-      }
-   }
-
-   out << QString("generateMulti1D \"Default\" \"none\" 0.01\n");
-   out << writeLocation(scenario().runLocation(), false, !doOptimization(), true);
-   out << writeRun(scenario().clusterName());
-   out << writeSaveState(scenario().stateFileNameSAC());
 }
 
 QString SACLithologyScript::writeLithofraction(const Lithofraction& lithofraction) const

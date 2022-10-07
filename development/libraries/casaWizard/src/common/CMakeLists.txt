@@ -2,7 +2,7 @@ file(GLOB CASAWIZARD_COMMON_MODEL_H_HEADERS model/*.h
                                             model/input/*.h
                                             model/output/*.h
                                             model/script/*.h
-                                            model/functions/*.h)
+                                            model/functions/*.h )
 
 file(GLOB CASAWIZARD_COMMON_MODEL_CPP_SOURCES model/*.cpp
                                               model/functions/*.cpp
@@ -22,8 +22,7 @@ file(GLOB CASAWIZARD_COMMON_CPP_SOURCES view/*.cpp
                                         view/sharedComponents/*.cpp
                                         view/sharedComponents/resources.qrc
                                         control/*.cpp
-                                        model/functions/*.cpp
-                                       )
+                                        model/functions/*.cpp )
 
 include_directories( SYSTEM
   ${HDF5_INCLUDE_DIRS}

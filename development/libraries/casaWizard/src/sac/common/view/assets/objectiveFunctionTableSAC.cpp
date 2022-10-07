@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2021 Shell International Exploration & Production.
+// Copyright (C) 2012-2022 Shell International Exploration & Production.
 // All rights reserved.
 //
 // Confidential and proprietary source code of Shell.
@@ -10,7 +10,7 @@
 
 #include "model/objectiveFunctionManager.h"
 #include "view/sharedComponents/customcheckbox.h"
-
+#include <QHeaderView>
 #include <QHBoxLayout>
 #include <QSignalBlocker>
 
@@ -35,11 +35,17 @@ void ObjectiveFunctionTableSAC::updateTable(const ObjectiveFunctionManager& obje
 
   setColumnCount(4);
   setHorizontalHeaderLabels({"Enabled", "Absolute error", "Relative error", "Cauldron property name"});
-
   horizontalHeaderItem(1)->setIcon(QIcon(":/Help.png"));
   horizontalHeaderItem(1)->setToolTip("The uncertainty range is defined as: Absolute Error + Relative Error * Property value");
   horizontalHeaderItem(2)->setIcon(QIcon(":/Help.png"));
   horizontalHeaderItem(2)->setToolTip("The uncertainty range is defined as: Absolute Error + Relative Error * Property value");
+
+  horizontalHeader()->setSectionResizeMode(0, QHeaderView::Fixed);
+  setColumnWidth(0, 62);
+
+  horizontalHeader()->setSectionResizeMode(3, QHeaderView::Fixed);
+  QFontMetrics a(font());
+  setColumnWidth(3, a.width("Cauldron property name") + 22);
 
   for (int row = 0; row < rowCount; ++row)
   {

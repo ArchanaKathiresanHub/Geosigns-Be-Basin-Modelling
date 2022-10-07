@@ -53,14 +53,14 @@ UAResultsTargetTable::UAResultsTargetTable(QWidget *parent):
    setColumnWidth(0,fm.width("Location name")+64);
    horizontalHeader()->setSectionResizeMode(0,QHeaderView::Fixed);
 
-   for (int i = 1; i < m_numDefaultCols; i++)
+   for (int i = 1; i < m_numDefaultCols; ++i)
    {
       horizontalHeader()->setSectionResizeMode(i,QHeaderView::Stretch);
    }
 
    int maxHeaderTextWidthOptions(0);
    QVector<QString> optionNamesTable;
-   for (int i = 0; i < targetOptions.size(); i++)
+   for (int i = 0; i < targetOptions.size(); ++i)
    {
       QString optionName = targetOptions[i];
       if (s_targetOptionsNamesMap.contains(optionName))
@@ -78,7 +78,7 @@ UAResultsTargetTable::UAResultsTargetTable(QWidget *parent):
       }
    }
 
-   for (int i = 0; i < optionNamesTable.size(); i++)
+   for (int i = 0; i < optionNamesTable.size(); ++i)
    {
       QString optionName = optionNamesTable[i];
       QTableWidgetItem* it = new QTableWidgetItem(optionName);

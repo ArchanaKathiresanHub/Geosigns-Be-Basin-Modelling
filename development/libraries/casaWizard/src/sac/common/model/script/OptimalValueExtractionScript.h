@@ -17,7 +17,6 @@ class OptimalValueExtractionScript : public RunScript
 public:
    explicit OptimalValueExtractionScript(const QString& baseDirectory, QString scriptFileName = "optimizationScript.casa");
    bool generateCommands() override;
-
    void addCase(const QString& runFolder);
    bool scriptShouldCancelWhenFailureIsEncountered() const override;
 

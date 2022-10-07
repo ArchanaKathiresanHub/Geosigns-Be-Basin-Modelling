@@ -14,6 +14,7 @@
 
 #include <QDir>
 #include <QFile>
+#include <QTextStream>
 
 namespace casaWizard
 {
@@ -81,6 +82,40 @@ QString SACScript::writeWellTrajectory(const QString& wellName, const int wellIn
    const QString filename{folder + "/" + wellName + "_" + propertyUserName + "_" + propertyCauldronName + ".in"};
    return QString("target \"" + QString::number(wellIndex) + "_" + propertyCauldronName + "\" WellTraj \"" + filename + "\" \""
                   + wizardDataToCasaScriptMapper::mapName(propertyCauldronName) + "\" 0 0.0 1.0 1.0\n");
+}
+
+
+void SACScript::writeScriptContents(QFile &file) const
+{
+   QTextStream out(&file);
+
+   out << writeApp(1, scenario().applicationName() + " \"-allproperties\" \"-onlyat 0\"");
+
+   // Project filename should not contain path information
+   out << writeBaseProject(scenario().project3dFilename());
+
+   writeParameters(out);
+
+   const CalibrationTargetManager& ctManager = scenario().calibrationTargetManager();
+   const QVector<const Well*>& wells = ctManager.wells();
+   for (const Well* well : wells)
+   {
+      if ( well->isActive())
+      {
+         for (const QString& propertyUserName : ctManager.getPropertyUserNamesForWell(well->id()))
+         {
+            if (scenario().propertyIsActive(propertyUserName))
+            {
+               out << writeWellTrajectory(well->name(), well->id(), propertyUserName);
+            }
+         }
+      }
+   }
+
+   out << QString("generateMulti1D \"Default\" \"none\" 0.01\n");
+   out << writeLocation(scenario().runLocation(), false, !doOptimization(), true);
+   out << writeRun(scenario().clusterName());
+   out << writeSaveState(scenario().stateFileNameSAC());
 }
 
 } // sac

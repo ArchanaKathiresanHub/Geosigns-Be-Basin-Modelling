@@ -1,3 +1,11 @@
+//
+// Copyright (C) 2012-2022 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #pragma once
 
 #include <QWidget>
@@ -39,16 +47,21 @@ public:
    const QPushButton* buttonRunOriginal1D() const;
    const QPushButton* buttonRunOriginal3D() const;
 
+   void setContentsActive(bool state);
+
 protected:
-   void addTable(QTableWidget* table, QString tableTitle = "");
-   void addImportButton(QPushButton* button);
+   void addWidget(QWidget* widget, QString title = "");
+   QHBoxLayout* layoutCalibrationOptions() const;
+   QVBoxLayout* layoutRunOptions() const;
 
 private:
+   QWidget* m_subLayoutActivationWidget;
    QPushButton* m_pushSelectProject3D;
    QLineEdit* m_lineEditProject3D;
 
    QGridLayout* m_layoutTablesAndOptions;
    QHBoxLayout* m_layoutCalibrationOptions;
+   QVBoxLayout* m_layoutRunOptions;
    CalibrationTargetTable* m_calibrationTargetTable;
    ObjectiveFunctionTableSAC* m_objectiveFunctionTable;
 

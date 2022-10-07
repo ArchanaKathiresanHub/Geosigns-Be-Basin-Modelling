@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2022 Shell International Exploration & Production.
+// Copyright (C) 2012-2022 Shell International Exploration & Production.
 // All rights reserved.
 //
 // Confidential and proprietary source code of Shell.
@@ -7,7 +7,7 @@
 //
 
 // SAC lithology wizard user interface
-#include "control/controllerLithology.h"
+#include "control/LithologyController.h"
 
 #include <QApplication>
 #include <QDebug>
@@ -17,7 +17,7 @@
 int main(int argc, char* argv[])
 {
   QApplication a(argc, argv);
-  casaWizard::sac::lithology::ControllerLithology controller;
+  casaWizard::sac::lithology::LithologyController controller;
 
   try
   {

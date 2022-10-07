@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2022 Shell International Exploration & Production.
+// Copyright (C) 2012-2022 Shell International Exploration & Production.
 // All rights reserved.
 //
 // Confidential and proprietary source code of Shell.
@@ -93,7 +93,7 @@ void SacInputController::refreshGUI()
       m_inputTab->comboBoxApplication()->setCurrentText("Hydrostatic");
    }
 
-   emit signalRefreshChildWidgets();
+   m_inputTab->setContentsActive(!(scenario().workingDirectory().isEmpty()));
 }
 
 ScriptRunController& SacInputController::scriptRunController()
@@ -109,6 +109,11 @@ CalibrationTargetController* SacInputController::calibrationTargetController()
 DataExtractionController* SacInputController::dataExtractionController()
 {
    return m_dataExtractionController;
+}
+
+SacInputTab* SacInputController::inputTab()
+{
+   return m_inputTab;
 }
 
 const SacInputTab* SacInputController::inputTab() const
@@ -337,7 +342,7 @@ bool SacInputController::selectWorkspace()
       if (!workspaceGenerationController::generateWorkSpace(originalWorkspaceLocation, scenario()))
       {
          return false;
-      }
+      }  
    }
    else
    {
@@ -345,6 +350,8 @@ bool SacInputController::selectWorkspace()
    }
 
    scenario().setProject3dFileNameAndLoadFile(fileName);
+   scenario().updateWellsForProject3D();
+   scenarioBackup::backup(scenario());
    return true;
 }
 
@@ -380,17 +387,6 @@ void SacInputController::slotRunOriginal3D()
    {
       scenarioBackup::backup(scenario());
    }
-}
-
-bool SacInputController::slotPushButtonSelectProject3dClicked()
-{
-   if (!selectWorkspace())
-   {
-      return false;
-   }
-   scenario().updateWellsForProject3D();
-   scenarioBackup::backup(scenario());
-   return true;
 }
 
 void SacInputController::slotComboBoxClusterCurrentTextChanged(QString clusterName)

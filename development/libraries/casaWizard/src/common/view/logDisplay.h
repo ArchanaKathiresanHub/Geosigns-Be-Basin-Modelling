@@ -26,6 +26,9 @@ public:
   QPushButton* pushShowLog() const;
   QTextEdit* lineEditLog() const;
 
+signals:
+  void resizeLog(int sizeIdx);
+
 private:
   void updateDisplayState();
   QPushButton* pushClearLog_;

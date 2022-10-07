@@ -1,0 +1,10 @@
+app 1 fastcauldron "-itcoupled" "-allproperties" "-onlyat 0"
+base_project "projStub.project3d"
+varprm "BasementIoTbl:TopCrustHeatProd" 0 5 "Normal"
+target "0_Vr" WellTraj "./wells/Well1_VRe_Vr.in" "Vr" 0 0.0 1.0 1.0
+target "0_Temperature" WellTraj "./wells/Well1_Temp_Temperature.in" "Temperature" 0 0.0 1.0 1.0
+target "1_Vr" WellTraj "./wells/Well2_VRe_Vr.in" "Vr" 0 0.0 1.0 1.0
+generateMulti1D "Default" "none" 0.01
+location "CaseSet" "removeModel"
+run "LOCAL" "Default"
+savestate "casaStateSAC.txt" "txt"
