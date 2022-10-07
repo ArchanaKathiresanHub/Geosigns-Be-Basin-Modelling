@@ -13,7 +13,7 @@
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Version				Date of update
 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-Cauldron-v2.9.5		2022-10-06 14:54:19 +0000
+Cauldron-v2.9.6		2022-10-07 14:36:32 +0000
 =============================================================
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Third-party Software 		version
@@ -36,6 +36,16 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2022-10-07  Sven van Leeuwen  <Sven.van-Leeuwen@shell.com>
+
+	chg: dev: user: Resultstab refactor + inputtab refactor & implementation into SAC Thermal
+	* Code refactoring
+	* General QoL improvements of LIT UI
+	* Input tab implemented into the new Thermal SAC tool
+	================== COMMIT-END ========================
+	Commit-ID:<6595df27bff676a13cfb74484afabf3046c92bad>	  (tag: refs/tags/v2.9.6, refs/heads/master, refs/heads/Changelog)
+
+++
 2022-10-06  Richard Faasse  <Richard.Faasse@shell.com>
 
 	fix: Small fix for adding prediction targets in UA !minor.
@@ -106,8 +116,8 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 2022-09-27  Sven van Leeuwen  <Sven.van-Leeuwen@shell.com>
 
 	chg: usr: Hotfix.
-	- UA Wizard: added title to qc table
-	- SAC/UA: altered colorbar to display a single color and less ticks when the the min/max is the same
+	* UA Wizard: added title to qc table
+	* SAC/UA: altered colorbar to display a single color and less ticks when the the min/max is the same
 	================== COMMIT-END ========================
 	Commit-ID:<2d26d790431bcd69d7ac0724985249094b26e0ac>	  (tag: refs/tags/v2.8.30, refs/heads/master)
 
