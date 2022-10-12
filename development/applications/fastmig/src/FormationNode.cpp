@@ -1206,7 +1206,7 @@ namespace migration
 
    }
 
-   typedef pair<int, double> IntDoublePair;
+   typedef std::pair<int, double> IntDoublePair;
 
    bool IntDoublePairSorter (const IntDoublePair & pair1, const IntDoublePair & pair2)
    {
@@ -1285,7 +1285,7 @@ namespace migration
 
       if (!m_cosines)
       {
-         m_cosines = new vector < IntDoublePair >;
+         m_cosines = new std::vector < IntDoublePair >;
       }
 
       ThreeVector analogFDnode = getAnalogFlowDirection ();

@@ -50,6 +50,7 @@
 
 using namespace DataAccess;
 using namespace Interface;
+using namespace std;
 
 static bool snapshotSorter (const Interface::Snapshot * snapshot1, const Interface::Snapshot * snapshot2);
 static bool snapshotIsEqual (const Interface::Snapshot * snapshot1, const Interface::Snapshot * snapshot2);
@@ -930,7 +931,7 @@ void AbstractPropertiesCalculator::displayProgress(const string & fileName, doub
    char time[124];
    snprintf (time, sizeof (time), "%2.2ld:%2.2ld:%2.2ld", hrs, mins, secs);
 
-   ostringstream buf;
+   std::ostringstream buf;
    buf.precision(4);
    buf.setf(ios::fixed);
 

@@ -14,18 +14,18 @@ namespace migration
 {
    namespace utils
    {
-      string getProjectBaseName (const string& projectName)
+      std::string getProjectBaseName (const std::string& projectName)
       {
-         string result = projectName;
-         string::size_type dotPos = result.rfind (".project");
-         if (dotPos != string::npos)
-            result.erase (dotPos, string::npos);
+         std::string result = projectName;
+         std::string::size_type dotPos = result.rfind (".project");
+         if (dotPos != std::string::npos)
+            result.erase (dotPos, std::string::npos);
          return result;
       }
 
-      string replaceSpaces (const string& str)
+      std::string replaceSpaces (const std::string& str)
       {
-         string result = str;
+         std::string result = str;
          for (unsigned int i = 0; i < result.length (); ++i)
             if (result[i] == ' ') result[i] = '_';
          return result;

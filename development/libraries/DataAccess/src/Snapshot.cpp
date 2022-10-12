@@ -51,7 +51,7 @@ const string & Snapshot::getFileName (const bool setIfNecessary) const
    if (!fileName.empty()) return fileName;
 
    // generate file name
-   ostringstream buf;
+   std::ostringstream buf;
 
    buf.setf (ios::fixed);
    buf.precision (6);
@@ -97,7 +97,7 @@ bool Snapshot::getAppendFile () const {
 
 void Snapshot::asString (string & str) const
 {
-   ostringstream buf;
+   std::ostringstream buf;
 
    buf << "Snapshot: ";
    buf << setprecision (10) << getTime ();
@@ -109,7 +109,7 @@ void Snapshot::asString (string & str) const
 const string & Snapshot::asString () const
 {
    static string str;
-   ostringstream buf;
+   std::ostringstream buf;
 
    buf << setprecision (10) << getTime ();
 

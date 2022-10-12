@@ -186,7 +186,7 @@ namespace migration
       FiniteElementMethod::ThreeVector *  m_analogFlowDirection;
    };
 
-   typedef pair < int, double >IntDoublePair;
+   typedef  std::pair < int, double >IntDoublePair;
 
    class LocalFormationNode :public FormationNode
    {
@@ -383,7 +383,7 @@ namespace migration
       bool m_isEndOfPath;                      // true - if node is end of path. May even be a leaking (or zero-thickness) node
       // but it needs to be the end of the path to register it in the leaking reservoir.
 
-      vector < IntDoublePair > *  m_cosines;     // cosines of angles between the analog flow direction and the feasible discretized flow directions  
+      std::vector < IntDoublePair > *  m_cosines;     // cosines of angles between the analog flow direction and the feasible discretized flow directions  
 
       boost::array<double, 2> m_verticalPermeability;
       boost::array<double, 2> m_capillaryEntryPressureLiquid;
@@ -437,7 +437,7 @@ namespace migration
       unsigned int m_depth;
       int m_numberOfProxyFormationNodes;
 
-      typedef map < IndexPair, ProxyFormationNode * >ProxyFormationNodeMap;
+      typedef std::map < IndexPair, ProxyFormationNode * >ProxyFormationNodeMap;
       ProxyFormationNodeMap *m_proxyFormationNodes;
 
       FormationNode ****m_localFormationNodes;

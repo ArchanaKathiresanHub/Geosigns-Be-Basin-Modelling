@@ -83,7 +83,7 @@ protected:
    hid_t createAccessDatasetPropertyList ();
    hid_t createRawTransferDatasetPropertyList ();
 
-   bool safeReadWrite (ReadWriteObject &fileOp, ostream &os);
+   bool safeReadWrite (ReadWriteObject &fileOp, std::ostream &os);
  
    hid_t hFileId;
    hid_t hPropertyListId;       

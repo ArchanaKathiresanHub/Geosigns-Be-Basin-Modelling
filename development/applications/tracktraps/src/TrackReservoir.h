@@ -16,8 +16,6 @@
 #include <map>
 #include <vector>
 
-using namespace std;
-
 namespace database
 {
    class Record;
@@ -64,7 +62,7 @@ namespace PersistentTraps
 
 	 TrackTrap * getTrap (int id);
 
-	 const Interface::GridMap * getPropertyGridMap (const string & propertyName, const Interface::Snapshot * snapshot);
+	 const Interface::GridMap * getPropertyGridMap (const std::string & propertyName, const Interface::Snapshot * snapshot);
 
 	 bool determineTrapSealPermeabilities (const Interface::Snapshot * snapshot);
 	 bool determineTrapPorosities (const Interface::Snapshot * snapshot);
@@ -84,16 +82,16 @@ namespace PersistentTraps
 
 	 void deletePersistentTraps (void);
 
-	 inline bool hasName (const string & name);
+	 inline bool hasName (const std::string & name);
 
 	 inline void setAverageDepth (double depth);
 	 inline double getAverageDepth (void);
 
-			private:
-	 vector < PersistentTrap * > m_persistentTraps;
+private:
+	std::vector < PersistentTrap * > m_persistentTraps;
 
    /// The Traps we work on
-   map < unsigned int, TrackTrap *, less < unsigned int > > m_traps;
+   std::map < unsigned int, TrackTrap *, std::less < unsigned int > > m_traps;
 
 	 /// the persistent trap id's for this reservoir.
 	 int m_persistentTrapId;
@@ -104,7 +102,7 @@ namespace PersistentTraps
 	 };
 }
 
-bool PersistentTraps::TrackReservoir::hasName (const string & name)
+bool PersistentTraps::TrackReservoir::hasName (const std::string & name)
 {
 	 return getName () == name;
 }

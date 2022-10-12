@@ -25,24 +25,23 @@
 #include "Formation.h"
 #include "Reservoir.h"
 
-using namespace std;
 using namespace DataAccess;
 using namespace DerivedProperties;
 
 namespace DerivedProperties {
 
-   typedef vector < string > StringVector;
+   typedef std::vector < std::string > StringVector;
 
-   typedef vector < const Interface::Formation * > FormationVector;
+   typedef std::vector < const Interface::Formation * > FormationVector;
 
-   typedef map < const Interface::Property *, OutputPropertyValuePtr > OutputPropertyValueMap;
+   typedef std::map < const Interface::Property *, OutputPropertyValuePtr > OutputPropertyValueMap;
 
-   typedef pair < const Interface::Formation *, const Interface::Surface * > FormationSurface;
-   typedef vector < FormationSurface > FormationSurfaceVector;
-   typedef map < const FormationSurface, OutputPropertyValueMap > FormationSurfaceOutputPropertyValueMap;
-   typedef map < const Interface::Snapshot *, FormationSurfaceOutputPropertyValueMap> SnapshotFormationSurfaceOutputPropertyValueMap;
+   typedef std::pair < const Interface::Formation *, const Interface::Surface * > FormationSurface;
+   typedef std::vector < FormationSurface > FormationSurfaceVector;
+   typedef std::map < const FormationSurface, OutputPropertyValueMap > FormationSurfaceOutputPropertyValueMap;
+   typedef std::map < const Interface::Snapshot *, FormationSurfaceOutputPropertyValueMap> SnapshotFormationSurfaceOutputPropertyValueMap;
 
-   bool isEqualPropertyName( const string s1, const string s2 );
+   bool isEqualPropertyName( const std::string s1, const std::string s2 );
 
    // bool acquireFormations( GeoPhysics::ProjectHandle& projectHandle, FormationSurfaceVector & formationSurfacePairs,
    //                         StringVector & formationNames, const bool includeBasement = true ) ;
@@ -118,7 +117,7 @@ namespace DerivedProperties {
                                             const Interface::Formation * formation,
                                             const Interface::Surface * surface );
 
-   void printDebugMsg ( const string outputMsg,
+   void printDebugMsg ( const std::string outputMsg,
                         const DataModel::AbstractProperty  * property,
                         const DataModel::AbstractFormation * formation,
                         const DataModel::AbstractSurface   * surface,

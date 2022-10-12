@@ -34,6 +34,8 @@
 #include "PrmTopCrustHeatProductionGridScaling.h"
 #include "PrmWindow.h"
 
+using namespace std;
+
 namespace casa
 {
 

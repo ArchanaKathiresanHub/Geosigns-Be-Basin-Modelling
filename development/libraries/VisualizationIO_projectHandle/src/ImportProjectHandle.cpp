@@ -106,7 +106,7 @@ void ImportProjectHandle::addSnapShots()
     m_props.reset(m_projectHandle.getProperties(true, ALLSELECTION, 0, 0, 0, 0, MAP | VOLUME));
 
     if (m_verbose)
-        cout << "Loaded " << m_propValues->size() << " propertyvalues and " << m_props->size() << " properties" << endl;
+        std::cout << "Loaded " << m_propValues->size() << " propertyvalues and " << m_props->size() << " properties" << std::endl;
 
     std::shared_ptr<SnapshotList> snapShots;
     snapShots.reset(m_projectHandle.getSnapshots(MAJOR | MINOR));
@@ -174,7 +174,7 @@ std::shared_ptr<CauldronIO::SnapShot> ImportProjectHandle::createSnapShotIO(cons
         std::shared_ptr<CauldronIO::Geometry3D> geometry3D = createGeometry3D(depthFormations);
 
         if (m_verbose)
-            cout << " - Adding continuous volume data with (" << propValues->size() << ") formations for property " << prop->getName() << endl;
+            std::cout << " - Adding continuous volume data with (" << propValues->size() << ") formations for property " << prop->getName() << std::endl;
         CauldronIO::PropertyVolumeData propVolume = createPropertyVolumeData(propValues, geometry3D, depthFormations);
         volume->addPropertyVolumeData(propVolume);
     }
@@ -191,7 +191,7 @@ std::shared_ptr<CauldronIO::SnapShot> ImportProjectHandle::createSnapShotIO(cons
         std::shared_ptr<CauldronIO::Formation> formationIO = findOrCreateFormation(formation, depthFormations);
         if (!formationIO || !formationIO->isDepthRangeDefined())
         {
-            if (m_verbose) cerr << "Basin_Warning: ignoring formation: " << formation->getName() << " not found as depth formation" << endl;
+            if (m_verbose) std::cerr << "Basin_Warning: ignoring formation: " << formation->getName() << " not found as depth formation" << std::endl;
             continue;
         }
 
@@ -221,8 +221,8 @@ std::shared_ptr<CauldronIO::SnapShot> ImportProjectHandle::createSnapShotIO(cons
         }
 
         if (m_verbose)
-            cout << " - Adding discontinuous volume data formation " << formationIO->getName() << " with "
-                 << volume->getPropertyVolumeDataList().size() << " properties" << endl;
+            std::cout << " - Adding discontinuous volume data formation " << formationIO->getName() << " with "
+                 << volume->getPropertyVolumeDataList().size() << " properties" << std::endl;
 
         // Only add if there is actual data
         if (volume->getPropertyVolumeDataList().size() > 0)
@@ -232,7 +232,7 @@ std::shared_ptr<CauldronIO::SnapShot> ImportProjectHandle::createSnapShotIO(cons
         }
       else if (m_verbose)
       {
-         cout << "No properties found for formation: " << formation->getName() << endl;
+         std::cout << "No properties found for formation: " << formation->getName() << std::endl;
       }
 
     }
@@ -309,14 +309,14 @@ vector<std::shared_ptr<CauldronIO::Surface> > ImportProjectHandle::createSurface
         if (!formation && !surface)
                 throw new CauldronIO::CauldronIOException("Found map without formation, surface or reservoir");
 
-        string surfaceName;
+       std::string surfaceName;
         if (surface)
             surfaceName = surface->getName();
         else if (m_verbose)
         {
-            cout << " - Adding map for formation: " << formation->getName() << " with property " << prop->getName() << endl;
+            std::cout << " - Adding map for formation: " << formation->getName() << " with property " << prop->getName() << std::endl;
             if (reservoir)
-                cout << " -- from reservoir: " << reservoir->getName() << endl;
+                std::cout << " -- from reservoir: " << reservoir->getName() << std::endl;
         }
 
         // Find or create a property
@@ -367,7 +367,7 @@ vector<std::shared_ptr<CauldronIO::Surface> > ImportProjectHandle::createSurface
             surfaceIO.reset(new CauldronIO::Surface(surfaceName, getSubSurfaceKind(surface)));
             surfaces.push_back(surfaceIO);
             if (m_verbose && surface)
-                cout << " - Adding surface: " << surfaceIO->getName() << endl;
+                std::cout << " - Adding surface: " << surfaceIO->getName() << std::endl;
 
             // Set the formations
             if (surface)
@@ -396,14 +396,14 @@ vector<std::shared_ptr<CauldronIO::Surface> > ImportProjectHandle::createSurface
         // Add the property/surfaceData object
         CauldronIO::PropertySurfaceData propSurfaceData(propertyIO, propertyMap);
         if (m_verbose)
-            cout << " --- adding surface data for property " << propertyIO->getName() << endl;
+            std::cout << " --- adding surface data for property " << propertyIO->getName() << std::endl;
         surfaceIO->addPropertySurfaceData(propSurfaceData);
     }
 
     return surfaces;
 }
 
-std::shared_ptr<CauldronIO::Surface> ImportProjectHandle::findSurface(vector< std::shared_ptr<CauldronIO::Surface> > surfaces, const string& surfaceName) const
+std::shared_ptr<CauldronIO::Surface> ImportProjectHandle::findSurface(vector< std::shared_ptr<CauldronIO::Surface> > surfaces, const std::string& surfaceName) const
 {
     for(std::shared_ptr<CauldronIO::Surface>& surface: surfaces)
         if (surface->getName() == surfaceName) return surface;
@@ -609,8 +609,8 @@ std::shared_ptr<CauldronIO::Geometry3D> ImportProjectHandle::createGeometry3D(st
     {
         std::shared_ptr<CauldronIO::FormationInfo>& depthInfo = depthFormations->at(i);
         // TODO: check if formations are continuous.. (it is assumed now)
-        maxK = max(maxK, depthInfo->kEnd);
-        minK = min(minK, depthInfo->kStart);
+        maxK = std::max(maxK, depthInfo->kEnd);
+        minK = std::min(minK, depthInfo->kStart);
     }
 
     size_t depthK = 1 + maxK - minK;
@@ -677,7 +677,7 @@ std::shared_ptr<CauldronIO::SurfaceData> ImportProjectHandle::createMapIO(const 
 CauldronIO::SnapShotKind ImportProjectHandle::getSnapShotKind(const Snapshot* snapShot)
 {
     // Get snapshot kind
-    const string snapShotKind = snapShot->getKind();
+    const std::string snapShotKind = snapShot->getKind();
     CauldronIO::SnapShotKind kind = CauldronIO::NONE;
     if (snapShotKind == "System Generated")
         kind = CauldronIO::SYSTEM;
@@ -929,7 +929,7 @@ void ImportProjectHandle::checkInputValues()
    SurfaceList* surfaces = m_projectHandle.getSurfaces(nullptr, false);
    if (surfaces->size() > 0)
    {
-      if (m_verbose) cout << "== StratIOTable ==" << endl;
+      if (m_verbose) std::cout << "== StratIOTable ==" << std::endl;
 
       for (const Interface::Surface* surface : *surfaces)
       {
@@ -976,7 +976,7 @@ void ImportProjectHandle::addStratTableSurface(const DataAccess::Interface::Surf
 
    // Create the surface
    std::shared_ptr<CauldronIO::Surface> surfaceIO(new CauldronIO::Surface(surface->getName(), getSubSurfaceKind(surface)));
-   if (m_verbose) cout << "Adding stratigraphy surface: " << surface->getName() << endl;
+   if (m_verbose) std::cout << "Adding stratigraphy surface: " << surface->getName() << std::endl;
    database::Record* record = surface->getRecord();
    assert(record);
 
@@ -1008,7 +1008,7 @@ void ImportProjectHandle::addStratTableSurface(const DataAccess::Interface::Surf
          // find the good line for the Surface in the table
          if (database::getSurfaceName(twoWayTimeRecord) == surface->getName())
          {
-            const string &twtGridMapId = getTwoWayTimeGrid(twoWayTimeRecord);
+            const std::string &twtGridMapId = getTwoWayTimeGrid(twoWayTimeRecord);
             float twt = static_cast<float>(getTwoWayTime(twoWayTimeRecord));
             std::shared_ptr<CauldronIO::SurfaceData> twtMap;
 
@@ -1047,7 +1047,7 @@ void ImportProjectHandle::addStratTableSurface(const DataAccess::Interface::Surf
 }
 
 
-std::shared_ptr<CauldronIO::SurfaceData> ImportProjectHandle::getInputMap(float value, const string &valueGridMapId,
+std::shared_ptr<CauldronIO::SurfaceData> ImportProjectHandle::getInputMap(float value, const std::string &valueGridMapId,
    std::shared_ptr<const CauldronIO::Geometry2D> geometry) const
 {
    std::shared_ptr<CauldronIO::SurfaceData> valueMap;
@@ -1075,7 +1075,7 @@ std::shared_ptr<CauldronIO::SurfaceData> ImportProjectHandle::getInputMap(float 
 void ImportProjectHandle::addStratTableFormation(const Interface::Formation* formation)
 {
    auto formationIO = findOrCreateFormation(formation);
-   if (m_verbose) cout << "Adding formation: " << formation->getName() << endl;
+   if (m_verbose) std::cout << "Adding formation: " << formation->getName() << std::endl;
 
    // Create a geometry
    const Grid* grid = (Grid *)m_projectHandle.getInputGrid();
@@ -1193,7 +1193,7 @@ void ImportProjectHandle::addStratTableFormation(const Interface::Formation* for
    m_project->addStratigraphyTableEntry(entry);
 }
 
-std::shared_ptr<const CauldronIO::Property> ImportProjectHandle::getDefaultProperty(const string& propString)
+std::shared_ptr<const CauldronIO::Property> ImportProjectHandle::getDefaultProperty(const std::string& propString)
 {
    for (auto& prop : m_project->getProperties())
    {

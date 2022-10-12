@@ -18,6 +18,8 @@
 using namespace AbstractDerivedProperties;
 using namespace Interface;
 
+using namespace std;
+
 bool DerivedProperties::acquireProperties( GeoPhysics::ProjectHandle& projectHandle, const AbstractPropertyManager& propertyManager,
                                            PropertyList & properties, StringVector & propertyNames  ) {
 

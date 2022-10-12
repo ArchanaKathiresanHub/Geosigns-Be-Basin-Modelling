@@ -96,7 +96,7 @@ public:
          ASSERT_EQ( ErrorHandler::NoError, doe.generateDoE( scenario.varSpace(), scenario.doeCaseSet() ) );
       }
 
-      vector<const casa::RunCase*> proxyRC;
+      std::vector<const casa::RunCase*> proxyRC;
 
       // add observables values without running cases
       casa::RunCaseSet& rcs = scenario.doeCaseSet();
@@ -126,7 +126,7 @@ TEST_F(RSProxyCalcTest, CalculateR2AndR2Adj)
    setupScenario(scenario, parameters, runCaseObservablesFullFactorial, {generator});
 
    // Create and calculate RS proxy
-   vector<string> doeList;
+   std::vector<std::string> doeList;
    doeList.push_back( casa::DoEGenerator::DoEName( generator ) );
 
    ASSERT_EQ( ErrorHandler::NoError, scenario.addRSAlgorithm( "TestRS", 1, casa::RSProxy::NoKriging, doeList ) );
@@ -181,7 +181,7 @@ TEST_F(RSProxyCalcTest, CalculateQ2)
    setupScenario(scenario, parameters, runCaseObservablesFullFactorial, {generator});
 
    // Create and calculate RS proxy
-   vector<string> doeList;
+   std::vector<std::string> doeList;
    doeList.push_back( casa::DoEGenerator::DoEName( generator ) );
 
    ASSERT_EQ( ErrorHandler::NoError, scenario.addRSAlgorithm( "TestRS", 1, casa::RSProxy::NoKriging, doeList ) );

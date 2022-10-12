@@ -110,7 +110,7 @@ void MatlabWellWriter::write ( const std::string&                               
             value = 0.0;
          }
 
-         outputFile << properties [ j ]->getName () << " ( " << i + 1 << " ) = " << value << ";" << endl;
+         outputFile << properties [ j ]->getName () << " ( " << i + 1 << " ) = " << value << ";" << std::endl;
       }
 
    }

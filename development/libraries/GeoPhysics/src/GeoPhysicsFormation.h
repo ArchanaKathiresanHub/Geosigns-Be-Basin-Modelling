@@ -137,9 +137,9 @@ namespace GeoPhysics {
                                                                          const GridMap* lithoMap1,
                                                                          const GridMap* lithoMap2,
                                                                          const GridMap* lithoMap3,
-                                                                         const string& lithoName1,
-                                                                         const string& lithoName2,
-                                                                         const string& lithoName3) const;
+                                                                         const std::string& lithoName1,
+                                                                         const std::string& lithoName2,
+                                                                         const std::string& lithoName3) const;
    protected :
 
       // I hope just temporary.

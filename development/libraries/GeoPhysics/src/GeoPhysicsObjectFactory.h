@@ -38,7 +38,7 @@ namespace GeoPhysics {
 
       /// Returns the project-handle.
       DataAccess::Interface::ProjectHandle* produceProjectHandle ( database::ProjectFileHandlerPtr pfh,
-                                                                   const string &       name) const;
+                                                                   const std::string &       name) const;
 
       /// Allocate a GeoPhysics fluid-type.
       DataAccess::Interface::FluidType* produceFluidType ( DataAccess::Interface::ProjectHandle& projectHandle,

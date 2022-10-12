@@ -24,6 +24,7 @@
 #include "Snapshot.h"
 
 #include "PetscBlockVector.h"
+using namespace std;
 
 CauldronMantleFormation::CauldronMantleFormation (Interface::ProjectHandle& projectHandle,
                                    database::Record *              record ) :

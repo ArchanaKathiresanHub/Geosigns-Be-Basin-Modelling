@@ -90,7 +90,7 @@ void getPropValsOfFirstColumnInLayer(DM a_DA,
                                      Vec* a_vec,
                                      const double factor,
                                      const Boolean2DArray& validNeedle,
-                                     list<double>& returnValList)
+    std::list<double>& returnValList)
 {
    returnValList.clear();
 

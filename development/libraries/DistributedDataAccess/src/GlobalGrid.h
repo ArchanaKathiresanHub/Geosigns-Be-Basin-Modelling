@@ -12,7 +12,6 @@
 #define _PARALLELDATAACCESS_GLOBALGRID_H_
 
 #include <string>
-using namespace std;
 
 namespace DataAccess
 {
@@ -75,7 +74,7 @@ namespace DataAccess
          /// get the real-world distance between the two given gridpoints
          double getDistance (int i1, int j1, int i2, int j2) const;
 
-         virtual void asString (string &) const;
+         virtual void asString (std::string &) const;
 
       private:
          const double m_minI;

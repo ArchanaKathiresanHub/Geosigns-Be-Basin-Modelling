@@ -48,9 +48,9 @@ namespace migration
          CONSTANT_LITHOTYPE3PERCENT
       };
 
-      typedef vector<pair<const MigrationFormation*, SurfaceGridMap> > constant_properties;
-      typedef vector<SurfaceGridMapFormations> continuous_properties;
-      typedef vector<FormationSurfaceGridMaps> discontinuous_properties;
+      typedef std::vector<std::pair<const MigrationFormation*, SurfaceGridMap> > constant_properties;
+      typedef std::vector<SurfaceGridMapFormations> continuous_properties;
+      typedef std::vector<FormationSurfaceGridMaps> discontinuous_properties;
 
    private:
 
@@ -61,9 +61,9 @@ namespace migration
 
       SurfaceGridMapStatus m_status;
 
-      map<ConstantPropertyEnum, constant_properties> m_constants;
-      map<ContinuousPropertyEnum, continuous_properties> m_continuous;
-      map<DiscontinuousPropertyEnum, discontinuous_properties> m_discontinuous;
+      std::map<ConstantPropertyEnum, constant_properties> m_constants;
+      std::map<ContinuousPropertyEnum, continuous_properties> m_continuous;
+      std::map<DiscontinuousPropertyEnum, discontinuous_properties> m_discontinuous;
 
    public:
 
@@ -82,7 +82,7 @@ namespace migration
       const constant_properties& constants (ConstantPropertyEnum prop) const
       {
          assert (m_status == RETRIEVED);
-         map<ConstantPropertyEnum, constant_properties>::const_iterator it = m_constants.find (prop);
+         std::map<ConstantPropertyEnum, constant_properties>::const_iterator it = m_constants.find (prop);
          assert (it != m_constants.end ());
          return (*it).second;
       }
@@ -90,7 +90,7 @@ namespace migration
       const continuous_properties& continuous (ContinuousPropertyEnum prop) const
       {
          assert (m_status == RETRIEVED);
-         map<ContinuousPropertyEnum, continuous_properties>::const_iterator it = m_continuous.find (prop);
+         std::map<ContinuousPropertyEnum, continuous_properties>::const_iterator it = m_continuous.find (prop);
          assert (it != m_continuous.end ());
          return (*it).second;
       }
@@ -98,7 +98,7 @@ namespace migration
       const discontinuous_properties& discontinuous (DiscontinuousPropertyEnum prop) const
       {
          assert (m_status == RETRIEVED);
-         map<DiscontinuousPropertyEnum, discontinuous_properties>::const_iterator it = m_discontinuous.find (prop);
+         std::map<DiscontinuousPropertyEnum, discontinuous_properties>::const_iterator it = m_discontinuous.find (prop);
          assert (it != m_discontinuous.end ());
          return (*it).second;
       }

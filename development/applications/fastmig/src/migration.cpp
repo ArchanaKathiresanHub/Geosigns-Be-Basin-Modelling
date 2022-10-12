@@ -87,6 +87,6 @@ namespace migration
 
    const char * PropertyPrefix = "ResRock";
 
-   ostringstream cerrstrstr;
+   std::ostringstream cerrstrstr;
 
 }

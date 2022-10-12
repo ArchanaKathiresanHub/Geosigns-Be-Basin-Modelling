@@ -6,6 +6,8 @@
 #define __readwriteobject__
 
 #include "h5_types.h"
+#include <iostream>
+
 
 class ReadWriteObject
 {
@@ -25,7 +27,7 @@ public:
    virtual bool operator () (void) = 0;
  
    // public methods
-   bool checkIdsOkay (ostream& os);
+   bool checkIdsOkay (std::ostream& os);
    void cleanUp      (void);
 
 protected:

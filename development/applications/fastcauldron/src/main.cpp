@@ -19,7 +19,7 @@
 
 
 static void abortOnBadAlloc () {
-   cerr << " cannot allocate ersources, aborting"  << endl;
+   std::cerr << " cannot allocate ersources, aborting"  << std::endl;
    MPI_Abort ( PETSC_COMM_WORLD, 3 );
 }
 

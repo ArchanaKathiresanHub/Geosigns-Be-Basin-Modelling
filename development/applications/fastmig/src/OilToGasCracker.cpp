@@ -43,7 +43,7 @@ namespace migration
          }
          if (GetRank () == 0)
          {
-            cout << "Configuration File: " << (containSulphur ? "TypeII_GX6" : "TypeII") << endl;
+            std::cout << "Configuration File: " << (containSulphur ? "TypeII_GX6" : "TypeII") << std::endl;
          }
       }
       else

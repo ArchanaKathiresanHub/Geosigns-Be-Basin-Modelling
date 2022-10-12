@@ -51,8 +51,8 @@ namespace DataModel{
 
    MockGRPropertyManager::MockGRPropertyManager (DataAccessMode mode) {
       // These will come from the project handle.
-      m_mockProperties.push_back ( make_shared<DataModel::MockProperty>( "Porosity", DataModel::DISCONTINUOUS_3D_PROPERTY ) );
-      m_mockProperties.push_back ( make_shared< DataModel::MockProperty>( "GammaRay", DataModel::DISCONTINUOUS_3D_PROPERTY ) );
+      m_mockProperties.push_back ( std::make_shared<DataModel::MockProperty>( "Porosity", DataModel::DISCONTINUOUS_3D_PROPERTY ) );
+      m_mockProperties.push_back (std::make_shared< DataModel::MockProperty>( "GammaRay", DataModel::DISCONTINUOUS_3D_PROPERTY ) );
 
       // Add all properties to the property manager.
       for ( size_t i = 0; i < m_mockProperties.size (); ++i ) {
@@ -63,13 +63,13 @@ namespace DataModel{
       // This will come from the project handle.
       switch(mode){
          case SERIAL:
-           m_mapGrid =make_shared<DataModel::MockGrid>( 0, 0, 0, 0, 10, 10, 10, 10 );
+           m_mapGrid = std::make_shared<DataModel::MockGrid>( 0, 0, 0, 0, 10, 10, 10, 10 );
            break;
          case DISTRIBUTED:
-           m_mapGrid = make_shared<DataAccess::Interface::DistributedGrid>( 0, 0, 4, 4, 10, 10, 10, 10 );
+           m_mapGrid = std::make_shared<DataAccess::Interface::DistributedGrid>( 0, 0, 4, 4, 10, 10, 10, 10 );
            break;
          default:
-           m_mapGrid =make_shared<DataModel::MockGrid>( 0, 0, 0, 0, 10, 10, 10, 10 );
+           m_mapGrid = std::make_shared<DataModel::MockGrid>( 0, 0, 0, 0, 10, 10, 10, 10 );
       }
       MPIHelper::barrier();
 

@@ -25,6 +25,7 @@
 #include "SonicFormationCalculator.h"
 
 using namespace AbstractDerivedProperties;
+using namespace std;
 
 DerivedProperties::SonicFormationCalculator::SonicFormationCalculator() {
    addPropertyName ( "SonicSlowness" );

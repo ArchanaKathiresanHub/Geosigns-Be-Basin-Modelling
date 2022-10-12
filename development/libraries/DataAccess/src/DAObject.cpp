@@ -12,6 +12,7 @@
 #include "cauldronschemafuncs.h"
 
 using namespace database;
+using namespace std;
 
 #include "AttributeValue.h"
 #include "ProjectHandle.h"

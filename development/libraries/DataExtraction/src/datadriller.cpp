@@ -65,7 +65,7 @@ const GeoPhysics::GeoPhysicsFormation* DataExtraction::DataDriller::getFormation
     const std::string snapshotFileName = m_projectHandle->getFullOutputDir() + "/" + snapshot->getFileName();
     hdfReadManager.openSnapshotFile( snapshotFileName );
 
-    const string depthDataGroup = "/Depth";
+    const std::string depthDataGroup = "/Depth";
     if ( !checkDataGroupInHDFFile( hdfReadManager, depthDataGroup, snapshotFileName ) )
     {
       return nullptr;
@@ -74,7 +74,7 @@ const GeoPhysics::GeoPhysicsFormation* DataExtraction::DataDriller::getFormation
     FormationList* myFormations = m_projectHandle->getFormations( snapshot, true );
     for ( const Formation* formation : *myFormations )
     {
-      const string depthPropertyFormationName = depthDataGroup + "/" + formation->getMangledName();
+      const std::string depthPropertyFormationName = depthDataGroup + "/" + formation->getMangledName();
       if ( !checkDataGroupInHDFFile( hdfReadManager, depthPropertyFormationName, snapshotFileName ) )
       {
           return nullptr;
@@ -177,10 +177,10 @@ void DataDriller::perform3DDataMining()
       const double y = database::getYCoord( record );
       const double z = database::getZCoord( record );
 
-      const string& propertyName  = database::getPropertyName( record );
-      const string& reservoirName = database::getReservoirName(record );
-      const string& formationName = database::getFormationName(record );
-      const string& surfaceName   = database::getSurfaceName(  record );
+      const std::string& propertyName  = database::getPropertyName( record );
+      const std::string& reservoirName = database::getReservoirName(record );
+      const std::string& formationName = database::getFormationName(record );
+      const std::string& surfaceName   = database::getSurfaceName(  record );
 
       property = m_projectHandle->findProperty( propertyName );
 
@@ -226,7 +226,7 @@ void DataDriller::perform3DDataMining()
     catch( const RecordException & recordException )
     {
       m_obtained[recordIndex] = false;
-      cerr << "Error in row " << recordIndex+1 << " of DataMiningIoTbl: " << recordException.what () << endl;
+      std::cerr << "Error in row " << recordIndex+1 << " of DataMiningIoTbl: " << recordException.what () << std::endl;
     }
 
     database::setValue( record, value );
@@ -321,10 +321,10 @@ void DataDriller::performDirectDataDrilling()
       if ( x == DataAccess::Interface::DefaultUndefinedScalarValue ) throw RecordException ( "Undefined XCoord value: %", x );
       if ( y == DataAccess::Interface::DefaultUndefinedScalarValue ) throw RecordException ( "Undefined YCoord value: %", y );
 
-      const string& propertyName  = database::getPropertyName( record );
-      const string& reservoirName = database::getReservoirName(record );
-      const string& formationName = database::getFormationName(record );
-      const string& surfaceName   = database::getSurfaceName(  record );
+      const std::string& propertyName  = database::getPropertyName( record );
+      const std::string& reservoirName = database::getReservoirName(record );
+      const std::string& formationName = database::getFormationName(record );
+      const std::string& surfaceName   = database::getSurfaceName(  record );
 
       property = m_projectHandle->findProperty( propertyName );
       if ( !property ) throw RecordException( "Unknown PropertyName value: %", propertyName );
@@ -360,7 +360,7 @@ void DataDriller::performDirectDataDrilling()
     }
     catch( const RecordException & recordException )
     {
-      cerr << "Error in row " << recordIndex + 1 << " of DataMiningIoTbl: " << recordException.what () << endl;
+      std::cerr << "Error in row " << recordIndex + 1 << " of DataMiningIoTbl: " << recordException.what () << std::endl;
     }
 
     database::setValue( record, value );
@@ -415,8 +415,8 @@ bool DataDriller::get3dPropertyFromHDF( const double i, const double j, const do
   const std::string snapshotFileName = m_projectHandle->getFullOutputDir() + "/" + snapshot->getFileName();
   hdfReadManager.openSnapshotFile( snapshotFileName );
 
-  const string depthDataGroup = "/Depth";
-  const string propertyDataGroup = "/" + property->getName();
+  const std::string depthDataGroup = "/Depth";
+  const std::string propertyDataGroup = "/" + property->getName();
   if ( !checkDataGroupInHDFFile( hdfReadManager, depthDataGroup, snapshotFileName ) ||
        !checkDataGroupInHDFFile( hdfReadManager, propertyDataGroup, snapshotFileName ) )
   {
@@ -427,7 +427,7 @@ bool DataDriller::get3dPropertyFromHDF( const double i, const double j, const do
   FormationList* myFormations = m_projectHandle->getFormations( snapshot, true );
   for ( const Formation* formation : *myFormations )
   {
-    const string depthPropertyFormationName = depthDataGroup + "/" + formation->getMangledName();
+    const std::string depthPropertyFormationName = depthDataGroup + "/" + formation->getMangledName();
     checkDataGroupInHDFFile( hdfReadManager, depthPropertyFormationName, snapshotFileName );
     DoubleVector depthVec = hdfReadManager.get3dCoordinatePropertyMatrix( {{ i, j}}, depthPropertyFormationName )[0];
 
@@ -436,7 +436,7 @@ bool DataDriller::get3dPropertyFromHDF( const double i, const double j, const do
       const double kf = getKfraction( depthVec[zi+1], depthVec[zi], z );
       if ( kf >= 0 && kf <= 1 )
       {
-        const string propertyFormationDataGroup = propertyDataGroup + "/" + formation->getMangledName();
+        const std::string propertyFormationDataGroup = propertyDataGroup + "/" + formation->getMangledName();
         if( !checkDataGroupInHDFFile( hdfReadManager, propertyFormationDataGroup, snapshotFileName ) )
         {
           return false;
@@ -467,8 +467,8 @@ bool DataDriller::get3dPropertyFromHDF( const double i, const double j,
   const std::string snapshotFileName = m_projectHandle->getFullOutputDir() + "/" + snapshot->getFileName();
   hdfReadManager.openSnapshotFile( snapshotFileName );
 
-  const string propertyDataGroup = "/" + property->getName();
-  const string propertyFormationDataGroup = propertyDataGroup + "/" + mangledName;
+  const std::string propertyDataGroup = "/" + property->getName();
+  const std::string propertyFormationDataGroup = propertyDataGroup + "/" + mangledName;
   if ( !checkDataGroupInHDFFile( hdfReadManager, propertyDataGroup, snapshotFileName ) ||
        !checkDataGroupInHDFFile( hdfReadManager, propertyFormationDataGroup, snapshotFileName) ||
        mangledName == "")

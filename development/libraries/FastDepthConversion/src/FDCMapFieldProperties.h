@@ -34,7 +34,7 @@ public:
 
   std::map<const mbapi::StratigraphyManager::SurfaceID, std::string> correctedMapsNames() const;
   std::string correctedMapsName(const mbapi::StratigraphyManager::SurfaceID ID) const;
-  void setCorrectedMapsNames(const mbapi::StratigraphyManager::SurfaceID ID, const string& value);
+  void setCorrectedMapsNames(const mbapi::StratigraphyManager::SurfaceID ID, const std::string& value);
   std::map<const mbapi::StratigraphyManager::SurfaceID, int> correctedMapsSequenceNbr() const;
   void setCorrectedMapsSequenceNbr(const mbapi::StratigraphyManager::SurfaceID ID, const int value);
   std::vector<int> addedTwtmapsequenceNbr() const;
@@ -58,10 +58,10 @@ public:
 private:
   void initializeAllMaps();
   void setHiatus(const mbapi::StratigraphyManager::SurfaceID ID, const int value);  
-  void setTwtMaps(const mbapi::StratigraphyManager::SurfaceID ID, const string& value);
+  void setTwtMaps(const mbapi::StratigraphyManager::SurfaceID ID, const std::string& value);
   void setTwtMapsForAllSurfaces();
   void calculateIsoPackThicknessForSurfacesBelowEndSurface(const bool preserveErosionFlag);  
-  void initializeMapWriterOnMasterResultsFile(const string & masterResultsFilePathName) const;
+  void initializeMapWriterOnMasterResultsFile(const std::string & masterResultsFilePathName) const;
   std::string getTwtGridName(const mbapi::StratigraphyManager::SurfaceID surface, mbapi::StratigraphyManager& stMgr);
   void detectHiatusForAllSurfaces();  
   std::vector<double> getReferenceTwt(const mbapi::StratigraphyManager::SurfaceID s) const;

@@ -15,7 +15,6 @@
 #include<iostream>
 #include <fstream>
 #include<iomanip>
-using namespace std;
 
 #include "SpeciesResult.h"
 #include "SpeciesManager.h"
@@ -132,10 +131,10 @@ public:
    /// \brief Return const reference to species-manager.
    const SpeciesManager * getSpeciesManager () const;
 
-   void PrintBenchmarkModelConcData(ofstream &outputfile) const;
-   void PrintBenchmarkModelFluxData(ofstream &outputfile) const;
-   void PrintSensitivityResultsOnFile(ofstream &outputfile) const;
-   void PrintBenchmarkModelCumExpData(ofstream &outputfile) const;
+   void PrintBenchmarkModelConcData(std::ofstream &outputfile) const;
+   void PrintBenchmarkModelFluxData(std::ofstream &outputfile) const;
+   void PrintSensitivityResultsOnFile(std::ofstream &outputfile) const;
+   void PrintBenchmarkModelCumExpData(std::ofstream &outputfile) const;
 
    //void PostProcessTimeStepComputation ( const SpeciesManager * speciesManager );
    void PostProcessTimeStep(Species &theSpecies, const double in_dT);

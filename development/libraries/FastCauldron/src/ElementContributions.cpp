@@ -30,7 +30,7 @@
 // utilities library
 #include "ConstantsPhysics.h"
 using Utilities::Physics::AccelerationDueToGravity;
-
+using namespace std;
 
 using namespace FiniteElementMethod;
 

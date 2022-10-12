@@ -25,6 +25,8 @@
 
 using namespace AbstractDerivedProperties;
 
+using namespace std;
+
 DerivedProperties::BrineDensityCalculator::BrineDensityCalculator ( const GeoPhysics::ProjectHandle& projectHandle ) :
    m_projectHandle ( projectHandle )
 {

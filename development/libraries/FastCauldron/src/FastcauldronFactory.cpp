@@ -30,6 +30,7 @@ using Interface::LithoType;
 #include "CauldronCrustFormation.h"
 #include "CauldronMantleFormation.h"
 #include "Lithology.h"
+using namespace std;
 
 DataAccess::Interface::ProjectHandle *
 FastcauldronFactory::produceProjectHandle ( database::ProjectFileHandlerPtr pfh,

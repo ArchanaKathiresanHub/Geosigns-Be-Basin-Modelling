@@ -61,7 +61,7 @@ namespace migration {
 
    private:
 
-      vector<DiffusionLeak::OverburdenProp> m_overburdenProps;
+      std::vector<DiffusionLeak::OverburdenProp> m_overburdenProps;
       double m_sealFluidDensity;
 
       double m_penetrationDistance;
@@ -94,7 +94,7 @@ namespace migration {
 
    public:
 
-      DiffusionLeak(const vector<DiffusionLeak::OverburdenProp>& overburdenProps, 
+      DiffusionLeak(const std::vector<DiffusionLeak::OverburdenProp>& overburdenProps, 
                     const double& sealFluidDensity, 
                     const double& penetrationDistance, const double& maxPenetrationDistance, 
                     const DiffusionCoefficient& diffCoef, 

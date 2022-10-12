@@ -36,6 +36,8 @@
 #include <iostream>
 #include <map>
 
+using namespace std;
+
 // convert PDF name as string to CASA PDF type
 static casa::VarPrmContinuous::PDF Str2pdf( const std::string & pdf )
 {

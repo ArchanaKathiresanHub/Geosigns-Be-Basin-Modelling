@@ -46,10 +46,10 @@ private:
    bool m_vizListXml;
    bool m_minorPrimary;      ///< If true: convert and output primary properties at minor snapshots
 
-   string m_fileNameXml;
-   string m_filePathXml;
-   string m_fileNameExistingXml;
-   string m_outputNameXml;
+   std::string m_fileNameXml;
+   std::string m_filePathXml;
+   std::string m_fileNameExistingXml;
+   std::string m_outputNameXml;
 
    std::vector<float> m_data; ///< Buffer to convert a property to visualization format
    std::shared_ptr<CauldronIO::FormationInfoList> m_formInfoList; ///< List of formations grid info
@@ -63,7 +63,7 @@ private:
    float m_minValue;
    float m_maxValue;
 
-   std::vector<string> m_existingProperties;
+   std::vector<std::string> m_existingProperties;
 
    /// \brief Check command-line parameters consistency
    bool checkParameters();
@@ -109,13 +109,13 @@ private:
    void collectVolumeData( const std::shared_ptr<CauldronIO::SnapShot>& snapShot );
 
    /// \brief Create a property in visualization format or find it if already exists
-   shared_ptr<const CauldronIO::Property> findOrCreateProperty(OutputPropertyValuePtr propertyValue, CauldronIO::PropertyAttribute attrib);
+   std::shared_ptr<const CauldronIO::Property> findOrCreateProperty(OutputPropertyValuePtr propertyValue, CauldronIO::PropertyAttribute attrib);
 
    /// \brief Create a formation in visualization format or find it if already exists
-   shared_ptr<CauldronIO::Formation> findOrCreateFormation(std::shared_ptr<CauldronIO::FormationInfo>& info);
+   std::shared_ptr<CauldronIO::Formation> findOrCreateFormation(std::shared_ptr<CauldronIO::FormationInfo>& info);
 
    /// \brief Create a reservoir in visualization format or find it if already exists
-   shared_ptr<const CauldronIO::Reservoir> findOrCreateReservoir(const Interface::Reservoir* reserv, std::shared_ptr<const CauldronIO::Formation> formationIO);
+   std::shared_ptr<const CauldronIO::Reservoir> findOrCreateReservoir(const Interface::Reservoir* reserv, std::shared_ptr<const CauldronIO::Formation> formationIO);
 
    /// \brief Create a trapper list and add to visualization format snapshot
    void createTrappers(const Interface::Snapshot * snapshot, std::shared_ptr<CauldronIO::SnapShot>& snapShotIO);
@@ -158,7 +158,7 @@ public:
    bool acquireExistingProperties();
 
    /// \brief Check if the property is already in the XML file
-   bool propertyExisting(const string &name);
+   bool propertyExisting(const std::string &name);
 
    /// \brief Remove the existing properties from the list of the properties to be calculated
    void refinePropertyNames(Interface::PropertyList& properties);

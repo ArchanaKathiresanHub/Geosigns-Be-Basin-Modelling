@@ -134,21 +134,21 @@ bool InterfaceOutput::saveOutputMaps( Interface::ProjectHandle * projectHandle, 
    
    const Interface::Formation * formationCrust = dynamic_cast<const Interface::Formation *>(projectHandle->getCrustFormation ());
    const Interface::Surface   * topOfCrust = formationCrust->getTopSurface();
-   const string topCrustSurfaceName = topOfCrust->getName();
+   const std::string topCrustSurfaceName = topOfCrust->getName();
 
    float time = (float) theSnapshot->getTime ();
 
-   const string extensionString = ".HDF";
+   const std::string extensionString = ".HDF";
    Interface::MapWriter * mapWriter = projectHandle->getFactory()->produceMapWriter();
 
-   const string dirToOutput = projectHandle->getProjectName() + Utilities::Names::CauldronOutputDir + "/";
+   const std::string dirToOutput = projectHandle->getProjectName() + Utilities::Names::CauldronOutputDir + "/";
 
    for( int i = 0; i < numberOfOutputMaps; ++ i ) {
       if( m_outputMapsMask[i] != 0 && m_outputMaps[i] != 0) {
-         string outputFileName =  dirToOutput + projectHandle->getProjectName() + "_" + outputMapsNames[i] + extensionString;
+         std::string outputFileName =  dirToOutput + projectHandle->getProjectName() + "_" + outputMapsNames[i] + extensionString;
 
          // Put 0 as a DataSetName to make comparison with regression tests results easier. Also 0 should be there if we want to re-use the map in fastcauldron
-         string dataSetName = "0"; //outputMapsNames[i];
+         std::string dataSetName = "0"; //outputMapsNames[i];
          dataSetName += "_";
          dataSetName += theSnapshot->asString();
          dataSetName += "_";
@@ -176,7 +176,7 @@ bool InterfaceOutput::mergeOutputMapsToInputs(DataAccess::Interface::ProjectHand
 
     // Getting full path to Inputs.HDF
     boost::filesystem::path full_path(boost::filesystem::current_path());
-    string outputFileName = full_path.generic_string() + "/Inputs.HDF";
+    std::string outputFileName = full_path.generic_string() + "/Inputs.HDF";
 
     LogHandler(LogHandler::DEBUG_SEVERITY) << "output file name:"<<outputFileName << ";\tfull path:" << full_path;
     
@@ -248,7 +248,7 @@ int InterfaceOutput::getMapsSequenceNbr(DataAccess::Interface::ProjectHandle* pH
 bool InterfaceOutput::addCTCoutputMapRecordsInProject3dIoTbl(DataAccess::Interface::ProjectHandle* pHandle, const DataAccess::Interface::Snapshot* theSnapshot, int mapsSequenceNbr, int mapsToMerge)
 {
     bool success = true;
-    string s_tblName;
+    std::string s_tblName;
     database::Table::iterator tblIter;
     database::Record* crustThckIoTblRecord = nullptr;
     if (mapsToMerge == isostaticBathymetry)
@@ -304,7 +304,7 @@ bool InterfaceOutput::addRecordsInGridMapIoTbl(DataAccess::Interface::ProjectHan
    bool success = true;
    database::Table* gridMapTbl = pHandle->getTable(s_GridMapIoTblName);
    database::Record * gridMapRecord=nullptr;
-   string outputFileName = "Inputs.HDF";
+   std::string outputFileName = "Inputs.HDF";
 
    gridMapRecord = gridMapTbl->createRecord();
    //   gridMapRecord = gridMapTbl->getRecord((int)gridMapTbl->size() - 1);
@@ -329,7 +329,7 @@ bool InterfaceOutput::saveXYZOutputMaps( Interface::ProjectHandle * projectHandl
 
    LogHandler( LogHandler::DEBUG_SEVERITY ) << "saveXYZOutputMaps: My rank is " << projectHandle->getRank();
    
-   const string extensionString = ".XYZ";
+   const std::string extensionString = ".XYZ";
    ofstream outputFileCrust;
 
    const Interface::Grid * grid = projectHandle->getActivityOutputGrid ();
@@ -341,7 +341,7 @@ bool InterfaceOutput::saveXYZOutputMaps( Interface::ProjectHandle * projectHandl
 
    for( k = 0; k < numberOfOutputMaps; ++ k ) {
       if( m_outputMapsMask[k] != 0 && m_outputMaps[k] != 0 ) {
-         string outputFileName = projectHandle->getProjectName() + "_" + outputMapsNames[k] + extensionString;
+         std::string outputFileName = projectHandle->getProjectName() + "_" + outputMapsNames[k] + extensionString;
 
          outputFileCrust.open (outputFileName.c_str ());
          if (outputFileCrust.fail ()) {
@@ -354,7 +354,7 @@ bool InterfaceOutput::saveXYZOutputMaps( Interface::ProjectHandle * projectHandl
 
                grid->getPosition( i, j, posI, posJ );
                outputFileCrust << posI << ", " << posJ << ", ";
-               outputFileCrust << m_outputMaps[k]->getValue(i, j) << endl;
+               outputFileCrust << m_outputMaps[k]->getValue(i, j) << std::endl;
             }
          }
          m_outputMaps[k]->restoreData();
@@ -370,7 +370,7 @@ bool InterfaceOutput::saveExcelSurfaceOutputMaps( Interface::ProjectHandle * pro
 
    LogHandler( LogHandler::DEBUG_SEVERITY ) << "saveExcelSurfaceOutputMaps: My rank is " << projectHandle->getRank();
    
-   const string extensionString = ".SUR";
+   const std::string extensionString = ".SUR";
    ofstream outputFileCrust;
 
    const Interface::Grid * grid = projectHandle->getActivityOutputGrid ();
@@ -382,7 +382,7 @@ bool InterfaceOutput::saveExcelSurfaceOutputMaps( Interface::ProjectHandle * pro
 
    for( k = 0; k < numberOfOutputMaps; ++ k ) {
       if( m_outputMapsMask[k] != 0 && m_outputMaps[k] != 0 ) {
-         string outputFileName = projectHandle->getProjectName() + "_" + outputMapsNames[k] + extensionString;
+         std::string outputFileName = projectHandle->getProjectName() + "_" + outputMapsNames[k] + extensionString;
 
          outputFileCrust.open (outputFileName.c_str ());
          if (outputFileCrust.fail ()) {
@@ -396,7 +396,7 @@ bool InterfaceOutput::saveExcelSurfaceOutputMaps( Interface::ProjectHandle * pro
             grid->getPosition( 0, j, posI, posJ );
             outputFileCrust << posJ << ", ";
          }
-         outputFileCrust << endl;
+         outputFileCrust << std::endl;
 
          for ( i = 0; i < lastI; ++ i ) {
             grid->getPosition( i, 0, posI, posJ );
@@ -404,7 +404,7 @@ bool InterfaceOutput::saveExcelSurfaceOutputMaps( Interface::ProjectHandle * pro
             for ( j = 0; j < lastJ; ++ j ) {
                outputFileCrust << m_outputMaps[k]->getValue(i, j) << ", ";
             }
-            outputFileCrust << endl;
+            outputFileCrust << std::endl;
          }
          m_outputMaps[k]->restoreData();
          outputFileCrust.close();

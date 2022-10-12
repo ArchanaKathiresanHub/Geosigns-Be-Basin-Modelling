@@ -31,6 +31,8 @@
 
 using Utilities::Maths::CelciusToKelvin;
 using Utilities::Numerical::CauldronNoDataValue;
+using namespace std;
+
 typedef CBMGenerics::ComponentManager::SpeciesNamesId ComponentId;
 
 namespace Genex6

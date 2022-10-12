@@ -130,8 +130,8 @@ namespace migration
       double oilVolumeSpilled = 0.0;
 
 #ifdef DEBUG_LEAKWASTEANDSPILLDISTRIBUTOR
-      vector<double> oilWeights = oil.getWeights();
-      vector<double> gasWeights = gas.getWeights();
+      std::vector<double> oilWeights = oil.getWeights();
+      std::vector<double> gasWeights = gas.getWeights();
       double oilWeight = oil.getWeight();   
 #endif
 
@@ -144,18 +144,18 @@ namespace migration
          {
             isLeaking = false;
 #ifdef DEBUG_LEAKWASTEANDSPILLDISTRIBUTOR
-            cerr << "WARNING: No seal pressure leakage because gas density: " << gas.getDensity() << 
-               " is higher than water density: " << m_sealFluidDensity << "." << endl;
+            std::cerr << "WARNING: No seal pressure leakage because gas density: " << gas.getDensity() << 
+               " is higher than water density: " << m_sealFluidDensity << "." << std::endl;
 #endif
          }
          else
-            isLeaking = isLeaking && (min (m_fractureSealStrength, capSealStrength_H2O_Gas) < numeric_limits<double>::max ());
+            isLeaking = isLeaking && (std::min (m_fractureSealStrength, capSealStrength_H2O_Gas) < numeric_limits<double>::max ());
 
          if (oilVolume > 0.0 && oil.getDensity () > m_sealFluidDensity)
          {
 #ifdef DEBUG_LEAKWASTEANDSPILLDISTRIBUTOR
-            cerr << "WARNING: oil density: " << oil.getDensity() << 
-               " is larger than the density of the seal fluid: " << m_sealFluidDensity << "." << endl;
+            std::cerr << "WARNING: oil density: " << oil.getDensity() << 
+               " is larger than the density of the seal fluid: " << m_sealFluidDensity << "." << std::endl;
 #endif
          }
       }
@@ -165,12 +165,12 @@ namespace migration
          {
             isLeaking = false;
 #ifdef DEBUG_LEAKWASTEANDSPILLDISTRIBUTOR
-            cerr << "WARNING: No seal pressure leakage because oil density: " << oil.getDensity() << 
-               " is higher than water density: " << m_sealFluidDensity << "." << endl;
+            std::cerr << "WARNING: No seal pressure leakage because oil density: " << oil.getDensity() << 
+               " is higher than water density: " << m_sealFluidDensity << "." << std::endl;
 #endif
          }
          else
-            isLeaking = isLeaking && (min (m_fractureSealStrength, capSealStrength_H2O_Oil) < numeric_limits<double>::max ());
+            isLeaking = isLeaking && (std::min (m_fractureSealStrength, capSealStrength_H2O_Oil) < numeric_limits<double>::max ());
       }
 
       // Call the right spill and leak algorithm:
@@ -196,10 +196,10 @@ namespace migration
       else if (gasVolume > 0.0)
       {
          if (isLeaking && wasting ())
-            LeakOrWaste (gas.getDensity (), m_sealFluidDensity, m_overPressureContrast, m_crestColumnThickness, min (m_fractureSealStrength, capSealStrength_H2O_Gas),
+            LeakOrWaste (gas.getDensity (), m_sealFluidDensity, m_overPressureContrast, m_crestColumnThickness, std::min (m_fractureSealStrength, capSealStrength_H2O_Gas),
                          m_wasteLevel, m_levelToVolume).distribute (gasVolume, gasVolumeLeaked, gasVolumeWasted);
          else if (isLeaking)
-            LeakOrSpill (gas.getDensity (), m_sealFluidDensity, m_overPressureContrast, m_crestColumnThickness, min (m_fractureSealStrength, capSealStrength_H2O_Gas),
+            LeakOrSpill (gas.getDensity (), m_sealFluidDensity, m_overPressureContrast, m_crestColumnThickness, std::min (m_fractureSealStrength, capSealStrength_H2O_Gas),
                          m_levelToVolume).distribute (gasVolume, gasVolumeLeaked, gasVolumeSpilled);
          else if (wasting ())
             Waste (m_wasteLevel, m_levelToVolume).distribute (
@@ -212,7 +212,7 @@ namespace migration
       {
          // Oil wasting is already taken care of in the m_levelToVolume:
          if (isLeaking)
-            LeakOrSpill (oil.getDensity (), m_sealFluidDensity, m_overPressureContrast, m_crestColumnThickness, min (m_fractureSealStrength, capSealStrength_H2O_Oil),
+            LeakOrSpill (oil.getDensity (), m_sealFluidDensity, m_overPressureContrast, m_crestColumnThickness, std::min (m_fractureSealStrength, capSealStrength_H2O_Oil),
                          m_levelToVolume).distribute (oilVolume, oilVolumeLeaked, oilVolumeSpilled);
          else // !isLeaking
             Spill (m_levelToVolume).distribute (

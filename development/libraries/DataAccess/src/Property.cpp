@@ -84,7 +84,7 @@ void Property::printOn (ostream & ostr) const
 void Property::asString (string & str) const
 {
 
-   ostringstream buf;
+   std::ostringstream buf;
 
    buf << "Property: ";
    buf << " name = " << getName ();

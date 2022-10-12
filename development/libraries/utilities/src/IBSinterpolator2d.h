@@ -30,8 +30,6 @@
 
 #include <vector>
 
-using namespace std;
-
 namespace ibs {
 
    // Helper class for the interpolator
@@ -59,7 +57,7 @@ namespace ibs {
    class Interpolator2d
    {
 
-      typedef vector<XYF>	    vectorXYF;
+      typedef std::vector<XYF>	    vectorXYF;
 
    public:
 

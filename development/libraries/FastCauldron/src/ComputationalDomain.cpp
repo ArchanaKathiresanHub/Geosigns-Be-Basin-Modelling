@@ -24,7 +24,7 @@
 #include "LayerElement.h"
 #include "Lithology.h"
 #include "propinterface.h"
-
+using namespace std;
 //------------------------------------------------------------//
 
 // This number should be either negative or larger than the maximum

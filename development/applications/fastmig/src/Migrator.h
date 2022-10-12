@@ -45,7 +45,7 @@ namespace migration
    {
    public:
       /// Constructor
-      explicit Migrator (const string & name);
+      explicit Migrator (const std::string & name);
       virtual ~Migrator (void);
 
       bool saveTo (const std::string & outputFileName);
@@ -205,7 +205,7 @@ namespace migration
       bool isOverpressuredLeakageOn (void) const;
       bool isGenexRunOnTheFly (void) const;
 
-      const Interface::GridMap * getPropertyGridMap (const string & propertyName, const Interface::Snapshot * snapshot,
+      const Interface::GridMap * getPropertyGridMap (const std::string & propertyName, const Interface::Snapshot * snapshot,
                                                      const Interface::Reservoir * reservoir,
                                                      const Interface::Formation * formation,
                                                      const Interface::Surface * surface) const;
@@ -258,7 +258,7 @@ namespace migration
       double m_minOilColumnHeight;
       double m_minGasColumnHeight;
 
-      vector<database::Record *> * m_migrationRecordLists;
+      std::vector<database::Record *> * m_migrationRecordLists;
       std::unique_ptr<MigrationPropertyManager> m_propertyManager;
 
    };

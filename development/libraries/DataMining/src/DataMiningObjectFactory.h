@@ -42,7 +42,7 @@ namespace DataAccess
 
          /// Allocates a data-mining project-handle.
          Interface::ProjectHandle* produceProjectHandle( database::ProjectFileHandlerPtr pfh,
-                                                         const string & name) const;
+                                                         const std::string & name) const;
 
          /// Allocate a new domain-property.
          virtual DomainProperty* allocate ( const DomainPropertyCollection*            collection,

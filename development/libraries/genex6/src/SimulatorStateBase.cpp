@@ -58,7 +58,7 @@ void SimulatorStateBase::AddSpeciesStateById(const int in_SpeciesId, SpeciesStat
    m_SpeciesStateBySpeciesName[in_SpeciesId - 1] = theSpeciesState;
 }
 void SimulatorStateBase::GetSpeciesStateConcentrations( const ChemicalModel* chemicalModel,
-                                                        std::map<string, double> &currentSpeciesConcs  ) const
+                                                        std::map<std::string, double> &currentSpeciesConcs  ) const
 {
    currentSpeciesConcs.clear();
 

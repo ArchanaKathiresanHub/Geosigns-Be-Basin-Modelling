@@ -67,7 +67,7 @@ namespace DataAccess
             virtual double getMass (PhaseId rcPhaseId, PhaseId stPhaseId, ComponentId componentId) const;
 
             /// return the mass of the given component in this Trap
-            virtual double getMass (const string & stockTankPhaseName, const string & componentName) const;
+            virtual double getMass (const std::string & stockTankPhaseName, const std::string & componentName) const;
 
             /// return the mass of the given phase in this Trapper
             virtual double getMass (PhaseId rcPhaseId) const;
@@ -79,34 +79,34 @@ namespace DataAccess
             /// return the volume of the given phase combo in this Trapper
             virtual double getVolume (PhaseId rcPhaseId, PhaseId stPhaseId) const;
             /// return the Volume of the given phase in this Trap
-            virtual double getVolume (const string & phaseName) const;
+            virtual double getVolume (const std::string & phaseName) const;
 
             /// return the Viscosity of the given phase in this Trap
-            virtual double getViscosity (const string & phaseName) const;
+            virtual double getViscosity (const std::string & phaseName) const;
             /// return the Viscosity of the given phase in this Trapper
             virtual double getViscosity (PhaseId rcPhaseId) const;
             /// return the viscosity of the given phase combo in this Trapper
             virtual double getViscosity (PhaseId rcPhaseId, PhaseId stPhaseId) const;
 
             /// return the Density of the given phase in this Trap
-            virtual double getDensity (const string & phaseName) const;
+            virtual double getDensity (const std::string & phaseName) const;
             /// return the Density of the given phase in this Trapper
             virtual double getDensity (PhaseId rcPhaseId) const;
             /// return the density of the given phase combo in this Trapper
             virtual double getDensity (PhaseId rcPhaseId, PhaseId stPhaseId) const;
 
             /// return the InterfacialTension of the given phase in this Trap
-            virtual double getInterfacialTension (const string & phaseName) const;
+            virtual double getInterfacialTension (const std::string & phaseName) const;
             /// return the interfacial tension of the given phase in this Trapper
             virtual double getInterfacialTension (PhaseId rcPhaseId) const;
 
             /// return the CriticalTemperature of the given phase in this Trap
-            virtual double getCriticalTemperature (const string & phaseName) const;
+            virtual double getCriticalTemperature (const std::string & phaseName) const;
             /// return the critical temperature of the given phase in this Trapper
             virtual double getCriticalTemperature (PhaseId rcPhaseId) const;
 
             /// return the CEP of the given phase in this Trap
-            virtual double getCEP (const string & phaseName) const;
+            virtual double getCEP (const std::string & phaseName) const;
             /// return the capillary entry pressure of the given phase in this Trapper
             virtual double getCEP (PhaseId rcPhaseId) const;
 
@@ -154,8 +154,8 @@ namespace DataAccess
             void addUpstreamTrapper (Trapper * trapper);
             void setDownstreamTrapper (Trapper * trapper);
 
-            virtual void printOn (ostream &) const;
-            virtual void asString (string &) const;
+            virtual void printOn (std::ostream &) const;
+            virtual void asString (std::string &) const;
 
             void setReservoir (const Reservoir * reservoir);
             void setSnapshot (const Snapshot * snapshot);

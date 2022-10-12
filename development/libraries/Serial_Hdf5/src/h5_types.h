@@ -9,9 +9,6 @@
 
 #include <cstdlib>
 
-#include <string>
-using namespace std;
-
 const int MAX_DIMS = 4;
 
 

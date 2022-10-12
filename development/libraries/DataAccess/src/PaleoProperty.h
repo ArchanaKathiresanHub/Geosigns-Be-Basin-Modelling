@@ -55,9 +55,9 @@ namespace DataAccess
 
          /// Print the attributes of this MobileLayer
          // May not work if user application is compiled under IRIX with CC -lang:std
-         virtual void printOn (ostream &) const;
+         virtual void printOn (std::ostream &) const;
 
-         virtual void asString (string &) const;
+         virtual void asString (std::string &) const;
 
       protected:
 
@@ -67,7 +67,7 @@ namespace DataAccess
          const PaleoProperty* m_startProperty;
          const PaleoProperty* m_endProperty;
 
-         static const string s_MapAttributeNames[];
+         static const std::string s_MapAttributeNames[];
 
       };
 

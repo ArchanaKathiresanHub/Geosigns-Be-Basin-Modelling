@@ -6,7 +6,6 @@
 #include <iostream>
 #include <fstream>
 #include <iomanip>
-using namespace std;
 
 #include "ChemicalModel.h"
 #include "NodeAdsorptionHistory.h"

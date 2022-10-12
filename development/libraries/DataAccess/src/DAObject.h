@@ -58,9 +58,9 @@ namespace DataAccess
             const ObjectFactory* getFactory(void) const;
 
             /// @brief Return the GridMap (mapAttributeNames[attributeId]) associated to one record's attributes
-            /// @details If the attribute is a value (so not a string linking to a map)
+            /// @details If the attribute is a value (so not a std::string linking to a map)
             ///          then returns a GridMap filled with that value
-            ///          If the attribute is a string linking to a map then simply returns the map
+            ///          If the attribute is a std::string linking to a map then simply returns the map
             /// @param[in] attributeId The map ID which is also its position in the list of map names
             /// @param[in] mapAttributeNames The list of map names
             template< typename T >
@@ -71,20 +71,20 @@ namespace DataAccess
 
             mutable database::Record * m_record;
 
-            AttributeValue & getAttributeValue (const string & attributeName, unsigned int indexOffset) const;
-            int getAttributeIndex (const string & attributeName) const;
+            AttributeValue & getAttributeValue (const std::string & attributeName, unsigned int indexOffset) const;
+            int getAttributeIndex (const std::string & attributeName) const;
             ProjectHandle& m_projectHandle;
 
          private:
             /// @brief Load a the map (mapAttributeNames[attributeId]) from the record
-            /// @details If the attribute is a value (so not a string linking to a not a map)
+            /// @details If the attribute is a value (so not a std::string linking to a not a map)
             ///          then returns a GridMap filled with that value
-            ///          If the attribute is a string linking to a map then simply returns the map
+            ///          If the attribute is a std::string linking to a map then simply returns the map
             /// @param[in] attributeId The map ID which is also its position in the list of map names
             /// @param[in] mapAttributeNames The list of map names
             template< typename T >
             GridMap * loadMap( const T attributeId, const std::vector<std::string>& mapAttributeNames ) const;
-            AttributeType getAttributeType (const string & attributeName) const;
+            AttributeType getAttributeType (const std::string & attributeName) const;
       };
    }
 }
@@ -111,8 +111,8 @@ template< typename T >
 GridMap * DataAccess::Interface::DAObject::loadMap( const T attributeId, const std::vector<std::string>& mapAttributeNames ) const{
    const unsigned int attributeIndex = (unsigned int)attributeId;
 
-   const string attributeGridName = mapAttributeNames[attributeIndex] + "Grid";
-   const string& valueGridMapId = m_record->getValue<std::string>( attributeGridName );
+   const std::string attributeGridName = mapAttributeNames[attributeIndex] + "Grid";
+   const std::string& valueGridMapId = m_record->getValue<std::string>( attributeGridName );
 
    GridMap * gridMap = nullptr;
    // if there is a map specified then create it

@@ -336,7 +336,7 @@ void Track1d::acquireFormations( FormationSurfaceVector& formationSurfacePairs, 
 
 void Track1d::acquireSurfaces(FormationSurfaceVector& formationSurfacePairs, const StringVector& formationSurfaceNames )
 {
-  for ( const string& surfaceName : formationSurfaceNames )
+  for ( const std::string& surfaceName : formationSurfaceNames )
   {
     char* formationName;
     char* formationSurfaceName;
@@ -701,7 +701,7 @@ void Track1d::writeOutputStream( std::ostream& outputStream,
   }
 }
 
-std::vector<double> Track1d::getData(const string& propertyName)
+std::vector<double> Track1d::getData(const std::string& propertyName)
 {
   std::vector<double> propertyData;
   for ( int coordPair = 0; coordPair < m_realWorldCoordinatePairs.size(); ++coordPair )

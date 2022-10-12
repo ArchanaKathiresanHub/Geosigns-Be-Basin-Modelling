@@ -208,7 +208,7 @@ double GlobalGrid::getDistance (int i1, int j1, int i2, int j2) const
 
 void GlobalGrid::asString (string & str) const
 {
-   ostringstream buf;
+   std::ostringstream buf;
 
    buf << "GlobalGrid:";
    buf << " numI = " << numI () << ", numJ = " << numJ ();

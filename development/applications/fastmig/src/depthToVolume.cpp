@@ -54,8 +54,8 @@ const MonotonicIncreasingPiecewiseLinearInvertableFunction* compute(const double
 
    for (ITERATOR it1 = begin; it1 != end; ++it1)
    {
-      limits[0] = min(limits[0],Min (spillDepth, (*it1)->getTopDepth()));
-      limits[1] = max(limits[1],Min (spillDepth, (*it1)->getBottomDepth()));
+      limits[0] = std::min(limits[0],Min (spillDepth, (*it1)->getTopDepth()));
+      limits[1] = std::max(limits[1],Min (spillDepth, (*it1)->getBottomDepth()));
 
       double columnCapacity = (*it1)->getCapacity(spillDepth);
       assert(columnCapacity >= 0.0);
@@ -98,7 +98,7 @@ const MonotonicIncreasingPiecewiseLinearInvertableFunction* compute(const double
 
    // We know now at what depths the capacity gradient is discontinuous.  Use this information 
    // to calculate the depth to capacity function:
-   vector<MonotonicIncreasingPiecewiseLinearInvertableFunction::element_type> depthToCapacity;
+   std::vector<MonotonicIncreasingPiecewiseLinearInvertableFunction::element_type> depthToCapacity;
 
    Tuple2<double> capacity; 
    capacity[0] = -numeric_limits<double>::max(); capacity[1] = 0.0;
@@ -123,7 +123,7 @@ const MonotonicIncreasingPiecewiseLinearInvertableFunction* compute(const double
          cerr << "WARNING: capacity gradient = " << capacityGradient << endl;
 #endif
       assert(capacityGradient > -TOLERANCE);
-      capacityGradient = max(0.0, capacityGradient);
+      capacityGradient = std::max(0.0, capacityGradient);
    }
 
    // All columns have a top and a base, so in the end the capacityGradient should have gone 

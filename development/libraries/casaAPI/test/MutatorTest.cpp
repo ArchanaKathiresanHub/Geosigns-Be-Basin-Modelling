@@ -18,6 +18,7 @@ using namespace casa::BusinessLogicRulesSet;
 
 static const double eps = 1.e-5;
 
+
 class MutatorTest : public ::testing::Test
 {
 public:
@@ -61,7 +62,7 @@ TEST_F( MutatorTest, Tornado2PrmsMutations )
    // vary 2 parameters
    std::vector<double> dblRng( 2, m_minTOC );
    dblRng[1] = m_maxTOC;
-   ASSERT_EQ( ErrorHandler::NoError, VarySourceRockTOC( sc, 0, m_layerName, 1, 0, dblRng, vector<string>(),  VarPrmContinuous::Block ) );
+   ASSERT_EQ( ErrorHandler::NoError, VarySourceRockTOC( sc, 0, m_layerName, 1, 0, dblRng, std::vector<std::string>(),  VarPrmContinuous::Block ) );
 
    ASSERT_EQ( ErrorHandler::NoError, VaryParameter<PrmTopCrustHeatProduction>(sc, {}, "", m_minTCHP, m_maxTCHP) );
 
@@ -128,7 +129,7 @@ TEST_F( MutatorTest, TornadoBB2PrmsMutations )
    // vary 2 parameters
    std::vector<double> dblRng( 2, m_minTOC );
    dblRng[1] = m_maxTOC;
-   ASSERT_EQ( ErrorHandler::NoError, VarySourceRockTOC( sc, 0, m_layerName, 1, "", dblRng, vector<string>(),  VarPrmContinuous::Block ) );
+   ASSERT_EQ( ErrorHandler::NoError, VarySourceRockTOC( sc, 0, m_layerName, 1, "", dblRng, std::vector<std::string>(),  VarPrmContinuous::Block ) );
 
    ASSERT_EQ( ErrorHandler::NoError, VaryParameter<PrmTopCrustHeatProduction>(sc, {}, "", m_minTCHP, m_maxTCHP) );
 

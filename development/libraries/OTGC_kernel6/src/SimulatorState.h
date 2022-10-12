@@ -11,7 +11,6 @@
 #include "SimulatorStateBase.h"
 #include "SpeciesManager.h"
 
-using namespace std;
 using namespace Genex6;
 
 namespace OTGC6
@@ -27,7 +26,7 @@ class SimulatorState : public Genex6::SimulatorStateBase
 public:
    SimulatorState();
    SimulatorState(const double inReferenceTime, const Species ** SpeciesInChemicalModel,
-                  const std::map<string, double> &initSpeciesConcs);
+                  const std::map<std::string, double> &initSpeciesConcs);
 
    SimulatorState(const double inReferenceTime, const Species ** SpeciesInChemicalModel,
                   const double * initSpeciesConcs);

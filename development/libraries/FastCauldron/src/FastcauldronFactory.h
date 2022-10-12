@@ -41,7 +41,7 @@ public :
 
    /// Returns the project-handle.
    Interface::ProjectHandle * produceProjectHandle ( database::ProjectFileHandlerPtr pfh,
-                                                     const string&                   name ) const;
+                                                     const std::string&                   name ) const;
 
    /// Allocate a fastcauldron related-project.
    Interface::RelatedProject* produceRelatedProject ( Interface::ProjectHandle& projectHandle,
@@ -53,9 +53,9 @@ public :
    /// Allocate a fastcauldron property.
    Interface::Property * produceProperty ( Interface::ProjectHandle& projectHandle,
                                            database::Record *         record,
-                                           const string &             userName,
-                                           const string &             cauldronName,
-                                           const string &             unit,
+                                           const std::string &             userName,
+                                           const std::string &             cauldronName,
+                                           const std::string &             unit,
                                            Interface::PropertyType    type,
                                            const DataModel::PropertyAttribute       attr,
                                            const DataModel::PropertyOutputAttribute attrOut) const;
@@ -63,7 +63,7 @@ public :
    /// Allocate a fastcauldron property-value.
    Interface::PropertyValue * producePropertyValue ( Interface::ProjectHandle&  projectHandle,
                                                      database::Record *           record,
-                                                     const string &               name,
+                                                     const std::string &               name,
                                                      const Interface::Property *  property,
                                                      const Interface::Snapshot *  snapshot,
                                                      const Interface::Reservoir * reservoir,

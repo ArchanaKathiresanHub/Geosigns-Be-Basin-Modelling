@@ -71,7 +71,7 @@ DerivedProperties::BulkDensityFormationCalculator::BulkDensityFormationCalculato
 
 double DerivedProperties::BulkDensityFormationCalculator::calculateAtPosition( const GeoPhysics::GeoPhysicsFormation* formation,
                                                                                const GeoPhysics::CompoundLithology* lithology,
-                                                                               const std::map<string, double>& dependentProperties) const
+                                                                               const std::map<std::string, double>& dependentProperties) const
 {
    if ( formation->kind () == DataAccess::Interface::BASEMENT_FORMATION )
    {

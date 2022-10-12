@@ -37,17 +37,17 @@ public :
 
    /// Get the names of the species that is being adsorped.
    ///
-   /// If the species is not a part of the adsorption simulation then a null string will be returned.
+   /// If the species is not a part of the adsorption simulation then a null std::string will be returned.
    const std::string& getAdsorpedSpeciesName ( const CBMGenerics::ComponentManager::SpeciesNamesId species ) const;
 
    /// Get the names of the expelled species.
    ///
-   /// If the species is not a part of the adsorption simulation then a null string will be returned.
+   /// If the species is not a part of the adsorption simulation then a null std::string will be returned.
    const std::string& getExpelledSpeciesName ( const CBMGenerics::ComponentManager::SpeciesNamesId species ) const;
 
    /// Get the names of the free species.
    ///
-   /// If the species is not a part of the adsorption simulation then a null string will be returned.
+   /// If the species is not a part of the adsorption simulation then a null std::string will be returned.
    const std::string& getFreeSpeciesName ( const CBMGenerics::ComponentManager::SpeciesNamesId species ) const;
 
 

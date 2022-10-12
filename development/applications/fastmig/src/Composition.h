@@ -27,7 +27,6 @@ using namespace pvtFlash;
 #include <string>
 #include <map>
 #include <vector>
-using namespace std;
 
 // CBMGenerics library
 #include "ComponentManager.h"
@@ -54,7 +53,7 @@ namespace migration
          inline void subtract    (ComponentId componentId, double weight);
          inline bool isEmpty     (ComponentId componentId) const;
          inline double getWeight (ComponentId componentId) const;
-         inline vector<double> getWeights() const;
+         inline std::vector<double> getWeights() const;
          inline double moles(ComponentId componentId, const double& gorm) const;
 
          inline void setViscosity (double viscosity);
@@ -83,8 +82,8 @@ namespace migration
          const Biodegrade& biodegrade, Composition& compositionLost, const double fractionVolumeBiodegraded) const;
 
 
-         void computeDiffusionLeakages(const double& diffusionStartTime, const double & intervalStartTime, const double & intervalEndTime, const vector<double>& solubilities,
-         const double& surfaceArea, vector<DiffusionLeak*>& diffusionLeaks, const double& gorm,
+         void computeDiffusionLeakages(const double& diffusionStartTime, const double & intervalStartTime, const double & intervalEndTime, const std::vector<double>& solubilities,
+         const double& surfaceArea, std::vector<DiffusionLeak*>& diffusionLeaks, const double& gorm,
          Composition* compositionOut, Composition* compositionLost) const;
 
          void computePVT (double temperature, double pressure, Composition * compositionsOut);
@@ -146,7 +145,7 @@ double migration::Composition::getWeight (ComponentId componentId) const
 
 vector<double> migration::Composition::getWeights () const
 {
-   vector<double> weights( ComponentId::NUMBER_OF_SPECIES );
+   std::vector<double> weights( ComponentId::NUMBER_OF_SPECIES );
    for (int componentId = ComponentId::FIRST_COMPONENT; componentId <= ComponentId::LAST_COMPONENT; ++componentId)
       weights[componentId] = m_components[(int) componentId];
    return weights;

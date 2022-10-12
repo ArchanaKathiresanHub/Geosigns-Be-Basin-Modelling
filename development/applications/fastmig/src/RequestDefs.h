@@ -56,8 +56,8 @@ namespace migration
       Composition composition;
    };
 
-   typedef vector<MigrationRequest> MigrationRequestVector;
-   typedef vector<MigrationRequest>::iterator MigrationRequestIterator;
+   typedef std::vector<MigrationRequest> MigrationRequestVector;
+   typedef std::vector<MigrationRequest>::iterator MigrationRequestIterator;
 
 
 #ifdef USECONSTRUCTOR

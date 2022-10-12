@@ -20,7 +20,7 @@ using namespace std;
 
 #include<sstream>
 using std::ostringstream;
-extern ostringstream cerrstrstr;
+extern std::ostringstream cerrstrstr;
 
 #include "rankings.h"
 #include "RequestDefs.h"
@@ -35,7 +35,7 @@ int requestHandlingCycle = 0;
 namespace migration
 {
 
-   void RequestHandling::StartRequestHandling (Migrator * requestHandler, const string& functionName)
+   void RequestHandling::StartRequestHandling (Migrator * requestHandler, const std::string& functionName)
    {
       RequestHandling::GetInstance ()->startRequestHandling (requestHandler, functionName);
    }
@@ -751,7 +751,7 @@ namespace migration
    }
 
    /// initialize a new request handling phase.
-   void RequestHandling::startRequestHandling (Migrator * requestHandler, const string& functionName)
+   void RequestHandling::startRequestHandling (Migrator * requestHandler, const std::string& functionName)
    {
 #if 0
       ReportProgress ("starting RequestHandling: ", functionName);

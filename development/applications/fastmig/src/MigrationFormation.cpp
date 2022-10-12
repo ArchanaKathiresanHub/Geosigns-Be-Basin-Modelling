@@ -70,6 +70,8 @@ using Interface::ProjectHandle;
 using Interface::PropertyValueList;
 using Interface::FormationList;
 
+using namespace std;
+
 namespace migration
 {
    MigrationFormation::MigrationFormation (ProjectHandle& projectHandle, Migrator * const migrator, database::Record * record) :
@@ -754,12 +756,12 @@ namespace migration
       }
    }
 
-   bool MigrationFormation::hasVolumePropertyGridMap (const string & propertyName, double snapshotAge) const
+   bool MigrationFormation::hasVolumePropertyGridMap (const std::string & propertyName, double snapshotAge) const
    {
       const Property* prop = getProjectHandle().findProperty (propertyName);
       if (!prop)
       {
-         cerr << "Basin_Error: Could not find the property " << propertyName << endl;
+         std::cerr << "Basin_Error: Could not find the property " << propertyName << endl;
          return 0;
       }
 
@@ -785,7 +787,7 @@ namespace migration
       return hasVolumePropertyGridMap (prop, snapshot);
    }
 
-   bool MigrationFormation::hasVolumePropertyGridMap (const string & propertyName, const Snapshot * snapshot) const
+   bool MigrationFormation::hasVolumePropertyGridMap (const std::string & propertyName, const Snapshot * snapshot) const
    {
       const Property* prop = getProjectHandle().findProperty (propertyName);
       if (!prop)
@@ -816,7 +818,7 @@ namespace migration
       return state;
    }
 
-   const GridMap * MigrationFormation::getVolumePropertyGridMap (const string & propertyName, double snapshotAge) const
+   const GridMap * MigrationFormation::getVolumePropertyGridMap (const std::string & propertyName, double snapshotAge) const
    {
       const Property* prop = getProjectHandle().findProperty (propertyName);
       if (!prop)
@@ -847,7 +849,7 @@ namespace migration
       return getVolumePropertyGridMap (prop, snapshot);
    }
 
-   const GridMap * MigrationFormation::getVolumePropertyGridMap (const string & propertyName, const Snapshot * snapshot) const
+   const GridMap * MigrationFormation::getVolumePropertyGridMap (const std::string & propertyName, const Snapshot * snapshot) const
    {
       const Property* prop = getProjectHandle().findProperty (propertyName);
       if (!prop)
@@ -985,7 +987,7 @@ namespace migration
       nd->setValue (request);
    }
 
-   FormationPropertyPtr MigrationFormation::getFormationPropertyPtr (const string & propertyName, const Interface::Snapshot * snapshot) const
+   FormationPropertyPtr MigrationFormation::getFormationPropertyPtr (const std::string & propertyName, const Interface::Snapshot * snapshot) const
    {
 
       const DataAccess::Interface::Property* property = m_migrator->getProjectHandle().findProperty (propertyName);
@@ -1117,7 +1119,7 @@ namespace migration
       unsigned int nodeDepth = (unsigned int)getNodeDepth ();
 
       // generate file name
-      ostringstream buf;
+      std::ostringstream buf;
 
       buf.setf (ios::fixed);
       buf.precision (6);
@@ -1423,7 +1425,7 @@ namespace migration
       m_detectedReservoir = detectedReservoir;
    }
 
-   // add the detected reservoir to the reservoir vector
+   // add the detected reservoir to the reservoir std::vector
    void MigrationFormation::addDetectedReservoir (const Interface::Snapshot * start)
    {
       if (!m_detectedReservoir)
@@ -1539,7 +1541,7 @@ namespace migration
       {
          if (!ComponentsUsed[componentId]) continue;
 
-         string propertyName = CBMGenerics::ComponentManager::getInstance().getSpeciesName( componentId );
+         std::string propertyName = CBMGenerics::ComponentManager::getInstance().getSpeciesName( componentId );
          propertyName += "ExpelledCumulative";
 
          const GridMap * gridMapEnd = getPropertyGridMap (propertyName, end);
@@ -1704,7 +1706,7 @@ namespace migration
       const Interface::Snapshot * end)
    {
 #if 0
-      cerr << getName () << "(" << depthIndex << ")->computeAnalogFlowDirections ()" << endl;
+      std::cerr << getName () << "(" << depthIndex << ")->computeAnalogFlowDirections ()" << endl;
 #endif
       for (int i = (int)m_formationNodeArray->firstILocal (); i <= (int)m_formationNodeArray->lastILocal (); ++i)
       {
@@ -2423,7 +2425,7 @@ namespace migration
       return status;
    }
 
-   bool MigrationFormation::computeInterpolator (const string & propertyName, const Snapshot *intervalStart, const Snapshot *intervalEnd, Genex6::LinearGridInterpolator& interpolator)
+   bool MigrationFormation::computeInterpolator (const std::string & propertyName, const Snapshot *intervalStart, const Snapshot *intervalEnd, Genex6::LinearGridInterpolator& interpolator)
    {
 
       const DataModel::AbstractProperty* property;
@@ -2524,7 +2526,7 @@ namespace migration
          compositionResponse.composition);
    }
 
-   const Interface::GridMap * MigrationFormation::getPropertyGridMap (const string & propertyName,
+   const Interface::GridMap * MigrationFormation::getPropertyGridMap (const std::string & propertyName,
       const Interface::Snapshot * snapshot) const
 
    {

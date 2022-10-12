@@ -29,7 +29,7 @@ namespace DataAccess
       virtual ~OutputProperty (void);
 
 			/// Return the name of this OutputProperty.
-			virtual const string & getName (void) const;
+			virtual const std::string & getName (void) const;
 
 			/// Return the output option of this OutputProperty.
 			virtual PropertyOutputOption getOption (void) const;
@@ -39,9 +39,9 @@ namespace DataAccess
 
       /// Print the attributes of this Property
             // May not work if user application is compiled under IRIX with CC -lang:std
-      virtual void printOn (ostream &) const;
+      virtual void printOn (std::ostream &) const;
 
-            virtual void asString (string & str) const;
+            virtual void asString (std::string & str) const;
 
    protected:
 

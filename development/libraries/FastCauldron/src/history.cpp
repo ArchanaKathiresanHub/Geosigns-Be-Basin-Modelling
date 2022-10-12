@@ -394,7 +394,7 @@ void History::Read_Spec_File () {
 
   if ( File_Exists( Spec_File_Name.c_str() ) ) {
 
-    ifstream Spec_File;
+      std::ifstream Spec_File;
     Spec_File.open( Spec_File_Name.c_str() );
     
     double Deposition_Age;

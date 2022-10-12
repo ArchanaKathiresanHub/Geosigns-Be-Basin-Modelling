@@ -33,20 +33,20 @@ namespace DataAccess
 
             /// \return the name of the file in which 3D PropertyValues associated to this snapshot are
             ///    stored
-            virtual const string & getFileName (bool setIfNecessary = false) const;
+            virtual const std::string & getFileName (bool setIfNecessary = false) const;
 
             /// \return the snapshot-kind:
             ///   - System Generated; or
             ///   - User Defined; or
-            ///   - "" (a null string).
+            ///   - "" (a null std::string).
             virtual const std::string& getKind () const;
 
-            virtual void asString (string &) const;
+            virtual void asString (std::string &) const;
 
-            /// \return the age of this snapshot in string form
-            virtual const string & asString () const;
+            /// \return the age of this snapshot in std::string form
+            virtual const std::string & asString () const;
 
-            virtual void printOn (ostream &) const;
+            virtual void printOn (std::ostream &) const;
 
             virtual int getType () const;
 

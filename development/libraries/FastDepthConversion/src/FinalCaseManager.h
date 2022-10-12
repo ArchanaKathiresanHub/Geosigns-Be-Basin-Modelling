@@ -36,7 +36,7 @@ private:
   void runModifyTables(const bool noCalculatedTWToutput);
   void fcmCreateFinalCase();
   void appendCurrentSurfaceIsoPacks(const mbapi::StratigraphyManager::SurfaceID s, const std::vector<double> & depthsEndSurface);
-  void updateIsoPackMapsInStratIoTbl(const mbapi::StratigraphyManager::SurfaceID s, const string & mapName);
+  void updateIsoPackMapsInStratIoTbl(const mbapi::StratigraphyManager::SurfaceID s, const std::string & mapName);
   void appendIsopacks(const mbapi::StratigraphyManager::SurfaceID endSurface, const std::vector<double> & depthsEndSurface);
   void saveProjectAndFinalize();
 

@@ -20,14 +20,13 @@
 #include <vector>
 #include <map>
 #include <string>
-using namespace std;
 
 
-typedef set< double, less<double> > Double_Container;
+typedef std::set< double, std::less<double> > Double_Container;
 
 typedef vector< double > Double_Vector;
 
-typedef map<string, Double_Vector*, less<string> > HistoryProperties;
+typedef std::map<std::string, Double_Vector*, std::less<std::string> > HistoryProperties;
 
 struct Node_Info {
    ~Node_Info();
@@ -47,13 +46,13 @@ typedef vector< Node_Info* > Node_Container;
 struct Surface_Info {
 
    ~Surface_Info();
-   string           Name;
+   std::string           Name;
    int              Layer_Index;
    Node_Container   Nodes;
  
 };
 
-typedef map<double, Surface_Info*, less<double> > SurfaceManager;
+typedef std::map<double, Surface_Info*, std::less<double> > SurfaceManager;
 
 class History
 {
@@ -73,7 +72,7 @@ public:
    void clearProperties ();
 
    void Locate_Point ( const double X_Coord, const double Y_Coord, Node_Info * &node );
-   void Save_Property ( const string&      property_name,
+   void Save_Property ( const std::string&      property_name,
                         const enum::PropertyIdentifier propertyId,
                         LayerProps*        layer,
                         const int          K,
@@ -81,12 +80,12 @@ public:
   
    void Save_Property_Value_At_Node ( Node_Info *    node,
                                       double         Property_Value,
-                                      const string & Property_Name );
+                                      const std::string & Property_Name );
 
    double Calculate_Interpolated_Value( Node_Info *     node, 
                                         PETSC_3D_Array& property );
 
-   void Save_Depositional_Property ( const string&      property_name,
+   void Save_Depositional_Property ( const std::string&      property_name,
                                      const enum::PropertyIdentifier propertyId,
                                      LayerProps*        layer,
                                      Node_Container&    nodes );
@@ -118,7 +117,7 @@ private:
 
    bool             Has_Nodes;
    SurfaceManager   Surfaces;
-   string           Log_File_Header;
+   std::string           Log_File_Header;
 
    PropListVec Property_List;
 

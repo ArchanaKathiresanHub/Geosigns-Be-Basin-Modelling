@@ -51,7 +51,7 @@ namespace migration
 
       template <typename CREATEPROP>
       void translate (const  Interface::Formation* formation,
-         CREATEPROP create, vector<typename CREATEPROP::output>& lithProps)
+         CREATEPROP create, std::vector<typename CREATEPROP::output>& lithProps)
       {
          const LithoType* lithoType1 = formation->getLithoType1 ();
          assert (lithoType1);

@@ -50,8 +50,8 @@ public:
   bool doApplyAdsorption(void) const final;
   bool adsorptionIsTOCDependent(void) const final;
   bool doComputeOTGC(void) const final;
-  const string & getAdsorptionCapacityFunctionName(void) const final;
-  const string & getAdsorptionSimulatorName(void) const final;
+  const std::string & getAdsorptionCapacityFunctionName(void) const final;
+  const std::string & getAdsorptionSimulatorName(void) const final;
   const DataAccess::Interface::GridMap * getMap(DataAccess::Interface::SourceRockMapAttributeId attributeId) const final;
   const std::string& getTypeID() const;
 
@@ -71,7 +71,7 @@ public:
 
 private:
   Genex0dSourceRock(DataAccess::Interface::ProjectHandle& projectHandle, const DataAccess::Interface::SourceRockProperty& sourceRockProperties, const Genex0dInputData& inData);
-  std::string extractTypeID(const string& sourceRockType) const;
+  std::string extractTypeID(const std::string& sourceRockType) const;
 
   void setSourceRockPropertiesFromInput(const Genex0dInputData& inData);
   const GridMap * loadMap (DataAccess::Interface::SourceRockMapAttributeId attributeId, const double mapScalarValue) const;

@@ -88,13 +88,13 @@ namespace migration
 
       bool hasVolumePropertyGridMap (const DataAccess::Interface::Property* prop, const DataAccess::Interface::Snapshot * snapshot) const;
       bool hasVolumePropertyGridMap (const DataAccess::Interface::Property* prop, double snapshotAge) const;
-      bool hasVolumePropertyGridMap (const string & propertyName, const DataAccess::Interface::Snapshot * snapshot) const;
-      bool hasVolumePropertyGridMap (const string & propertyName, double snapshotAge) const;
+      bool hasVolumePropertyGridMap (const std::string & propertyName, const DataAccess::Interface::Snapshot * snapshot) const;
+      bool hasVolumePropertyGridMap (const std::string & propertyName, double snapshotAge) const;
 
       const GridMap * getVolumePropertyGridMap (const DataAccess::Interface::Property* prop, const DataAccess::Interface::Snapshot * snapshot) const;
       const GridMap * getVolumePropertyGridMap (const DataAccess::Interface::Property* prop, double snapshotAge) const;
-      const GridMap * getVolumePropertyGridMap (const string & propertyName, const DataAccess::Interface::Snapshot * snapshot) const;
-      const GridMap * getVolumePropertyGridMap (const string & propertyName, double snapshotAge) const;
+      const GridMap * getVolumePropertyGridMap (const std::string & propertyName, const DataAccess::Interface::Snapshot * snapshot) const;
+      const GridMap * getVolumePropertyGridMap (const std::string & propertyName, double snapshotAge) const;
 
       bool computeFiniteElement (int i, int j, int k);
       void setFiniteElementQuadraturePoint (int i, int j, int k, double iOffset, double jOffset, double kOffset);
@@ -225,7 +225,7 @@ namespace migration
 
       Interface::GridMap* getGenexData () const { return m_genexData; }
 
-      const Interface::GridMap * getPropertyGridMap (const string & propertyName,
+      const Interface::GridMap * getPropertyGridMap (const std::string & propertyName,
                                                      const Interface::Snapshot * snapshot) const;
 
       inline bool performAdvancedMigration (void) const;
@@ -234,7 +234,7 @@ namespace migration
       inline double getBlockingPermeability (void);
       inline double getBlockingPorosity (void);
 
-      AbstractDerivedProperties::FormationPropertyPtr getFormationPropertyPtr (const string & propertyName, const Interface::Snapshot * snapshot) const;
+      AbstractDerivedProperties::FormationPropertyPtr getFormationPropertyPtr (const std::string & propertyName, const Interface::Snapshot * snapshot) const;
 
       // Sets all top nodes of the given formation as ends of path due to the formation being a detected reservoir
       void setEndOfPath (void);
@@ -257,7 +257,7 @@ namespace migration
       // Map of all genex data
       Interface::GridMap* m_genexData;
 
-      bool computeInterpolator (const string & propertyName, const Interface::Snapshot *intervalStart, const Interface::Snapshot *intervalEnd,
+      bool computeInterpolator (const std::string & propertyName, const Interface::Snapshot *intervalStart, const Interface::Snapshot *intervalEnd,
                                 Genex6::LinearGridInterpolator& interpolator);
       bool extractGenexDataInterval (const Interface::Snapshot *intervalStart, const Interface::Snapshot *intervalEnd,
                                      Genex6::LinearGridInterpolator& thickness,

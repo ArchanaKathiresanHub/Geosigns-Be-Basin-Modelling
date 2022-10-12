@@ -15,6 +15,7 @@
 #include <iostream>
 
 using namespace database;
+using namespace std;
 
 namespace DataAccess
 {

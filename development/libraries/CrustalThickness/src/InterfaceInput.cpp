@@ -57,7 +57,7 @@ using Utilities::Numerical::UnsignedIntNoDataValue;
 using DataAccess::Interface::MINOR;
 using DataAccess::Interface::MAJOR;
 
-const string InterfaceInput::s_ctcConfigurationFile = "InterfaceData.cfg";
+const std::string InterfaceInput::s_ctcConfigurationFile = "InterfaceData.cfg";
 using Utilities::Numerical::DefaultNumericalTolerance;
 
 //------------------------------------------------------------//
@@ -606,7 +606,7 @@ void InterfaceInput::loadDerivedPropertyManager(){
 }
 
 //------------------------------------------------------------//
-void InterfaceInput::loadTopAndBottomOfSediments( GeoPhysics::ProjectHandle* projectHandle, const double snapshotAge, const string & baseSurfaceName ) {
+void InterfaceInput::loadTopAndBottomOfSediments( GeoPhysics::ProjectHandle* projectHandle, const double snapshotAge, const std::string & baseSurfaceName ) {
 
    const DataAccess::Interface::Snapshot * currentSnapshot = projectHandle->findSnapshot( snapshotAge, MINOR | MAJOR );
    if (currentSnapshot == nullptr){

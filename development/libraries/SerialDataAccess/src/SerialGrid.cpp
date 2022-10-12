@@ -335,7 +335,7 @@ void SerialGrid::printOn (ostream & ostr) const
 
 void SerialGrid::asString (string & str) const
 {
-   ostringstream buf;
+   std::ostringstream buf;
 
    buf << "Grid:";
    buf << " numI = " << numI () << ", numJ = " << numJ ();

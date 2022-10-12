@@ -300,7 +300,7 @@ void LithoType::printOn (ostream & ostr) const
 
 void LithoType::asString (string & str) const
 {
-   ostringstream buf;
+   std::ostringstream buf;
 
    buf << "LithoType:";
    buf << " name = " << getName ();

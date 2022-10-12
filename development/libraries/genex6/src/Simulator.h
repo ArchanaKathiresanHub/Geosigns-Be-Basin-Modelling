@@ -7,8 +7,6 @@
 #include <fstream>
 #include <iomanip>
 
-using namespace std;
-
 /*! \mainpage genex6_kernel library
  * \section intro Introduction
  * The genex6_kernel library is a library that provides the core computational functionality for 
@@ -111,7 +109,7 @@ public:
 
    void initializeSimulatorState( const Input &theInput );
   
-   void PrintBenchmarkOutput(ofstream &outputTestingSetFile) const;
+   void PrintBenchmarkOutput(std::ofstream &outputTestingSetFile) const;
    void PrintConfigurationFile(const std::string &FullPathConfigurationFileName, const bool PreprocessChemicalModel);
 
    double ComputeNodeInitialOrganicMatterDensity(const double TOC, const double InorganicDensity); // Genex
@@ -148,8 +146,8 @@ protected:
                    const double in_C15SatDiffusionEnergy);
  	
    void LoadDataFromConfigurationFile();
-   void LoadSimulatorProperties(ifstream &ConfigurationFile);
-   void LoadGeneralParameters(ifstream &ConfigurationFile); 
+   void LoadSimulatorProperties(std::ifstream &ConfigurationFile);
+   void LoadGeneralParameters(std::ifstream &ConfigurationFile);
 
    double CheckInitialHC(const double in_VRE, const double in_HC); //Genex
    double TransformHC(const double in_VRE, const double in_HC);//Genex

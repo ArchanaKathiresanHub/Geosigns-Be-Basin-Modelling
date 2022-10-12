@@ -443,7 +443,7 @@ void InputValue::printOn (ostream & ostr) const
 
 void InputValue::asString (string & str) const
 {
-   ostringstream buf;
+   std::ostringstream buf;
 
    buf << "MappedInputValue:";
    buf << " ReferredBy = " << getReferredBy (m_record);

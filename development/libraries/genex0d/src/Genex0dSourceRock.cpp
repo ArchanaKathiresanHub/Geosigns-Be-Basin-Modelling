@@ -296,12 +296,12 @@ bool Genex0dSourceRock::doComputeOTGC(void) const
   return m_doOTCG;
 }
 
-const string & Genex0dSourceRock::getAdsorptionCapacityFunctionName(void) const
+const std::string & Genex0dSourceRock::getAdsorptionCapacityFunctionName(void) const
 {
   return m_adsorptionCapacityFunctionName;
 }
 
-const string & Genex0dSourceRock::getAdsorptionSimulatorName(void) const
+const std::string & Genex0dSourceRock::getAdsorptionSimulatorName(void) const
 {
   return m_adsorptionSimulatorName;
 }

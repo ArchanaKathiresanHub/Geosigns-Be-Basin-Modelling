@@ -46,7 +46,7 @@ namespace DataAccess
 
          virtual int getDepositionSequence () const;
 
-         void asString (string & str) const;
+         void asString (std::string & str) const;
 
       };
    }

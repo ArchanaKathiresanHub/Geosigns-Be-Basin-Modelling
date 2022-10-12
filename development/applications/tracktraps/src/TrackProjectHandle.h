@@ -21,10 +21,6 @@
 #endif // sgi
 
 #include <string>
-#include <map>
-#include <vector>
-
-using namespace std;
 
 #include "ProjectFileHandler.h"
 
@@ -49,7 +45,7 @@ namespace PersistentTraps
    {
    public:
       /// Constructor
-      TrackProjectHandle (database::ProjectFileHandlerPtr database, const string & name, const DataAccess::Interface::ObjectFactory* factory);
+      TrackProjectHandle (database::ProjectFileHandlerPtr database, const std::string & name, const DataAccess::Interface::ObjectFactory* factory);
 
       /// Destructor
       ~TrackProjectHandle (void);
@@ -76,7 +72,7 @@ namespace PersistentTraps
 
       void deletePersistentTraps (void);
 
-      void saveProject (const string & fileName);
+      void saveProject (const std::string & fileName);
 
       Interface::Formation * getBottomSourceRockFormation ();
 

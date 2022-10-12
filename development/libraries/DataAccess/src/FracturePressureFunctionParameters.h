@@ -35,7 +35,7 @@ namespace DataAccess { namespace Interface {
 
       FracturePressureFunctionType m_type;
       FracturePressureModel        m_fractureModel;
-      vector<double>               m_coefficients;
+      std::vector<double>               m_coefficients;
       std::string                  m_typeName;
       std::string                  m_name;
 

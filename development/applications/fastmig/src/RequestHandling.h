@@ -54,11 +54,11 @@ namespace migration
    class RequestHandling
    {
    public:
-      static void StartRequestHandling (Migrator * requestHandler, const string& functionName);
+      static void StartRequestHandling (Migrator * requestHandler, const std::string& functionName);
 
       static void FinishRequestHandling ();
 
-      void startRequestHandling (Migrator * requestHandler, const string& functionName);
+      void startRequestHandling (Migrator * requestHandler, const std::string& functionName);
 
       void finishRequestHandling ();
 
@@ -147,7 +147,7 @@ namespace migration
       char * m_mpi_buffer;
       int m_mpi_buffer_size;
 
-      string m_functionName;
+      std::string m_functionName;
       bool m_requestHandling;
       int m_finished;
       bool m_proxyUseAllowed;
@@ -193,7 +193,7 @@ namespace migration
    class RequestHandle
    {
    public:
-      RequestHandle (Migrator * requestHandler, const string& functionName)
+      RequestHandle (Migrator * requestHandler, const std::string& functionName)
       {
          RequestHandling::StartRequestHandling (requestHandler, functionName);
       }

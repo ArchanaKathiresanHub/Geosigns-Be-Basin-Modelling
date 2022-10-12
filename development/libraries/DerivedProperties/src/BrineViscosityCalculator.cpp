@@ -94,7 +94,7 @@ void DerivedProperties::BrineViscosityCalculator::calculate ( AbstractPropertyMa
 
 double DerivedProperties::BrineViscosityCalculator::calculateAtPosition( const GeoPhysics::GeoPhysicsFormation* formation,
                                                                          const GeoPhysics::CompoundLithology* /*lithology*/,
-                                                                         const std::map<string, double>& dependentProperties ) const
+                                                                         const std::map<std::string, double>& dependentProperties ) const
 {
   const GeoPhysics::FluidType* fluid = dynamic_cast<const GeoPhysics::FluidType*>( formation->getFluidType() );
   if ( !fluid )

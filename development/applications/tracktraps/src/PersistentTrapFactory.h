@@ -32,7 +32,7 @@ namespace PersistentTraps
    class PersistentTrapFactory : public DataAccess::Interface::ObjectFactory
    {
       virtual DataAccess::Interface::ProjectHandle * produceProjectHandle (database::ProjectFileHandlerPtr database,
-                                                                           const string & name) const;
+                                                                           const std::string & name) const;
       virtual DataAccess::Interface::Trap * produceTrap (DataAccess::Interface::ProjectHandle& projectHandle,
                                                          database::Record * record) const;
       virtual DataAccess::Interface::Reservoir * produceReservoir (DataAccess::Interface::ProjectHandle& projectHandle,

@@ -24,8 +24,6 @@
 
 #include "migration.h"
 
-using namespace std;
-
 /// Immobiles Class
 namespace migration
 {
@@ -50,7 +48,7 @@ namespace migration
       double getVolume (void) const;
       inline double getVolume (ImmobilesId immobilesId) const;
 
-      inline vector<double> getWeights () const;
+      inline std::vector<double> getWeights () const;
 
       void reset (void);
       void set (const Immobiles & immobiles);
@@ -84,7 +82,7 @@ void migration::Immobiles::checkWeight (ImmobilesId immobilesId)
 {
    if (m_weights[immobilesId] < 0)
    {
-      cerr << "weight of " << ImmobileNames[immobilesId] << " (" << m_weights[immobilesId] << ") < 0, resetting to 0" << endl;
+      std::cerr << "weight of " << ImmobileNames[immobilesId] << " (" << m_weights[immobilesId] << ") < 0, resetting to 0" << std::endl;
       m_weights[immobilesId] = 0;
    }
 }
@@ -131,7 +129,7 @@ double migration::Immobiles::getVolume (ImmobilesId immobilesId) const
 
 vector<double> migration::Immobiles::getWeights () const
 {
-   vector<double> weights (NumImmobiles);
+   std::vector<double> weights (NumImmobiles);
    for (unsigned int immobilesId = 0; immobilesId < NumImmobiles; ++immobilesId)
       weights[immobilesId] = m_weights[immobilesId];
    return weights;

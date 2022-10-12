@@ -20,6 +20,8 @@
 #include <sstream>
 using std::stringstream;
 
+using namespace std;
+
 // utilities library
 #include "ConstantsMathematics.h"
 using Utilities::Maths::MegaPaToPa;

@@ -135,7 +135,7 @@ bool AllochMod::AllochthonousLithologySimulator::execute ( const int debugLevel 
   // Create directory, if it does not already exist.
   makeOutputDir();
 
-  cout << endl;
+  std::cout << std::endl;
 
   hid_t fileId = H5Fcreate ( fullResultFileName.c_str (), H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT );
 

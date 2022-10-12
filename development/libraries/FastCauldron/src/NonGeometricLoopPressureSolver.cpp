@@ -29,6 +29,7 @@ using Utilities::Maths::MegaPaToPa;
 using Utilities::Maths::MilliDarcyToM2;
 #include "ConstantsPhysics.h"
 using Utilities::Physics::AccelerationDueToGravity;
+using namespace std;
 
 
 //------------------------------------------------------------//

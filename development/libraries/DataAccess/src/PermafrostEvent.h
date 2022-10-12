@@ -1,8 +1,6 @@
 #ifndef _DATA_ACCESS__PERMAFROST_EVENT__H_
 #define _DATA_ACCESS__PERMAFROST_EVENT__H_
 
-using namespace std;
-
 #include <string>
 
 #include "DAObject.h"

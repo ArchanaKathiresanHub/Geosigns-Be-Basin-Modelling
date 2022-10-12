@@ -21,7 +21,6 @@ typedef CBMGenerics::ComponentManager::SpeciesNamesId ComponentId;
 #endif
 
 #include <vector>
-using namespace std;
 
 #define USEOTGC 1
 
@@ -52,12 +51,12 @@ namespace migration
 
    class ColumnArray;
 
-   typedef vector<Trap *> TrapVector;
-   typedef vector<Trap *>::iterator TrapIterator;
-   typedef vector<Trap *>::reverse_iterator TrapReverseIterator;
-   typedef vector<const MigrationReservoir *> MigrationReservoirList;
+   typedef std::vector<Trap *> TrapVector;
+   typedef std::vector<Trap *>::iterator TrapIterator;
+   typedef std::vector<Trap *>::reverse_iterator TrapReverseIterator;
+   typedef std::vector<const MigrationReservoir *> MigrationReservoirList;
 
-   typedef pair<unsigned int, unsigned int> IndexPair;
+   typedef std::pair<unsigned int, unsigned int> IndexPair;
 
    enum ValueSpec
    {
@@ -330,7 +329,7 @@ namespace migration
    const unsigned int NumImmobiles = NUM_IMMOBILES;
 #endif
 
-   extern ostringstream cerrstrstr;
+   extern std::ostringstream cerrstrstr;
 
    template <class T>
    T Square (T x)

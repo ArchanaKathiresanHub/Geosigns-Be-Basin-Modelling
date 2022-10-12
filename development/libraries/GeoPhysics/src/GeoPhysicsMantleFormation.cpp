@@ -29,6 +29,7 @@
 #include <cassert>
 
 using namespace DataAccess;
+using namespace std;
 
 GeoPhysics::GeoPhysicsMantleFormation::GeoPhysicsMantleFormation ( DataAccess::Interface::ProjectHandle& projectHandle,
                                                                    database::Record*                          record ) :
@@ -42,7 +43,7 @@ GeoPhysics::GeoPhysicsMantleFormation::GeoPhysicsMantleFormation ( DataAccess::I
 
 GeoPhysics::CompoundLithology* GeoPhysics::GeoPhysicsMantleFormation::getLithologyFromStratTable( bool& /*undefinedMapValue*/, bool /*useMaps*/, unsigned int /*i*/,  unsigned int /*j*/,
                                                              const GridMap* /*lithoMap1*/, const GridMap* /*lithoMap2*/, const GridMap* /*lithoMap3*/,
-                                                             const string& /*lithoName1*/, const string& /*lithoName2*/, const string& /*lithoName3*/ ) const
+                                                             const std::string& /*lithoName1*/, const std::string& /*lithoName2*/, const std::string& /*lithoName3*/ ) const
 {
   const std::string lithoName1 = DataAccess::Interface::MantleFormation::getLithoType1 ()->getName ();
   CompoundLithologyComposition lc ( lithoName1, "",  "",

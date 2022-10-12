@@ -13,14 +13,13 @@
 #include <map>
 #include <string>
 #include <vector>
-using namespace std;
 
 #include "Interface.h"
 
 // Change to Interface::PropertyOutputOption
 enum OutputOption {NOOUTPUT,SOURCEROCKONLY,SEDIMENTSONLY,SEDIMENTSPLUSBASEMENT};
 
-const string OutputOptionName[] = {
+const std::string OutputOptionName[] = {
   "None",
   "SourceRockOnly",
   "SedimentsOnly",
@@ -155,7 +154,7 @@ enum PropertyIdentifier {
    ENDPROPERTYLIST
 };
 
-typedef vector<PropertyIdentifier> PropListVec;
+typedef std::vector<PropertyIdentifier> PropListVec;
 
 PropertyIdentifier& operator++(PropertyIdentifier& pl);
 PropertyIdentifier  operator++(PropertyIdentifier& pl, int);
@@ -166,7 +165,7 @@ const int PropertyListSize = int(ENDPROPERTYLIST);
 
 const std::string& propertyListName ( const PropertyIdentifier property );
 
-const string PropertyName[] = {
+const std::string PropertyName[] = {
   "BulkDensityVec",
   "DiffusivityVec",
   "HeatFlow",
@@ -326,11 +325,11 @@ class TimeFilter
   bool propertyIsSelected ( const PropertyIdentifier propertyId ) const;
 
   OutputOption PropertyOutputOption[PropertyListSize];
-  OutputOption getOutputRange(const string & outputOption);
+  OutputOption getOutputRange(const std::string & outputOption);
 
-  void setFilter(const string& propertyName, const string& outputOption);
+  void setFilter(const std::string& propertyName, const std::string& outputOption);
 
-  void setFilter(const string& propertyName, const DataAccess::Interface::PropertyOutputOption outputOption);
+  void setFilter(const std::string& propertyName, const DataAccess::Interface::PropertyOutputOption outputOption);
 
    const std::string& getPropertyName(PropertyIdentifier propertyId) const {return PropertyName[propertyId];}
 

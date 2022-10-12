@@ -17,10 +17,10 @@
 
 namespace migration {
 
-   MigrationCapillarySealStrength::MigrationCapillarySealStrength( const vector< vector<translateProps::CreateCapillaryLithoProp::output> >& lithProps, 
-                                                 const vector< vector<double> >& lithFracs, 
-                                                 const vector<CBMGenerics::capillarySealStrength::MixModel>& mixModel,
-                                                 const vector<double>& permeability,
+   MigrationCapillarySealStrength::MigrationCapillarySealStrength( const std::vector< std::vector<translateProps::CreateCapillaryLithoProp::output> >& lithProps, 
+                                                 const std::vector< std::vector<double> >& lithFracs, 
+                                                 const std::vector<CBMGenerics::capillarySealStrength::MixModel>& mixModel,
+                                                 const std::vector<double>& permeability,
                                                  const double sealFluidDensity,
                                                  const double lamdaPC ) :
    m_lithProps(lithProps),

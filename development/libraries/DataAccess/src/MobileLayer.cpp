@@ -134,7 +134,7 @@ const INTERFACE::GridMap * MobileLayer::getMap (INTERFACE::PaleoPropertyMapAttri
 
 void MobileLayer::asString (string & str) const
 {
-   ostringstream buf;
+   std::ostringstream buf;
 
    buf << "MobileLayer:";
    buf << " age = " << getSnapshot ()->getTime ();

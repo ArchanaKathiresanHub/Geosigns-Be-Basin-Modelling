@@ -29,7 +29,6 @@
 #include "ConstantsNumerical.h"
 
 using namespace DataAccess;
-using namespace std;
 
 /// @class CrustalThicknessCalculator The main class used to runn the CTC (CrustalThicknessCalculator)
 class CrustalThicknessCalculator : public DataAccess::Mining::ProjectHandle {
@@ -45,7 +44,7 @@ public :
    /// @brief Open the project file
    /// @param inputFileName The file name of the project file such as project.project3d
    /// @ param factory The object factory
-   static CrustalThicknessCalculator* createFrom( const string& inputFileName, DataAccess::Interface::ObjectFactory* factory );
+   static CrustalThicknessCalculator* createFrom( const std::string& inputFileName, DataAccess::Interface::ObjectFactory* factory );
 
    /// @brief Initialise the CTC instance, projecthandle, interface input and interface output
    void initialiseCTC();
@@ -74,8 +73,8 @@ public :
    bool mergeOutputFiles();
 private :
 
-   static string m_projectFileName;     ///< The input project file name, and output project file name by default
-   static string m_outputFileName;      ///< The output project file name, specified via command line under -save
+   static std::string m_projectFileName;     ///< The input project file name, and output project file name by default
+   static std::string m_outputFileName;      ///< The output project file name, specified via command line under -save
    bool m_mergeHDF;              ///< The output CTC hdfs will be merged to Inputs.HDF -merge
 
    int    m_outputOptions;              ///< The output option is the combination the output options defined in the command line (xyz, sur, hdf)

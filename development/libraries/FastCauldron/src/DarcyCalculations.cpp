@@ -30,7 +30,7 @@
 // utilities
 #include "ConstantsNumerical.h"
 using Utilities::Numerical::CauldronNoDataValue;
-
+using namespace std;
 //------------------------------------------------------------//
 
 DarcyCalculations::DarcyCalculations () {

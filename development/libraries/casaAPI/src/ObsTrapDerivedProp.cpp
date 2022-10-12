@@ -42,6 +42,7 @@ using namespace CBMGenerics;
 // STL/C lib
 #include <cassert>
 #include <sstream>
+using namespace std;
 
 static const char * g_PropCompSuffix       = "TrappedAmount";
 

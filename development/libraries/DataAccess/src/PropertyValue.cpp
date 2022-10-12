@@ -596,7 +596,7 @@ void PropertyValue::printOn (ostream & ostr) const
 void PropertyValue::asString (string & str) const
 {
 
-   ostringstream buf;
+   std::ostringstream buf;
 
    buf << "PropertyValue: ";
    buf << getName ();

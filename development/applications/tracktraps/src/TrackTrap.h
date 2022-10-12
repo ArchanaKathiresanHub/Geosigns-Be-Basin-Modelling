@@ -12,8 +12,6 @@
 
 #include <vector>
 
-using namespace std;
-
 #include "generics.h"
 
 #include "ComponentManager.h"
@@ -61,11 +59,11 @@ namespace PersistentTraps
          void addExtent (unsigned int i, unsigned int j);
 
          /// find the PersistentTrap that is closest to the Trap's Hotspot and is penetrating the Trap
-         PersistentTrap * findMatchingPersistentTrap (vector < PersistentTrap * >&persistentTraps,
+         PersistentTrap * findMatchingPersistentTrap (std::vector < PersistentTrap * >&persistentTraps,
                const Interface::Snapshot * snapshot, const Interface::Snapshot * previousSnapshot);
 
          /// find the PersistentTrap that is closest to the Trap's Hotspot and is penetrating the Trap
-         PersistentTrap * findClosestPersistentTrap (vector < PersistentTrap * >&persistentTraps,
+         PersistentTrap * findClosestPersistentTrap (std::vector < PersistentTrap * >&persistentTraps,
                const Interface::Snapshot * snapshot, const Interface::Snapshot * previousSnapshot);
 
          /// Check if point is part of the Trap's Extent
@@ -101,7 +99,7 @@ namespace PersistentTraps
       private:
 
          /// Surface of the Trap.
-         vector<unsigned int> m_extent[2];
+          std::vector<unsigned int> m_extent[2];
 
          double m_porosity;
          double m_sealPermeability;

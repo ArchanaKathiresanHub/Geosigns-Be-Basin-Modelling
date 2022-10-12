@@ -116,49 +116,49 @@ double TrapPropertiesManager::computeTrapPropertyValue( const Interface::Trap   
   ComponentManager::PhaseId rcPhase;
   ComponentManager::PhaseId stPhase;
 
-  const string & propertyName = property->getName();
+  const std::string & propertyName = property->getName();
 
-  if ( propertyName.find( "FGIIP" ) != string::npos )
+  if ( propertyName.find( "FGIIP" ) != std::string::npos )
   {
     stPhaseFound = true;
     rcPhase = ComponentManager::VAPOUR;
     stPhase = ComponentManager::VAPOUR;
   }
-  else if (propertyName.find( "CIIP" ) != string::npos )
+  else if (propertyName.find( "CIIP" ) != std::string::npos )
   {
     stPhaseFound = true;
     rcPhase = ComponentManager::VAPOUR;
     stPhase = ComponentManager::LIQUID;
   }
-  else if (propertyName.find( "SGIIP" ) != string::npos )
+  else if (propertyName.find( "SGIIP" ) != std::string::npos )
   {
     stPhaseFound = true;
     rcPhase = ComponentManager::LIQUID;
     stPhase = ComponentManager::VAPOUR;
   }
-  else if ( propertyName.find( "STOIIP" ) != string::npos )
+  else if ( propertyName.find( "STOIIP" ) != std::string::npos )
   {
     stPhaseFound = true;
     rcPhase = ComponentManager::LIQUID;
     stPhase = ComponentManager::LIQUID;
   }
-  else if ( propertyName.find( "Vapour" ) != string::npos )
+  else if ( propertyName.find( "Vapour" ) != std::string::npos )
   {
     rcPhaseFound = true;
     rcPhase = ComponentManager::VAPOUR;
   }
-  else if ( propertyName.find( "Liquid" ) != string::npos )
+  else if ( propertyName.find( "Liquid" ) != std::string::npos )
   {
     rcPhaseFound = true;
     rcPhase = ComponentManager::LIQUID;
   }
 
   // Volume, Density, Viscosity, and Mass properties for stock tank conditions
-  if ( stPhaseFound && propertyName.find( "Volume" ) != string::npos )
+  if ( stPhaseFound && propertyName.find( "Volume" ) != std::string::npos )
   {
     value = computeVolume( massesST[rcPhase][stPhase], densitiesST[rcPhase][stPhase], ComponentManager::NUMBER_OF_SPECIES );
   }
-  else if ( propertyName.find( "Density" ) != string::npos )
+  else if ( propertyName.find( "Density" ) != std::string::npos )
   {
     if ( stPhaseFound )
     {
@@ -169,7 +169,7 @@ double TrapPropertiesManager::computeTrapPropertyValue( const Interface::Trap   
     }
     else if ( pvtRC && phaseMassesRC[rcPhase] > 0.0 ) { value = densitiesRC[rcPhase]; }
   }
-  else if ( propertyName.find( "Viscosity" ) != string::npos )
+  else if ( propertyName.find( "Viscosity" ) != std::string::npos )
   {
     if ( stPhaseFound )
     {
@@ -180,7 +180,7 @@ double TrapPropertiesManager::computeTrapPropertyValue( const Interface::Trap   
     }
     else if ( pvtRC && phaseMassesRC[rcPhase] > 0.0 ) { value = viscositiesRC[rcPhase]; }
   }
-  else if ( stPhaseFound && propertyName.find( "Mass" ) != string::npos )
+  else if ( stPhaseFound && propertyName.find( "Mass" ) != std::string::npos )
   {
     value = accumulate( massesST[rcPhase][stPhase], ComponentManager::NUMBER_OF_SPECIES );
     if ( value < 1 )
@@ -189,11 +189,11 @@ double TrapPropertiesManager::computeTrapPropertyValue( const Interface::Trap   
     }
   }
   // Volume, Density, Viscosity, and Mass properties for reservoir conditions
-  else if ( rcPhaseFound && propertyName.find( "Volume" ) != string::npos )
+  else if ( rcPhaseFound && propertyName.find( "Volume" ) != std::string::npos )
   {
     value = computeVolume( massesRC[rcPhase], densitiesRC[rcPhase], ComponentManager::NUMBER_OF_SPECIES );
   }
-  else if ( rcPhaseFound && propertyName.find( "Mass" ) != string::npos )
+  else if ( rcPhaseFound && propertyName.find( "Mass" ) != std::string::npos )
   {
     value = accumulate( massesRC[rcPhase], ComponentManager::NUMBER_OF_SPECIES );
     if ( value < 1 )
@@ -256,7 +256,7 @@ double TrapPropertiesManager::computeTrapPropertyValue( const Interface::Trap   
     }
   }
   // GasWetnessFGIIP and GasWetnessSGIIP
-  else if ( stPhaseFound && propertyName.find ( "GasWetness" ) != string::npos )
+  else if ( stPhaseFound && propertyName.find ( "GasWetness" ) != std::string::npos )
   {
     pvtFlash::EosPack & eosPack = pvtFlash::EosPack::getInstance ();
 

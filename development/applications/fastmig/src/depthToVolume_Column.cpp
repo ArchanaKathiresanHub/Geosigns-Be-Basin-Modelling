@@ -18,10 +18,10 @@ namespace migration { namespace depthToVolume {
 
 template
 const MonotonicIncreasingPiecewiseLinearInvertableFunction* compute(
-   const double& origin, vector<Column*>::const_iterator begin, vector<Column*>::const_iterator end, double spillDepth);
+   const double& origin, std::vector<Column*>::const_iterator begin, std::vector<Column*>::const_iterator end, double spillDepth);
 
 template
 const MonotonicIncreasingPiecewiseLinearInvertableFunction* compute(
-   const double& origin, vector<Column*>::iterator begin, vector<Column*>::iterator end, double spillDepth);
+   const double& origin, std::vector<Column*>::iterator begin, std::vector<Column*>::iterator end, double spillDepth);
 
 } } // namespace migration::depthToVolume

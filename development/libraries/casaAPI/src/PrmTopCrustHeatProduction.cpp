@@ -29,6 +29,7 @@
 
 namespace casa
 {
+    using namespace std;
 
 static const char * s_basementTblName      = "BasementIoTbl";
 static const char * s_bottomBoundaryModel  = "BottomBoundaryModel";

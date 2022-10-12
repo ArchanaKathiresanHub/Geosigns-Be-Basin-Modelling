@@ -13,17 +13,15 @@
 
 #include <string>
 
-using std::string;
-
 namespace migration
 {
 
    namespace utils
    {
 
-      string getProjectBaseName (const string& projectName);
+      std::string getProjectBaseName (const std::string& projectName);
 
-      string replaceSpaces (const string& str);
+      std::string replaceSpaces (const std::string& str);
 
    } // namespace utils
 

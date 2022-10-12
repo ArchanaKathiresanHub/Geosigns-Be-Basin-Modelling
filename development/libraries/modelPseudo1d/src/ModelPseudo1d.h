@@ -61,9 +61,9 @@ private:
   void removeGridMapFromTable(const std::string& tableName, const int rowNumber, const ModelPseudo1dTableProperty& tableProperty);
   void setScalarValueInTable(const std::string& tableName, const int rowNumber, const ModelPseudo1dTableProperty& tableProperty);
   void removeGridMapIOTblReference(const std::string& tableName, const ModelPseudo1dTableProperty& tableProperty,
-                                   std::vector<std::pair<string, string> >& deletedFromGridMapIO);
+                                   std::vector<std::pair<std::string, std::string> >& deletedFromGridMapIO);
   bool removeEntryFromTable(const std::string& tableName, const std::string& tableEntry, const std::string& colName,
-                            const string& conditionalEntry = "", const string& conditionalColumn = "") const;
+                            const std::string& conditionalEntry = "", const std::string& conditionalColumn = "") const;
   bool alreadyDeleted(const std::vector<std::pair<std::string, std::string> >& deletedFromGridMapIO, const std::string& currentTable, const std::string& currentMapName);
 
   mbapi::Model& m_mdl;

@@ -25,7 +25,7 @@ namespace DataAccess {
       
       public:
 
-         BioConsts( const double& tempFactor, const vector<double>& bioConsts ) :
+         BioConsts( const double& tempFactor, const std::vector<double>& bioConsts ) :
             m_tempFactor( tempFactor ),
             m_bioConsts( bioConsts )
          {

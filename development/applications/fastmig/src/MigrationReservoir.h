@@ -69,9 +69,9 @@ namespace migration
       /// @brief Reset properties from a previous timestep
       bool clearPreviousProperties (void);
       AbstractDerivedProperties::FormationPropertyPtr getVolumeProperty (const MigrationFormation * formation,
-                                                                         const string & propertyName,
+                                                                         const std::string & propertyName,
                                                                          const Interface::Snapshot * snapshot) const;
-      AbstractDerivedProperties::FormationPropertyPtr getFormationPropertyPtr (const string & propertyName,
+      AbstractDerivedProperties::FormationPropertyPtr getFormationPropertyPtr (const std::string & propertyName,
                                                                                const Interface::Snapshot * snapshot) const;
       /// @brief Computes the depth offsets
       bool computeDepthOffsets(const Snapshot* presentDay) const;
@@ -290,7 +290,7 @@ namespace migration
       /// get index of the reservoir in a list of reservoirs
       int getIndex (void);
       double getUndefinedValue (void);
-      bool saveGenexMaps (const string & speciesName, DataAccess::Interface::GridMap * aMap, const MigrationFormation * formation, const Snapshot * aSnapshot);
+      bool saveGenexMaps (const std::string & speciesName, DataAccess::Interface::GridMap * aMap, const MigrationFormation * formation, const Snapshot * aSnapshot);
       const Migrator * getMigrator (void) const;
 
 
@@ -325,18 +325,18 @@ namespace migration
       /// Load the necessary overburden properties used for diffusion:
       bool computeOverburdenGridMaps (void);
       /// save the property specified by valueSpec under the given name for the given phase (if applicable).
-      bool saveComputedProperty (const string & name, ValueSpec valueSpec, PhaseId phase = NO_PHASE);
+      bool saveComputedProperty (const std::string & name, ValueSpec valueSpec, PhaseId phase = NO_PHASE);
       bool computeFlux (PhaseId phase, unsigned int i, unsigned int j);
-      inline bool hasName (const string & name);
-      inline const string depthPropertyName () const;
-      AbstractDerivedProperties::SurfacePropertyPtr getSeaBottomProperty (const string & propertyName, const Interface::Snapshot * snapshot) const;
-      AbstractDerivedProperties::SurfacePropertyPtr getTopSurfaceProperty (const string & propertyName, const Interface::Snapshot * snapshot) const;
-      AbstractDerivedProperties::SurfacePropertyPtr getBottomSurfaceProperty (const string & propertyName, const Interface::Snapshot * snapshot) const;
-      AbstractDerivedProperties::FormationPropertyPtr getTopFormationProperty (const string & propertyName, const Interface::Snapshot * snapshot) const;
-      AbstractDerivedProperties::FormationPropertyPtr getSeaBottomFormationProperty (const string & propertyName, const Interface::Snapshot * snapshot) const;
+      inline bool hasName (const std::string & name);
+      inline const std::string depthPropertyName () const;
+      AbstractDerivedProperties::SurfacePropertyPtr getSeaBottomProperty (const std::string & propertyName, const Interface::Snapshot * snapshot) const;
+      AbstractDerivedProperties::SurfacePropertyPtr getTopSurfaceProperty (const std::string & propertyName, const Interface::Snapshot * snapshot) const;
+      AbstractDerivedProperties::SurfacePropertyPtr getBottomSurfaceProperty (const std::string & propertyName, const Interface::Snapshot * snapshot) const;
+      AbstractDerivedProperties::FormationPropertyPtr getTopFormationProperty (const std::string & propertyName, const Interface::Snapshot * snapshot) const;
+      AbstractDerivedProperties::FormationPropertyPtr getSeaBottomFormationProperty (const std::string & propertyName, const Interface::Snapshot * snapshot) const;
       const Interface::Formation* getSeaBottomFormation (const Interface::Snapshot * snapshot) const;
       const Interface::Formation* getTopFormation (const Interface::Snapshot * snapshot) const;
-      const Interface::GridMap * getPropertyGridMap (const string & propertyName, const Interface::Snapshot * snapshot,
+      const Interface::GridMap * getPropertyGridMap (const std::string & propertyName, const Interface::Snapshot * snapshot,
                                                      const Interface::Reservoir * reservoir, const Interface::Formation * formation,
                                                      const Interface::Surface * surface) const;
 
@@ -548,12 +548,12 @@ bool migration::MigrationReservoir::lowResEqualsHighRes (void) const
    return m_lowResEqualsHighRes;
 }
 
-bool migration::MigrationReservoir::hasName (const string & name)
+bool migration::MigrationReservoir::hasName (const std::string & name)
 {
    return getName () == name;
 }
 
-const string migration::MigrationReservoir::depthPropertyName () const
+const std::string migration::MigrationReservoir::depthPropertyName () const
 {
    if (m_lowResEqualsHighRes) return "Depth";
    else return "DepthHighRes";

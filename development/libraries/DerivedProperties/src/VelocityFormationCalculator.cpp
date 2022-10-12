@@ -25,6 +25,7 @@
 #include "VelocityFormationCalculator.h"
 
 using namespace AbstractDerivedProperties;
+using namespace std;
 
 DerivedProperties::VelocityFormationCalculator::VelocityFormationCalculator () {
    addPropertyName ( "Velocity" );

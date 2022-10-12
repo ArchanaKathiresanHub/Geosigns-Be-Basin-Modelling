@@ -52,7 +52,7 @@ namespace Genex6 {
       /// \brief Allocate a adsorption-node history object.
       Genex6::NodeAdsorptionHistory* allocateNodeAdsorptionHistory ( const SpeciesManager&                      speciesManager,
                                                                      DataAccess::Interface::ProjectHandle& projectHandle,
-                                                                     const string & adsorptionSimulatorName ) const;
+                                                                     const std::string & adsorptionSimulatorName ) const;
 
    private :
 

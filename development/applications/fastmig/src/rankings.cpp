@@ -117,7 +117,7 @@ void migration::StartTime (void) {}
 #endif
 
 /// produces a formatted progress statement on cout
-void migration::ReportProgress (const string & str1, const string & str2, const string & str3, double age)
+void migration::ReportProgress (const std::string & str1, const std::string & str2, const std::string & str3, double age)
 {
    if (GetRank () == 0)
    {
@@ -151,7 +151,7 @@ void migration::ReportProgress (const string & str1, const string & str2, const 
 
 string & migration::GetRankString (void)
 {
-   static string fullRankString;
+   static std::string fullRankString;
 
 #ifndef _MSC_VER
    char timestr[32];
@@ -160,7 +160,7 @@ string & migration::GetRankString (void)
    snprintf (timestr, sizeof (timestr), "%9ld.%9ld\t", tp.tv_sec, tp.tv_nsec);
 #endif
 
-   static string rankString = "";
+   static std::string rankString = "";
    if (rankString == "")
    {
       for (int rank = GetRank () - 1; rank >= 0; --rank)

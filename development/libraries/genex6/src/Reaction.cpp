@@ -8,8 +8,11 @@
 #include "FortranMatrixOperations.h"
 #include "Numerics.h"
 
+
+
 namespace Genex6
 {
+    using namespace std;
 Reaction::Reaction(Species *const in_theMother): m_theMother(in_theMother) 
 {
    m_theProducts.reserve(Genex6::SpeciesManager::numberOfSpecies);

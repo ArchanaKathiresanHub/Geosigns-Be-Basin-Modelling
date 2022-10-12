@@ -23,6 +23,8 @@
 #include "ConstantsMathematics.h"
 using Utilities::Maths::CelciusToKelvin;
 
+using namespace std;
+
 Genex6::GenexHistory::GenexHistory ( const SpeciesManager& speciesManager,
                                      DataAccess::Interface::ProjectHandle& projectHandle ) :
    NodeAdsorptionHistory ( speciesManager, projectHandle ) {
@@ -203,7 +205,7 @@ void Genex6::GenexHistory::writeGroupsNames ( std::ostream& str ) {
    str << setw ( 30 ) << Genex6::SpeciesGroupsNames[WetGas];
    str << setw ( 30 ) << Genex6::SpeciesGroupsNames[SbearingHCs];
 }
-void Genex6::GenexHistory::writeHeaderName( std::ostream& str, int strSize, const string & strName ) {
+void Genex6::GenexHistory::writeHeaderName( std::ostream& str, int strSize, const std::string & strName ) {
 
    int id;
    for ( id = 0; id < strSize / 2 - 1; ++id ) {

@@ -33,44 +33,44 @@ namespace migration
    namespace overburden_MPI
    {
 
-      vector<FormationSurfaceGridMaps> getFormationSurfaceGridMaps (const vector<const MigrationFormation*>& formations,
+      std::vector<FormationSurfaceGridMaps> getFormationSurfaceGridMaps (const std::vector<const MigrationFormation*>& formations,
          const Property* prop, const Snapshot* snapshot);
 
-      vector<FormationSurfaceGridMaps> getFormationSurfaceGridMaps (const vector<const MigrationFormation*>& formations,
-         const string& propName, const Snapshot* snapshot);
+      std::vector<FormationSurfaceGridMaps> getFormationSurfaceGridMaps (const std::vector<const MigrationFormation*>& formations,
+         const std::string& propName, const Snapshot* snapshot);
 
-      vector<SurfaceGridMapFormations> getAdjacentSurfaceGridMapFormations (const overburden::
+      std::vector<SurfaceGridMapFormations> getAdjacentSurfaceGridMapFormations (const overburden::
          OverburdenFormations& formations, const Property* prop, const Snapshot* snapshot);
 
-      vector<SurfaceGridMapFormations> getAdjacentSurfaceGridMapFormations (const overburden::
-         OverburdenFormations& formations, const string& prop, const Snapshot* snapshot);
+      std::vector<SurfaceGridMapFormations> getAdjacentSurfaceGridMapFormations (const overburden::
+         OverburdenFormations& formations, const std::string& prop, const Snapshot* snapshot);
 
       ///
       ///
 
       template <typename PRED>
-      vector<const MigrationFormation*> getOverburdenFormationsIf (vector<FormationSurfaceGridMaps>::const_iterator begin,
-         vector<FormationSurfaceGridMaps>::const_iterator end, PRED pred);
+      std::vector<const MigrationFormation*> getOverburdenFormationsIf (vector<FormationSurfaceGridMaps>::const_iterator begin,
+         std::vector<FormationSurfaceGridMaps>::const_iterator end, PRED pred);
 
       bool getRelevantOverburdenFormations (vector<FormationSurfaceGridMaps>::const_iterator begin,
-         vector<FormationSurfaceGridMaps>::const_iterator end, const Snapshot* snapshot,
-         unsigned int i, unsigned int j, vector<const MigrationFormation*>& overburdenFormations);
+         std::vector<FormationSurfaceGridMaps>::const_iterator end, const Snapshot* snapshot,
+         unsigned int i, unsigned int j, std::vector<const MigrationFormation*>& overburdenFormations);
 
       template <typename PRED>
       bool getOverburdenFormationsIf (vector<FormationSurfaceGridMaps>::const_iterator begin,
-         vector<FormationSurfaceGridMaps>::const_iterator end, const Snapshot* snapshot, unsigned int i,
+         std::vector<FormationSurfaceGridMaps>::const_iterator end, const Snapshot* snapshot, unsigned int i,
          unsigned int j, const double& maxOverburdenDepth, int maxFormations, bool someValid, PRED pred,
-         vector<const MigrationFormation*>& overburdenFormations);
+         std::vector<const MigrationFormation*>& overburdenFormations);
 
       bool getOverburdenFormations (vector<FormationSurfaceGridMaps>::const_iterator begin,
-         vector<FormationSurfaceGridMaps>::const_iterator end, const Snapshot* snapshot, unsigned int i,
+         std::vector<FormationSurfaceGridMaps>::const_iterator end, const Snapshot* snapshot, unsigned int i,
          unsigned int j, const double& maxOverburdenDepth, int maxFormations, bool someValid,
-         vector<const MigrationFormation*>& overburdenFormations);
+         std::vector<const MigrationFormation*>& overburdenFormations);
 
       bool getRelevantOverburdenFormations (vector<FormationSurfaceGridMaps>::const_iterator begin,
-         vector<FormationSurfaceGridMaps>::const_iterator end, const Snapshot* snapshot, unsigned int i, unsigned int j,
+         std::vector<FormationSurfaceGridMaps>::const_iterator end, const Snapshot* snapshot, unsigned int i, unsigned int j,
          const double& maxOverburdenDepth, int maxFormations, bool someValid,
-         vector<const MigrationFormation*>& overburdenFormations);
+         std::vector<const MigrationFormation*>& overburdenFormations);
 
    }
 } // namespace migration::overburden_MPI

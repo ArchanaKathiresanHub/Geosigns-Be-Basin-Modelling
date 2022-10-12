@@ -295,7 +295,7 @@ const GridMap * CrustFormation::getBasaltThicknessMap() const {
 
 void CrustFormation::asString (string & str) const
 {
-   ostringstream buf;
+   std::ostringstream buf;
 
    buf << "CrustFormation";
    buf << ": name = "                           << BasementFormation::getName ();

@@ -7,6 +7,8 @@
 
 #include "../src/Utilities.h"
 
+using namespace std;
+
 struct MPIHelper
 {
    MPIHelper()

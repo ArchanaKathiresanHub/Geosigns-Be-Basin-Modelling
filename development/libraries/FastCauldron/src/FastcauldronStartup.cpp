@@ -371,7 +371,7 @@ bool FastcauldronStartup::determineSaltModellingCapability()
 
     if ( rc != EPTFLEXLM_OK )
     {
-      cout << endl << "@@@@@@@@@@@@@@@\n Basin_Error: FlexLm license init problems: fastcauldron cannot start.\n Please contact your helpdesk\n@@@@@@@@@@@@@@@" << endl;
+      std::cout << std::endl << "@@@@@@@@@@@@@@@\n Basin_Error: FlexLm license init problems: fastcauldron cannot start.\n Please contact your helpdesk\n@@@@@@@@@@@@@@@" << std::endl;
       capable = 0;
     }
     else {
@@ -380,12 +380,12 @@ bool FastcauldronStartup::determineSaltModellingCapability()
       rc = EPTFlexLmCheckOut( m_feauture, version, errmessage );
 
       if ( rc == EPTFLEXLM_WARN ) {
-        cout << endl << "@@@@@@@@@@@@@@@\n Basin_Warning: fastcauldron will still start the salt modelling capabilities anyway.\n@@@@@@@@@@@@@@@" << endl;
+        std::cout << std::endl << "@@@@@@@@@@@@@@@\n Basin_Warning: fastcauldron will still start the salt modelling capabilities anyway.\n@@@@@@@@@@@@@@@" << std::endl;
         capable = 1;
       }
       else if ( rc != EPTFLEXLM_OK )
       {
-        cout << endl << "@@@@@@@@@@@@@@@\n Basin_Warning: FlexLm license error: fastcauldron cannot start the salt modelling capabilities.\n Please contact your helpdesk.\n@@@@@@@@@@@@@@@" << endl;
+        std::cout << std::endl << "@@@@@@@@@@@@@@@\n Basin_Warning: FlexLm license error: fastcauldron cannot start the salt modelling capabilities.\n Please contact your helpdesk.\n@@@@@@@@@@@@@@@" << std::endl;
         capable = 0;
       }
       else

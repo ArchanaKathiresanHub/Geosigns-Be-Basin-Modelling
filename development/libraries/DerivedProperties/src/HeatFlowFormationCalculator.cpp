@@ -27,6 +27,8 @@
 using namespace FiniteElementMethod;
 using namespace AbstractDerivedProperties;
 
+using namespace std;
+
 DerivedProperties::HeatFlowFormationCalculator::HeatFlowFormationCalculator ( const GeoPhysics::ProjectHandle& projectHandle ) :
   m_projectHandle ( projectHandle )
 {

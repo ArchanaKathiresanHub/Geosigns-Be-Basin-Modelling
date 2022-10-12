@@ -44,10 +44,10 @@ public:
     VarSpace& vrs = scn.varSpace();
     ObsSpace& obs = scn.obsSpace();
 
-    vector<double> dblRng( 3, 5.0 );
+    std::vector<double> dblRng( 3, 5.0 );
     dblRng[1] = 15.0;
     dblRng[2] = 10.0;
-    ASSERT_EQ( ErrorHandler::NoError, vrs.addParameter( new VarPrmSourceRockTOC( "Lower Jurassic", dblRng, vector<string>() ) ) );
+    ASSERT_EQ( ErrorHandler::NoError, vrs.addParameter( new VarPrmSourceRockTOC( "Lower Jurassic", dblRng, std::vector<std::string>() ) ) );
 
     mbapi::Model mdl;
     mdl.loadModelFromProjectFile("Ottoland.project3d");
@@ -67,7 +67,7 @@ public:
     DoEGenerator  & doe = scn.doeGenerator();
     ASSERT_EQ( ErrorHandler::NoError, doe.generateDoE( scn.varSpace(), scn.doeCaseSet() ) );
 
-    vector<const RunCase*> proxyRC;
+    std::vector<const RunCase*> proxyRC;
 
     // add observables values without running cases
     RunCaseSet& rcs = scn.doeCaseSet();

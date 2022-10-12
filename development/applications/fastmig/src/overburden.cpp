@@ -27,13 +27,13 @@ namespace migration
    {
 
       template <typename PRED>
-      vector<const MigrationFormation*> getDownwardOverburdenFormationsIf (const
+      std::vector<const MigrationFormation*> getDownwardOverburdenFormationsIf (const
          MigrationFormation* formation, PRED pred)
       {
          const ProjectHandle& projectHandle = formation->getProjectHandle ();
          Interface::FormationList* formations = projectHandle.getFormations ();
 
-         vector<const MigrationFormation*> overburdenFormationsFromTop;
+         std::vector<const MigrationFormation*> overburdenFormationsFromTop;
          for (Interface::FormationList::const_iterator it = formations->begin ();
             it != formations->end (); ++it)
          {
@@ -51,13 +51,13 @@ namespace migration
       }
 
       template <typename PRED>
-      vector<const MigrationFormation*> getUpwardOverburdenFormationsIf (const
+      std::vector<const MigrationFormation*> getUpwardOverburdenFormationsIf (const
          MigrationFormation* formation, PRED pred)
       {
-         vector<const MigrationFormation*> overburdenFormationsFromTop = getDownwardOverburdenFormationsIf (
+         std::vector<const MigrationFormation*> overburdenFormationsFromTop = getDownwardOverburdenFormationsIf (
             formation, pred);
 
-         vector<const MigrationFormation*> overburdenFormationsFromBase;
+         std::vector<const MigrationFormation*> overburdenFormationsFromBase;
          overburdenFormationsFromBase.reserve (overburdenFormationsFromTop.size ());
          for (vector<const MigrationFormation*>::reverse_iterator it = overburdenFormationsFromTop.rbegin ();
             it != overburdenFormationsFromTop.rend (); ++it)
@@ -81,7 +81,7 @@ namespace migration
       }
 
       template <typename PRED>
-      vector<const MigrationFormation*> getOverburdenFormationsIf (const MigrationFormation* formation, PRED pred,
+      std::vector<const MigrationFormation*> getOverburdenFormationsIf (const MigrationFormation* formation, PRED pred,
          bool upward)
       {
          if (upward)
@@ -102,7 +102,7 @@ namespace migration
 // using namespace migration;
 
 // template
-// vector<const MigrationFormation*> getOverburdenFormationsIf<SelectIfThicknessIsLargerThanZero>(
+// std::vector<const MigrationFormation*> getOverburdenFormationsIf<SelectIfThicknessIsLargerThanZero>(
 //    const MigrationFormation*,SelectIfThicknessIsLargerThanZero, bool);
 
 // } }

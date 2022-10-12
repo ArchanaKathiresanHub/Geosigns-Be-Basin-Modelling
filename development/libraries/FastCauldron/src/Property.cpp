@@ -8,8 +8,8 @@
 using namespace DataAccess;
 
 Property::Property ( Interface::ProjectHandle& projectHandle, database::Record * record,
-                     const string & userName, const string & cauldronName,
-                     const string & unit, const Interface::PropertyType type,
+                     const std::string & userName, const std::string & cauldronName,
+                     const std::string & unit, const Interface::PropertyType type,
                      const DataModel::PropertyAttribute attr, const DataModel::PropertyOutputAttribute attrOut ) :
    Interface::Property ( projectHandle, record, userName, cauldronName, unit, type, attr, attrOut ) {
 
@@ -38,7 +38,7 @@ void Property::setOutputProperty ( const Interface::OutputProperty* outputProper
    m_outputProperty = outputProperty;
 }
 
-void Property::asString ( string& str ) const {
+void Property::asString (std::string& str ) const {
 
    std::ostringstream buffer;
 

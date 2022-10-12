@@ -26,7 +26,7 @@ namespace DataAccess
 
          const std::string& getFormationName () const;
 
-         void asString (string &) const;
+         void asString (std::string &) const;
 
       };
    }

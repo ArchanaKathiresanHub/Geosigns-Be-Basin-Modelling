@@ -59,12 +59,11 @@ using Interface::MANTLE_HEAT_FLOW;
 using Interface::FIXED_BASEMENT_TEMPERATURE;
 
 
-using namespace std;
 using namespace GeoPhysics;
 
-typedef list<double> FloatStack;
-typedef vector<int>  LayerStack;
-typedef map< string, int, less<string> > String_Container;
+typedef std::list<double> FloatStack;
+typedef std::vector<int>  LayerStack;
+typedef std::map< std::string, int, std::less<std::string> > String_Container;
 
 using CBMGenerics::Polyfunction;
 
@@ -83,7 +82,7 @@ typedef std::vector < Elt2dIndices > ElementList;
 
 class Related_Project {
  public:
-  string   Name;
+  std::string   Name;
   double   X_Coord;
   double   Y_Coord;
   int      X_Position;
@@ -93,7 +92,7 @@ class Related_Project {
 };
 
 typedef Related_Project* Related_Project_Ptr;
-typedef vector<Related_Project_Ptr> Related_Project_List;
+typedef std::vector<Related_Project_Ptr> Related_Project_List;
 typedef std::map <const LayerProps*, double> LayerPreferredTimeStepSizeMap;
 
 class AppCtx {
@@ -151,22 +150,22 @@ public:
 
    bool findActiveElements (const double time);
 
-   LayerProps *findLayer (const string & LayerName) const;
+   LayerProps *findLayer (const std::string & LayerName) const;
 
    const LayerProps* findDepositingLayer ( const double time ) const;
 
-   int getLayerIndex ( const string& name ) const;
+   int getLayerIndex ( const std::string& name ) const;
 
    int Find_Layer_Index ( const double Deposition_Age,
                           const double tolerance = DefaultAgeTolerance ) const;
 
-   LayerProps* Find_Layer_From_Surface(const string& SurfaceName);
+   LayerProps* Find_Layer_From_Surface(const std::string& SurfaceName);
 
-   int findSurfacePosition ( const string& surfaceName ) const;
+   int findSurfacePosition ( const std::string& surfaceName ) const;
 
-   int findFormationPosition ( const string& formationName ) const;
+   int findFormationPosition ( const std::string& formationName ) const;
 
-   const GeoPhysics::FluidType* findFluid (const string & FluidName);
+   const GeoPhysics::FluidType* findFluid (const std::string & FluidName);
 
    void Set_Crust_Layer ( CauldronCrustFormation* Pointer );
 
@@ -180,23 +179,23 @@ public:
 
    void setFastCauldronProjectFileName (string projectName);
 
-   bool setProjectFileName (const string & projectFileName);
+   bool setProjectFileName (const std::string & projectFileName);
 
-   string getOutputDirectory ();
-   string getOutputPath ();
+   std::string getOutputDirectory ();
+   std::string getOutputPath ();
    bool makeOutputDirectory ();
 
-   const string& getFastCauldronProjectFileName () const
+   const std::string& getFastCauldronProjectFileName () const
    {
       return m_FastCauldronProjectFileName;
    }
 
-   const string& getProjectFileName () const
+   const std::string& getProjectFileName () const
    {
       return m_ProjectFileName;
    }
 
-   string Get_Project_Filename_Base ();
+   std::string Get_Project_Filename_Base ();
 
    void Display_Grid_Description();
 
@@ -290,17 +289,17 @@ public:
    /// This factor is used to scale the ves when initialising the solid-thickness (fct).
    double getVesScaling () const;
 
-  void deleteTimeIORecord ( const string& propertyName,
+  void deleteTimeIORecord ( const std::string& propertyName,
                             const double  age );
 
   void deleteTimeIORecord ( const double  age );
 
-  void deleteTimeIORecord ( const string& propertyName,
+  void deleteTimeIORecord ( const std::string& propertyName,
                             const double  age,
-                            const string& surfaceName,
-                            const string& formationName );
+                            const std::string& surfaceName,
+                            const std::string& formationName );
 
-  void initialiseTimeIOTable ( const string& currentOperation );
+  void initialiseTimeIOTable ( const std::string& currentOperation );
 
    typedef std::vector<double> DoubleVector;
 
@@ -469,10 +468,10 @@ public:
    double Minimum_Permeability ( const LayerProps* Current_Layer ) const;
 
 
-   int Layer_Position ( const string& Formation_Name ) const;
+   int Layer_Position ( const std::string& Formation_Name ) const;
 
    void clearOperationFromTimeIOTable ( database::Table* table,
-                                        const string&    mapFileName );
+                                        const std::string&    mapFileName );
 
 
    void printHelp () const;
@@ -489,8 +488,8 @@ public:
 
    CalculationMode currentCalculationMode;
 
-   string m_FastCauldronProjectFileName;
-   string m_ProjectFileName;
+   std::string m_FastCauldronProjectFileName;
+   std::string m_ProjectFileName;
 
    /// The initial time step that is dependant on the maximum burial rate in the model.
    double m_computedInitialPressureTimeStep;

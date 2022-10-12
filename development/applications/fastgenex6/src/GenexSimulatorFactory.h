@@ -29,7 +29,7 @@ class GenexSimulatorFactory : public GeoPhysics::ObjectFactory
 public:
    /// Produce the fastgenex6 specific ProjectHandle
    virtual GeoPhysics::ProjectHandle * produceProjectHandle (database::ProjectFileHandlerPtr database,
-                                                             const string & name) const;
+                                                             const std::string & name) const;
 
    /// Produce the fastgenex6 specific SourceRock
    virtual DataAccess::Interface::SourceRock * produceSourceRock (DataAccess::Interface::ProjectHandle& projectHandle, database::Record * record) const;

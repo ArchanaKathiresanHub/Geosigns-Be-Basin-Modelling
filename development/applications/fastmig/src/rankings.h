@@ -14,7 +14,6 @@
 #include "petsc.h"
 
 #include <string>
-using namespace std;
 
 namespace DataAccess
 {
@@ -30,10 +29,10 @@ namespace migration
    long GetElapsedTime (void);
    long GetLapTime (void);
 
-   void ReportProgress (const string & str1, const string & str2 = "", const string & str3 = "", double age = -1);
+   void ReportProgress (const std::string & str1, const std::string & str2 = "", const std::string & str3 = "", double age = -1);
 
    int GetRank (void);
-   string & GetRankString (void);
+   std::string & GetRankString (void);
    int GetRank (int i, int j);
    void deleteRanks ();
 

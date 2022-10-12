@@ -17,6 +17,7 @@ using Utilities::Numerical::CauldronNoDataValue;
 
 namespace Genex6
 {
+    using namespace std;
 Input::Input(const double in_currentTime, const double in_temperature,
              const double in_pressure, const double vre, const double in_PorePressure, const double thicknessScaleFactor):
    m_previousTime(in_currentTime),

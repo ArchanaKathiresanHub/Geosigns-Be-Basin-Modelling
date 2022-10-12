@@ -27,7 +27,7 @@ namespace DataAccess
 
 
          /// Return the name of this LithoType
-         virtual const string & getName (void) const;
+         virtual const std::string & getName (void) const;
 
          /// Return the value of the specified attribute
          const AttributeValue & getLithoTypeAttributeValue (LithoTypeAttributeId attributeId) const;
@@ -98,12 +98,12 @@ namespace DataAccess
          /// Return the number of sample points used to describe the porosity-permeability function.
          virtual int getNumberOfMultipointSamplePoints () const;
 
-         /// Return a constant reference to the porosity value string.
+         /// Return a constant reference to the porosity value std::string.
          ///
          /// Contains the porosity values for the multipoint porosity-permeability function.
          virtual const std::string& getMultipointPorosityValues () const;
 
-         /// Return a constant reference to the multi point permeability value string.
+         /// Return a constant reference to the multi point permeability value std::string.
          ///
          /// Contains the permeability values for the multipoint porosity-permeability function.
          virtual const std::string& getMultipointPermeabilityValues () const;
@@ -171,9 +171,9 @@ namespace DataAccess
 
          /// Print the attributes of this LithoType
          // May not work if user application is compiled under IRIX with CC -lang:std
-         virtual void printOn (ostream &) const;
+         virtual void printOn (std::ostream &) const;
 
-         virtual void asString (string &) const;
+         virtual void asString (std::string &) const;
 
       protected:
 
@@ -181,7 +181,7 @@ namespace DataAccess
 
       private:
 
-         static const string s_attributeNames[];
+         static const std::string s_attributeNames[];
 
          PorosityModel     m_porosityModel;
          PermeabilityModel m_permeabilityModel;

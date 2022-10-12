@@ -27,6 +27,8 @@ using std::stringstream;
 using namespace DataAccess;
 using namespace ibs;
 
+using namespace std;
+
 
 GeoPhysics::SimpleLithology::SimpleLithology(Interface::ProjectHandle& projectHandle,
    database::Record *              record)

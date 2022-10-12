@@ -79,7 +79,7 @@ GridMap * BasementSurface::computeDepthMap ( const GridMap* operand1, UnaryFunct
 void BasementSurface::asString (string & str) const {
 
 
-   ostringstream buf;
+   std::ostringstream buf;
 
    buf << "BasementSurface:";
    buf << " name = " << getName () << endl;

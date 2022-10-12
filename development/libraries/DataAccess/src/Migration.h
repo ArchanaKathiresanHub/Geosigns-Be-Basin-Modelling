@@ -31,12 +31,12 @@ namespace DataAccess
        Migration ( ProjectHandle& projectHandle, database::Record * record);
        virtual ~Migration (void);
 
-       bool matchesConditions (const string & process, const Formation * sourceFormation,
+       bool matchesConditions (const std::string & process, const Formation * sourceFormation,
         const Snapshot * sourceSnapshot, const Reservoir * sourceReservoir, const Trapper * sourceTrapper,
         const Snapshot * destinationSnapshot, const Reservoir * destinationReservoir, const Trapper * destinationTrapper);
 
        /// return the process name
-       virtual const string & getProcess (void) const;
+       virtual const std::string & getProcess (void) const;
 
        virtual unsigned int getSourceTrapId (void) const;
        virtual unsigned int getDestinationTrapId (void) const;
@@ -66,10 +66,10 @@ namespace DataAccess
        virtual double getMass (ComponentId componentId) const;
 
        /// return the mass of the given component in this Migration
-       virtual double getMass (const string & componentName) const;
+       virtual double getMass (const std::string & componentName) const;
 
-       virtual void printOn (ostream &) const;
-       virtual void asString (string &) const;
+       virtual void printOn (std::ostream &) const;
+       virtual void asString (std::string &) const;
 
        void setSourceSnapshot       (const Snapshot * snapshot  );
        void setDestinationSnapshot  (const Snapshot * snapshot  );

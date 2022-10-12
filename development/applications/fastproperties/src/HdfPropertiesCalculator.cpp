@@ -18,7 +18,7 @@
 #include <sys/stat.h>
 
 using namespace Interface;
-
+using namespace std;
 //------------------------------------------------------------//
 HdfPropertiesCalculator::HdfPropertiesCalculator(int aRank) : AbstractPropertiesCalculator(aRank)
 {

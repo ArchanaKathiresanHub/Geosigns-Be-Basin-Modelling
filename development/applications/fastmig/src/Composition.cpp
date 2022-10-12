@@ -35,10 +35,10 @@ using namespace CBMGenerics;
 
 double migration::computeGorm(const Composition& gas, const Composition& oil)
 {
-   vector<double> gasWeights = gas.getWeights();
-   vector<double> oilWeights = oil.getWeights();
+   std::vector<double> gasWeights = gas.getWeights();
+   std::vector<double> oilWeights = oil.getWeights();
 
-   vector<double> weights(NumComponents, 0.0);
+   std::vector<double> weights(NumComponents, 0.0);
    for (int i = 0; i < NumComponents; ++i) {
       weights[i] += gasWeights[i];
       weights[i] += oilWeights[i];
@@ -190,7 +190,7 @@ void Composition::computeBiodegradation(const double& timeInterval, const double
 }
 
 void Composition::computeDiffusionLeakages(const double& diffusionStartTime, const double & intervalStartTime, const double & intervalEndTime,
-      const vector<double>& solubilities, const double& surfaceArea, vector<DiffusionLeak*>& diffusionLeaks, const double& gorm, 
+      const std::vector<double>& solubilities, const double& surfaceArea, std::vector<DiffusionLeak*>& diffusionLeaks, const double& gorm, 
       Composition* compositionOut, Composition* compositionLost) const
 {
 #ifdef NOTONLYC1C2C3
@@ -287,14 +287,14 @@ void Composition::computePVT (double temperature, double pressure, Composition *
 #if 1
    if (!flashed)
    {
-      cerr << "PVT FAILED: T = " << temperature + CelciusToKelvin << " K, P = " << pressure * MegaPaToPa << " Pa, Components = ";
+      std::cerr << "PVT FAILED: T = " << temperature + CelciusToKelvin << " K, P = " << pressure * MegaPaToPa << " Pa, Components = ";
 
       for (unsigned int comp = 0; comp < NumComponents; comp++)
       {
-	      cerr << getWeight ((ComponentId) comp) << ", ";
+	      std::cerr << getWeight ((ComponentId) comp) << ", ";
       }
-      cerr << endl;
-      cerr.flush ();
+      std::cerr << endl;
+      std::cerr.flush ();
    }
 #endif
 
@@ -326,23 +326,23 @@ void Composition::computePVT (double temperature, double pressure, Composition *
    double fluidDensity = CBMGenerics::waterDensity::compute(CBMGenerics::waterDensity::Calculated, 0, .22, temperature, pressure);
    if (fluidDensity < compositionsOut[OIL].getDensity ())
    {
-      cerr << GetRank () << "::PVT: WARNING: calculated oil phase density (" << compositionsOut[OIL].getDensity () <<
+      std::cerr << GetRank () << "::PVT: WARNING: calculated oil phase density (" << compositionsOut[OIL].getDensity () <<
 	 ") exceeds calculated fluid density (" << fluidDensity << ")" << endl;
-      cerr << GetRank () << "::PVT:          Components = ";
+      std::cerr << GetRank () << "::PVT:          Components = ";
 
       for (unsigned int component = 0; component < NumComponents; ++component)
       {
-	 cerr << getWeight ((ComponentId) component) << ", ";
+	 std::cerr << getWeight ((ComponentId) component) << ", ";
       }
-      cerr << endl;
+      std::cerr << endl;
 
-      cerr << GetRank () << "::PVT:          T = " << temperature << " C, P = " << pressure <<
+      std::cerr << GetRank () << "::PVT:          T = " << temperature << " C, P = " << pressure <<
 	 " MPa, weights out = (" << compositionsOut[GAS].getWeight () <<
 	 ", " << compositionsOut[OIL].getWeight () << ")" <<
 	 ", densities out = (" << compositionsOut[GAS].getDensity () <<
 	 ", " << compositionsOut[OIL].getDensity () << ")" << endl;
 
-      cerr.flush ();
+      std::cerr.flush ();
    }
 #endif
 
@@ -350,14 +350,14 @@ void Composition::computePVT (double temperature, double pressure, Composition *
    static int number = 0;
 
    if (compositionsOut[OIL].getDensity() > 1200.0) {
-      cerr << "PVT number: " << number << endl;
-      cerr << "WARNING: oil density: " << compositionsOut[OIL].getDensity() << 
+      std::cerr << "PVT number: " << number << endl;
+      std::cerr << "WARNING: oil density: " << compositionsOut[OIL].getDensity() << 
 	" is higher than water density: " << 1074.0 << "." << endl;
-      cerr << "         Temperature: " << temperature << " C , pressure: " << pressure << " MPa." << endl;
-      cerr << "Composition of oil:" << endl;
-      vector<double> oilWeights = compositionsOut[OIL].getWeights();
+      std::cerr << "         Temperature: " << temperature << " C , pressure: " << pressure << " MPa." << endl;
+      std::cerr << "Composition of oil:" << endl;
+      std::vector<double> oilWeights = compositionsOut[OIL].getWeights();
       for (int i = 0; i < oilWeights.size(); ++i)
-         cerr << ComponentIdNames[i] << ": " << oilWeights[i] << " kg." << endl;
+         std::cerr << ComponentIdNames[i] << ": " << oilWeights[i] << " kg." << endl;
    }
    ++number;
 #endif

@@ -16,6 +16,8 @@
 #include "IBSinterpolator2d.h"
 #include "NumericFunctions.h"
 
+using namespace std;
+
  
 GeoPhysics::Brine::Conductivity::Conductivity() :
    m_highEndTransitionTempMax( GeoPhysics::Brine::PhaseStateBase::findT2(PressureMaxForConductivity) ),

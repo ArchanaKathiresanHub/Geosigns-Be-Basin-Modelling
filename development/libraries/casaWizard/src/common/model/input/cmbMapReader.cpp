@@ -69,7 +69,7 @@ bool CMBMapReader::mapExists(const std::string& mapName) const
   return true;
 }
 
-double CMBMapReader::getValue(const double x, const double y, const string& mapName) const
+double CMBMapReader::getValue(const double x, const double y, const std::string& mapName) const
 {
   if (!loaded_)
   {

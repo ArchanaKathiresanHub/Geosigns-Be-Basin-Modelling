@@ -27,7 +27,7 @@ std::string ProgressManager::report (const std::string & message)
 
    size_t len = message.size ();
 
-   ostringstream buf;
+   std::ostringstream buf;
    buf << message;
    buf << " ";
    while (len < 80)

@@ -65,13 +65,13 @@ MockHeatFlowPropertyManager::MockHeatFlowPropertyManager(GeoPhysics::ProjectHand
 
 	/// there is an Overpressure calculator already, no need for the mock
 
-	addFormationPropertyCalculator(FormationPropertyCalculatorPtr(make_shared <OverpressureFormationCalculator>()));
+	addFormationPropertyCalculator(FormationPropertyCalculatorPtr(std::make_shared <OverpressureFormationCalculator>()));
 	auto LithoPressure = m_propertyCalculators[6];
 	addFormationPropertyCalculator(FormationPropertyCalculatorPtr(LithoPressure));
 	auto HydPressure = m_propertyCalculators[7];
 	addFormationPropertyCalculator(FormationPropertyCalculatorPtr(HydPressure));
 
-	addFormationPropertyCalculator(FormationPropertyCalculatorPtr(make_shared< HeatFlowFormationCalculator>(*projectHandle)), false);
+	addFormationPropertyCalculator(FormationPropertyCalculatorPtr(std::make_shared< HeatFlowFormationCalculator>(*projectHandle)), false);
 }
 
 const DataModel::AbstractProperty* MockHeatFlowPropertyManager::getProperty(const std::string& name) const

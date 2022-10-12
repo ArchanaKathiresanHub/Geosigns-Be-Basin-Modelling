@@ -19,8 +19,6 @@
 
 #include "Interface.h"
 
-using namespace std;
-
 namespace database
 {
    class Database;
@@ -45,7 +43,7 @@ namespace DataAccess
          ObjectFactory() {}
          virtual ~ObjectFactory () {}
 
-         virtual ProjectHandle * produceProjectHandle (database::ProjectFileHandlerPtr pfh, const string & name) const;
+         virtual ProjectHandle * produceProjectHandle (database::ProjectFileHandlerPtr pfh, const std::string & name) const;
 
          virtual Snapshot * produceSnapshot (ProjectHandle& projectHandle, database::Record * record) const;
          virtual Snapshot * produceSnapshot (ProjectHandle& projectHandle, double time) const;
@@ -136,13 +134,13 @@ namespace DataAccess
          virtual PermafrostEvent* producePermafrostEvent (ProjectHandle& projectHandle, database::Record * record) const;
 
          virtual Property * produceProperty (ProjectHandle& projectHandle, database::Record * record,
-                                             const string & userName, const string & cauldronName,
-                                             const string & unit, PropertyType type,
+                                             const std::string & userName, const std::string & cauldronName,
+                                             const std::string & unit, PropertyType type,
                                              const DataModel::PropertyAttribute attr,
                                              const DataModel::PropertyOutputAttribute outputAttr) const;
 
          virtual PropertyValue * producePropertyValue (ProjectHandle& projectHandle, database::Record * record,
-                                                       const string & name, const Property * property, const Snapshot * snapshot, const Reservoir * reservoir,
+                                                       const std::string & name, const Property * property, const Snapshot * snapshot, const Reservoir * reservoir,
                                                        const Formation * formation, const Surface * surface, PropertyStorage storage, const std::string & fileName = "") const;
 
          virtual BiodegradationParameters* produceBiodegradationParameters (ProjectHandle& projectHandle,
@@ -157,7 +155,7 @@ namespace DataAccess
 
          virtual FluidType* produceFluidType ( ProjectHandle& projectHandle, database::Record* fluidtypeIoRecord) const;
 
-         virtual FaultCollection * produceFaultCollection (ProjectHandle& projectHandle, const string & mapName) const;
+         virtual FaultCollection * produceFaultCollection (ProjectHandle& projectHandle, const std::string & mapName) const;
          // virtual Fault * produceFault (string & name);
 
          virtual IrreducibleWaterSaturationSample* produceIrreducibleWaterSaturationSample (ProjectHandle& projectHandle, database::Record * record) const;
@@ -174,15 +172,15 @@ namespace DataAccess
          /// @defgroup FASTCTC
          /// @{
          /// @brief Produces the CTC data accessor for the CTCIoTbl record
-         shared_ptr<const CrustalThicknessData> produceCrustalThicknessData( ProjectHandle& projectHandle, database::Record * record ) const;
+         std::shared_ptr<const CrustalThicknessData> produceCrustalThicknessData( ProjectHandle& projectHandle, database::Record * record ) const;
          /// @brief Produces the CTC data accessor for the CTCRiftingHistoryIoTbl record
-         shared_ptr<const CrustalThicknessRiftingHistoryData> produceCrustalThicknessRiftingHistoryData( ProjectHandle& projectHandle, database::Record * record ) const;
+         std::shared_ptr<const CrustalThicknessRiftingHistoryData> produceCrustalThicknessRiftingHistoryData( ProjectHandle& projectHandle, database::Record * record ) const;
          /// @}
 
          /// @defgroup ALC
          /// @{
          /// @brief Produces the ALC data accessor for the OceaCrustalThicknessIoTbl record
-         shared_ptr<const OceanicCrustThicknessHistoryData> produceOceanicCrustThicknessHistoryData( ProjectHandle& projectHandle, database::Record * record ) const;
+         std::shared_ptr<const OceanicCrustThicknessHistoryData> produceOceanicCrustThicknessHistoryData( ProjectHandle& projectHandle, database::Record * record ) const;
          /// @}
       };
    }

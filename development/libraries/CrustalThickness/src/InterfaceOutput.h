@@ -32,7 +32,6 @@ namespace mbapi {
    class Model;
 }
 
-using namespace std;
 using namespace CrustalThicknessInterface;
 
 // Forward declarations

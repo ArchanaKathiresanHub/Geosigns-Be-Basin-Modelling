@@ -31,6 +31,7 @@
 #include "ConstantsPhysics.h"
 using Utilities::Physics::BoltzmannOverPlanckByMillionYear;
 #include "StringHandler.h"
+using namespace std;
 
 namespace Genex6
 {

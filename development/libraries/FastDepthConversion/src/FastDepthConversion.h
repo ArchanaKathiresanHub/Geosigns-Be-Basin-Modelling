@@ -80,7 +80,7 @@ private:
 
    void runFastCauldronAndCalculateNewDepths();
 
-   void writeNewDepthAndCorrectedMapstoCaseFileInMasterDirectory(const string & mapName);
+   void writeNewDepthAndCorrectedMapstoCaseFileInMasterDirectory(const std::string & mapName);
 
    /// @brief Get new depths after twtGridMap and depthGridMap were obtained from fastcauldron runs
    /// @param twtGridMap

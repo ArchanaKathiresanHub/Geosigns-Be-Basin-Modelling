@@ -26,14 +26,14 @@ namespace DataAccess
          /// Return the Surface name of this PaleoSurfaceProperty.
          const std::string & getSurfaceName (void) const;
 
-         void asString (string &) const;
+         void asString (std::string &) const;
 
          //void setSurface ( const Surface* surface );
 
       protected:
 
          const Surface * m_surface;
-         const string surfaceName;
+         const std::string surfaceName;
 
       };
 

@@ -162,7 +162,7 @@ namespace migration
          cerr << "oilVolume: " << oilVolume << endl;
          cerr << "hcVolume : " << gasVolume + oilVolume << endl;
 
-         for (int i = max(0,gasIndex-3); i < min(gasIndex+4,m_leakGas.levelToVolume()->size()); ++i) {
+         for (int i = std::max(0,gasIndex-3); i < std::min(gasIndex+4,m_leakGas.levelToVolume()->size()); ++i) {
             Tuple2<Tuple2<double> > limits = m_leakGas.levelToVolume()->piece(i);
             cerr << "index: " << i << " =  [" << limits[0][0] << "," << limits[0][1] << "] -> [" <<
                limits[1][0] << "," << limits[1][1] << "]." << endl;

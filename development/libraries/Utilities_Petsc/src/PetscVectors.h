@@ -7,8 +7,6 @@
 
 #include<iostream>
 #include<fstream>
-using namespace std;
-
 
 //
 // Abstract class interface for PETSC Vectors and arrays
@@ -117,7 +115,7 @@ private :
   // static fstream testOut;
 }; // end class PETSC_3D_Array
 
-static fstream testOut;
+static std::fstream testOut;
 
 class PETSC_2D_Array : public Petsc_Array 
 {

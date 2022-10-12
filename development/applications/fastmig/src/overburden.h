@@ -27,11 +27,11 @@ namespace migration
       {
       public:
 
-         typedef vector<const MigrationFormation*> formations_type;
+         typedef std::vector<const MigrationFormation*> formations_type;
 
       private:
 
-         vector<const MigrationFormation*> m_formations;
+         std::vector<const MigrationFormation*> m_formations;
          bool m_upward;
 
       public:
@@ -63,7 +63,7 @@ namespace migration
       /// The following functions include a selection functor:
 
       template <typename PRED>
-      vector<const MigrationFormation*> getOverburdenFormationsIf (const MigrationFormation* formation,
+      std::vector<const MigrationFormation*> getOverburdenFormationsIf (const MigrationFormation* formation,
          PRED pred, bool upward = false);
 
    }

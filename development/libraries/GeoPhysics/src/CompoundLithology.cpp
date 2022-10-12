@@ -39,6 +39,8 @@ using namespace DataAccess;
 using namespace CBMGenerics;
 using namespace capillarySealStrength;
 
+using namespace std;
+
 typedef formattingexception::GeneralException fastCauldronException;
 
 

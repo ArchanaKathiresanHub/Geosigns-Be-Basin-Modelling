@@ -30,7 +30,7 @@ namespace Genex6 {
 
    enum SpeciesGroupId { Oil, HcGas, DryGas, WetGas, SbearingHCs, NumberOfGroups  };
 
-   const string SpeciesGroupsNames[NumberOfGroups] = { "Oil", "HcGas", "DryGas", "WetGas", "SbearingHCs" };
+   const std::string SpeciesGroupsNames[NumberOfGroups] = { "Oil", "HcGas", "DryGas", "WetGas", "SbearingHCs" };
 
    // Species to be outputed to the history file in this order:
    // asphaltene, resin, C15+Aro, C15+Sat, C6-14Aro, C6-14Sat, C5, C4, C3, C2, C1, COx, N2, LSC, C15+AroS, C15+SatS, C15+AT, C6-14AroS, C6-14SatS, C6-14BT, C6-14DBT, C6-14BP, H2S
@@ -115,7 +115,7 @@ namespace Genex6 {
       void mapComponentManagerSpeciesIdToOutputOrder();
       void writeComponentsNames ( std::ostream& str );
       void writeGroupsNames ( std::ostream& str );
-      void writeHeaderName ( std::ostream& str, int strSize, const string & strName );
+      void writeHeaderName ( std::ostream& str, int strSize, const std::string & strName );
     };
 
    /// \brief Allocator of a history object for the shale-gas simulator.

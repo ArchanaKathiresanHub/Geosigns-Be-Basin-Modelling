@@ -39,7 +39,7 @@ namespace DataAccess
          ~BasementFormation (void);
 
          /// Return the Surface at the top of this BasementFormation
-         const string & getName (void) const;
+         const std::string & getName (void) const;
 
          const GridMap * getInputThicknessMap (void) const;
 

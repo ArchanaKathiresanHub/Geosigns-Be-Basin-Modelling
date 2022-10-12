@@ -16,6 +16,8 @@ using namespace DataAccess;
 using namespace Interface;
 using namespace database;
 
+using namespace std;
+
 const char *DistributedMapWriter::VERSION_DATASET_NAME = "/gioHDFfile version";
 const char *DistributedMapWriter::NULL_VALUE_NAME = "/null value";
 const char *DistributedMapWriter::NR_I_DATASET_NAME = "/number in I dimension";
@@ -52,14 +54,14 @@ herr_t print_msg(void* cldata)
 	return 0;
 }
 
-bool DistributedMapWriter::open (const string & fileName, bool append)
+bool DistributedMapWriter::open (const std::string & fileName, bool append)
 {
 #ifdef _WIN32
    size_t slashPos = fileName.rfind( '\\' );
 #else
    size_t slashPos = fileName.rfind ('/');
 #endif
-   if (slashPos != string::npos)
+   if (slashPos != std::string::npos)
    {
       m_fileName = fileName.substr (slashPos + 1, string::npos);
    }

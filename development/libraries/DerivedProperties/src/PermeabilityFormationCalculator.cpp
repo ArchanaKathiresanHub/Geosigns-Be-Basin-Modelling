@@ -25,6 +25,8 @@
 // utilities library
 #include "ConstantsMathematics.h"
 
+using namespace std;
+
 using namespace AbstractDerivedProperties;
 
 DerivedProperties::PermeabilityFormationCalculator::PermeabilityFormationCalculator ( const GeoPhysics::ProjectHandle& projectHandle ) : m_projectHandle ( projectHandle ) {

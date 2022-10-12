@@ -38,9 +38,9 @@ public:
    
    static bool copyMergedFile( const std::string & fileName, const bool rank = true );
 
-   static bool mergeOutputFiles ( const string & activityName, const std::string & localPath );
+   static bool mergeOutputFiles ( const std::string & activityName, const std::string & localPath );
 
-   static bool removeOutputFile ( const string & filePathName );
+   static bool removeOutputFile ( const std::string & filePathName );
 private:
 
    // "PrimaryPod" is an option to write the results to a shared Lustre directory on a cluster

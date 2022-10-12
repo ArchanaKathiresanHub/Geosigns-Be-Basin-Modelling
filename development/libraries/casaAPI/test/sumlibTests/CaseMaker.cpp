@@ -9,8 +9,9 @@
 #include "CaseMaker.h"
 
 #include "SumLibTestUtils.h"
-#include <algorithm>
-#include <iterator>
+
+#include <algorithm> // generate
+#include <iterator> // back_inserter
 
 const std::vector<SUMlib::Case>& GridCaseMaker::createCaseCollection(int nDataPointsPerDim, int nDims)
 {

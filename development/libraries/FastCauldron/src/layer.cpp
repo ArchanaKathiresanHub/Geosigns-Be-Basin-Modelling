@@ -74,6 +74,7 @@ using Utilities::Numerical::IbsNoDataValue;
 #include "ConstantsMathematics.h"
 using Utilities::Maths::Zero;
 #include "NumericFunctions.h"
+using namespace std;
 
 using Interface::X_COORD;
 using Interface::Y_COORD;

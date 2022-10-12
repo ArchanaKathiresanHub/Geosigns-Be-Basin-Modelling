@@ -17,6 +17,7 @@ std::string H5_Parallel_PropertyList :: s_temporaryDirName;
 
 MPI_Info    H5_Parallel_PropertyList :: s_mpiInfo = MPI_INFO_NULL;
 
+using namespace std;
 
 hid_t H5_Parallel_PropertyList :: createFilePropertyList( ) const
 {
@@ -219,7 +220,7 @@ void H5_Parallel_PropertyList ::  setOneNodeCollectiveBufferingOption()
       MPI_Info_set (s_mpiInfo, "cb_nodes", "1");
    }
 }
-bool H5_Parallel_PropertyList ::mergeOutputFiles ( const string & activityName, const std::string & localPath ) {
+bool H5_Parallel_PropertyList ::mergeOutputFiles ( const std::string & activityName, const std::string & localPath ) {
 
    if( not H5_Parallel_PropertyList::isPrimaryPodEnabled ()) {
       return true;
@@ -236,7 +237,7 @@ bool H5_Parallel_PropertyList ::mergeOutputFiles ( const string & activityName, 
    PetscBool noFileRemove = PETSC_FALSE;
    PetscOptionsHasName(PETSC_IGNORE, PETSC_IGNORE, "-noremove", &noFileRemove );
 
-   string fileName = activityName + "_Results.HDF" ;
+   std::string fileName = activityName + "_Results.HDF" ;
    ibs::FilePath filePathName( localPath );
    filePathName << fileName;
 
@@ -277,7 +278,7 @@ bool H5_Parallel_PropertyList ::mergeOutputFiles ( const string & activityName, 
 #endif
 }
 
-bool H5_Parallel_PropertyList ::removeOutputFile ( const string & filePathName ) {
+bool H5_Parallel_PropertyList ::removeOutputFile ( const std::string & filePathName ) {
 
    ibs::FilePath fileName(H5_Parallel_PropertyList::getTempDirName() );
    fileName << filePathName;

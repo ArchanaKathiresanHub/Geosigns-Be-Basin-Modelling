@@ -20,7 +20,7 @@ using namespace PersistentTraps;
 
 DataAccess::Interface::ProjectHandle *
 PersistentTrapFactory::produceProjectHandle (database::ProjectFileHandlerPtr database,
-                                             const string & name) const
+                                             const std::string & name) const
 {
    return new TrackProjectHandle (database, name, this);
 }

@@ -38,27 +38,27 @@ namespace migration
 
       MassBalance (STREAM& stream);
 
-      void addComment (const string& comment);
+      void addComment (const std::string& comment);
 
       void printBalance () const;
-      void printMassBalance (const string& name) const;
+      void printMassBalance (const std::string& name) const;
       void printMassBalance (const DataAccess::Interface::Snapshot* start,
-         const DataAccess::Interface::Snapshot* end, const string& name) const;
+         const DataAccess::Interface::Snapshot* end, const std::string& name) const;
 
-      void addToBalance (const string& description, double quantity);
-      void subtractFromBalance (const string& description, double quantity);
+      void addToBalance (const std::string& description, double quantity);
+      void subtractFromBalance (const std::string& description, double quantity);
       void clear ();
 
       double balance () const;
 
    private:
-      vector<string> m_comments;
+      std::vector<std::string>m_comments;
 
-      vector<string> m_additionDescriptions;
-      vector<double> m_additionQuantities;
+      std::vector<std::string>m_additionDescriptions;
+      std::vector<double> m_additionQuantities;
 
-      vector<string> m_subtractionDescriptions;
-      vector<double> m_subtractionQuantities;
+      std::vector<std::string>m_subtractionDescriptions;
+      std::vector<double> m_subtractionQuantities;
 
    };
 

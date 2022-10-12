@@ -24,6 +24,9 @@ using Utilities::Numerical::GenexNoDataValue;
 using Utilities::Numerical::CauldronNoDataValue;
 
 using namespace CBMGenerics;
+
+using namespace std;
+
 namespace Genex6
 {
 SimulatorState::SimulatorState(const SpeciesManager * inSpeciesManager, const int in_numberOfSpecies, const double in_referenceTime) : 

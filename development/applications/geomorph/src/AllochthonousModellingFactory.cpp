@@ -27,7 +27,7 @@ using Interface::LithoType;
 
 DataAccess::Interface::ProjectHandle *
 AllochMod::AllochthonousModellingFactory::produceProjectHandle ( database::ProjectFileHandlerPtr database,
-                                                                 const string & name) const
+                                                                 const std::string & name) const
 {
   return new AllochthonousLithologySimulator ( database, name, this );
 }

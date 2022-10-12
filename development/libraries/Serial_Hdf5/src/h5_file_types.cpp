@@ -124,7 +124,7 @@ bool H5_Base_File::getDimensions (hid_t datasetId, SpaceDimensions &dims)
    return false;
 }
 
-bool H5_Base_File::safeReadWrite (ReadWriteObject &fileOp, ostream &os)
+bool H5_Base_File::safeReadWrite (ReadWriteObject &fileOp, std::ostream &os)
 {
    bool status = false;
 

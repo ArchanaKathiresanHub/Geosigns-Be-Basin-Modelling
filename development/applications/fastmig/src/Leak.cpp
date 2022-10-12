@@ -44,7 +44,7 @@ namespace migration
          // than the one from oil or gas, we define the densities such that leaking won't take place.
          // The easiest way of doing that is by limiting the density of oil and/or gas to that of 
          // the sealFluidDensity:
-         m_fluidDensity = min (m_sealFluidDensity, m_fluidDensity);
+         m_fluidDensity = std::min (m_sealFluidDensity, m_fluidDensity);
 
          double buoyancyForce = (m_sealFluidDensity - m_fluidDensity) * AccelerationDueToGravity;
 

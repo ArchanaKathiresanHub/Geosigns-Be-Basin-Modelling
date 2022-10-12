@@ -136,6 +136,8 @@ using namespace FiniteElementMethod;
 using namespace GeoPhysics;
 using namespace Utilities::CheckMemory;
 
+using namespace std;
+
 typedef CBMGenerics::ComponentManager::SpeciesNamesId ComponentId;
 
 //------------------------------------------------------------//

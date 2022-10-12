@@ -46,7 +46,7 @@
 #include <sstream>
 using namespace std;
 using std::ostringstream;
-extern ostringstream cerrstrstr;
+extern std::ostringstream cerrstrstr;
 #define MAXDOUBLE std::numeric_limits<double>::max()
 
 using Interface::Formation;
@@ -124,9 +124,9 @@ namespace migration
       m_spilling = false;
 
 #ifdef DETAILED_MASS_BALANCE
-      string filename = utils::getProjectBaseName(getReservoir()->getProjectHandle().getName());
+      std::string filename = utils::getProjectBaseName(getReservoir()->getProjectHandle().getName());
       filename += "_MassBalance";
-      ostringstream strstream;
+      std::ostringstream strstream;
       strstream << getReservoir()->getName() << " at " << getReservoir()->getEnd()->asString();
       strstream << " crest " << getCrestColumn();
       filename += "_"; filename += strstream.str();
@@ -136,9 +136,9 @@ namespace migration
 #endif
 
 #ifdef DETAILED_VOLUME_BALANCE
-      string filename = utils::getProjectBaseName(getReservoir()->getProjectHandle().getName());
+      std::string filename = utils::getProjectBaseName(getReservoir()->getProjectHandle().getName());
       filename += "_VolumeBalance";
-      ostringstream strstream;
+      std::ostringstream strstream;
       strstream << getReservoir()->getName() << " at " << getReservoir()->getEnd()->asString();
       strstream << " crest " << getCrestColumn();
       filename += "_"; filename += strstream.str();
@@ -361,9 +361,9 @@ namespace migration
       m_levelToVolume = depthToVolume::compute (getTopDepth (), m_interior.begin (), m_interior.end (), getWasteColumn (OIL) ? getWasteDepth (OIL) : getSpillDepth ());
 
 #ifdef DEBUG_LEVELTOVOLUME
-      string filename = utils::getProjectBaseName(getReservoir()->getProjectHandle()->getName());
+      std::string filename = utils::getProjectBaseName(getReservoir()->getProjectHandle()->getName());
       filename += "_LevelToVolume";
-      ostringstream strstream;
+      std::ostringstream strstream;
       strstream << getReservoir()->getName() << " at " << getReservoir()->getEnd()->asString();
       strstream << " crest " << getCrestColumn();
       filename += "_"; filename += strstream.str();
@@ -1482,9 +1482,9 @@ namespace migration
    /// If depths contains a vector of formations starting with the formation containing
    /// this trap, return iterators pointing to the formations which constitute the
    /// overburden of this trap:
-   void Trap::iterateToFirstOverburdenFormation (const vector<FormationSurfaceGridMaps>& depths,
-                                                 vector<FormationSurfaceGridMaps>::const_iterator& begin,
-                                                 vector<FormationSurfaceGridMaps>::const_iterator& end) const
+   void Trap::iterateToFirstOverburdenFormation (const std::vector<FormationSurfaceGridMaps>& depths,
+                                                 std::vector<FormationSurfaceGridMaps>::const_iterator& begin,
+                                                 std::vector<FormationSurfaceGridMaps>::const_iterator& end) const
    {
       // Determine first whether the seal of the trap lies inside this formation, or
       // whether the seal is formed by the next formation.  In the last case, the first
@@ -1512,7 +1512,7 @@ namespace migration
 
       // Below we copy the property information of the relevant formations to
       // m_diffusionOverburdenProps. Clear first the old information in m_diffusionOverburdenProps:
-      vector<DiffusionLeak::OverburdenProp> diffusionOverburdenProps;
+      std::vector<DiffusionLeak::OverburdenProp> diffusionOverburdenProps;
 
       if (!computeDiffusionOverburdenImpl (fullOverburden, snapshot, maxSealThickness, maxFormations,
                                            diffusionOverburdenProps))
@@ -1527,16 +1527,16 @@ namespace migration
                                        bool& sealPresent, double& sealFluidDensity) const
    {
       // Get the overburden formation depths:
-      const vector<FormationSurfaceGridMaps>& depths = fullOverburden.discontinuous (SurfaceGridMapContainer::DISCONTINUOUS_DEPTH);
-      vector<FormationSurfaceGridMaps>::const_iterator begin;
-      vector<FormationSurfaceGridMaps>::const_iterator end;
+      const std::vector<FormationSurfaceGridMaps>& depths = fullOverburden.discontinuous (SurfaceGridMapContainer::DISCONTINUOUS_DEPTH);
+      std::vector<FormationSurfaceGridMaps>::const_iterator begin;
+      std::vector<FormationSurfaceGridMaps>::const_iterator end;
       iterateToFirstOverburdenFormation (depths, begin, end);
 
       // Get the first overburden formation which does exist, i.e. for which the thickness is larger
       // than zero:
       unsigned int i = getCrestColumn ()->getI ();
       unsigned int j = getCrestColumn ()->getJ ();
-      vector<const MigrationFormation*> formations;
+      std::vector<const MigrationFormation*> formations;
       if (!overburden_MPI::getRelevantOverburdenFormations (begin, end, snapshot,
                                                             i, j, numeric_limits<double>::max (), 1, true, formations))
          return false;
@@ -1557,7 +1557,7 @@ namespace migration
 
    bool Trap::computeDiffusionOverburdenImpl (const SurfaceGridMapContainer& fullOverburden,
                                               const Snapshot* snapshot, const double& maxSealThickness, int maxFormations,
-                                              vector<DiffusionLeak::OverburdenProp>& diffusionOverburdenProps) const
+                                              std::vector<DiffusionLeak::OverburdenProp>& diffusionOverburdenProps) const
    {
       const SurfaceGridMapContainer::discontinuous_properties& depths = fullOverburden.discontinuous (
          SurfaceGridMapContainer::DISCONTINUOUS_DEPTH);
@@ -1573,15 +1573,15 @@ namespace migration
       assert (temperatures.size () == depths.size () + 1);
 
       // Get the overburden formation depths:
-      vector<FormationSurfaceGridMaps>::const_iterator begin;
-      vector<FormationSurfaceGridMaps>::const_iterator end;
+      std::vector<FormationSurfaceGridMaps>::const_iterator begin;
+      std::vector<FormationSurfaceGridMaps>::const_iterator end;
       iterateToFirstOverburdenFormation (depths, begin, end);
 
       // Get the formations which do exist, i.e. for which the thickness is larger than zero,
       // and which are within maxSealThickness and maxFormations:
       unsigned int i = getCrestColumn ()->getI ();
       unsigned int j = getCrestColumn ()->getJ ();
-      vector<const MigrationFormation*> formations;
+      std::vector<const MigrationFormation*> formations;
       if (!overburden_MPI::getRelevantOverburdenFormations (begin, depths.end (), snapshot,
                                                             i, j, maxSealThickness, maxFormations, true, formations))
          return false;
@@ -1595,7 +1595,7 @@ namespace migration
       double baseTemperature = getTemperature ();
       double baseBrineViscosity = getCrestColumn ()->getViscosity ();
 
-      vector<const MigrationFormation*>::const_iterator f = formations.begin ();
+      std::vector<const MigrationFormation*>::const_iterator f = formations.begin ();
       SurfaceGridMapContainer::discontinuous_properties::const_iterator d = depths.begin ();
       SurfaceGridMapContainer::continuous_properties::const_iterator t = temperatures.begin ();
       SurfaceGridMapContainer::discontinuous_properties::const_iterator p = porosities.begin ();
@@ -1634,7 +1634,7 @@ namespace migration
             double thickness = (*d).base ()[functions::Tuple2<unsigned int>(i, j)] - (*d).top ()[functions::Tuple2<unsigned int>(i, j)];
 
 #ifdef DEBUG_TRAP
-            string name = (*f)->getName();
+            std::string name = (*f)->getName();
 
             bool validTopDepth = (*d).top().valid();
             bool validBaseDepth = (*d).base().valid();
@@ -1800,14 +1800,14 @@ namespace migration
       double methaneSolubilityPerM3 = methaneSolubilityPerKgH2O * m_diffusionOverburdenProps->
          sealFluidDensity ();
 
-      vector<double> solubilities (parameters->concentrationConsts ());
+      std::vector<double> solubilities (parameters->concentrationConsts ());
 
       for (c = 0; c < size; ++c)
       {
          solubilities[c] *= methaneSolubilityPerM3;
       }
 
-      vector<DiffusionLeak*> diffusionLeaks;
+      std::vector<DiffusionLeak*> diffusionLeaks;
       diffusionLeaks.reserve (size);
 
       ///Retrieve a pointer to the m_penetrationDistances vector from the previous snapshot
@@ -1894,10 +1894,10 @@ namespace migration
       bool sealPresent;
       double fracPressure;
       double sealFluidDensity;
-      vector< vector<translateProps::CreateCapillaryLithoProp::output> > lithProps;
-      vector< vector<double> > lithFracs;
-      vector<CBMGenerics::capillarySealStrength::MixModel> mixModel;
-      vector<double> permeability;
+      std::vector< std::vector<translateProps::CreateCapillaryLithoProp::output> > lithProps;
+      std::vector< std::vector<double> > lithFracs;
+      std::vector<CBMGenerics::capillarySealStrength::MixModel> mixModel;
+      std::vector<double> permeability;
 
       if (!computeSealPressureLeakParametersImpl (parameters, fullOverburden, snapshot, sealPresent,
                                                   fracPressure, sealFluidDensity, lithProps, lithFracs,
@@ -1938,25 +1938,25 @@ namespace migration
 #endif
 
 #ifdef DETAILED_MASS_BALANCE
-            ostringstream strstream1;
+            std::ostringstream strstream1;
             strstream1 << "fracture seal strength: " << fracSealStrength << endl;
             m_massBalance->addComment(strstream1.str());
-            ostringstream strstream2;
+            std::ostringstream strstream2;
             strstream2 << "seal fluid density: " << sealFluidDensity << endl;
             m_massBalance->addComment(strstream2.str());
-            ostringstream strstream3;
+            std::ostringstream strstream3;
             strstream2 << "permeability: " << permeability[0] << endl;
             m_massBalance->addComment(strstream3.str());
 #endif
 
 #ifdef DETAILED_VOLUME_BALANCE
-            ostringstream strstream1;
+            std::ostringstream strstream1;
             strstream1 << "fracture seal strength: " << fracSealStrength << endl;
             m_volumeBalance->addComment(strstream1.str());
-            ostringstream strstream2;
+            std::ostringstream strstream2;
             strstream2 << "seal fluid density: " << sealFluidDensity << endl;
             m_volumeBalance->addComment(strstream2.str());
-            ostringstream strstream3;
+            std::ostringstream strstream3;
             strstream2 << "permeability: " << permeability[0] << endl;
             m_volumeBalance->addComment(strstream3.str());
 #endif
@@ -2040,10 +2040,10 @@ namespace migration
       bool& sealPresent,
       double& fracPressure,
       double& sealFluidDensity,
-      vector< vector<translateProps::CreateCapillaryLithoProp::output> >& lithProps,
-      vector< vector<double> >& lithFracs,
-      vector<CBMGenerics::capillarySealStrength::MixModel>& mixModel,
-      vector<double>& permeability) const
+      std::vector< std::vector<translateProps::CreateCapillaryLithoProp::output> >& lithProps,
+      std::vector< std::vector<double> >& lithFracs,
+      std::vector<CBMGenerics::capillarySealStrength::MixModel>& mixModel,
+      std::vector<double>& permeability) const
    // to implement //
    {
       const SurfaceGridMapContainer::discontinuous_properties & depths =
@@ -2066,14 +2066,14 @@ namespace migration
       assert (lithoType2Percents.size () >= lithoType3Percents.size ());
 
       // Get the overburden formation depths:
-      vector < FormationSurfaceGridMaps >::const_iterator begin;
-      vector < FormationSurfaceGridMaps >::const_iterator end;
+      std::vector < FormationSurfaceGridMaps >::const_iterator begin;
+      std::vector < FormationSurfaceGridMaps >::const_iterator end;
       iterateToFirstOverburdenFormation (depths, begin, end);
 
       // Get the first formation which does exist, i.e. for which the thickness is larger than zero:
       unsigned int i = getCrestColumn ()->getI ();
       unsigned int j = getCrestColumn ()->getJ ();
-      vector < const MigrationFormation *>formations;
+      std::vector < const MigrationFormation *>formations;
 
       // Get the reservoir (formations[0]) and the seal formation (formations[1])
       if ( !overburden_MPI::getRelevantOverburdenFormations( depths.begin( ), depths.end( ), snapshot, i, j,
@@ -2085,7 +2085,7 @@ namespace migration
       if (!sealPresent)
          return true;
 
-      vector < const MigrationFormation *>::const_iterator f = formations.begin ();
+      std::vector < const MigrationFormation *>::const_iterator f = formations.begin ();
       SurfaceGridMapContainer::discontinuous_properties::const_iterator d = depths.begin ();
       SurfaceGridMapContainer::discontinuous_properties::const_iterator p = permeabilities.begin ();
       SurfaceGridMapContainer::constant_properties::const_iterator l0 = lithoType1Percents.begin ();
@@ -2129,7 +2129,7 @@ namespace migration
             if (validBase)
                compBaseFormationDepth = (*d).base ()[functions::Tuple2<unsigned int> (i, j)];
             double compTopDepth = getTopDepth ();
-            string name = (*f)->getName ();
+            std::string name = (*f)->getName ();
             double snapshotAge = snapshot->getTime ();
 #endif
             //should always be valid for reservoir and seal;
@@ -2150,7 +2150,7 @@ namespace migration
 
             // So we have found the right d, p, l0, and possibly l1 and l2 iterators if they
             // do exist.  Get the fractions of the LithoTypes:
-            vector<double> formLithFracs;
+            std::vector<double> formLithFracs;
 
             formLithFracs.push_back( 0.01 * ( *l0 ).second[functions::Tuple2<unsigned int>( i, j )] );
             if ( ( *f )->getLithoType2() && l1 != lithoType2Percents.end() && ( *l1 ).first == ( *f ) )
@@ -2187,7 +2187,7 @@ namespace migration
             
 
             // Finally use the gathered information to calculate the capillary seal strength of gas and oil:
-            vector<translateProps::CreateCapillaryLithoProp::output> formlithProps;
+            std::vector<translateProps::CreateCapillaryLithoProp::output> formlithProps;
             translateProps::translate < translateProps::CreateCapillaryLithoProp >( *f, translateProps::CreateCapillaryLithoProp(),
                                                                                     formlithProps );
             lithProps.push_back( formlithProps );
@@ -2259,10 +2259,10 @@ namespace migration
    }
 
    bool Trap::computeForFunctionOfLithostaticPressure (const SurfaceGridMapContainer& fullOverburden,
-                                                       const MigrationFormation* formation, const vector<double>& lithFracs,
+                                                       const MigrationFormation* formation, const std::vector<double>& lithFracs,
                                                        double& fracPressure) const
    {
-      vector<double> lithHydraulicFracturingFracs;
+      std::vector<double> lithHydraulicFracturingFracs;
       translateProps::translate<translateProps::CreateLithHydraulicFracturingFrac> (formation, translateProps::CreateLithHydraulicFracturingFrac (),
                                                                                     lithHydraulicFracturingFracs);
       double hydraulicFracture = CBMGenerics::fracturePressure::hydraulicFracturingFrac (lithHydraulicFracturingFracs, lithFracs);
@@ -2353,7 +2353,7 @@ namespace migration
       
 
       if (!(fabs(m_massBalance->balance()) < 10.0)) {
-		  ostringstream strstream2; strstream2 << "BALANCE is Non-Zero: \t MassBalance::m_massBalance = " << m_massBalance->balance() << endl;
+		  std::ostringstream strstream2; strstream2 << "BALANCE is Non-Zero: \t MassBalance::m_massBalance = " << m_massBalance->balance() << endl;
 		  m_massBalance->addComment(strstream2.str());
       }
           
@@ -2493,41 +2493,41 @@ namespace migration
          m_massBalance->addComment("Reservoir   = ");
          m_massBalance->addComment(getReservoir()->getName() + "\n");
          m_massBalance->addComment("Crest column= ");
-         ostringstream strstream; strstream << getCrestColumn() << endl;
+         std::ostringstream strstream; strstream << getCrestColumn() << endl;
          m_massBalance->addComment(strstream.str());
          m_massBalance->addComment("Snapshot    = ");
          m_massBalance->addComment(getReservoir()->getEnd()->asString() + "\n");
          m_massBalance->addComment("Size        = ");
-         ostringstream strstream0; strstream0 << getSize() << endl;
+         std::ostringstream strstream0; strstream0 << getSize() << endl;
          m_massBalance->addComment(strstream0.str());
-         ostringstream strstream1; strstream1 << getTopDepth() << endl;
+         std::ostringstream strstream1; strstream1 << getTopDepth() << endl;
          m_massBalance->addComment("Depth       = ");
          m_massBalance->addComment(strstream1.str());
 
          m_massBalance->addComment("\nTrap Properties:\n");
          m_massBalance->addComment("---------------\n");
-         ostringstream strstream2; strstream2 << "Temperature = " << getTemperature() << " C" << endl;
+         std::ostringstream strstream2; strstream2 << "Temperature = " << getTemperature() << " C" << endl;
          m_massBalance->addComment(strstream2.str());
-         ostringstream strstream3; strstream3 << "Pressure    = " << getPressure() << " MPa" << endl;
+         std::ostringstream strstream3; strstream3 << "Pressure    = " << getPressure() << " MPa" << endl;
          m_massBalance->addComment(strstream3.str());
-         ostringstream strstream4; strstream4 << "Capacity    = " << getCapacity() << " m^3" << endl;
+         std::ostringstream strstream4; strstream4 << "Capacity    = " << getCapacity() << " m^3" << endl;
          m_massBalance->addComment(strstream4.str());
 
          if (m_toBeDistributed[GAS].getWeight() > 0.0) {
             m_massBalance->addComment("\nGas Properties:\n");
             m_massBalance->addComment("--------------\n");
-            ostringstream strstream5; strstream5 << "Density     = " << m_toBeDistributed[GAS].getDensity() << " kg/m^3" << endl;
+            std::ostringstream strstream5; strstream5 << "Density     = " << m_toBeDistributed[GAS].getDensity() << " kg/m^3" << endl;
             m_massBalance->addComment(strstream5.str());
-            ostringstream strstream6; strstream6 << "Viscosity   = " << m_toBeDistributed[GAS].getViscosity() << endl;
+            std::ostringstream strstream6; strstream6 << "Viscosity   = " << m_toBeDistributed[GAS].getViscosity() << endl;
             m_massBalance->addComment(strstream6.str());
          }
 
          if (m_toBeDistributed[OIL].getWeight() > 0.0) {
             m_massBalance->addComment("\nOil Properties:\n");
             m_massBalance->addComment("--------------\n");
-            ostringstream strstream7; strstream7 << "Density     = " << m_toBeDistributed[OIL].getDensity() << endl;
+            std::ostringstream strstream7; strstream7 << "Density     = " << m_toBeDistributed[OIL].getDensity() << endl;
             m_massBalance->addComment(strstream7.str());
-            ostringstream strstream8; strstream8 << "Viscosity   = " << m_toBeDistributed[OIL].getViscosity() << endl;
+            std::ostringstream strstream8; strstream8 << "Viscosity   = " << m_toBeDistributed[OIL].getViscosity() << endl;
             m_massBalance->addComment(strstream8.str());
          }
 
@@ -2546,41 +2546,41 @@ namespace migration
          m_volumeBalance->addComment("Reservoir   = ");
          m_volumeBalance->addComment(getReservoir()->getName() + "\n");
          m_volumeBalance->addComment("Crest column= ");
-         ostringstream strstream; strstream << getCrestColumn() << endl;
+         std::ostringstream strstream; strstream << getCrestColumn() << endl;
          m_volumeBalance->addComment(strstream.str());
          m_volumeBalance->addComment("Snapshot    = ");
          m_volumeBalance->addComment(getReservoir()->getEnd()->asString() + "\n");
          m_volumeBalance->addComment("Size        = ");
-         ostringstream strstream0; strstream0 << getSize() << endl;
+         std::ostringstream strstream0; strstream0 << getSize() << endl;
          m_volumeBalance->addComment(strstream0.str());
-         ostringstream strstream1; strstream1 << getTopDepth() << endl;
+         std::ostringstream strstream1; strstream1 << getTopDepth() << endl;
          m_volumeBalance->addComment("Depth       = ");
          m_volumeBalance->addComment(strstream1.str());
 
          m_volumeBalance->addComment("\nTrap Properties:\n");
          m_volumeBalance->addComment("---------------\n");
-         ostringstream strstream2; strstream2 << "Temperature = " << getTemperature() << " C" << endl;
+         std::ostringstream strstream2; strstream2 << "Temperature = " << getTemperature() << " C" << endl;
          m_volumeBalance->addComment(strstream2.str());
-         ostringstream strstream3; strstream3 << "Pressure    = " << getPressure() << " MPa" << endl;
+         std::ostringstream strstream3; strstream3 << "Pressure    = " << getPressure() << " MPa" << endl;
          m_volumeBalance->addComment(strstream3.str());
-         ostringstream strstream4; strstream4 << "Capacity    = " << getCapacity() << " m^3" << endl;
+         std::ostringstream strstream4; strstream4 << "Capacity    = " << getCapacity() << " m^3" << endl;
          m_volumeBalance->addComment(strstream4.str());
 
          if (m_toBeDistributed[GAS].getVolume() > 0.0) {
             m_volumeBalance->addComment("\nGas Properties:\n");
             m_volumeBalance->addComment("--------------\n");
-            ostringstream strstream5; strstream5 << "Density     = " << m_toBeDistributed[GAS].getDensity() << " kg/m^3" << endl;
+            std::ostringstream strstream5; strstream5 << "Density     = " << m_toBeDistributed[GAS].getDensity() << " kg/m^3" << endl;
             m_volumeBalance->addComment(strstream5.str());
-            ostringstream strstream6; strstream6 << "Viscosity   = " << m_toBeDistributed[GAS].getViscosity() << endl;
+            std::ostringstream strstream6; strstream6 << "Viscosity   = " << m_toBeDistributed[GAS].getViscosity() << endl;
             m_volumeBalance->addComment(strstream6.str());
          }
 
          if (m_toBeDistributed[OIL].getVolume() > 0.0) {
             m_volumeBalance->addComment("\nOil Properties:\n");
             m_volumeBalance->addComment("--------------\n");
-            ostringstream strstream7; strstream7 << "Density     = " << m_toBeDistributed[OIL].getDensity() << endl;
+            std::ostringstream strstream7; strstream7 << "Density     = " << m_toBeDistributed[OIL].getDensity() << endl;
             m_volumeBalance->addComment(strstream7.str());
-            ostringstream strstream8; strstream8 << "Viscosity   = " << m_toBeDistributed[OIL].getViscosity() << endl;
+            std::ostringstream strstream8; strstream8 << "Viscosity   = " << m_toBeDistributed[OIL].getViscosity() << endl;
             m_volumeBalance->addComment(strstream8.str());
          }
 
@@ -2660,7 +2660,7 @@ namespace migration
       double const thicknessAffectedByBiodegradationAboveOWC = computethicknessAffectedByBiodegradationAboveOWC (timeInterval, bioRate);
 
       double const maximumCapacityOfTrap = getVolumeBetweenDepths2 (getTopDepth (), getBottomDepth ());
-      double const volumeBiodegraded = min (getVolumeBetweenDepths2 (getHydrocarbonWaterContactDepth () - thicknessAffectedByBiodegradationAboveOWC, getHydrocarbonWaterContactDepth ()), volumePhase);
+      double const volumeBiodegraded = std::min (getVolumeBetweenDepths2 (getHydrocarbonWaterContactDepth () - thicknessAffectedByBiodegradationAboveOWC, getHydrocarbonWaterContactDepth ()), volumePhase);
 
       assert (volumeBiodegraded >= 0.0);
       assert (volumeBiodegraded <= maximumCapacityOfTrap && volumeBiodegraded <= volumePhase);
@@ -2754,7 +2754,7 @@ namespace migration
       else  // case of a mixed-fill trap
       {
          double const maxCapacityOfTrap = getVolumeBetweenDepths2 (getTopDepth (), getBottomDepth ());
-         double const volumeBiodegraded = min (getVolumeBetweenDepths2 (getHydrocarbonWaterContactDepth () - thicknessAffectedByBiodegradationAboveOWC, getHydrocarbonWaterContactDepth ()), maxCapacityOfTrap);
+         double const volumeBiodegraded = std::min (getVolumeBetweenDepths2 (getHydrocarbonWaterContactDepth () - thicknessAffectedByBiodegradationAboveOWC, getHydrocarbonWaterContactDepth ()), maxCapacityOfTrap);
 
          if (m_toBeDistributed[OIL].getVolume () >= volumeBiodegraded) // only oil in the biodegraded zone
          {
@@ -2771,7 +2771,7 @@ namespace migration
 #endif
             volumeFractionOfOilBiodegraded = 1;
             volumeFractionOfGasBiodegraded = (volumeBiodegraded - m_toBeDistributed[OIL].getVolume ()) / m_toBeDistributed[GAS].getVolume ();
-            volumeFractionOfGasBiodegraded = min (volumeFractionOfGasBiodegraded, 1.0);   // in case that the biodegradation zone extends above the volume of Gas
+            volumeFractionOfGasBiodegraded = std::min (volumeFractionOfGasBiodegraded, 1.0);   // in case that the biodegradation zone extends above the volume of Gas
          }
       }
       assert (volumeFractionOfOilBiodegraded >= 0 && volumeFractionOfOilBiodegraded <= 1);

@@ -12,7 +12,7 @@ using namespace std;
 using namespace GenexSimulation;
 
 GeoPhysics::ProjectHandle *
-GenexSimulatorFactory::produceProjectHandle (database::ProjectFileHandlerPtr database, const string & name) const
+GenexSimulatorFactory::produceProjectHandle (database::ProjectFileHandlerPtr database, const std::string & name) const
 {
    return new GenexSimulator (database, name, this);
 }

@@ -590,7 +590,7 @@ void Formation::printOn (ostream & ostr) const
 void Formation::asString (string & str) const
 {
 
-   ostringstream buf;
+   std::ostringstream buf;
 
    buf << "Formation";
    if (isSourceRock ())

@@ -25,6 +25,7 @@
 
 #include "GridMap.h"
 using namespace DataAccess;
+using namespace std;
 
 #include "NumericFunctions.h"
 

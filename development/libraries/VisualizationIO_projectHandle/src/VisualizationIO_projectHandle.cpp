@@ -68,7 +68,7 @@ void CauldronIO::MapProjectHandle::release()
 std::shared_ptr<CauldronIO::HDFinfo > CauldronIO::MapProjectHandle::getHDFinfoForPropVal(const DataAccess::Interface::PropertyValue* propVal)
 {
     std::shared_ptr<CauldronIO::HDFinfo > info(new CauldronIO::HDFinfo());
-    string filename, datasetname, fulloutputdir;
+   std::string filename, datasetname, fulloutputdir;
     propVal->getHDFinfo(filename, datasetname, fulloutputdir);
 
     ibs::FilePath filePathName(fulloutputdir);
@@ -291,7 +291,7 @@ void CauldronIO::VolumeProjectHandle::retrieveMultipleFromHDF()
     // Get data
     for (size_t i = 0; i < m_info.size(); ++i)
     {
-        shared_ptr<HDFinfo>& info = m_info[i];
+        std::shared_ptr<HDFinfo>& info = m_info[i];
         float* hdfData = info->getData(); // we don't need to dispose it here
 
         std::shared_ptr<CauldronIO::FormationInfo> depthInfo = findDepthInfo(m_depthFormations, m_propValues->at(i)->getFormation());
@@ -311,8 +311,8 @@ void CauldronIO::VolumeProjectHandle::retrieveMultipleFromHDF()
             size_t index = computeIndex_IJK(0, 0, kIndex);  // this will account for an offset (kStart), but will not inverse anything
             // in a single volume, it will not have any effect
 
-            detected_maxK = max(detected_maxK, kIndex);
-            detected_minK = min(detected_minK, kIndex);
+            detected_maxK = std::max(detected_maxK, kIndex);
+            detected_minK = std::min(detected_minK, kIndex);
 
             for (unsigned int j = 0; j < m_numJ; ++j)
             {

@@ -59,7 +59,7 @@ typedef CBMGenerics::ComponentManager::SpeciesNamesId ComponentId;
 #include<sstream>
 using namespace std;
 using std::ostringstream;
-extern ostringstream cerrstrstr;
+extern std::ostringstream cerrstrstr;
 #define MAXDOUBLE std::numeric_limits<double>::max()
 
 //utilities library
@@ -1173,7 +1173,7 @@ namespace migration
 
       // Determine the overburden formations.  Include first the formation of the reservoir, for
       // the trap may be sealed inside the formation:
-      vector<const MigrationFormation*> formations;
+      std::vector<const MigrationFormation*> formations;
       formations.push_back (dynamic_cast<MigrationFormation *>(const_cast<Interface::Formation*>(getFormation ())));
       overburden::OverburdenFormations overburden (formations, true);
 
@@ -1183,14 +1183,14 @@ namespace migration
       overburden.append (overburdenFormations.formations ());
 
       // We need the depth for both diffusion leakage and seal pressure leakage.  (Note, we put depths
-      // in vector<FormationSurfaceGridMaps> even though the depth is a continuous property.  This is done
+      // in std::vector<FormationSurfaceGridMaps> even though the depth is a continuous property.  This is done
       // just for convenience.   The algorithms work out easier.)
       const ProjectHandle& projectHandle = getFormation ()->getProjectHandle ();
       const Property* depthProp = lowResEqualsHighRes () ?
          projectHandle.findProperty ("Depth") :
          projectHandle.findProperty ("DepthHighRes");
 
-      vector<FormationSurfaceGridMaps> depthGridMaps = overburden_MPI::getFormationSurfaceGridMaps (
+      std::vector<FormationSurfaceGridMaps> depthGridMaps = overburden_MPI::getFormationSurfaceGridMaps (
          overburden.formations (), depthProp, getEnd ());
 
       // If diffusion leakages is included, initialize m_diffusionOverburdenGridMaps with
@@ -1198,12 +1198,12 @@ namespace migration
       // Optimization for May 2016 Release
       if (isDiffusionEnabled ())
       {
-         vector<SurfaceGridMapFormations> temperatureGridMaps = overburden_MPI::getAdjacentSurfaceGridMapFormations (
+         std::vector<SurfaceGridMapFormations> temperatureGridMaps = overburden_MPI::getAdjacentSurfaceGridMapFormations (
             overburden, "Temperature", getEnd ());
-         vector<FormationSurfaceGridMaps> porosityGridMaps = overburden_MPI::getFormationSurfaceGridMaps (
+         std::vector<FormationSurfaceGridMaps> porosityGridMaps = overburden_MPI::getFormationSurfaceGridMaps (
             overburden.formations (), "Porosity", getEnd ());
 
-         vector<FormationSurfaceGridMaps> brineViscosityGridMaps = overburden_MPI::getFormationSurfaceGridMaps (
+         std::vector<FormationSurfaceGridMaps> brineViscosityGridMaps = overburden_MPI::getFormationSurfaceGridMaps (
             overburden.formations (), "BrineViscosity", getEnd ());
 
          m_diffusionOverburdenGridMaps.setDiscontinuous (SurfaceGridMapContainer::DISCONTINUOUS_DEPTH, depthGridMaps);
@@ -1218,7 +1218,7 @@ namespace migration
       // because permeability is not a continuous property, so we must get the permeability from the
       // seal formation.  And at this moment in time, it is not clear what the seal formation is,
       // so we read in all formations:
-      vector<FormationSurfaceGridMaps> permeabilityGridMaps = overburden_MPI::getFormationSurfaceGridMaps (
+      std::vector<FormationSurfaceGridMaps> permeabilityGridMaps = overburden_MPI::getFormationSurfaceGridMaps (
          overburden.formations (), "Permeability", getEnd ());
 
       m_sealPressureLeakageGridMaps.setDiscontinuous (SurfaceGridMapContainer::DISCONTINUOUS_DEPTH, depthGridMaps);
@@ -1360,7 +1360,7 @@ namespace migration
          int phase;
          for (phase = FIRST_PHASE; phase < NUM_PHASES; ++phase)
          {
-            string propName = "ResRockDrainageId";
+            std::string propName = "ResRockDrainageId";
             propName += PhaseNames[phase];
 
             result &= saveComputedProperty (propName + "Phase", DRAINAGEAREAID, (PhaseId)phase);
@@ -1368,7 +1368,7 @@ namespace migration
 
          for (phase = FIRST_PHASE; phase < NUM_PHASES; ++phase)
          {
-            string propName = "ResRockFill";
+            std::string propName = "ResRockFill";
             propName += PhaseNames[phase];
 
             result &= saveComputedProperty (propName + "PhaseDensity", LATERALCHARGEDENSITY, (PhaseId)phase);
@@ -1377,7 +1377,7 @@ namespace migration
 
          for (phase = FIRST_PHASE; phase < NUM_PHASES; ++phase)
          {
-            string propName = "ResRockFlowDirection";
+            std::string propName = "ResRockFlowDirection";
             propName += PhaseNames[phase];
 
             result &= saveComputedProperty (propName + "IJ", FLOWDIRECTIONIJ, (PhaseId)phase);
@@ -1386,7 +1386,7 @@ namespace migration
       return result;
    }
 
-   bool MigrationReservoir::saveComputedProperty (const string & name, ValueSpec valueSpec, PhaseId phase)
+   bool MigrationReservoir::saveComputedProperty (const std::string & name, ValueSpec valueSpec, PhaseId phase)
    {
       RequestHandling::StartRequestHandling (m_migrator, "saveComputedProperty");
 
@@ -1938,7 +1938,7 @@ namespace migration
       return topFormation;
    }
 
-   SurfacePropertyPtr MigrationReservoir::getSeaBottomProperty (const string & propertyName, const Interface::Snapshot * snapshot) const
+   SurfacePropertyPtr MigrationReservoir::getSeaBottomProperty (const std::string & propertyName, const Interface::Snapshot * snapshot) const
    {
 
       const DataAccess::Interface::Property* property = getProjectHandle().findProperty (propertyName);
@@ -1962,7 +1962,7 @@ namespace migration
 
    }
 
-   FormationPropertyPtr MigrationReservoir::getSeaBottomFormationProperty (const string & propertyName, const Interface::Snapshot * snapshot) const
+   FormationPropertyPtr MigrationReservoir::getSeaBottomFormationProperty (const std::string & propertyName, const Interface::Snapshot * snapshot) const
    {
 
       const DataAccess::Interface::Property* property = getProjectHandle().findProperty (propertyName);
@@ -1974,7 +1974,7 @@ namespace migration
       return theProperty;
    }
 
-   FormationPropertyPtr MigrationReservoir::getFormationPropertyPtr (const string &              propertyName,
+   FormationPropertyPtr MigrationReservoir::getFormationPropertyPtr (const std::string &              propertyName,
                                                                                const Interface::Snapshot * snapshot) const
    {
 
@@ -2005,7 +2005,7 @@ namespace migration
 
    }
 
-   FormationPropertyPtr MigrationReservoir::getTopFormationProperty (const string & propertyName, const Snapshot * snapshot) const
+   FormationPropertyPtr MigrationReservoir::getTopFormationProperty (const std::string & propertyName, const Snapshot * snapshot) const
    {
       const DataAccess::Interface::Property* property = getProjectHandle().findProperty (propertyName);
 
@@ -2016,7 +2016,7 @@ namespace migration
       return theProperty;
    }
 
-   SurfacePropertyPtr MigrationReservoir::getTopSurfaceProperty (const string & propertyName, const Snapshot * snapshot) const
+   SurfacePropertyPtr MigrationReservoir::getTopSurfaceProperty (const std::string & propertyName, const Snapshot * snapshot) const
    {
       const DataAccess::Interface::Property* property = getProjectHandle().findProperty (propertyName);
 
@@ -2028,7 +2028,7 @@ namespace migration
    }
 
 
-   SurfacePropertyPtr MigrationReservoir::getBottomSurfaceProperty (const string & propertyName, const Snapshot * snapshot) const
+   SurfacePropertyPtr MigrationReservoir::getBottomSurfaceProperty (const std::string & propertyName, const Snapshot * snapshot) const
    {
       const DataAccess::Interface::Property* property = getProjectHandle().findProperty (propertyName);
 
@@ -2051,7 +2051,7 @@ namespace migration
    }
 
    FormationPropertyPtr MigrationReservoir::getVolumeProperty (const MigrationFormation * formation,
-                                                                         const string & propertyName,
+                                                                         const std::string & propertyName,
                                                                          const Interface::Snapshot * snapshot) const
    {
 
@@ -2069,7 +2069,7 @@ namespace migration
    }
 
 
-   const GridMap * MigrationReservoir::getPropertyGridMap (const string & propertyName,
+   const GridMap * MigrationReservoir::getPropertyGridMap (const std::string & propertyName,
                                                   const Snapshot * snapshot,
                                                   const Interface::Reservoir * reservoir, const Interface::Formation * formation, const Interface::Surface * surface) const
    {
@@ -2411,7 +2411,7 @@ namespace migration
       {
          if (!ComponentsUsed[componentId]) continue;
 
-         string propertyName = CBMGenerics::ComponentManager::getInstance().getSpeciesName( componentId );
+         std::string propertyName = CBMGenerics::ComponentManager::getInstance().getSpeciesName( componentId );
          propertyName += "ExpelledCumulative";
 
          const GridMap * gridMapEnd = getPropertyGridMap (propertyName, getEnd (), 0, formation, 0);
@@ -2510,24 +2510,23 @@ namespace migration
    }
 
 
-   bool MigrationReservoir::saveGenexMaps (const string & speciesName, DataAccess::Interface::GridMap * aMap, const MigrationFormation * formation, const Snapshot * aSnapshot)
+   bool MigrationReservoir::saveGenexMaps (const std::string & speciesName, DataAccess::Interface::GridMap * aMap, const MigrationFormation * formation, const Snapshot * aSnapshot)
    {
 
       const Interface::Surface   * topMap = formation->getTopSurface ();
-      const string topSurfaceName = topMap->getName ();
+      const std::string topSurfaceName = topMap->getName ();
 
       float time = (float)aSnapshot->getTime ();
 
-      const string extensionString = ".HDF";
+      const std::string extensionString = ".HDF";
       Interface::MapWriter * mapWriter = getProjectHandle().getFactory ()->produceMapWriter ();
 
-      const string dirToOutput = getProjectHandle().getProjectName () + Utilities::Names::CauldronOutputDir + "/";
+      const std::string dirToOutput = getProjectHandle().getProjectName () + Utilities::Names::CauldronOutputDir + "/";
 
-      // string outputFileName = projectHandle->getProjectName() + "_" + outputMapsNames[i] + string(ageString) + extensionString;
-      string outputFileName = dirToOutput + formation->getName () + "_" + speciesName + "_" + aSnapshot->asString () + extensionString;
+      std::string outputFileName = dirToOutput + formation->getName () + "_" + speciesName + "_" + aSnapshot->asString () + extensionString;
 
       // Put 0 as a DataSetName to make comparison with regression tests results easier. Also 0 should be there if we want to re-use the map in fastcauldron
-      string dataSetName = speciesName; //"0"; //outputMapsNames[i];
+      std::string dataSetName = speciesName; //"0"; //outputMapsNames[i];
       dataSetName += "_";
       dataSetName += aSnapshot->asString ();
       dataSetName += "_";
@@ -2553,7 +2552,7 @@ namespace migration
       {
          if (!ComponentsUsed[componentId]) continue;
 
-         string propertyName = CBMGenerics::ComponentManager::getInstance().getSpeciesName( componentId );
+         std::string propertyName = CBMGenerics::ComponentManager::getInstance().getSpeciesName( componentId );
          propertyName += "ExpelledCumulative";
 
          const GridMap * gridMapStart = getPropertyGridMap (propertyName, getStart (), 0, formation, 0);
@@ -2813,7 +2812,7 @@ namespace migration
    inline bool MigrationReservoir::theDistributionCycle(bool &flashCharges)
    {
        int iterationNumber = 1;
-       int maxFillAndSpillIterations = max(minFillAndSpillIterations, numberOfAllTraps());
+       int maxFillAndSpillIterations = std::max(minFillAndSpillIterations, numberOfAllTraps());
        bool isAnyGood = true;
 	   do
 	   {
@@ -3703,7 +3702,7 @@ namespace migration
       // determine the new id's for the traps and retain a mapping for the traps that are present locally
       // renumber the traps in the MigrationIoTbl and add the renumbered traps to the TrapIoTbl
       TrapVector trapList;
-      vector<int> idList;
+      std::vector<int> idList;
 
       double minimumCapacity = getMinTrapCapacity ();
 
@@ -3740,7 +3739,7 @@ namespace migration
       RequestHandling::StartRequestHandling (m_migrator, "populateMigrationTables");
 
       TrapVector::iterator trapIter;
-      vector<int>::iterator idIter;
+      std::vector<int>::iterator idIter;
       for (trapIter = trapList.begin (), idIter = idList.begin (); trapIter != trapList.end (); ++trapIter, ++idIter)
       {
          (*trapIter)->setGlobalId (*idIter);
@@ -3756,9 +3755,9 @@ namespace migration
    {
       RequestHandling::StartRequestHandling (m_migrator, "eliminateUndersizedTraps");
 
-      vector<int> rank;
-      vector<int> from;
-      vector<int> to;
+      std::vector<int> rank;
+      std::vector<int> from;
+      std::vector<int> to;
 
       std::vector<int> finalIds;
       finalIds.resize (maxNumberOfRequests);
@@ -4099,8 +4098,8 @@ namespace migration
       case OILTOGASCRACKINGLOST:
       case OILTOGASCRACKINGGAINED:
       {
-         m_migrator->addMigrationRecord (m_sourceReservoir ? m_sourceReservoir->getName () : string (""),
-                                         m_sourceFormation ? m_sourceFormation->getName () : string (""),
+         m_migrator->addMigrationRecord (m_sourceReservoir ? m_sourceReservoir->getName () : std::string (""),
+                                         m_sourceFormation ? m_sourceFormation->getName () : std::string (""),
                                          getName (), mr);
 
          return true;
@@ -4152,7 +4151,7 @@ namespace migration
 
    MigrationRequest * MigrationReservoir::findMigrationRequest (MigrationRequest & request)
    {
-      vector<MigrationRequest>::iterator mrIter;
+      std::vector<MigrationRequest>::iterator mrIter;
       for (mrIter = m_migrationRequests.begin (); mrIter != m_migrationRequests.end (); ++mrIter)
       {
          MigrationRequest & thisRequest = *mrIter;
@@ -4199,7 +4198,7 @@ namespace migration
       // put all requests into a C array
       MigrationRequest * localMigrationRequestArray = new MigrationRequest[localMaximumSize];
 
-      vector<MigrationRequest>::iterator mrIter;
+      std::vector<MigrationRequest>::iterator mrIter;
 
       int i = 0;
       if (GetRank () != 0)

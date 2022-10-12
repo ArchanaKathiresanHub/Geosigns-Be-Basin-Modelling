@@ -35,6 +35,8 @@
 using Utilities::Maths::KiloJouleToJoule;
 #include "StringHandler.h"
 
+using namespace std;
+
 namespace Genex6
 {
 
@@ -117,7 +119,7 @@ std::string ChemicalModel::GetSpeciesNameById(const int id) const
    }
    return ret;
 }
-int ChemicalModel::GetSpeciesIdByName(const string &in_name) const
+int ChemicalModel::GetSpeciesIdByName(const std::string &in_name) const
 {
    int ret = 0;
    std::map<std::string,int >::const_iterator it = s_mapSpeciesId2Name.find(in_name);
@@ -138,7 +140,7 @@ void ChemicalModel::AddElement(Element *theElement)
    if(index > m_speciesManager.getNumberOfElements ()) {
       cout << "Basin_Warning: Too big number of elements." << endl;
    }
-   string elementName = theElement->GetName();
+   std::string elementName = theElement->GetName();
 
    m_speciesManager.setElementNum(elementName, index);
 

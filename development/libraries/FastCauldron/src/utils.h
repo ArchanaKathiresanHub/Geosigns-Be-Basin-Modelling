@@ -10,32 +10,31 @@
 
 #include <math.h>
 #include <string>
-using namespace std;
 
 #include "NumericFunctions.h"
 
 const char Escape_Character = 27; 
 
-void stripEndQuotes(string& str);
+void stripEndQuotes(std::string& str);
 
-void ReallyStripEndQuotes(string& str);
+void ReallyStripEndQuotes(std::string& str);
 
-void underscoreBlankSpace(string& str);
-void underscoreSlashCharacter(string& str);
-void blankSpaceUnderscore(string& str);
+void underscoreBlankSpace(std::string& str);
+void underscoreSlashCharacter(std::string& str);
+void blankSpaceUnderscore(std::string& str);
 
 bool isUsableCharacter ( const char c );
 
-void removeNonUsableCharacters ( const string& nonUsableString,
-                                       string& usableString );
+void removeNonUsableCharacters ( const std::string& nonUsableString,
+    std::string& usableString );
 
-string removeNonUsableCharacters ( const string& nonUsableString );
+std::string removeNonUsableCharacters ( const std::string& nonUsableString );
 
 
-void removeExtension(string& str);
-string Extract_Property_Name( const string& str );
-string Extract_Owner_Name( const string& str );
-string Extract_Filename_Extension( const string& str );
+void removeExtension(std::string& str);
+std::string Extract_Property_Name( const std::string& str );
+std::string Extract_Owner_Name( const std::string& str );
+std::string Extract_Filename_Extension( const std::string& str );
 void getDateAndTime(char* str);
 void displayTime(const bool debug, const char* str);
 void getElapsedTime(char* str);
@@ -44,9 +43,9 @@ void displayProgress(const bool debug,
 		     const char* str,
 		     const double& Age);
 
-void displayTime( const string & str, PetscLogDouble StartTime);
-void Display_Merging_Progress( const string & fileName, PetscLogDouble StartTime);
-void Display_Merging_Progress( const string & fileName, PetscLogDouble StartTime, const string & message );
+void displayTime( const std::string & str, PetscLogDouble StartTime);
+void Display_Merging_Progress( const std::string & fileName, PetscLogDouble StartTime);
+void Display_Merging_Progress( const std::string & fileName, PetscLogDouble StartTime, const std::string & message );
 
 char* currentTimeStr ();
 
@@ -73,9 +72,9 @@ void Clear_To_End_Of_Line ();
 void Clear_Screen ();
 void Move_To_Location ( const int X, const int Y );
 
-string DoubleToString(const double D);
-string IntegerToString(const int I);
-void Copy_String_To_Char( const string& str, char* char_array, const int char_length );
+std::string DoubleToString(const double D);
+std::string IntegerToString(const int I);
+void Copy_String_To_Char( const std::string& str, char* char_array, const int char_length );
 
 void Get_Coefficients_From_String ( const char*   Coefficient_String,
                                     const int     Number_Of_Coefficients,

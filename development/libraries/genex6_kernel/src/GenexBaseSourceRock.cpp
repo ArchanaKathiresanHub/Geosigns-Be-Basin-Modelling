@@ -543,7 +543,7 @@ ChemicalModel* GenexBaseSourceRock::loadChemicalModel( const DataAccess::Interfa
 
   if(printInitialisationDetails ) {
 
-    ostringstream sourceRock;
+    std::ostringstream sourceRock;
     sourceRock <<  "Source Rock Type  : " << SourceRockType;
     if( m_applySRMixing ) {
       sourceRock << " (H/C = " << in_HC << ")";

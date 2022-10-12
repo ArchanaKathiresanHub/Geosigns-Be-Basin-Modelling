@@ -28,7 +28,7 @@ namespace GeoPhysics {
       /// Change to map (lithoname --> simpleLithology)
       typedef std::vector<SimpleLithologyPtr> SimpleLithoList;
 
-      typedef std::map< CompoundLithologyComposition, CompoundLithology*, less<CompoundLithologyComposition> > CompoundLithologyMapping;
+      typedef std::map< CompoundLithologyComposition, CompoundLithology*, std::less<CompoundLithologyComposition> > CompoundLithologyMapping;
 
 
    public :

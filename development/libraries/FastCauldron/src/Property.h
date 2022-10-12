@@ -24,8 +24,8 @@ public :
 
    Property ( DataAccess::Interface::ProjectHandle& projectHandle,
               database::Record * record,
-              const string & userName, const string & cauldronName,
-              const string & unit, const DataAccess::Interface::PropertyType type,
+              const std::string & userName, const std::string & cauldronName,
+              const std::string & unit, const DataAccess::Interface::PropertyType type,
               const DataModel::PropertyAttribute attr, const DataModel::PropertyOutputAttribute attrOut );
 
 
@@ -35,7 +35,7 @@ public :
 
    void setOutputProperty ( const DataAccess::Interface::OutputProperty* outputProperty );
 
-   void asString ( string& str ) const;
+   void asString ( std::string& str ) const;
 
 private :
 

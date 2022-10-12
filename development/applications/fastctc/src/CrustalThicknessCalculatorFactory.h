@@ -44,12 +44,12 @@ class CrustalThicknessCalculatorFactory : public DataAccess::Mining::ObjectFacto
 public:
    /// @brief Produce the CrustalThicknessCalculator specific ProjectHandle
    virtual CrustalThicknessCalculator* produceProjectHandle( database::ProjectFileHandlerPtr database,
-                                                             const string & name ) const override;
+                                                             const std::string & name ) const override;
 
    /// @brief Produce the fasctc PropertyValue
    virtual Ctc::CTCPropertyValue * producePropertyValue(Interface::ProjectHandle& projectHandle,
                                                       database::Record * record,
-                                                      const string & name,
+                                                      const std::string & name,
                                                       const DataAccess::Interface::Property * property,
                                                       const DataAccess::Interface::Snapshot * snapshot,
                                                       const DataAccess::Interface::Reservoir * reservoir,

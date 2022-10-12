@@ -28,6 +28,7 @@ using Utilities::Physics::IdealGasConstantGenex;
 
 namespace Genex6
 {
+    using namespace std;
 
 Species::~Species()
 {

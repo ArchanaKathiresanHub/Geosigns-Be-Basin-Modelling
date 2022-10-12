@@ -72,7 +72,7 @@ namespace DataAccess
          /// \return The crust informations as a string
          /// \brief Informations returned are name, decay constant, top surface name and bottom surface name
          /// \details This is a debug utility
-         void asString (string & str) const override;
+         void asString (std::string & str) const override;
 
          void setInitialCrustalThickness( const double aInitCrustalThickness );
          double getInitialCrustalThickness() const;

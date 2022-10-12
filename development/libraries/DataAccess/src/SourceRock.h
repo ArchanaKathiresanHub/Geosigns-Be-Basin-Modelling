@@ -1,8 +1,6 @@
 #ifndef _INTERFACE_SOURCEROCK_H_
 #define _INTERFACE_SOURCEROCK_H_
 
-using namespace std;
-
 #include "DAObject.h"
 #include "Interface.h"
 #include "SourceRockProperty.h"
@@ -21,11 +19,11 @@ namespace DataAccess
 
 
 			/// Return the layer name of this SourceRock
-			virtual const string & getLayerName (void) const;
+			virtual const std::string & getLayerName (void) const;
 						/// Set a layer name.
 						void setLayerName ( const std::string& aLayerName );
 			/// Return the type of this SourceRock
-			virtual const string & getType (void) const;
+			virtual const std::string & getType (void) const;
 						/// Return the H/C of this SourceRock
 						virtual const double & getHcVRe05(void) const;
 						/// Return the S/C of this SourceRock
@@ -46,7 +44,7 @@ namespace DataAccess
 						///Return the value of the VRE threshold
 						virtual const double & getVREthreshold(void) const;
 						/// get predefined SourceRock Type, this SoureRock is derived from
-						virtual const string & getBaseSourceRockType (void) const;
+						virtual const std::string & getBaseSourceRockType (void) const;
 
 
       ///Return true if the maximum VES value is enabled
@@ -62,9 +60,9 @@ namespace DataAccess
 	    /// Whether to (also) perform OTGC during adsorption
 	    virtual bool doComputeOTGC (void) const;
 	    /// get the name of the adsorption function
-	    virtual const string & getAdsorptionCapacityFunctionName (void) const;
+	    virtual const std::string & getAdsorptionCapacityFunctionName (void) const;
 	    /// get the adsorption simulator
-	    virtual const string & getAdsorptionSimulatorName (void) const;
+	    virtual const std::string & getAdsorptionSimulatorName (void) const;
 
 	    /// Return the (GridMap) value of one of this SourceRock's attributes
 		virtual const GridMap * getMap (SourceRockMapAttributeId attributeId) const;
@@ -74,11 +72,11 @@ namespace DataAccess
 
 	    /// Print the attributes of this SourceRock
             // May not work if user application is compiled under IRIX with CC -lang:std
-        void printOn (ostream &) const;
+        void printOn (std::ostream &) const;
 
       /// Print the attributes of this SourceRock
             // May not work if user application is compiled under IRIX with CC -lang:std
-        void asString (string &) const;
+        void asString (std::string &) const;
 
 	 protected:
 		SourceRockProperty m_srProperties;
@@ -86,7 +84,7 @@ namespace DataAccess
 	 private:
 		void setProperties();
 
-		static const string s_MapAttributeNames[];
+		static const std::string s_MapAttributeNames[];
 		std::string m_layerName;
 	  };
 

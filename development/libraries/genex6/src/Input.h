@@ -15,7 +15,6 @@
 #include <iostream>
 #include <fstream>
 #include <iomanip>
-using namespace std;
 
 // genex6 library
 #include "ConstantsGenex.h"
@@ -99,7 +98,7 @@ public:
    unsigned int getJ () const;
 
 
-   void OutputOnFile(ofstream &outputfile) const;
+   void OutputOnFile(std::ofstream &outputfile) const;
    void OutputOnFile(FILE * fp) const;
 
 private:

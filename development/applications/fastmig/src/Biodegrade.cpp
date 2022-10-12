@@ -26,7 +26,7 @@ void Biodegrade::calculate(const double timeInterval, const double temperatureTr
       return;
    if (m_timeFactor < 0.0) // narrow the range allowed for this parameter
    {
-      cerr << "Basin_Warning: The time factor coefficient used for biodegradation is negative: " << m_timeFactor << ". No biodegradation computed" << endl;
+      std::cerr << "Basin_Warning: The time factor coefficient used for biodegradation is negative: " << m_timeFactor << ". No biodegradation computed" << std::endl;
       return;
    }
 
@@ -53,13 +53,13 @@ void Biodegrade::calculate(const double timeInterval, const double temperatureTr
 
       if (degradeFactor < 0.0)
       {
-         cerr << "Basin_Warning: trying to biodegrade more of component " << compIdx << " than is in the trap" << endl;
+         std::cerr << "Basin_Warning: trying to biodegrade more of component " << compIdx << " than is in the trap" << std::endl;
          lost[compIdx] = input[compIdx];
          continue;
       }
       if (degradeFactor > 1.0)
       {
-         cerr << "Basin_Warning: trying to inverse biodegrade component " << compIdx << ", and create some mass" << endl;
+         std::cerr << "Basin_Warning: trying to inverse biodegrade component " << compIdx << ", and create some mass" << std::endl;
 	      lost[compIdx] = 0.0;
          continue;
       }

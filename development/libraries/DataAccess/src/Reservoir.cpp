@@ -208,7 +208,7 @@ void Reservoir::printOn (ostream & ostr) const
 
 void Reservoir::asString (string & str) const
 {
-   ostringstream buf;
+   std::ostringstream buf;
 
    buf << "Reservoir:";
    buf << " name = " << getName ();

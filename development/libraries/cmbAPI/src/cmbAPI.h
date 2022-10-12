@@ -63,7 +63,7 @@
 /// any API call error is happened, API object set up an error message inside itself and return an
 /// error code. User can analyze an error code and ask object for more detailed explanation by
 /// asking for error message. This C-like error handling allows to implement thread safe error
-/// handling and operate by simple objects like integer error code and char* string to simplify
+/// handling and operate by simple objects like integer error code and char* std::string to simplify
 /// C++ - C# interface usage.
 
 /// @page CMB_API_Descr Cauldron Model Building API
@@ -106,8 +106,8 @@ namespace mbapi {
 
       /// @{
       /// Static methods
-      /// @brief Generates random string with the given leng
-      /// @return string which consists of random low/uppercase characters and numbers
+      /// @brief Generates random std::string with the given leng
+      /// @return std::string which consists of random low/uppercase characters and numbers
       static std::string randomString( size_t len );
       /// @}
 
@@ -124,11 +124,11 @@ namespace mbapi {
       /// @{
       /// Set of interfaces for interacting with a Cauldron model.\n
       /// Interfaces were simplified to allow easy access from C# using Swig.\n
-      /// For interfaces which returns double or string values, user can request error code
+      /// For interfaces which returns double or std::string values, user can request error code
       /// and error message from the model itself, after the interface call.
 
       /// @brief Compare projects and return all differences found
-      /// @return full list of differences as a string
+      /// @return full list of differences as a std::string
       std::string compareProject( Model & mdl1                                  ///< the model to compare with
                                 , const std::set<std::string> & compareTblsList ///< list of tables to compare, empty to compare all tables
                                 , const std::set<std::string> & ignoreTblsList  ///< list of tables to ignore them during comparison
@@ -137,7 +137,7 @@ namespace mbapi {
 
       /// @brief Copy matched given filter records from the given project to the current, all similar records in
       ///        the currenct projects will be deleted and replaced
-      /// @return empty string on success or error message
+      /// @return empty std::string on success or error message
       std::string mergeProject( Model & mdl1                                               ///< the model to merge from
                               , const std::set<std::string> & procesTblsList               ///< list of tables to process, must not be empty
                               , const std::vector< std::vector< std::string > > & flitList ///< filter list (process matched to filter records only)
@@ -234,7 +234,7 @@ namespace mbapi {
       ///
       /// @param[in] projectFileName name of the Cauldron project3d file
       /// @return NoError in case of success, error code otherwise
-      ReturnCode loadModelFromProjectFile(const string& projectFileName );
+      ReturnCode loadModelFromProjectFile(const std::string& projectFileName );
 
       /// @brief Save the model to the Cauldron project project3d file under the given file name
       ///        If file exist, it will be overwritten
@@ -245,7 +245,7 @@ namespace mbapi {
       ReturnCode saveModelToProjectFile(const std::string& projectFileName, bool copyFiles = false );
 
       /// @brief Get project file name
-      /// @return project file name or empty string if project wasn't loaded or saved before
+      /// @return project file name or empty std::string if project wasn't loaded or saved before
       std::string projectFileName();
 
       /// @brief Get the data-access project handle
@@ -474,7 +474,7 @@ namespace mbapi {
 
       /// @brief get the units of a property with propertyName
       /// @return ErrorHandler::NoError on success, or error code otherwise
-      Model::ReturnCode getUnit(const string& propertyName, std::string& unit);
+      Model::ReturnCode getUnit(const std::string& propertyName, std::string& unit);
 
    private:
       /// @{

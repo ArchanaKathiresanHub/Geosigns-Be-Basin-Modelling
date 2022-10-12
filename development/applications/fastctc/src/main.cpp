@@ -48,20 +48,20 @@ namespace Fastctc
 
    //------------------------------------------------------------//
    void showUsage() {
-      cout << endl;
+      std::cout <<std::endl;
 
-      cout << "Usage: " << endl
-         << "\t-project projectname       Name of the project file" << endl
-         << "\t[-debug]                   Output all map properties. Use in combination with -hdf or/and -xyz or/and -sur to output into individual files" << endl
-         << "\t[-nosmooth]                Don't smooth the result maps, equivalent to -smooth 0" << endl
-         << "\t[-smooth <radius>]         Smooth the result maps using the defined <radius>. Default value: 5" << endl
-         << "\t[-save filename]           Name of output project file" << endl
-         << "\t[-xyz]                     Output selected maps also in XYZ format" << endl
-         << "\t[-sur]                     Use only in combination with -debug. Output selected maps in SUR format (to visualize surface chart in Excel)" << endl
-         << "\t[-hdf]                     Use only in combination with -debug. Output all maps in separate HDF files." << endl
+      std::cout << "Usage: " <<std::endl
+         << "\t-project projectname       Name of the project file" <<std::endl
+         << "\t[-debug]                   Output all map properties. Use in combination with -hdf or/and -xyz or/and -sur to output into individual files" <<std::endl
+         << "\t[-nosmooth]                Don't smooth the result maps, equivalent to -smooth 0" <<std::endl
+         << "\t[-smooth <radius>]         Smooth the result maps using the defined <radius>. Default value: 5" <<std::endl
+         << "\t[-save filename]           Name of output project file" <<std::endl
+         << "\t[-xyz]                     Output selected maps also in XYZ format" <<std::endl
+         << "\t[-sur]                     Use only in combination with -debug. Output selected maps in SUR format (to visualize surface chart in Excel)" <<std::endl
+         << "\t[-hdf]                     Use only in combination with -debug. Output all maps in separate HDF files." << std::endl
          << "\t[-help]                    Shows this help message and exit."
           << "\t[-merge]                  Merge CTC maps to Inputs.HDF."
-          << endl << endl;
+          <<std::endl <<std::endl;
    }
 
    //------------------------------------------------------------//

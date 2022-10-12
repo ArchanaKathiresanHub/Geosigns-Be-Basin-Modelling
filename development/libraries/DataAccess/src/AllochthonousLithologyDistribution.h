@@ -3,7 +3,6 @@
 
 #include <iostream>
 #include <string>
-using namespace std;
 
 #include "DAObject.h"
 #include "Interface.h"
@@ -23,7 +22,7 @@ namespace DataAccess
          virtual ~AllochthonousLithologyDistribution (void);
 
          /// Return the name of the formation of this AllochthonousLithologyDistribution.
-         const string& getFormationName (void) const;
+         const std::string& getFormationName (void) const;
 
          /// Return the age of this AllochthonousLithologyDistribution.
          double getAge (void) const;
@@ -43,14 +42,14 @@ namespace DataAccess
 
          /// Print the attributes of this AllochthonousLithologyDistribution
          // May not work if user application is compiled under IRIX with CC -lang:std
-         void printOn (ostream & ostr) const;
+         void printOn (std::ostream & ostr) const;
 
       protected:
 
          const Formation* m_formation;
          const Snapshot*  m_snapshot;
 
-         static const string s_MapAttributeNames [];
+         static const std::string s_MapAttributeNames [];
 
       };
 

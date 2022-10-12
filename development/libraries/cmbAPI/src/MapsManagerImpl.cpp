@@ -40,6 +40,7 @@
 // STL
 #include <string>
 #include <cmath>
+using namespace std;
 
 namespace mbapi
 {

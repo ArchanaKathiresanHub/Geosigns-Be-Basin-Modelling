@@ -6,8 +6,6 @@
 #include <vector>
 #include <map>
 
-using namespace std;
-
 namespace DataAccess
 {
    namespace Interface
@@ -39,7 +37,7 @@ namespace PersistentTraps
 
 	 ~PersistentTrap (void);
 
-   void findFittingTrap (map < unsigned int, TrackTrap *, less < unsigned int > > traps);
+   void findFittingTrap (std::map < unsigned int, TrackTrap *, std::less < unsigned int > > traps);
 
 	 /// Add Trap to this PersistentTrap
    void addTrap (TrackTrap * trap);
@@ -66,7 +64,7 @@ namespace PersistentTraps
 	 void getGridPosition (unsigned int & i, unsigned int & j);
 	 inline int getId (void);
 
-	 void print (ostream & ostr);
+	 void print (std::ostream & ostr);
 
       private:
 	 const DataAccess::Interface::Grid * m_grid;
@@ -75,11 +73,11 @@ namespace PersistentTraps
 	 int m_id;
 
 	 /// The Traps of a PersistentTrap
-   vector < TrackTrap * > m_traps;
+   std::vector < TrackTrap * > m_traps;
    };
 }
 
-ostream & operator<< (ostream &, PersistentTraps::PersistentTrap &);
+std::ostream & operator<< (std::ostream &, PersistentTraps::PersistentTrap &);
 
 int PersistentTraps::PersistentTrap::getId (void)
 {

@@ -193,7 +193,7 @@ void Trap::printOn (ostream & ostr) const
 
 void Trap::asString (string & str) const
 {
-   ostringstream buf;
+   std::ostringstream buf;
 
    unsigned int i;
    unsigned int j;

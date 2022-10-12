@@ -70,22 +70,22 @@ int main(int argc, char ** argv)
 {
 	if (argc <= 1)
 	{
-		std::cout << "Usage: VisualizationIO_convert [mode] [options] " << endl
-			<< " Modes: " << endl
-			<< "  -import-native <xml-file>               : loads xml reads all the data into memory" << endl
-			<< "  -import-projectHandle <project3D file>  : loads the specified project3D file into memory" << endl
-			<< "  -convert <project3D file>               : converts the specified project3D file to new native format, " << endl
-			<< " Options: " << endl
-			<< "  -threads=x                              : use x threads for compression during export or parallel importing" << endl
-			<< "  -center                                 : cell-center all properties except depth" << endl
-			<< "  -extend <xml-file>                      : if data is existing in the given xml-file, that data will not be converted but referred to" << endl
-			<< "  -verbose                                : output debugging information" << endl
-			<< "  -outputDir <directory>                  : output to this directory instead of input directory" << endl;
+		std::cout << "Usage: VisualizationIO_convert [mode] [options] " << std::endl
+			<< " Modes: " << std::endl
+			<< "  -import-native <xml-file>               : loads xml reads all the data into memory" << std::endl
+			<< "  -import-projectHandle <project3D file>  : loads the specified project3D file into memory" << std::endl
+			<< "  -convert <project3D file>               : converts the specified project3D file to new native format, " << std::endl
+			<< " Options: " << std::endl
+			<< "  -threads=x                              : use x threads for compression during export or parallel importing" << std::endl
+			<< "  -center                                 : cell-center all properties except depth" << std::endl
+			<< "  -extend <xml-file>                      : if data is existing in the given xml-file, that data will not be converted but referred to" << std::endl
+			<< "  -verbose                                : output debugging information" << std::endl
+			<< "  -outputDir <directory>                  : output to this directory instead of input directory" << std::endl;
 
 		return -1;
 	}
 
-	string mode = argv[1];
+	std::string mode = argv[1];
 
 	// Check options
 	int numThreads = 1;
@@ -99,24 +99,24 @@ int main(int argc, char ** argv)
 		if (std::string(argv[i]).find("threads") != std::string::npos)
 		{
 			numThreads = std::atoi(argv[i] + 9);
-			numThreads = min(24, (int)max(1, (int)numThreads));
-			cout << "Using " << numThreads << " threads" << endl;
+			numThreads = std::min(24, (int)std::max(1, (int)numThreads));
+			std::cout << "Using " << numThreads << " threads" << std::endl;
 		}
 		else if (std::string(argv[i]).find("center") != std::string::npos)
 		{
 			center = true;
-			cout << "Applying cell-centering to converted maps and volumes" << endl;
+			std::cout << "Applying cell-centering to converted maps and volumes" << std::endl;
 		}
 		else if (std::string(argv[i]).find("verbose") != std::string::npos)
 		{
 			verbose = true;
-			cout << "Running in verbose mode" << endl;
+			std::cout << "Running in verbose mode" << std::endl;
 		}
 		else if (std::string(argv[i]).find("extend") != std::string::npos)
 		{
 			if (i == argc - 1)
 			{
-				cerr << "Missing xml-file location" << endl;
+				std::cerr << "Missing xml-file location" << std::endl;
 				return -1;
 			}
 			else
@@ -126,24 +126,24 @@ int main(int argc, char ** argv)
 
 				if (!boost::filesystem::exists(boost::filesystem::path(extendXMLfile)))
 				{
-					cerr << "extending with xml-file " << extendXMLfile << " not possible since it can't be found" << endl;
+					std::cerr << "extending with xml-file " << extendXMLfile << " not possible since it can't be found" << std::endl;
 					return -1;
 				}
-				cout << "Extending xml-project " << extendXMLfile << endl;
+				std::cout << "Extending xml-project " << extendXMLfile << std::endl;
 			}
 		}
 		else if (std::string(argv[i]).find("outputDir") != std::string::npos)
 		{
 			if (i == argc - 1)
 			{
-				cerr << "Missing output directory location" << endl;
+				std::cerr << "Missing output directory location" << std::endl;
 				return -1;
 			}
 			else
 			{
 				outputDirStr.assign(argv[i + 1]);
 				i++;
-				cout << "Using as output directory: " << outputDirStr << endl;
+				std::cout << "Using as output directory: " << outputDirStr << std::endl;
 			}
 		}
 		else
@@ -159,33 +159,33 @@ int main(int argc, char ** argv)
         {
             if (argc < 3)
             {
-                cerr << "Please specify xml indexing file name" << endl;
+                std::cerr << "Please specify xml indexing file name" << std::endl;
                 return -1;
             }
 
-            string xmlName = argv[2];
+            std::string xmlName = argv[2];
             clock_t start = clock();
             float timeInSeconds;
 
-            std::cout << "Starting import from XML" << endl;
-            shared_ptr<CauldronIO::Project> project = CauldronIO::ImportFromXML::importFromXML(xmlName);
+            std::cout << "Starting import from XML" << std::endl;
+            std::shared_ptr<CauldronIO::Project> project = CauldronIO::ImportFromXML::importFromXML(xmlName);
 
 						timeInSeconds = (float)(clock() - start) / CLOCKS_PER_SEC;
-			std::cout << "Finished import in " << timeInSeconds << " seconds " << endl;
+			std::cout << "Finished import in " << timeInSeconds << " seconds " << std::endl;
 
 						// Retrieve data
-			std::cout << "Retrieving data" << endl;
+			std::cout << "Retrieving data" << std::endl;
 						start = clock();
 
-			std::cout << "Retrieving input data" << endl;
+			std::cout << "Retrieving input data" << std::endl;
 			project->retrieveStratigraphyTable();
 
-            for (shared_ptr<CauldronIO::SnapShot> snapShot : project->getSnapShots())
+            for (std::shared_ptr<CauldronIO::SnapShot> snapShot : project->getSnapShots())
             {
                 std::vector < CauldronIO::VisualizationIOData* > allReadData = snapShot->getAllRetrievableData();
 
-                std::cout << "Retrieving snapshot " << snapShot->getAge() << " with " << numThreads << " threads" << endl;
-                std::cout << "Nr. of data blocks to process: " << allReadData.size() << endl;
+                std::cout << "Retrieving snapshot " << snapShot->getAge() << " with " << numThreads << " threads" << std::endl;
+                std::cout << "Nr. of data blocks to process: " << allReadData.size() << std::endl;
 
                 if (numThreads == 1)
                 {
@@ -215,7 +215,7 @@ int main(int argc, char ** argv)
             }
 
 						timeInSeconds = (float)(clock() - start) / CLOCKS_PER_SEC;
-			std::cout << "Finished retrieve in " << timeInSeconds << " seconds " << endl;
+			std::cout << "Finished retrieve in " << timeInSeconds << " seconds " << std::endl;
 
             return 0;
         }
@@ -223,37 +223,37 @@ int main(int argc, char ** argv)
         {
             if (argc < 3)
             {
-                cerr << "Please specify project3D filename" << endl;
+                std::cerr << "Please specify project3D filename" << std::endl;
                 return -1;
             }
 
-            string projectFileName = argv[2];
+            std::string projectFileName = argv[2];
             clock_t start = clock();
             float timeInSeconds;
 
 						// Open the projectHandle
-			std::cout << "Opening project3D file " << endl;
-						shared_ptr<DataAccess::Interface::ObjectFactory> factory(new DataAccess::Interface::ObjectFactory());
-						unique_ptr<DataAccess::Interface::ProjectHandle> projectHandle(DataAccess::Interface::OpenCauldronProject(projectFileName, factory.get()));
+			std::cout << "Opening project3D file " << std::endl;
+			std::shared_ptr<DataAccess::Interface::ObjectFactory> factory(new DataAccess::Interface::ObjectFactory());
+			std::unique_ptr<DataAccess::Interface::ProjectHandle> projectHandle(DataAccess::Interface::OpenCauldronProject(projectFileName, factory.get()));
 						if (!projectHandle)
 						{
-								cerr << "Could not open the project3D file" << endl;
+							std::cerr << "Could not open the project3D file" << std::endl;
 								return -1;
 						}
 						timeInSeconds = (float)(clock() - start) / CLOCKS_PER_SEC;
-			std::cout << "Finished opening project3D file in " << timeInSeconds << " seconds " << endl;
+			std::cout << "Finished opening project3D file in " << timeInSeconds << " seconds " << std::endl;
 			start = clock();
 
 						// Import from ProjectHandle
-			std::cout << "Importing from project handle (requires reading depth formations)" << endl;
-			shared_ptr<CauldronIO::Project> project = ImportProjectHandle::createFromProjectHandle(*projectHandle, verbose);
+			std::cout << "Importing from project handle (requires reading depth formations)" << std::endl;
+			std::shared_ptr<CauldronIO::Project> project = ImportProjectHandle::createFromProjectHandle(*projectHandle, verbose);
 						timeInSeconds = (float)(clock() - start) / CLOCKS_PER_SEC;
-			std::cout << "Finished import in " << timeInSeconds << " seconds " << endl;
+			std::cout << "Finished import in " << timeInSeconds << " seconds " << std::endl;
 
             if (mode == "-import-projectHandle")
             {
                 // Retrieve data
-        std::cout << "Retrieving data" << endl;
+        std::cout << "Retrieving data" << std::endl;
                 start = clock();
 
                 project->retrieveStratigraphyTable();
@@ -266,20 +266,20 @@ int main(int argc, char ** argv)
                 }
 
 								timeInSeconds = (float)(clock() - start) / CLOCKS_PER_SEC;
-				std::cout << "Finished retrieve in " << timeInSeconds << " seconds " << endl;
+				std::cout << "Finished retrieve in " << timeInSeconds << " seconds " << std::endl;
 						}
 						else // mode is convert
 						{
 				// Load existing XML project if needed
-				shared_ptr<CauldronIO::Project> projectExisting;
+				std::shared_ptr<CauldronIO::Project> projectExisting;
 				if (!extendXMLfile.empty())
 				{
-					std::cout << "Reading existing XML project" << endl;
+					std::cout << "Reading existing XML project" << std::endl;
 					start = clock();
 					projectExisting = CauldronIO::ImportFromXML::importFromXML(extendXMLfile);
 
 					timeInSeconds = (float)(clock() - start) / CLOCKS_PER_SEC;
-					std::cout << "Finished import in " << timeInSeconds << " seconds " << endl;
+					std::cout << "Finished import in " << timeInSeconds << " seconds " << std::endl;
 
 					// Projects should match
 					if (!(*project == *projectExisting))
@@ -290,7 +290,7 @@ int main(int argc, char ** argv)
 				}
 
 				// Export to native format: it will retrieve data when needed
-				std::cout << "Writing to new format" << endl;
+				std::cout << "Writing to new format" << std::endl;
 								start = clock();
 
                 // Check for explicit output path
@@ -302,22 +302,22 @@ int main(int argc, char ** argv)
 
                 CauldronIO::ExportToXML::exportToXML(project, projectExisting, absPath.path(), numThreads, center);
                 timeInSeconds = (float)(clock() - start) / CLOCKS_PER_SEC;
-        std::cout << "Wrote to new format in " << timeInSeconds << " seconds" << endl;
+        std::cout << "Wrote to new format in " << timeInSeconds << " seconds" << std::endl;
             }
 
             return 0;
         }
 
-        cerr << "Unknown command line parameter. Exiting..." << endl;
+        std::cerr << "Unknown command line parameter. Exiting..." << std::endl;
         return -1;
     }
     catch (CauldronIO::CauldronIOException& except)
     {
-        cerr << "Error occurred: " << except.what() << endl;
+        std::cerr << "Error occurred: " << except.what() << std::endl;
     }
     catch ( ... )
     {
-       cerr << "Unknown exception happend" << endl;
+       std::cerr << "Unknown exception happend" << std::endl;
     }
 
     return -1;

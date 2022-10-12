@@ -153,7 +153,7 @@ void ModelPseudo1d::extractScalarsFromInputMaps()
           continue;
         }
 
-        tablePropertyValuesMap[tableName].push_back(make_pair(row, tableProperty));
+        tablePropertyValuesMap[tableName].push_back(std::make_pair(row, tableProperty));
       }
     }
     m_tablePropertyMapsLists.push_back(tablePropertyValuesMap);

@@ -8,7 +8,7 @@
 #include<iostream>
 #include <fstream>
 #include<iomanip>
-using namespace std;
+
 
 namespace Genex6
 {
@@ -63,11 +63,11 @@ public:
    void SetDiffusionEnergy1(const double &in_diffusionEnergy1);
 
    void OutputOnScreen() const;
-   void OutputOnFile(ofstream &outfile) const;
+   void OutputOnFile(std::ofstream &outfile) const;
 
    void Update();
 
-   void PrintBenchmarkProperties(ofstream &outfile) const;
+   void PrintBenchmarkProperties(std::ofstream &outfile) const;
 
 private:
    Species *const m_theSpecies;

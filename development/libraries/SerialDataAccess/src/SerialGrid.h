@@ -12,7 +12,6 @@
 #define _INTERFACE_SERIALGRID_H_
 
 #include <iostream>
-using namespace std;
 
 #include "Interface.h"
 #include "Grid.h"
@@ -131,7 +130,7 @@ namespace DataAccess
          
          /// Print the attributes of this Grid
          // May not work if user application is compiled under IRIX with CC -lang:std
-         virtual void printOn (ostream &) const;
+         virtual void printOn (std::ostream &) const;
          virtual void asString (std::string&) const;
          
          bool hasSameGridding( const Grid& grid ) const;

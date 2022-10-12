@@ -31,6 +31,7 @@
 
 using namespace DataAccess;
 using namespace Interface;
+using namespace std;
 
 //-------------------------------------------------------------//
 VisualizationPropertiesCalculator::VisualizationPropertiesCalculator(int aRank) : AbstractPropertiesCalculator (aRank)
@@ -118,7 +119,7 @@ bool VisualizationPropertiesCalculator::acquireExistingProperties ()
 {
    if (m_vizProject)
    {
-      shared_ptr<const CauldronIO::Property> vizProperty;
+      std::shared_ptr<const CauldronIO::Property> vizProperty;
       for (auto& property : m_vizProject->getProperties())
       {
          m_existingProperties.push_back (property->getName());
@@ -318,7 +319,7 @@ void VisualizationPropertiesCalculator::updateConstantValue( std::shared_ptr< Ca
 
          if (propertyExisting (pdata.first->getName())) continue;
 
-         shared_ptr<CauldronIO::VolumeData> volDataNew = pdata.second;
+         std::shared_ptr<CauldronIO::VolumeData> volDataNew = pdata.second;
          if(volDataNew->isRetrieved()) {
             DerivedProperties::updateVolumeDataConstantValue( volDataNew );
          }
@@ -679,10 +680,10 @@ bool VisualizationPropertiesCalculator::createVizSnapshotResultPropertyValueCont
       std::shared_ptr<CauldronIO::FormationInfo>& depthInfo = m_formInfoList->at(i);
       if (depthInfo->formation->kind() == Interface::SEDIMENT_FORMATION)
       {
-         maxSedimentK = max (maxSedimentK, depthInfo->kEnd);
+         maxSedimentK = std::max (maxSedimentK, depthInfo->kEnd);
       }
-      maxK = max(maxK, depthInfo->kEnd);
-      minK = min(minK, depthInfo->kStart);
+      maxK = std::max(maxK, depthInfo->kEnd);
+      minK = std::min(minK, depthInfo->kStart);
       if (depthInfo->formation == daFormation)
       {
          info = m_formInfoList->at(i);
@@ -732,10 +733,10 @@ bool VisualizationPropertiesCalculator::createVizSnapshotResultPropertyValueCont
    }
 
    // find or create property
-   shared_ptr<const CauldronIO::Property> vizProperty = findOrCreateProperty(propertyValue, CauldronIO::Continuous3DProperty);
+   std::shared_ptr<const CauldronIO::Property> vizProperty = findOrCreateProperty(propertyValue, CauldronIO::Continuous3DProperty);
 
    // find snapshot
-   shared_ptr<CauldronIO::SnapShot> vizSnapshot = getSnapShot(m_vizProject, snapshot->getTime());
+   std::shared_ptr<CauldronIO::SnapShot> vizSnapshot = getSnapShot(m_vizProject, snapshot->getTime());
 
    // find or create formation
    if (snapshot->getTime() == 0)
@@ -747,7 +748,7 @@ bool VisualizationPropertiesCalculator::createVizSnapshotResultPropertyValueCont
    std::shared_ptr<CauldronIO::Volume> snapshotVolume = vizSnapshot->getVolume();
    std::shared_ptr< CauldronIO::Geometry3D> geometry;
 
-   shared_ptr<CauldronIO::VolumeData> volDataNew;
+   std::shared_ptr<CauldronIO::VolumeData> volDataNew;
    bool propertyVolumeExisting = false;
 
    if (not snapshotVolume)
@@ -906,7 +907,7 @@ bool VisualizationPropertiesCalculator::createVizSnapshotResultPropertyValueDisc
    }
 
    // find snapshot
-   shared_ptr<CauldronIO::SnapShot> vizSnapshot = getSnapShot(m_vizProject, snapshot->getTime());
+   std::shared_ptr<CauldronIO::SnapShot> vizSnapshot = getSnapShot(m_vizProject, snapshot->getTime());
 
    // find or create formation
    std::shared_ptr< CauldronIO::Formation> vizFormation = findOrCreateFormation (info);
@@ -917,10 +918,10 @@ bool VisualizationPropertiesCalculator::createVizSnapshotResultPropertyValueDisc
    m_vizProject->addGeometry(geometry);
 
    // find or create property
-   shared_ptr<const CauldronIO::Property> vizProperty = findOrCreateProperty (propertyValue, CauldronIO::Discontinuous3DProperty);
+   std::shared_ptr<const CauldronIO::Property> vizProperty = findOrCreateProperty (propertyValue, CauldronIO::Discontinuous3DProperty);
 
    // create volume data
-   shared_ptr<CauldronIO::VolumeData> volDataNew(new CauldronIO::VolumeDataNative(geometry));
+   std::shared_ptr<CauldronIO::VolumeData> volDataNew(new CauldronIO::VolumeDataNative(geometry));
 
    computeFormationVolume (propertyValue, grid, firstK, lastK, info->kStart, propertyValue->getDepth(), false);
 
@@ -942,7 +943,7 @@ bool VisualizationPropertiesCalculator::createVizSnapshotResultPropertyValueDisc
    CauldronIO::SubsurfaceKind formationKind = (daFormation->kind() == Interface::BASEMENT_FORMATION ? CauldronIO::Basement : CauldronIO::Sediment);
 
    CauldronIO::FormationVolumeList& formVolList = const_cast<CauldronIO::FormationVolumeList&>(vizSnapshot->getFormationVolumeList());
-   shared_ptr<CauldronIO::Volume> vol;
+   std::shared_ptr<CauldronIO::Volume> vol;
 
    bool existingVolume = false;
    if (formVolList.size() > 0)
@@ -959,7 +960,7 @@ bool VisualizationPropertiesCalculator::createVizSnapshotResultPropertyValueDisc
    }
    if (not vol)
    {
-      vol = shared_ptr<CauldronIO::Volume>(new CauldronIO::Volume(formationKind));
+      vol = std::shared_ptr<CauldronIO::Volume>(new CauldronIO::Volume(formationKind));
    }
    vol->addPropertyVolumeData(propVolDataNew);
 
@@ -1010,10 +1011,10 @@ bool VisualizationPropertiesCalculator::createVizSnapshotResultPropertyValueMap 
 
    // find/create a property
    CauldronIO::PropertyAttribute attrib = (daSurface != 0 ? CauldronIO::Surface2DProperty : CauldronIO::Formation2DProperty);
-   shared_ptr<const CauldronIO::Property> vizProperty = findOrCreateProperty (propertyValue,  attrib);
+   std::shared_ptr<const CauldronIO::Property> vizProperty = findOrCreateProperty (propertyValue,  attrib);
 
    // find snapshot
-   shared_ptr<CauldronIO::SnapShot> vizSnapshot = getSnapShot(m_vizProject, snapshot->getTime());
+   std::shared_ptr<CauldronIO::SnapShot> vizSnapshot = getSnapShot(m_vizProject, snapshot->getTime());
    if (not vizSnapshot)
    {
       //create snapshot
@@ -1168,7 +1169,7 @@ shared_ptr<const CauldronIO::Property> VisualizationPropertiesCalculator::findOr
    if (propertyMapName == "HorizontalPermeability") propertyMapName = "PermeabilityHVec2";
    if (propertyValue->getName() == "Reflectivity")  propertyMapName = "Reflectivity";
 
-   shared_ptr<const CauldronIO::Property> vizProperty;
+   std::shared_ptr<const CauldronIO::Property> vizProperty;
    for (auto& property : m_vizProject->getProperties())
    {
       if (property->getName() == propName)

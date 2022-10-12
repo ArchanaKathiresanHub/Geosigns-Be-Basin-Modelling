@@ -102,7 +102,7 @@ void CMBProjectWriter::appendTimeStampToT2ZMaps(const QString &timeStamp)
   }
   // Delete the records related to the CalibratedInputs.HDF
   // Descending sort is used, as the table will get fewer rows while removing records
-  std::sort(removeMaps.begin(), removeMaps.end(), greater<double>());
+  std::sort(removeMaps.begin(), removeMaps.end(), std::greater<double>());
   for ( mbapi::MapsManager::MapID mapId : removeMaps )
   {
     cmbModel_->removeRecordFromTable("GridMapIoTbl", mapId);

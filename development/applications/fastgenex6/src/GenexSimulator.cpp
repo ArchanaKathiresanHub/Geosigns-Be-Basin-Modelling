@@ -226,8 +226,8 @@ void GenexSimulator::setRequestedOutputProperties()
 
    for (tblIter = timeIoTbl->begin (); tblIter != timeIoTbl->end (); ++ tblIter) {
       Record * filterTimeIoRecord = * tblIter;
-      const string & outPutOption = database::getOutputOption(filterTimeIoRecord);
-      const string & propertyName = database::getPropertyName (filterTimeIoRecord);
+      const std::string & outPutOption = database::getOutputOption(filterTimeIoRecord);
+      const std::string & propertyName = database::getPropertyName (filterTimeIoRecord);
 
       if(outPutOption != "None") {
 
@@ -315,7 +315,7 @@ void GenexSimulator::registerProperties()
    sort(m_registeredProperties.begin(), m_registeredProperties.end());
 }
 
-bool GenexSimulator::isPropertyRegistered(const string & propertyName)
+bool GenexSimulator::isPropertyRegistered(const std::string & propertyName)
 {
    return std::binary_search(m_registeredProperties.begin(), m_registeredProperties.end(), propertyName);
 }

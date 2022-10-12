@@ -2,10 +2,8 @@
 #define _INTERFACE_ALLOCHTHONOUS_LITHOLOGY_H_
 
 #include <iostream>
-using namespace std;
 
 #include <string>
-using namespace std;
 
 #include "Interface.h"
 #include "DAObject.h"
@@ -28,10 +26,10 @@ namespace DataAccess
 
 
        /// Return the layer name of this AllochthonousLithology
-       const string& getFormationName (void) const;
+       const std::string& getFormationName (void) const;
 
        /// Return the name of the lithology of this AllochthonousLithology
-       const string& getLithologyName (void) const;
+       const std::string& getLithologyName (void) const;
 
        const Formation * getFormation (void) const;
 
@@ -45,7 +43,7 @@ namespace DataAccess
 
        /// Print the attributes of this AllochthonousLithology
        // May not work if user application is compiled under IRIX with CC -lang:std
-       void printOn (ostream &) const;
+       void printOn (std::ostream &) const;
 
      protected:
 

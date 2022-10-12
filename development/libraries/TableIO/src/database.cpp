@@ -1000,7 +1000,7 @@ namespace database {
    template < class Type > bool Field < Type >::saveToStream( ostream & ofile, int &borrowed )
    {
 
-      ostringstream buf;
+      std::ostringstream buf;
       buf.precision( Database::GetPrecision() );
       buf << m_value;
       std::string return_string = buf.str();

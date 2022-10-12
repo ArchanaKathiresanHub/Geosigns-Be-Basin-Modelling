@@ -25,8 +25,6 @@
 namespace Genex6
 {
 
-using namespace std;
-
 class Element;
 class Species;
 class Reaction;
@@ -113,25 +111,25 @@ public:
    std::string GetSpeciesNameById(const int id) const;
    // static std::string GetSpeciesNameById(const int id);
 
-   int GetSpeciesIdByName(const string &name) const;//for OTGC interface
+   int GetSpeciesIdByName(const std::string &name) const;//for OTGC interface
    // static int GetSpeciesIdByName(const string &name);//for OTGC interface
    
    //Output Functionality for Benchmarking
-   void PrintBenchmarkSpeciesPropertiesHeader(ofstream &outfile) const;
-   void PrintBenchmarkSpeciesProperties(ofstream &outfile) const;
-   void PrintBenchmarkStoichiometryHeader(ofstream &outfile) const;
-   void PrintBenchmarkStoichiometry(ofstream &outfile) const;
+   void PrintBenchmarkSpeciesPropertiesHeader(std::ofstream &outfile) const;
+   void PrintBenchmarkSpeciesProperties(std::ofstream &outfile) const;
+   void PrintBenchmarkStoichiometryHeader(std::ofstream &outfile) const;
+   void PrintBenchmarkStoichiometry(std::ofstream &outfile) const;
    //Testing method
    //void ChemicalModel::LoadBenchmarkStoichiometry(string & namefile);
 
    //New Configuration File I/O
-   void LoadElements(ifstream &ConfigurationFile);
-   void LoadSpecies(ifstream &ConfigurationFile);
-   void LoadSpeciesComposition(ifstream &ConfigurationFile);
-   void LoadSpeciesProperties(ifstream &ConfigurationFile);
-   void LoadReactions(ifstream &ConfigurationFile);
-   void LoadReactionRatios(ifstream &ConfigurationFile);
-   void PrintConfigurationFileEntities(ofstream &outfile);
+   void LoadElements(std::ifstream &ConfigurationFile);
+   void LoadSpecies(std::ifstream &ConfigurationFile);
+   void LoadSpeciesComposition(std::ifstream &ConfigurationFile);
+   void LoadSpeciesProperties(std::ifstream &ConfigurationFile);
+   void LoadReactions(std::ifstream &ConfigurationFile);
+   void LoadReactionRatios(std::ifstream &ConfigurationFile);
+   void PrintConfigurationFileEntities(std::ofstream &outfile);
    void DebugOutput();
 
    /// \brief Return const reference to species-manager.
@@ -145,9 +143,9 @@ protected:
    void clearSpecies();
    void clearReactions();
 
-   void SetTheElements(ifstream &theStream); 
-   void SetTheSpecies(ifstream &theStream);  
-   void SetTheReactions(ifstream &theStream);
+   void SetTheElements(std::ifstream &theStream);
+   void SetTheSpecies(std::ifstream &theStream);
+   void SetTheReactions(std::ifstream &theStream);
    void AddElement(Element *theElement);
    void AddSpecies(Species *theSpecies);
    void AddReaction(Reaction *theReaction);
@@ -155,7 +153,7 @@ protected:
    Reaction *GetReactionByMotherName(const int theMotherId) const;
    void SetTheOutputSpecies();
    
-   void setSpeciesNum( string speciesName, int index );
+   void setSpeciesNum(std::string speciesName, int index );
 
 private:
    int m_simulationType; // type of simulation (OTGC, SourceRock, Genex5-like simulation)

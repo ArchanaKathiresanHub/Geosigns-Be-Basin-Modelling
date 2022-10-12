@@ -23,6 +23,8 @@
 #include "Snapshot.h"
 
 using namespace ibs;
+using namespace std;
+
 
 #undef Min
 #define Min(a,b)  ((a) < (b) ? (a) : (b))

@@ -394,8 +394,8 @@ bool GenexSourceRock::preprocess ( const DataAccess::Interface::GridMap* validit
         }
      } else {
         invValue = 1.0 / ( Hc1 - Hc2 );
-        minHc = min( Hc1, Hc2 );
-        maxHc = max( Hc1, Hc2 );
+        minHc = std::min( Hc1, Hc2 );
+        maxHc = std::max( Hc1, Hc2 );
      }
   }
 

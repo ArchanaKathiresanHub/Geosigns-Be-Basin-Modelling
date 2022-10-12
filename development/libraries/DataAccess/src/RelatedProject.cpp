@@ -166,7 +166,7 @@ void RelatedProject::printOn (ostream & ostr) const {
 
 void RelatedProject::asString (string & str) const {
 
-   ostringstream buf;
+   std::ostringstream buf;
 
    buf << "RelatedProject:";
    buf << " name = " << getName ();

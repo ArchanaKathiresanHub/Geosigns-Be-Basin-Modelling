@@ -40,22 +40,22 @@ namespace GeoPhysics {
       virtual ~SimpleLithology();
 
       // Change the name of a lithology
-      void setName(const string & newName);
+      void setName(const std::string & newName);
 
       /// Change the permeability interpolator.
-      void setPermeability(const string & faultLithologyName, const double permeabilityAnisotropy,
+      void setPermeability(const std::string & faultLithologyName, const double permeabilityAnisotropy,
          const std::vector<double> & porositySamples, const std::vector<double> & permeabilitySamples
          );
 
       /// Correct the thermal conductivity tables.
       void correctThermCondPoint(const double correction);
 
-      vector<ibs::XF>& getThermCondTbl();
+      std::vector<ibs::XF>& getThermCondTbl();
 
       /// Return thermal conductivity model
       DataAccess::Interface::CalculationModel getThermalCondModel() const;
 
-      virtual bool setThermalModel(const string& aThermalModel) { (void)aThermalModel; return true; };
+      virtual bool setThermalModel(const std::string& aThermalModel) { (void)aThermalModel; return true; };
       /// Return thermal conductivity model
       const std::string getThermalCondModelName() const;
 
@@ -150,10 +150,10 @@ namespace GeoPhysics {
          double& Permeability,
          double& Derivative) const;
 
-      /// Print the string representation of the lithology to standard out.
+      /// Print the std::string representation of the lithology to standard out.
       void print() const;
 
-      /// Return the string representation of the lithology.
+      /// Return the std::string representation of the lithology.
       std::string image() const;
 
       /// Compute the thermal conductivity from the tables.
@@ -245,7 +245,7 @@ namespace GeoPhysics {
       Porosity     m_porosity;
 
       protected:
-      string            m_lithoname;
+      std::string            m_lithoname;
       DataAccess::Interface::CalculationModel  m_thermalcondmodel;
       DataAccess::Interface::CalculationModel  m_heatcapmodel;
    };

@@ -11,7 +11,6 @@
 #define GENERICS_H
 
 #include <string>
-using namespace std;
 
 #include "ComponentManager.h"
 
@@ -20,13 +19,13 @@ using namespace CBMGenerics;
 
 extern const double MolarWeights[ComponentManager::NUMBER_OF_SPECIES];
 
-extern const string CEPPrefix;
-extern const string MassPrefix;
-extern const string VolumePrefix;
-extern const string DensityPrefix;
-extern const string ViscosityPrefix;
+extern const std::string CEPPrefix;
+extern const std::string MassPrefix;
+extern const std::string VolumePrefix;
+extern const std::string DensityPrefix;
+extern const std::string ViscosityPrefix;
 
-extern const string StockTankPhaseNames[ComponentManager::NUMBER_OF_PHASES][ComponentManager::NUMBER_OF_PHASES];
+extern const std::string StockTankPhaseNames[ComponentManager::NUMBER_OF_PHASES][ComponentManager::NUMBER_OF_PHASES];
 
 extern const double UndefinedValue;
 extern const double StockTankPressure;

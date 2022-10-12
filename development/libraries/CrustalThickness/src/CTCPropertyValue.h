@@ -27,7 +27,7 @@ namespace Ctc {
 
       CTCPropertyValue(Interface::ProjectHandle& projectHandle,
                      database::Record * record,
-                     const string & name,
+                     const std::string & name,
                      const Interface::Property * property,
                      const Interface::Snapshot * snapshot,
                      const Interface::Reservoir * reservoir,

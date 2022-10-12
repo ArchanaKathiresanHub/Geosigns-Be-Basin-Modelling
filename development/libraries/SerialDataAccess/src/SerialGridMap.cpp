@@ -28,6 +28,7 @@
 using namespace DataAccess;
 using namespace Interface;
 using namespace ibs;
+using namespace std;
 
 
 SerialGridMap::SerialGridMap (const Parent * owner, unsigned int childIndex, const Grid * grid, double undefinedValue, unsigned int depth, float *** values) :

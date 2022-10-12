@@ -27,6 +27,7 @@
 #include "BasementLithology.h"
 
 using namespace DataAccess;
+using namespace std;
 
 Interface::ProjectHandle * GeoPhysics::ObjectFactory::produceProjectHandle ( database::ProjectFileHandlerPtr pfh,
                                                                              const string & name ) const

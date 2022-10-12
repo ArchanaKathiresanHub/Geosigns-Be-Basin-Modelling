@@ -15,6 +15,8 @@
 #include "NumericFunctions.h"
 #include "Cauldron2VoxetConverter.h"
 
+using namespace std;
+
 // Parameterized Constructor - initializing the object from another ArgumentList structure object
 // ------------------------------------------------------------------------//
 cauldron_to_voxet::Cauldron2VoxetConverter::Cauldron2VoxetConverter(const cauldron_to_voxet::ArgumentList& arguments)

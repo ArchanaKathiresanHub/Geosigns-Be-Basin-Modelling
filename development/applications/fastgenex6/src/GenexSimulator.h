@@ -21,7 +21,7 @@ using namespace DataAccess;
 
 namespace GenexSimulation
 {
-   const string GenexActivityName = "Genex5";
+   const std::string GenexActivityName = "Genex5";
 
    //! GenexSimulator Controls the execution of Generation and Expulsion simulation.
    /*!
@@ -65,18 +65,18 @@ namespace GenexSimulation
       */
       void registerProperties();
       /// Check if  propertyName is among the fastgenex5 registered properties
-      bool isPropertyRegistered(const string & propertyName);
+      bool isPropertyRegistered(const std::string & propertyName);
 
 
       DerivedProperties::DerivedPropertyManager* m_propertyManager;
 
-      vector<string> m_registeredProperties;
-      vector<string> m_shaleProperties;
-      vector<string> m_requestedProperties;
-      vector<string> m_expelledToCarrierBedProperties;
-      vector<string> m_expelledToSourceRockProperties;
-      vector<string> m_expelledToCarrierBedPropertiesS;
-      vector<string> m_expelledToSourceRockPropertiesS;
+      std::vector<std::string> m_registeredProperties;
+      std::vector<std::string> m_shaleProperties;
+      std::vector<std::string> m_requestedProperties;
+      std::vector<std::string> m_expelledToCarrierBedProperties;
+      std::vector<std::string> m_expelledToSourceRockProperties;
+      std::vector<std::string> m_expelledToCarrierBedPropertiesS;
+      std::vector<std::string> m_expelledToSourceRockPropertiesS;
 
       bool computeSourceRock (Genex6::GenexSourceRock * aSourceRock, const Interface::Formation * aFormation );
 

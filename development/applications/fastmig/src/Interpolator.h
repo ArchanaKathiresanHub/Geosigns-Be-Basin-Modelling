@@ -15,8 +15,6 @@
 
 #include <vector>
 
-using namespace std;
-
 namespace migration
 {
 
@@ -59,7 +57,7 @@ namespace migration
 
       Sorter m_sorterFunc;
 
-      typedef vector<XF>	    vectorXF;
+      typedef std::vector<XF>	    vectorXF;
 
    public:
       typedef enum { UnOrdered, Ascending, Descending } SorterType;

@@ -54,8 +54,6 @@ using DataAccess::Interface::Surface;
 using DataAccess::Interface::CrustalThicknessData;
 using DataAccess::Interface::CrustalThicknessRiftingHistoryData;
 
-using namespace std;
-
 /// @class InterfaceInput The CTC input interface
 /// @throw InputException This class throw many exceptions in order to avoid calculator failures because of bad inputs
 class InterfaceInput
@@ -89,7 +87,7 @@ public:
    /// @{
    /// @brief Load the water bottom and the basement surfaces at the defined snapshot by initializing class members (m_bottomOfSedimentSurface and m_topOfSedimentSurface)
    /// @param baseSurfaceName The name of the basement surface (bottom of sediments), if "" then find it in the stratigraphy, else find the surface according to the name
-   void loadTopAndBottomOfSediments( GeoPhysics::ProjectHandle* projectHandle, const double snapshotAge, const string & baseSurfaceName );
+   void loadTopAndBottomOfSediments( GeoPhysics::ProjectHandle* projectHandle, const double snapshotAge, const std::string & baseSurfaceName );
 
    /// @brief Load basement and water bottom depth maps at the defined snapshot
    /// @param depthProperty A fastcauldron depth property
@@ -115,7 +113,7 @@ public:
    double getWaterDensity()                const { return m_constants.getWaterDensity();               }
 
    const CrustalThickness::ConfigFileParameterCtc& getConstants() const { return m_constants;           }
-   const string& getBaseRiftSurfaceName()                         const { return m_baseRiftSurfaceName; }
+   const std::string& getBaseRiftSurfaceName()                         const { return m_baseRiftSurfaceName; }
 
    const GridMap& getHCuMap()  const;
    const GridMap& getHLMuMap() const;
@@ -299,9 +297,9 @@ protected:
 
    CrustalThickness::ConfigFileParameterCtc m_constants; ///< Constants loaded from the configuration file
 
-   string m_baseRiftSurfaceName;  ///< Name of a base of syn-rift
+   std::string m_baseRiftSurfaceName;  ///< Name of a base of syn-rift
 
-   static const string s_ctcConfigurationFile; ///< Name of the CTC/ALC configuration file
+   static const std::string s_ctcConfigurationFile; ///< Name of the CTC/ALC configuration file
 };
 
 #endif

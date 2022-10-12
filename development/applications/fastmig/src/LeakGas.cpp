@@ -53,8 +53,8 @@ namespace migration
                         const double fracturePressure, const double capPressure_H2O_Gas, const double capPressure_H2O_Oil,
                         const MonotonicIncreasingPiecewiseLinearInvertableFunction* levelToVolume) :
          m_levelToVolume (levelToVolume),
-         m_leakGas (gasDensity, sealFluidDensity, overPressureContrast, crestColumnThickness, min (fracturePressure, capPressure_H2O_Gas), levelToVolume),
-         m_leakOil (oilDensity, sealFluidDensity, overPressureContrast, crestColumnThickness, min (fracturePressure, capPressure_H2O_Oil), levelToVolume),
+         m_leakGas (gasDensity, sealFluidDensity, overPressureContrast, crestColumnThickness, std::min (fracturePressure, capPressure_H2O_Gas), levelToVolume),
+         m_leakOil (oilDensity, sealFluidDensity, overPressureContrast, crestColumnThickness, std::min (fracturePressure, capPressure_H2O_Oil), levelToVolume),
          m_oilToGasLevelRatio (0.0)
       {
          // Normally the following conditions should apply:
@@ -241,7 +241,7 @@ namespace migration
          cerr << "oilVolume: " << oilVolume << endl;
          cerr << "hcVolume : " << gasVolume + oilVolume << endl;
 
-         for (int i = max(0,gasIndex-3); i < min(gasIndex+4,m_levelToVolume->size()); ++i) {
+         for (int i = max(0,gasIndex-3); i < std::min(gasIndex+4,m_levelToVolume->size()); ++i) {
             Tuple2<Tuple2<double> > limits = m_levelToVolume->piece(i);
             cerr << "index: " << i << " =  [" << limits[0][0] << "," << limits[0][1] << "] -> [" << 
                limits[1][0] << "," << limits[1][1] << "]." << endl;
@@ -276,7 +276,7 @@ namespace migration
          cerr << "oilVolume: " << oilVolume << endl;
          cerr << "hcVolume:  " << gasVolume + oilVolume << endl;
 
-         for (int j = max(0,hcIndex-3); j < min(hcIndex+4,m_levelToVolume->size()); ++j) {
+         for (int j = std::max(0,hcIndex-3); j < std::min(hcIndex+4,m_levelToVolume->size()); ++j) {
             Tuple2<Tuple2<double> > limits = m_levelToVolume->piece(j);
             cerr << "index: " << j << " =  [" << limits[0][0] << "," << limits[0][1] << "] -> [" 
                << limits[1][0] << "," << limits[1][1] << "]." << endl;
@@ -324,7 +324,7 @@ namespace migration
          }
 
          // Correct for numerical errors
-         finalGasVolume = min(gasVolume, finalGasVolume);
+         finalGasVolume = std::min(gasVolume, finalGasVolume);
 
          // The difference between gasVolume and finalGasVolume has leaked away:
          gasVolumeLeaked = gasVolume - finalGasVolume;

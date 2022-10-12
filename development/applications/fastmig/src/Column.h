@@ -556,7 +556,7 @@ namespace migration
       int m_globalTrapId;
       int m_drainageAreaId;
 
-      vector<int> m_proxies;
+      std::vector<int> m_proxies;
 
 		std::vector<std::pair<int, Composition>>  m_vaporTargetBuffer;
 		std::vector<std::pair<int, Composition>>  m_liquidTargetBuffer;

@@ -42,7 +42,7 @@ namespace AllochMod {
 
     /// Returns the project-handle.
     DataAccess::Interface::ProjectHandle * produceProjectHandle (database::ProjectFileHandlerPtr database,
-                                                                  const string & name) const;
+                                                                  const std::string & name) const;
 
     /// Returns an allochtohonous lithology
     DataAccess::Interface::AllochthonousLithology * produceAllochthonousLithology ( DataAccess::Interface::ProjectHandle& projectHandle,

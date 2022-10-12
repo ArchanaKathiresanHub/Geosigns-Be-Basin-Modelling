@@ -23,8 +23,10 @@ const double TOLERANCE = 100;
 
 using namespace DataAccess;
 
+
 namespace migration
 {
+    using namespace std;
 
 #ifdef DEBUG_MASSBALANCE
    template <typename STREAM>
@@ -43,13 +45,13 @@ namespace migration
    }
 
    template <typename STREAM>
-   void MassBalance<STREAM>::addComment (const string& comment)
+   void MassBalance<STREAM>::addComment (const std::string& comment)
    {
       m_comments.push_back (comment);
    }
 
    template <typename STREAM>
-   void MassBalance<STREAM>::printMassBalance (const string& name) const
+   void MassBalance<STREAM>::printMassBalance (const std::string& name) const
    {
       m_massBalanceStream << endl;
       m_massBalanceStream << " ---------------------------------- " << name << " --" << endl;
@@ -61,7 +63,7 @@ namespace migration
    template <typename STREAM>
    void MassBalance<STREAM>::printMassBalance (const DataAccess::Interface::Snapshot* start,
       const DataAccess::Interface::Snapshot* end,
-      const string& name) const
+      const std::string& name) const
    {
       m_massBalanceStream << endl;
       m_massBalanceStream << "-- Snapshot: " << end->getTime () << " Ma ----------------------------- " << name << " --" << endl;
@@ -71,26 +73,26 @@ namespace migration
    }
 
    template <typename STREAM>
-   void MassBalance<STREAM>::addToBalance (const string & description, double quantity)
+   void MassBalance<STREAM>::addToBalance (const std::string & description, double quantity)
    {
       m_additionDescriptions.push_back (description);
       m_additionQuantities.push_back (quantity);
 
 #ifdef DEBUG_MASSBALANCE
-      cerr << "Because of '" << description << "' add      " << quantity << " to balance " << m_massBalanceNumber << "." << endl;
+      std::cerr << "Because of '" << description << "' add      " << quantity << " to balance " << m_massBalanceNumber << "." << endl;
 #endif
 
       m_massBalance += quantity;
    }
 
    template <typename STREAM>
-   void MassBalance<STREAM>::subtractFromBalance (const string & description, double quantity)
+   void MassBalance<STREAM>::subtractFromBalance (const std::string & description, double quantity)
    {
       m_subtractionDescriptions.push_back (description);
       m_subtractionQuantities.push_back (quantity);
 
 #ifdef DEBUG_MASSBALANCE
-      cerr << "Because of '" << description << "' subtract " << quantity << " from balance " << m_massBalanceNumber << "." << endl;
+      std::cerr << "Because of '" << description << "' subtract " << quantity << " from balance " << m_massBalanceNumber << "." << endl;
 #endif
 
       m_massBalance -= quantity;
@@ -99,11 +101,11 @@ namespace migration
    template <typename STREAM>
    void MassBalance<STREAM>::printBalance (void) const
    {
-      for (vector < string >::const_iterator itComment = m_comments.begin (); itComment != m_comments.end (); ++itComment)
+      for (vector < std::string >::const_iterator itComment = m_comments.begin (); itComment != m_comments.end (); ++itComment)
          m_massBalanceStream << *itComment;
 
-      vector < string >::const_iterator itDescription;
-      vector < double >::const_iterator itQuantity;
+      std::vector < std::string >::const_iterator itDescription;
+      std::vector < double >::const_iterator itQuantity;
       size_t len;
 
       double totalIn = 0;
@@ -162,8 +164,8 @@ namespace migration
    template <typename STREAM>
    double MassBalance<STREAM>::balance (void) const
    {
-      vector<string>::const_iterator itDescription;
-      vector<double>::const_iterator itQuantity;
+      std::vector<string>::const_iterator itDescription;
+      std::vector<double>::const_iterator itQuantity;
 
 #ifdef DEBUG_MASSBALANCE
       double totalIn = 0;

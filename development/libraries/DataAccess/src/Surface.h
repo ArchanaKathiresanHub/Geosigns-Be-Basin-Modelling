@@ -21,15 +21,15 @@ namespace DataAccess
       virtual ~Surface (void);
 
 			/// Return the name of this Surface
-			virtual const string & getName (void) const;
+			virtual const std::string & getName (void) const;
 
 			/// Return the mangled name of this Surface
-			virtual const string & getMangledName (void) const;
+			virtual const std::string & getMangledName (void) const;
 
 			/// Return the name of the Formation found above this Surface if there is one.
-			virtual const string & getTopFormationName (void) const;
+			virtual const std::string & getTopFormationName (void) const;
 			/// Return the name of the Formation found below this Surface if there is one.
-			virtual const string & getBottomFormationName (void) const;
+			virtual const std::string & getBottomFormationName (void) const;
 
 			/// Return the Snapshot containing the deposition age of this Surface
 			virtual const Snapshot * getSnapshot (void) const;
@@ -58,9 +58,9 @@ namespace DataAccess
 
 			 virtual SurfaceKind kind () const;
 
-			virtual void printOn (ostream &) const;
+			virtual void printOn (std::ostream &) const;
 
-			virtual void asString (string &) const;
+			virtual void asString (std::string &) const;
 
        /// \brief Get the deposition sequence of the formation directly BELOW the surface.
        ///
@@ -73,7 +73,7 @@ namespace DataAccess
        /// The record is null.
        explicit Surface (ProjectHandle& projectHandle);
 
-      string m_mangledName;
+      std::string m_mangledName;
 
        /// The types of map assigned to the surface.
        enum MapType {

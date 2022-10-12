@@ -43,9 +43,6 @@ using CBMGenerics::Polyfunction;
 
 #include "PVTCalculator.h"
 
-
-using namespace std;
-
 #include "GridMap.h"
 #include "Formation.h"
 using namespace DataAccess;
@@ -59,7 +56,7 @@ struct listVec {
 };
 
 
-typedef vector<double> STLVecOfDouble;
+typedef std::vector<double> STLVecOfDouble;
 
 
 struct Boundary_Set {
@@ -68,7 +65,7 @@ struct Boundary_Set {
   double Boundary_Value;
 } ;
 
-typedef vector< Boundary_Set* > Constrained_Property;
+typedef std::vector< Boundary_Set* > Constrained_Property;
 
 typedef Interface::Local2DArray <int> PETSc_2D_Integer_Array;
 

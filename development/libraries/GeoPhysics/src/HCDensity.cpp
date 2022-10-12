@@ -27,6 +27,8 @@
 #include "ComponentManager.h"
 typedef CBMGenerics::ComponentManager::SpeciesNamesId ComponentId;
 
+using namespace std;
+
 #define OIL 1
 #define GAS 0
 

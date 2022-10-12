@@ -52,12 +52,12 @@ inline double Element::GetAtomWeight()const
 }
 inline void Element::OutputOnScreen() const
 {
-   cout << m_name << "," << setprecision(7) << m_AtomWeight << endl;
+   cout << m_name << "," << std::setprecision(7) << m_AtomWeight << endl;
 }
 inline void Element:: OutputOnFile(std::ofstream &outfile) const
 {
    
-   outfile << m_name << "," << setprecision(7) << m_AtomWeight << std::endl;
+   outfile << m_name << "," << std::setprecision(7) << m_AtomWeight << std::endl;
 }
 
 }

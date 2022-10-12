@@ -57,6 +57,8 @@
 #include "h5merge.h"
 #endif
 
+using namespace std;
+
 //------------------------------------------------------------//
 
 bool SnapshotRecordLess ( database::Record* left,

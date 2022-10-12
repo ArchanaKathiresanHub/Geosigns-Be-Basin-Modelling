@@ -10,16 +10,17 @@
 #                                                                       #
 #########################################################################
 
-set( APP_NAME "tracktraps" )
 
-add_executable(${APP_NAME}
-   src/TrackProjectHandle.cpp
-   src/PersistentTrap.cpp
-   src/PersistentTrapFactory.cpp
-   src/TrackReservoir.cpp
-   src/TrackTrap.cpp
-   src/generics.cpp
-   src/main.cpp
+FILE( GLOB all_headers src/*.h )
+source_group(include FILES ${all_headers})
+
+FILE( GLOB all_srcs src/*.cpp)
+source_group(source FILES ${all_srcs})
+
+set( APP_NAME "tracktraps" )
+add_executable( ${APP_NAME}
+   ${all_srcs}
+   ${all_headers}
 )
 
 set_target_properties( ${APP_NAME} PROPERTIES SUFFIX ".exe" )

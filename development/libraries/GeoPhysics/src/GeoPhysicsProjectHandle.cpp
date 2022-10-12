@@ -65,6 +65,7 @@ using Utilities::Physics::AccelerationDueToGravity;
 
 using namespace DataAccess;
 using namespace CBMGenerics;
+using namespace std;
 
 GeoPhysics::ProjectHandle::ProjectHandle (database::ProjectFileHandlerPtr pfh, const std::string & name, const Interface::ObjectFactory* objectFactory ) :
    DataAccess::Interface::ProjectHandle ( pfh, name, objectFactory ) {

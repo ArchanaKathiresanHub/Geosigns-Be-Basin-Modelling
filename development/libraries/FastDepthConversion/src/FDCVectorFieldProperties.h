@@ -40,7 +40,7 @@ public:
 private:
   void calculateTopMostSurfaceIncreasedDepth(std::vector<double> & increasedDepths, const int nRefDepths, const double maxSeisVel) const;
   void calculateSurfaceIncreasedDepth(std::vector<double> & increasedDepths, const int nRefDepths, const double maxSeisVel) const;
-  void retrievePropertiesWhenAtReferenceSurface(const mbapi::StratigraphyManager::SurfaceID currentSurface, const string & twtMapNames);
+  void retrievePropertiesWhenAtReferenceSurface(const mbapi::StratigraphyManager::SurfaceID currentSurface, const std::string & twtMapNames);
 
   FDCProjectManager&    m_fdcProjectManager;
   std::vector<double>   m_refDepths;

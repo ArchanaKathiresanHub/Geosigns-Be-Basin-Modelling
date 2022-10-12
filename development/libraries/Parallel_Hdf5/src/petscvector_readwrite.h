@@ -15,7 +15,7 @@ template <class Type>
 class PetscVector_ReadWrite : public Buffer_ReadWrite
 {
 private:
-   typedef pair <H5_FixedSpace*, H5_FixedSpace*> DataSpace;
+   typedef std::pair <H5_FixedSpace*, H5_FixedSpace*> DataSpace;
 
 public:
    PetscVector_ReadWrite (void) : Buffer_ReadWrite () {}

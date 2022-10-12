@@ -101,7 +101,7 @@ void FDCMapFieldProperties::initializeAllMaps()
   }
 }
 
-void FDCMapFieldProperties::calculateInitialMaps(const string & masterResultsFilePathName, const bool preserveErosionFlag)
+void FDCMapFieldProperties::calculateInitialMaps(const std::string & masterResultsFilePathName, const bool preserveErosionFlag)
 {
   initializeAllMaps();
   setTwtMapsForAllSurfaces();
@@ -155,7 +155,7 @@ std::string FDCMapFieldProperties::getTwtGridName(const mbapi::StratigraphyManag
   return twtGridName;
 }
 
-void FDCMapFieldProperties::initializeMapWriterOnMasterResultsFile(const string & masterResultsFilePathName) const
+void FDCMapFieldProperties::initializeMapWriterOnMasterResultsFile(const std::string & masterResultsFilePathName) const
 {
   mbapi::MapsManager& mapMgr = m_fdcProjectManager.getMapsManager();
   if (ErrorHandler::NoError != mapMgr.initializeMapWriter(masterResultsFilePathName, false))
@@ -311,7 +311,7 @@ std::string FDCMapFieldProperties::twtMaps(const mbapi::StratigraphyManager::Sur
   return m_twtMaps.count(ID) ? m_twtMaps.at(ID) : "";
 }
 
-void FDCMapFieldProperties::setTwtMaps(const mbapi::StratigraphyManager::SurfaceID ID, const string & value)
+void FDCMapFieldProperties::setTwtMaps(const mbapi::StratigraphyManager::SurfaceID ID, const std::string & value)
 {
   m_twtMaps[ID] = value;
 }

@@ -162,7 +162,7 @@ bool HDF5::writeAttribute(hid_t fileHandle,
 }
 
 /// Find the name of the DataSet with the given layerIndex
-string HDF5::findLayerName(const string & filePathName, int layerIndex, H5_PropertyList* plist)
+std::string HDF5::findLayerName(const std::string & filePathName, int layerIndex, H5_PropertyList* plist)
 {
   LayerInfo layerInfo;
   layerInfo.index = layerIndex;
@@ -171,7 +171,7 @@ string HDF5::findLayerName(const string & filePathName, int layerIndex, H5_Prope
   H5_ReadOnly_File gridMapFile;
   if (!gridMapFile.open (filePathName.c_str (), plist))
   {
-     cerr << "ERROR in HDF5::findLayerName (): Could not open " << filePathName << endl;
+      std::cerr << "ERROR in HDF5::findLayerName (): Could not open " << filePathName << std::endl;
   }
   else
   {

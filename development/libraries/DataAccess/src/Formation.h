@@ -37,15 +37,15 @@ namespace DataAccess
        virtual ~Formation (void);
 
        /// Return the Surface at the top of this Formation
-       virtual const string & getName (void) const;
+       virtual const std::string & getName (void) const;
 
        /// Return the mangled name of this Formation
-       virtual const string & getMangledName (void) const;
+       virtual const std::string & getMangledName (void) const;
 
        /// Return the name of the Surface at the top of this Formation
-       virtual const string & getTopSurfaceName (void) const;
+       virtual const std::string & getTopSurfaceName (void) const;
        /// Return the name of the Surface at the bottom of this Formation
-       virtual const string & getBottomSurfaceName (void) const;
+       virtual const std::string & getBottomSurfaceName (void) const;
 
        /// Return the Surface at the top of this Formation
        virtual const Surface * getTopSurface (void) const;
@@ -112,13 +112,13 @@ namespace DataAccess
        virtual double getSourceRockMixingHI(void) const;
 
        /// Return the name of Mixing HI grid
-       virtual const string & getSourceRockMixingHIGridName(void) const;
+       virtual const std::string & getSourceRockMixingHIGridName(void) const;
 
        /// Return the Mixing Source Rock mode value
        virtual double getSourceRockMixingHC(void) const;
 
        /// Return the name of Mixing HC grid
-       virtual const string & getSourceRockMixingHCGridName(void) const;
+       virtual const std::string & getSourceRockMixingHCGridName(void) const;
 
        /// \brief Indicate whether or not the layer is an igneous intrusion.
        virtual bool getIsIgneousIntrusion () const;
@@ -192,10 +192,10 @@ namespace DataAccess
        virtual GridMap * loadMixingHCMap (void) const;
        virtual const GridMap * getMixingHCMap (void) const;
 
-       virtual void printOn (ostream &) const;
+       virtual void printOn (std::ostream &) const;
 
-       /// return a string description of this class
-       virtual void asString (string &) const;
+       /// return a std::string description of this class
+       virtual void asString (std::string &) const;
 
        /// return the Compound lithology array.
        virtual const DataModel::AbstractCompoundLithologyArray& getCompoundLithologyArray () const override;
@@ -205,7 +205,7 @@ namespace DataAccess
 
     protected :
 
-       string m_mangledName;
+       std::string m_mangledName;
 
        static const unsigned int ThicknessMap = 0;
        static const unsigned int LithoType1Map = 1;

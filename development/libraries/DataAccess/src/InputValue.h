@@ -27,13 +27,13 @@ namespace DataAccess
 				 virtual InputValueType getType (void) const;
 
 				 /// Return the format identifier of the file
-				 virtual const string & getMapType (void) const;
+				 virtual const std::string & getMapType (void) const;
 
 				 /// Return the name of the file from which the InputValue was read
-				 virtual const string & getFileName (void) const;
+				 virtual const std::string & getFileName (void) const;
 
-				 virtual const string & getReferringTableName (void) const;
-				 virtual const string & getMapName (void) const;
+				 virtual const std::string & getReferringTableName (void) const;
+				 virtual const std::string & getMapName (void) const;
 
 				 /// Return the GridMap that contains the values of this InputValue
 				 virtual const GridMap * getGridMap (void) const;
@@ -42,30 +42,30 @@ namespace DataAccess
 				 virtual double getEventAge (void) const;
 
 				 /// Get the name of the property associated with this InputValue
-				 virtual const string & getPropertyName (void) const;
+				 virtual const std::string & getPropertyName (void) const;
 
 				 /// Get the name of the Surface associated with this InputValue
-				 virtual const string & getSurfaceName (void) const;
+				 virtual const std::string & getSurfaceName (void) const;
 
 				 /// Get the name of the Formation associated with this InputValue
-				 virtual const string & getFormationName (void) const;
+				 virtual const std::string & getFormationName (void) const;
 
 				 /// Get the name of the Reservoir associated with this InputValue
-				 virtual const string & getReservoirName (void) const;
+				 virtual const std::string & getReservoirName (void) const;
 
-				 virtual void printOn (ostream &) const;
+				 virtual void printOn (std::ostream &) const;
 
-				 /// return a string description of this PropertyValue
-				 virtual void asString (string &) const;
+				 /// return a std::string description of this PropertyValue
+				 virtual void asString (std::string &) const;
 
          /// Get the sequence number of the map.
          virtual int getMapSequenceNumber () const;
 
 				 /// Get information about the hdf filename and datasetname for this inputmap when called from rank 0 only
-				 void getHDFinfoSingleCore(string& fileName, string& dataSetName) const;
+				 void getHDFinfoSingleCore(std::string& fileName, std::string& dataSetName) const;
 
 				 /// Get information about the hdf filename and datasetname for this inputmap
-				 void getHDFinfo(string& fileName, string& dataSetName) const;
+				 void getHDFinfo(std::string& fileName, std::string& dataSetName) const;
 
 			 inline void setIndex(unsigned int index);
 				 inline unsigned int getIndex (void);
@@ -77,10 +77,10 @@ namespace DataAccess
 
 				 /// event attributes
 				 mutable double m_eventAge;
-				 mutable string m_propertyName;
-				 mutable string m_surfaceName;
-				 mutable string m_formationName;
-				 mutable string m_reservoirName;
+				 mutable std::string m_propertyName;
+				 mutable std::string m_surfaceName;
+				 mutable std::string m_formationName;
+				 mutable std::string m_reservoirName;
 
 				 bool fillEventAttributes (void) const;
 

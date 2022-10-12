@@ -34,14 +34,14 @@ namespace migration
 
    using namespace DataAccess;
 
-   typedef vector<Column *> ColumnVector;
-   typedef vector<Column *>::iterator ColumnIterator;
-   typedef vector<Column *>::const_iterator ConstColumnIterator;
-   typedef vector<Column *>::reverse_iterator ColumnReverseIterator;
-   typedef vector<Column *>::const_reverse_iterator ConstColumnReverseIterator;
+   typedef std::vector<Column *> ColumnVector;
+   typedef std::vector<Column *>::iterator ColumnIterator;
+   typedef std::vector<Column *>::const_iterator ConstColumnIterator;
+   typedef std::vector<Column *>::reverse_iterator ColumnReverseIterator;
+   typedef std::vector<Column *>::const_reverse_iterator ConstColumnReverseIterator;
 
-   typedef pair<int, int> IntPair;
-   typedef vector<IntPair> IntPairVector;
+   typedef std::pair<int, int> IntPair;
+   typedef std::vector<IntPair> IntPairVector;
 
    class TrapPropertiesRequest;
    class OilToGasCracker;
@@ -97,7 +97,7 @@ namespace migration
 
       /*!
       * \brief Boolean which informed if the \param column belong to the interior of the trap or not.
-      * \details All column "inside" a trap belong to the interior column vector.
+      * \details All column "inside" a trap belong to the interior column std::vector.
       * For information, the interior column vector is sorted such that shallowest columns are at the beginning, and deepest at the end.
       * So, the first column of the interior column vector is the crest column.
       * \return True if the \param column belong to the interior of the trap, false otherwise
@@ -410,8 +410,8 @@ namespace migration
       /// If depths contains a vector of formations starting with the formation containing 
       /// this trap, return iterators pointing to the formations which constitute the 
       /// overburden of this trap:
-      void iterateToFirstOverburdenFormation (const vector<FormationSurfaceGridMaps>& depths, vector<FormationSurfaceGridMaps>::
-         const_iterator& begin, vector<FormationSurfaceGridMaps>::const_iterator& end) const;
+      void iterateToFirstOverburdenFormation (const vector<FormationSurfaceGridMaps>& depths, std::vector<FormationSurfaceGridMaps>::
+         const_iterator& begin, std::vector<FormationSurfaceGridMaps>::const_iterator& end) const;
 
       // Methods used for diffusion leakage calculation:
       bool computeDiffusionOverburden (const SurfaceGridMapContainer& fullOverburden,
@@ -420,7 +420,7 @@ namespace migration
          const Snapshot* snapshot, bool& sealPresent, double& sealFluidDensity) const;
       bool computeDiffusionOverburdenImpl (const SurfaceGridMapContainer& fullOverburden,
          const Snapshot* snapshot, const double& maxSealThickness, int maxFormations,
-         vector<DiffusionLeak::OverburdenProp>& diffusionOverburdenProps) const;
+         std::vector<DiffusionLeak::OverburdenProp>& diffusionOverburdenProps) const;
 
       void diffusionLeakCharges (const double& intervalStartTime, const double & intervalEndTime,
          const Interface::DiffusionLeakageParameters*
@@ -437,13 +437,13 @@ namespace migration
          bool& sealPresent,
          double& fracPressure,
          double& sealFluidDensity,
-         vector< vector<translateProps::CreateCapillaryLithoProp::output> >& lithProps,
-         vector< vector<double> >& lithFracs,
-         vector<CBMGenerics::capillarySealStrength::MixModel>& mixModel,
-         vector<double>& permeability) const;
+         std::vector< std::vector<translateProps::CreateCapillaryLithoProp::output> >& lithProps,
+         std::vector< std::vector<double> >& lithFracs,
+         std::vector<CBMGenerics::capillarySealStrength::MixModel>& mixModel,
+         std::vector<double>& permeability) const;
 
       bool computeForFunctionOfLithostaticPressure (const SurfaceGridMapContainer& fullOverburden,
-         const MigrationFormation* formation, const vector<double>& lithFracs, double& fracPressure) const;
+         const MigrationFormation* formation, const std::vector<double>& lithFracs, double& fracPressure) const;
 
       bool distributeCharges (const bool performAdvancedMigration);
 

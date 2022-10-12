@@ -173,7 +173,7 @@ void Migration::printOn (ostream & ostr) const
 
 void Migration::asString (string & str) const
 {
-   ostringstream buf;
+   std::ostringstream buf;
 
    buf << "Migration:";
    buf << " process = " << getProcess ();

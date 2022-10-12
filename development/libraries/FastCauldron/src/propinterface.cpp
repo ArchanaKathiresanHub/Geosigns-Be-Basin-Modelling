@@ -32,7 +32,6 @@ using namespace database;
 #include "NumericFunctions.h"
 #include "Quadrature.h"
 
-
 using namespace Basin_Modelling;
 
 // Data access library
@@ -76,6 +75,7 @@ using Utilities::Maths::Zero;
 #include "ConstantsPhysics.h"
 using Utilities::Physics::AccelerationDueToGravity;
 
+using namespace std;
 #ifdef _MSC_VER
 #define sleep(x) Sleep(1000 * x) // convert from to milliseconds
 #endif /** _MSC_VER */
@@ -246,8 +246,8 @@ void AppCtx::CheckForStartInDebugger(int *argc, char ***args)
   PetscBool Start_In_WORKSHOP = PETSC_FALSE;
   PetscBool Start_In_DDD      = PETSC_FALSE;
 
-  string Debug_Command;
-  string Process_Id = IntegerToString( Utilities::CheckMemory::getProcPID() );
+  std::string Debug_Command;
+  std::string Process_Id = IntegerToString( Utilities::CheckMemory::getProcPID() );
 
   int  left    = *argc - 1;
   char **eargs = *args + 1;
@@ -270,7 +270,7 @@ void AppCtx::CheckForStartInDebugger(int *argc, char ***args)
      else if ( Start_In_WORKSHOP )
      {
        cout << "Attaching cvd to " << *args[ 0 ] << " (pid: " << Process_Id << ") Please wait..." << endl;
-       Debug_Command = "workshop -D " + string( *args[ 0 ] ) + " " + Process_Id + "&";
+       Debug_Command = "workshop -D " + std::string( *args[ 0 ] ) + " " + Process_Id + "&";
 
        system( Debug_Command.c_str() );
       sleep(10);
@@ -290,9 +290,9 @@ void AppCtx::CheckForStartInDebugger(int *argc, char ***args)
         // cout << "Attaching ddd to " << *args[ 0 ] << " (pid: " << Process_Id << ") Please wait..." << endl;
 
         if ( MY_DEBUGGERDIR == 0 || strlen (MY_DEBUGGERDIR) == 0 || !File_Exists ( MY_DEBUGGERDIR )) {
-           Debug_Command = "ddd " + string( *args[ 0 ] ) + " " + Process_Id + "&";
+           Debug_Command = "ddd " + std::string( *args[ 0 ] ) + " " + Process_Id + "&";
         } else {
-           Debug_Command = string ( MY_DEBUGGERDIR ) + ' ' + string( *args[ 0 ] ) + " " + Process_Id + "&";
+           Debug_Command = std::string ( MY_DEBUGGERDIR ) + ' ' + std::string( *args[ 0 ] ) + " " + Process_Id + "&";
         }
 
        system( Debug_Command.c_str() );
@@ -1193,7 +1193,7 @@ void AppCtx::setParametersFromEnvironment () {
 #undef __FUNCT__
 #define __FUNCT__ "AppCtx::setProjectFileName"
 
-bool AppCtx::setProjectFileName(const string& projectFileName) {
+bool AppCtx::setProjectFileName(const std::string& projectFileName) {
 
   bool returnStatus;
 
@@ -1216,7 +1216,7 @@ bool AppCtx::setProjectFileName(const string& projectFileName) {
 #undef __FUNCT__
 #define __FUNCT__ "AppCtx::setFastCauldronProjectFileName"
 
-void AppCtx::setFastCauldronProjectFileName(string projectName)
+void AppCtx::setFastCauldronProjectFileName(std::string projectName)
 {
    if (projectName.length () == 0)
    {
@@ -1231,7 +1231,7 @@ void AppCtx::setFastCauldronProjectFileName(string projectName)
 string AppCtx::Get_Project_Filename_Base ( )
 {
 
-  string Project_Filename_Base = m_ProjectFileName;
+  std::string Project_Filename_Base = m_ProjectFileName;
 
   removeExtension( Project_Filename_Base );
 
@@ -1491,7 +1491,7 @@ void AppCtx::printValidNeedles () const {
    for ( p = 0; p < FastcauldronSimulator::getInstance ().getSize (); ++p ) {
 
       if ( p == FastcauldronSimulator::getInstance ().getRank () ) {
-         stringstream buffer;
+         std::stringstream buffer;
          buffer << " Distribution for process: " << p << endl;
 
          buffer << "        ";
@@ -1597,7 +1597,7 @@ void AppCtx::Print_Nodes_Value_From_Polyfunction( ) {
 
 //------------------------------------------------------------//
 
-void AppCtx::initialiseTimeIOTable ( const string& currentOperation ) {
+void AppCtx::initialiseTimeIOTable ( const std::string& currentOperation ) {
 
   database::Table* localTimeIoTbl   = FastcauldronSimulator::getInstance ().getTable ("TimeIoTbl");
   database::Table* local3DTimeIoTbl = FastcauldronSimulator::getInstance ().getTable ("3DTimeIoTbl");
@@ -1620,7 +1620,7 @@ void AppCtx::initialiseTimeIOTable ( const string& currentOperation ) {
 
 //------------------------------------------------------------//
 
-void AppCtx::clearOperationFromTimeIOTable ( database::Table* table, const string& mapFileName ) {
+void AppCtx::clearOperationFromTimeIOTable ( database::Table* table, const std::string& mapFileName ) {
 
   std::vector < Record* > recordsForDeletion;
   std::vector < Record* >::iterator recordIterator;
@@ -1670,7 +1670,7 @@ void AppCtx::deleteTimeIORecord ( const double  age )
 
 //------------------------------------------------------------//
 
-void AppCtx::deleteTimeIORecord ( const string& propertyName,
+void AppCtx::deleteTimeIORecord ( const std::string& propertyName,
                                   const double  age ) {
 
 
@@ -1696,10 +1696,10 @@ void AppCtx::deleteTimeIORecord ( const string& propertyName,
 
 //------------------------------------------------------------//
 
-void AppCtx::deleteTimeIORecord ( const string& propertyName,
+void AppCtx::deleteTimeIORecord ( const std::string& propertyName,
                                   const double  age,
-                                  const string& surfaceName,
-                                  const string& formationName ) {
+                                  const std::string& surfaceName,
+                                  const std::string& formationName ) {
 
 
   database::Table* timeIoTbl = FastcauldronSimulator::getInstance ().getTable ("TimeIoTbl");

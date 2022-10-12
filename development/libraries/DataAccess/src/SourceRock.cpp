@@ -212,7 +212,7 @@ void SourceRock::printOn (ostream & ostr) const
 
 void SourceRock::asString (string & str) const
 {
-   ostringstream buf;
+   std::ostringstream buf;
 
    buf << "SourceRock:";
    buf << " Type = " << getType ();

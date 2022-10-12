@@ -16,8 +16,6 @@
 #include "petscdmda.h"
 
 #include <string>
-using namespace std;
-
 
 #include "Interface.h"
 #include "GlobalGrid.h"
@@ -158,8 +156,8 @@ namespace DataAccess
          /// return DALocalInfo;
          const GlobalGrid & getGlobalGrid (void) const;
          
-         virtual void asString (string &) const;
-         virtual void printOn (ostream &) const;
+         virtual void asString (std::string &) const;
+         virtual void printOn (std::ostream &) const;
          
          void printDistributionOn (MPI_Comm com) const;
          

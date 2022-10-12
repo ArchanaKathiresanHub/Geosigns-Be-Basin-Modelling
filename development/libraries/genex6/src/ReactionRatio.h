@@ -5,7 +5,6 @@
 #include<iostream>
 #include <fstream>
 #include<iomanip>
-using namespace std;
 
 namespace Genex6
 {
@@ -21,7 +20,7 @@ public:
    double GetRatio(const double preasphaltheneArom) const;
 
    void OutputOnScreen();
-   void OutputOnFile(ofstream &outfile);
+   void OutputOnFile(std::ofstream &outfile);
 
 private:
    Species *m_reactant1;

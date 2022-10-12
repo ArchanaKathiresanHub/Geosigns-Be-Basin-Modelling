@@ -44,6 +44,7 @@
 // 1. Using fvec for each observation will produce a jacobian more similar to the one produced by PEST
 //#define ACCUMULATE_MIN_FUNCTION 1
 using namespace Eigen;
+using namespace std;
 
 namespace casa
 {

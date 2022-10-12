@@ -30,6 +30,7 @@
 #include "ConstantsMathematics.h"
 
 using namespace AbstractDerivedProperties;
+using namespace std;
 
 DerivedProperties::LithostaticPressureFormationCalculator::LithostaticPressureFormationCalculator ( const GeoPhysics::ProjectHandle& projectHandle ) : m_projectHandle ( projectHandle ) {
    addPropertyName ( "LithoStaticPressure" );

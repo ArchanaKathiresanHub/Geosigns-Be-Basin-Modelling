@@ -41,15 +41,15 @@ namespace DataAccess
          const Formation * getFormation (void) const;
 
          /// Return the Formation name of this PaleoFormationProperty.
-         const string & getFormationName (void) const;
+         const std::string & getFormationName (void) const;
 
-         /// Return the string representation of the PaleoFormationProperty object.
-         void asString (string &) const;
+         /// Return the std::string representation of the PaleoFormationProperty object.
+         void asString (std::string &) const;
 
       protected:
 
          const Formation * m_formation;
-         const string formationName;
+         const std::string formationName;
 
       };
 

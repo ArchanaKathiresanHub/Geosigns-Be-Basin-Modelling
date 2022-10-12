@@ -38,6 +38,8 @@ typedef formattingexception::GeneralException GeoPhysicsFormationException;
 
 using namespace DataAccess;
 
+using namespace std;
+
 //------------------------------------------------------------//
 
 GeoPhysics::GeoPhysicsFormation::GeoPhysicsFormation ( DataAccess::Interface::ProjectHandle& projectHandle,

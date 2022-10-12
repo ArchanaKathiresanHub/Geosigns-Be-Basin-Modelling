@@ -13,6 +13,8 @@
 #include "ConstantsGenex.h"
 #include "GeneralParametersHandler.h"
 
+using namespace std;
+
 namespace Genex6
 {
 SpeciesProperties::SpeciesProperties(Species *const in_Species,

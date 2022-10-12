@@ -20,7 +20,6 @@
 #include "SpeciesManager.h"
 #include "ChemicalModel.h"
 
-using namespace std;
 
 namespace Genex6
 {
@@ -80,13 +79,13 @@ public:
    void OutputCompositionOnScreen();
    void OutputPropertiesOnScreen() const;
 
-   void OutputCompositionOnFile(ofstream &outfile);
-   void OutputMassFactorsOnFile(ofstream &outfile) const;
+   void OutputCompositionOnFile(std::ofstream &outfile);
+   void OutputMassFactorsOnFile(std::ofstream &outfile) const;
    void OutputMassFactorsOnScreen() const;
-   void OutputPropertiesOnFile(ofstream &outfile) const;
-   void OutputOnFile(ofstream &outfile) const;
-   void PrintBenchmarkProperties(ofstream &outfile) const;
-   void PrintBenchmarkStoichiometry(ofstream &outfile) const;
+   void OutputPropertiesOnFile(std::ofstream &outfile) const;
+   void OutputOnFile(std::ofstream &outfile) const;
+   void PrintBenchmarkProperties(std::ofstream &outfile) const;
+   void PrintBenchmarkStoichiometry(std::ofstream &outfile) const;
    void OutputResults(const bool value);
    bool IsSpeciesOutputRequired() const;
    //void LoadStoichiometry(ifstream &infile);

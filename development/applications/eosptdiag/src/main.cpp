@@ -24,6 +24,7 @@ using Utilities::Maths::PaToMegaPa;
 using Utilities::Maths::MegaPaToPa;
 using Utilities::Maths::CelciusToKelvin;
 using Utilities::Maths::KelvinToCelcius;
+using namespace std;
 
 #define PTDIAG_VERSION "3.6"
 

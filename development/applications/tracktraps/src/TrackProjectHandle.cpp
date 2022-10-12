@@ -8,6 +8,8 @@
 // Do not distribute without written permission from Shell.
 //
 #include <cassert>
+#include <map>
+#include <vector>
 #include <iostream>
 
 #include "database.h"

@@ -135,7 +135,7 @@ int MantleFormation::getDepositionSequence () const {
 
 void MantleFormation::asString (string & str) const
 {
-   ostringstream buf;
+   std::ostringstream buf;
 
    buf << "MantleFormation";
    buf << ": name = "                << getName ();

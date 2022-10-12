@@ -8,8 +8,6 @@
 #include <fstream>
 #include<iomanip>
 
-using namespace std;
-
 
 namespace Genex6
 {
@@ -35,9 +33,9 @@ public:
    void OutputProductsOnScreen();
    void OutputReactionRatiosOnScreen();
    void OutputProductRatiosOnScreen();
-   void OutputProductsOnFile(ofstream &outfile);
-   void OutputReactionRatiosOnFile(ofstream &outfile);
-   void OutputProductRatiosOnFile(ofstream &outfile);
+   void OutputProductsOnFile(std::ofstream &outfile);
+   void OutputReactionRatiosOnFile(std::ofstream &outfile);
+   void OutputProductRatiosOnFile(std::ofstream &outfile);
 
 private:
    Species *m_theMother;

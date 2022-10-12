@@ -57,7 +57,7 @@ namespace GeoPhysics {
 
       SimpleLithology * getSimpleLithology() const;
 
-      /// Return a string representation of the compound-lithology.
+      /// Return a std::string representation of the compound-lithology.
       std::string image() const;
 
       /// Add a simple-lithology to the compound lithology and its fraction.
@@ -109,7 +109,7 @@ namespace GeoPhysics {
       double tenPowerCapC2() const;
 
       /// Return the Brooks-Corey parameters
-      string PcKrModel() const;
+      std::string PcKrModel() const;
       double LambdaPc() const;
       double LambdaKr() const;
 
@@ -268,7 +268,7 @@ namespace GeoPhysics {
       // mix the capillary pressure function parameters
       void mixBrooksCoreyParameters();
 
-      const string getThermalModel() const;
+      const std::string getThermalModel() const;
 
       double computePorosityDerivativeWRTVes(const double ves,
                                              const double maxVes,
@@ -480,7 +480,7 @@ namespace GeoPhysics {
       double           m_capC2;
       double           m_tenPowerCapC2;
       //Brooks-Corey
-      string           m_PcKrModel;
+      std::string           m_PcKrModel;
       double           m_LambdaKr;
       double           m_LambdaPc;
 
@@ -633,7 +633,7 @@ inline double GeoPhysics::CompoundLithology::tenPowerCapC2() const {
 }
 
 
-inline string GeoPhysics::CompoundLithology::PcKrModel() const {
+inline std::string GeoPhysics::CompoundLithology::PcKrModel() const {
    return m_PcKrModel;
 }
 

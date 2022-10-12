@@ -169,9 +169,9 @@ const GeoPhysics::CompoundLithology* DerivedPropertyDriller::getLithology(const 
   const DataAccess::Interface::GridMap* lithoMap2 = formation->getLithoType2PercentageMap ();
   const DataAccess::Interface::GridMap* lithoMap3 = formation->getLithoType3PercentageMap ();
 
-  const string lithoName1 = ( formation->getLithoType1 () ) ? formation->getLithoType1 ()->getName () : "";
-  const string lithoName2 = ( formation->getLithoType2 () ) ? formation->getLithoType2 ()->getName () : "";
-  const string lithoName3 = ( formation->getLithoType3 () ) ? formation->getLithoType3 ()->getName () : "";
+  const std::string lithoName1 = ( formation->getLithoType1 () ) ? formation->getLithoType1 ()->getName () : "";
+  const std::string lithoName2 = ( formation->getLithoType2 () ) ? formation->getLithoType2 ()->getName () : "";
+  const std::string lithoName3 = ( formation->getLithoType3 () ) ? formation->getLithoType3 ()->getName () : "";
 
   const bool useMaps = ( lithoMap1 && ! lithoMap1->isConstant ()) ||
                        ( lithoMap2 && ! lithoMap2->isConstant ()) ||

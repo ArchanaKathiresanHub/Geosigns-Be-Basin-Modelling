@@ -33,7 +33,7 @@ namespace migration {
    const double MA_TO_S = 60 * 60 * 24 * 365.25 * 1e6;
    const double NEARZERO = numeric_limits<double>::min() * 1e10;
 
-   DiffusionLeak::DiffusionLeak(const vector<DiffusionLeak::OverburdenProp>& overburdenProps, 
+   DiffusionLeak::DiffusionLeak(const std::vector<DiffusionLeak::OverburdenProp>& overburdenProps, 
                                 const double& sealFluidDensity, 
                                 const double& penetrationDistance, const double& maxPenetrationDistance, 
                                 const DiffusionCoefficient& coefficient, const double& maxTimeStep, const double& maxFluxError):
@@ -47,8 +47,8 @@ namespace migration {
       m_Deff(0),
       m_maxPenetrationDistanceForDeff(-numeric_limits<double>::max())
    {
-      m_maxPenetrationDistance = min (m_maxPenetrationDistance, getOverburdenThickness ());
-      m_penetrationDistance = min (m_penetrationDistance, m_maxPenetrationDistance);
+      m_maxPenetrationDistance = std::min (m_maxPenetrationDistance, getOverburdenThickness ());
+      m_penetrationDistance = std::min (m_penetrationDistance, m_maxPenetrationDistance);
    }
 
    /// Compute the leakages for time between intervalStartTime and intervalEndTime.
@@ -106,7 +106,7 @@ namespace migration {
             /// This is the transient case			 
 
             stepEndTime = stepStartTime - stepSize; // Initial timestep
-            stepEndTime = max (stepEndTime, intervalEndTime);
+            stepEndTime = std::max (stepEndTime, intervalEndTime);
             stepSize = stepStartTime - stepEndTime; 
 
             assert(stepSize > 0.0);
@@ -131,7 +131,7 @@ namespace migration {
             // Increase the stepSize for the penetrationDistance front may have passed 
             // a formation surface:
             stepSize *= 16;
-            stepSize = min(m_maxTimeStep, stepSize);
+            stepSize = std::min(m_maxTimeStep, stepSize);
          }
 
          stepStartTime = stepEndTime; 
@@ -189,7 +189,7 @@ namespace migration {
       {
          // use the initial diffusion coefficient to compute the penetrationDistance at the end of the timestep.
          double newPenetrationDistance = propagatePenetrationDistance (Deff, diffusionStartTime, stepStartTime, stepEndTime);
-         newPenetrationDistance = min (newPenetrationDistance, m_maxPenetrationDistance);
+         newPenetrationDistance = std::min (newPenetrationDistance, m_maxPenetrationDistance);
 
          if (maxError)
          {
@@ -260,19 +260,19 @@ namespace migration {
       double z_tot = 0.0;
 
       // Iterate over all the layers of m_overburdenProperties until penetrationDistance is reached:
-      vector<OverburdenProp>::const_iterator i = m_overburdenProps.begin();
+      std::vector<OverburdenProp>::const_iterator i = m_overburdenProps.begin();
       assert(i != m_overburdenProps.end());
 
       // Calculate the penetrationDistance rounded up to the next formation thickness:
       assert((*i).m_thickness > 0.0);
-      double remainingPenetrationDistance = max(penetrationDistance, 0.5 * (*i).m_thickness);
+      double remainingPenetrationDistance = std::max(penetrationDistance, 0.5 * (*i).m_thickness);
       m_maxPenetrationDistanceForDeff = 0.0;
 
       for (; i != m_overburdenProps.end() && remainingPenetrationDistance > 0.0; ++i)
       {
          assert((*i).m_thickness > 0.0);
 
-         double z_i = min (remainingPenetrationDistance, (*i).m_thickness);
+         double z_i = std::min (remainingPenetrationDistance, (*i).m_thickness);
 
          // Calculate the average formation porosity:
          double formPorosity = Percentage2Fraction * ((*i).m_topPorosity + (*i).m_basePorosity) / 2.0;
@@ -307,7 +307,7 @@ namespace migration {
    double DiffusionLeak::getOverburdenThickness ()
    {
       double thickness = 0;
-      vector<OverburdenProp>::const_iterator i;
+      std::vector<OverburdenProp>::const_iterator i;
       for (i = m_overburdenProps.begin(); i != m_overburdenProps.end(); ++i)
       {
          thickness += (*i).m_thickness;

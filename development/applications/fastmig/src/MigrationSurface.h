@@ -17,8 +17,6 @@
 #include <map>
 #include <vector>
 
-using namespace std;
-
 namespace database
 {
    class Record;

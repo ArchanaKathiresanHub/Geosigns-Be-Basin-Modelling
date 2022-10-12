@@ -43,6 +43,8 @@ using Utilities::Physics::StandardPressure;
 using Utilities::Physics::StandardTemperatureGenexK;
 typedef CBMGenerics::ComponentManager::SpeciesNamesId ComponentId;
 
+using namespace std;
+
 
 Genex6::OTGCNodeAdsorptionHistory::OTGCNodeAdsorptionHistory ( const SpeciesManager& speciesManager,
                                                                DataAccess::Interface::ProjectHandle& projectHandle ) :

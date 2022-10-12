@@ -2,7 +2,6 @@
 #define _INTERFACE_CONSTRAINED_OVERPRESSURE_INTERVAL_H
 
 #include <string>
-using namespace std;
 
 #include "DAObject.h"
 #include "Interface.h"

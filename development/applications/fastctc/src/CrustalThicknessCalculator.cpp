@@ -48,9 +48,9 @@ using namespace DataAccess::Interface;
 #include <sstream>
 //------------------------------------------------------------//
 
-string CrustalThicknessCalculator::m_projectFileName;
-string CrustalThicknessCalculator::m_outputFileName;
-const string CrustalThicknessCalculatorActivityName = "CrustalThicknessCalculator";
+std::string CrustalThicknessCalculator::m_projectFileName;
+std::string CrustalThicknessCalculator::m_outputFileName;
+const std::string CrustalThicknessCalculatorActivityName = "CrustalThicknessCalculator";
 
 //------------------------------------------------------------//
 
@@ -69,7 +69,7 @@ CrustalThicknessCalculator::CrustalThicknessCalculator(const database::ProjectFi
 
 //------------------------------------------------------------//
 
-CrustalThicknessCalculator* CrustalThicknessCalculator::createFrom( const string& inputFileName, ObjectFactory* factory ) {
+CrustalThicknessCalculator* CrustalThicknessCalculator::createFrom( const std::string& inputFileName, ObjectFactory* factory ) {
 
    m_projectFileName = inputFileName;
 
@@ -155,8 +155,8 @@ void CrustalThicknessCalculator::setRequestedOutputProperties( InterfaceOutput &
 
    for (auto tblIter = timeIoTbl->begin (); tblIter != timeIoTbl->end (); ++ tblIter) {
       Record * filterTimeIoRecord = * tblIter;
-      const string & outPutOption = database::getOutputOption(filterTimeIoRecord);      
-      const string & propertyName = database::getPropertyName (filterTimeIoRecord);
+      const std::string & outPutOption = database::getOutputOption(filterTimeIoRecord);      
+      const std::string & propertyName = database::getPropertyName (filterTimeIoRecord);
 
       if(outPutOption != "None") {
 
@@ -470,7 +470,7 @@ void CrustalThicknessCalculator::restoreData(){
 bool CrustalThicknessCalculator::sortCTCOuputTbl()
 {
     bool success = true;
-    string ctcRiftingHistoryTable;
+    std::string ctcRiftingHistoryTable;
     ctcRiftingHistoryTable = "CTCRiftingHistoryIoTbl";
     bool isFlexuralOtherThan_0Ma = false;
     double startOfFlexuralEvent = 0.;
@@ -671,7 +671,7 @@ bool CrustalThicknessCalculator::UpdateBPANameMappingTbl() const
                 }
                 else
                 {
-                    //construct the string to print
+                    //construct the std::string to print
                     std::string toPrint("GridMapIoTbl:" + atbl + ":" + entry);
                     std::string newMapName;
                     std::stringstream stream;
@@ -683,7 +683,7 @@ bool CrustalThicknessCalculator::UpdateBPANameMappingTbl() const
                         //match
                         // clear the stream or error state, 
                         stream.clear();
-                        stream.str("");// assign null string, otherwise it appends to the existing
+                        stream.str("");// assign null std::string, otherwise it appends to the existing
                         stream << std::fixed << std::setprecision(2) << (*(rcdCT + 1))->getValue<double>(InterfaceOutput::s_ContOceaCrustalThicknessAgeFieldName);
                         std::string age2 = stream.str();
                         LogHandler(LogHandler::DEBUG_SEVERITY) << "found map that's reused at age" << age2 << '\t' << entry << '\n';
@@ -716,7 +716,7 @@ bool CrustalThicknessCalculator::UpdateBPANameMappingTbl() const
 		if (entry.compare("") || !isReused) {
 			//found a map
 			LogHandler(LogHandler::DEBUG_SEVERITY) << "found map" << entry << '\n';
-			//construct the string to print
+			//construct the std::string to print
 			std::string toPrint("GridMapIoTbl:" + atbl + ":" + entry);
 			std::stringstream stream;
 			// just retain 2 decimal places

@@ -2,10 +2,8 @@
 #define _INTERFACE_ALLOCHTHONOUS_LITHOLOGY_INTERPOLATION_H_
 
 #include <iostream>
-using namespace std;
 
 #include <string>
-using namespace std;
 
 #include "Interface.h"
 #include "Formation.h"
@@ -71,7 +69,7 @@ namespace DataAccess
             ~AllochthonousLithologyInterpolation  (void);
 
 			/// Return the name of the formation of this AllochthonousLithologyInterpolation.
-			const string& getFormationName (void) const;
+			const std::string& getFormationName (void) const;
 
 			/// Return the the Snapshot of this AllochthonousLithologyInterpolation
 			const Snapshot * getStartSnapshot (void) const;
@@ -96,7 +94,7 @@ namespace DataAccess
 
       /// Print the attributes of this AllochthonousLithologyInterpolation
             // May not work if user application is compiled under IRIX with CC -lang:std
-      void printOn (ostream & ostr) const;
+      void printOn (std::ostream & ostr) const;
 
    protected:
 

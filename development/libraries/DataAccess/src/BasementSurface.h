@@ -17,7 +17,7 @@ namespace DataAccess
          ~BasementSurface (void);
 
          /// Return the name of this Surface
-         const string & getName (void) const;
+         const std::string & getName (void) const;
 
          /// Returns null, since this surface is not associated with any project file record, hence no depth map.
          GridMap * loadDepthMap (void) const;
@@ -27,11 +27,11 @@ namespace DataAccess
 
          GridMap * computeDepthMap () const;
 
-         virtual void asString (string & str) const;
+         virtual void asString (std::string & str) const;
 
       protected :
 
-         string m_surfaceName;
+         std::string m_surfaceName;
 
       };
    }

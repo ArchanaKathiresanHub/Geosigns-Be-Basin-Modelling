@@ -26,6 +26,7 @@
 
 namespace casa
 {
+    using namespace std;
 
 PrmLithoSTPThermalCond::PrmLithoSTPThermalCond(mbapi::Model & mdl, const std::vector<std::string> parameters )
    : Parameter()

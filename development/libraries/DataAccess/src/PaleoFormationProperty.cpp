@@ -53,7 +53,7 @@ const Formation * PaleoFormationProperty::getFormation (void) const
 
 void PaleoFormationProperty::asString (string & str) const
 {
-   ostringstream buf;
+   std::ostringstream buf;
 
    buf << "PaleoFormationProperty:";
    buf << " age = " << getSnapshot ()->getTime ();

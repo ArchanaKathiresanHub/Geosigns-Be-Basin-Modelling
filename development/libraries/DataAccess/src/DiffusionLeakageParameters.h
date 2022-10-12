@@ -29,10 +29,10 @@ public:
 
    TransientModel transientModel() const;
 
-   vector<double> diffusionConsts() const;
+   std::vector<double> diffusionConsts() const;
    double activationEnergy() const;
 
-   vector<double> concentrationConsts() const;
+   std::vector<double> concentrationConsts() const;
 };
 
 } } // namespace DataAccess::Interface

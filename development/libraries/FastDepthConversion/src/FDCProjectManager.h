@@ -45,15 +45,15 @@ public:
   mbapi::MapsManager::MapID generateMapInTwoWayTimeIoTbl(const std::vector<double> & tarTwts,
                                                          size_t& mapsSequenceNbr, const std::string & resultsMapFileName);
 
-  void reloadModel(const string& caseProjectFilePath);
+  void reloadModel(const std::string& caseProjectFilePath);
 
   long yScalingFactor() const;
   long xScalingFactor() const;
 
   std::vector<std::string> addedTwtSurfaceNames() const;
-  void appendToAddedTwtSurfaceNames(const string & addedTwtSurfaceName);
-  std::vector<string> addedTwtMapNames() const;
-  void appendToAddedTwtMapNames(const string & surfaceName);
+  void appendToAddedTwtSurfaceNames(const std::string & addedTwtSurfaceName);
+  std::vector<std::string> addedTwtMapNames() const;
+  void appendToAddedTwtMapNames(const std::string & surfaceName);
   void setCurrentSurfaceMapNameInStratIoTbl(const mbapi::StratigraphyManager::SurfaceID s, const std::string & mapName);
   std::string t2ZTemporaryMapName(const std::string & topName) const;
   std::string t2ZIsoPackMapName(const std::string & surfaceName) const;

@@ -28,6 +28,7 @@
 
 using namespace AbstractDerivedProperties;
 using namespace DataAccess::Interface;
+using namespace std;
 
 DerivedProperties::ThermalConductivityFormationCalculator::ThermalConductivityFormationCalculator ( const GeoPhysics::ProjectHandle& projectHandle )
    : m_projectHandle ( projectHandle )

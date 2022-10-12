@@ -13,6 +13,9 @@
 #include "ConstantsGenex.h"
 #include "GeneralParametersHandler.h"
 #include "Species.h"
+
+using namespace std;
+
 namespace Genex6
 {
 ReactionRatio::ReactionRatio(Species *const in_react1, Species *const in_react2, 

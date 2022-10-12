@@ -53,7 +53,7 @@ const Surface * PaleoSurfaceProperty::getSurface (void) const
 
 void PaleoSurfaceProperty::asString (string & str) const
 {
-   ostringstream buf;
+   std::ostringstream buf;
 
    buf << "PaleoSurfaceProperty:";
    buf << " age = " << getSnapshot ()->getTime ();

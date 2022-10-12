@@ -6,7 +6,7 @@
 //------------------------------------------------------------//
 
 #include<iostream>
-using namespace std;
+
 #include <vector>
 
 //------------------------------------------------------------//
@@ -214,7 +214,7 @@ namespace Basin_Modelling {
     Iterator_Direction Direction;
 
 
-//      typedef vector<LayerProps_Ptr> Layer_Vector;
+//      typedef std::vector<LayerProps_Ptr> Layer_Vector;
 
 //      Layer_Vector Iterated_Layers;
     LayerProps_Ptr* Iterated_Layers;

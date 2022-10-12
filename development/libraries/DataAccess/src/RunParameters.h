@@ -92,7 +92,7 @@ namespace DataAccess
          /// Overpressure optimisation level.
          virtual int getOptimisationLevel () const;
 
-         /// Overpressure optimisation level string.
+         /// Overpressure optimisation level std::ostringstream.
          virtual const std::string& getOptimisationLevelStr () const;
 
          /// @}
@@ -157,7 +157,7 @@ namespace DataAccess
 
          /// Print the attributes of this MobileLayer
          // May not work if user application is compiled under IRIX with CC -lang:std
-         virtual void printOn (ostream &) const;
+         virtual void printOn (std::ostream &) const;
 
          /// \brief Indicate whether or not burial-rate time-stepping is to be used.
          virtual bool useBurialRateTimeStepping () const;

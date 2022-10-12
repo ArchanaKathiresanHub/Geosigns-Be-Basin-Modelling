@@ -51,7 +51,7 @@ string TimeToComplete::report(double fractionCompleted)
    double multiplicationFactor = (1 - fractionCompleted) / fractionCompleted;
    WallTime::Duration timeToComplete = executionTime * multiplicationFactor;
 
-   ostringstream buf2;
+   std::ostringstream buf2;
    buf2 << "percentage completed: " << fractionCompleted * 100;
    buf2 << ", estimated time to complete: ";
    buf2 << timeToComplete.asString();

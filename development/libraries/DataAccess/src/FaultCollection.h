@@ -5,7 +5,6 @@
 #include <vector>
 #include <map>
 
-using namespace std;
 
 #include "auxiliaryfaulttypes.h"
 #include "DAObject.h"
@@ -24,12 +23,12 @@ namespace DataAccess
          typedef std::map < std::string, Fault * >NameFaultMapping;
 
          /// constructor
-         FaultCollection (ProjectHandle& projectHandle, const string & mapName);
+         FaultCollection (ProjectHandle& projectHandle, const std::string & mapName);
 
          /// destructor
          virtual ~FaultCollection (void);
 
-   virtual const string & getName (void) const;
+   virtual const std::string & getName (void) const;
 
          void addFormation (const Formation * formation);
 
@@ -37,11 +36,11 @@ namespace DataAccess
 
          void addFault (const std::string & faultName, const PointSequence & faultLine);
 
-         void addEvent (const std::string & faultName, const double & age, const string & status);
+         void addEvent (const std::string & faultName, const double & age, const std::string & status);
 
          void addOverpressureEvent (const std::string & faultName,
                                     const double & age,
-                                    const string & faultLithology,
+                                    const std::string & faultLithology,
                                     const bool usedInOverpressure );
 
    Fault * findFault (const std::string & faultName) const;
@@ -51,7 +50,7 @@ namespace DataAccess
          virtual size_t size (void) const;
 
       private:
-         const string m_name;
+         const std::string m_name;
          NameFaultMapping m_faults;
          FormationList m_formations;
 

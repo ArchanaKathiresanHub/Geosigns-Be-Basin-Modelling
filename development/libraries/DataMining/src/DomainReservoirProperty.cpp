@@ -17,6 +17,7 @@
 
 using namespace AbstractDerivedProperties;
 
+
 DataAccess::Mining::DomainReservoirProperty::DomainReservoirProperty ( const DomainPropertyCollection*            collection,
                                                                        DerivedProperties::DerivedPropertyManager& propertyManager,
                                                                        const Interface::Snapshot*                 snapshot,
@@ -33,7 +34,7 @@ DataAccess::Mining::DomainReservoirProperty::DomainReservoirProperty ( const Dom
          if ( topSurface != 0 ) {
             m_values [ surface ] = values [ i ];
          } else {
-            std::cerr << " Cannot find top surface for formation: " << values [ i ]->getFormation ()->getName () << endl;
+            std::cerr << " Cannot find top surface for formation: " << values [ i ]->getFormation ()->getName () << std::endl;
          }
 
       }

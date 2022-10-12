@@ -214,7 +214,7 @@ void RunParameters::printOn (ostream & ostr) const {
 
 void RunParameters::asString ( std::string & str ) const {
 
-   ostringstream buf;
+   std::ostringstream buf;
 
    buf << "RunParameters:";
    buf << endl;

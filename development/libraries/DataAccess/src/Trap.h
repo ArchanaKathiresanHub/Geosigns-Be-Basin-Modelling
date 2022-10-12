@@ -53,13 +53,13 @@ namespace DataAccess
             virtual double getMass (ComponentId componentId) const;
 
             /// return the mass of the given component in this Trap
-            virtual double getMass (const string & componentName) const;
+            virtual double getMass (const std::string & componentName) const;
 
             /// return the volume of the given phase in this Trap
             virtual double getVolume (PhaseId phaseId) const;
 
             /// return the volume of the given phase in this Trap
-            virtual double getVolume (const string & phaseName) const;
+            virtual double getVolume (const std::string & phaseName) const;
 
             /// return the Trap's depth
             virtual double getDepth (void) const;
@@ -81,8 +81,8 @@ namespace DataAccess
             virtual double getWCSurface (void) const;
 
 
-            virtual void printOn (ostream &) const;
-            virtual void asString (string &) const;
+            virtual void printOn (std::ostream &) const;
+            virtual void asString (std::string &) const;
 
             void setReservoir (const Reservoir * reservoir);
             void setSnapshot (const Snapshot * snapshot);

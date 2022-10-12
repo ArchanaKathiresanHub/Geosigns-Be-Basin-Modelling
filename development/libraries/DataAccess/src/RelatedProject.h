@@ -42,7 +42,7 @@ namespace DataAccess
 
          /// Print the attributes of this MobileLayer
          // May not work if user application is compiled under IRIX with CC -lang:std
-         virtual void printOn (ostream & ostr) const;
+         virtual void printOn (std::ostream & ostr) const;
 
          virtual void asString (std::string & str) const;
 

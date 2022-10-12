@@ -85,9 +85,9 @@ using namespace DataAccess;
 
 static bool reservoirSorter (const Interface::Reservoir * reservoir1, const Interface::Reservoir * reservoir2);
 
-extern string NumProcessorsArg;
+extern std::string NumProcessorsArg;
 
-Migrator::Migrator (const string & name) :
+Migrator::Migrator (const std::string & name) :
   m_objectFactory(this)
 {
    m_projectHandle.reset (dynamic_cast<GeoPhysics::ProjectHandle *> (Interface::OpenCauldronProject (name, &m_objectFactory, getOutputTableNames())));
@@ -108,7 +108,7 @@ Migrator::Migrator (const string & name) :
    InitializeRequestTypes ();
    if (GetRank () == 0)
    {
-      m_migrationRecordLists = new vector<database::Record *>[NUMBEROFPROCESSES];
+      m_migrationRecordLists = new std::vector<database::Record *>[NUMBEROFPROCESSES];
    }
 
    m_migrationIoTbl = nullptr;
@@ -159,7 +159,7 @@ std::vector<std::string> Migrator::getOutputTableNames ( ) const {
    return outputTableNames;
 }
 
-bool Migrator::saveTo (const string & outputFileName)
+bool Migrator::saveTo (const std::string & outputFileName)
 {
    return m_projectHandle->saveToFile (outputFileName);
 }
@@ -171,7 +171,7 @@ GeoPhysics::ProjectHandle& Migrator::getProjectHandle()
 
 bool Migrator::compute (const bool overpressuredLeakage)
 {
-   string activityName = MigrationActivityName;
+   std::string activityName = MigrationActivityName;
    activityName += NumProcessorsArg;
    H5_Parallel_PropertyList::setOtherFileProcessOptions(false);
 
@@ -279,7 +279,7 @@ bool Migrator::compute (const bool overpressuredLeakage)
    m_projectHandle->finishActivity ();
 
    //Specify the simulation details
-   string simulatorMode;
+   std::string simulatorMode;
 
    if (m_advancedMigration and !m_hdynamicAndCapillary)
    {
@@ -321,7 +321,7 @@ void Migrator::openMassBalanceFile (void)
 {
    if (GetRank () == 0)
    {
-      string fileName = utils::getProjectBaseName (m_projectHandle->getProjectName ());
+      std::string fileName = utils::getProjectBaseName (m_projectHandle->getProjectName ());
       fileName += "_MassBalance";
 
       m_massBalanceFile.open (fileName.c_str (), ios::out);
@@ -494,9 +494,9 @@ bool Migrator::performSnapshotMigration (const Interface::Snapshot * start, cons
    m_projectHandle->continueActivity ();
 
 #ifdef DEBUGMEMORY
-   stringstream ss;
+   std::stringstream ss;
    ss << " rank " << GetRank( ) << " " << getMemoryUsed( );
-   string mystring1( " Before deleting properties: " );
+   std::string mystring1( " Before deleting properties: " );
    cerr << mystring1 + ss.str( ) << endl;
 #endif
 
@@ -1136,7 +1136,7 @@ bool Migrator::chargeReservoir (migration::MigrationReservoir * reservoir, migra
    // print mass balance
    if (GetRank () == 0)
    {
-      string str = string ("Reservoir: ") + reservoir->getName ();
+      std::string str = std::string ("Reservoir: ") + reservoir->getName ();
 
       m_massBalance->printMassBalance (start, end, str);
    }
@@ -1382,7 +1382,7 @@ void Migrator::deleteExpelledChargeMaps (const Interface::Snapshot * snapshot)
          {
             if (!ComponentsUsed[componentId]) continue;
 
-            string propertyName = CBMGenerics::ComponentManager::getInstance().getSpeciesName( componentId );
+            std::string propertyName = CBMGenerics::ComponentManager::getInstance().getSpeciesName( componentId );
             propertyName += "ExpelledCumulative";
 
             const Interface::GridMap * gridMapStart = getPropertyGridMap (propertyName, snapshot, 0, formation, 0);
@@ -1497,7 +1497,7 @@ void Migrator::addTrapRecord (migration::MigrationReservoir * reservoir, migrati
 
    for (unsigned int i = 0; i < NumComponents; ++i)
    {
-      string fieldName = "Mass";
+      std::string fieldName = "Mass";
       fieldName += CBMGenerics::ComponentManager::getInstance().getSpeciesInputName(i);
       trapIoRecord->setValue (fieldName, tpRequest.composition.getWeight ((ComponentId) i));
    }
@@ -1566,7 +1566,7 @@ database::Record * Migrator::addDetectedReservoirRecord (Interface::Formation * 
    Record * reservoirIoRecord = m_ReservoirIoTbl->createRecord ();
    assert (reservoirIoRecord);
 
-   string detectedReservoirName = formation->getName ();
+   std::string detectedReservoirName = formation->getName ();
    database::setReservoirName (reservoirIoRecord, detectedReservoirName);
    database::setDetectedReservoir (reservoirIoRecord, 1);
    database::setFormationName (reservoirIoRecord, formation->getName ());
@@ -1588,7 +1588,7 @@ database::Record * Migrator::addDetectedReservoirRecord (Interface::Formation * 
    return reservoirIoRecord;
 }
 
-database::Record * Migrator::copyMigrationRecord (database::Record * oldRecord, const string & newMigrationProcess)
+database::Record * Migrator::copyMigrationRecord (database::Record * oldRecord, const std::string & newMigrationProcess)
 {
    static int index = 0;
    database::Record * newRecord = m_migrationIoTbl->createRecord ();
@@ -1613,7 +1613,7 @@ database::Record * Migrator::copyMigrationRecord (database::Record * oldRecord, 
 
    for (unsigned int component = 0; component < NumComponents; ++component)
    {
-      string fieldName = "Mass";
+      std::string fieldName = "Mass";
       fieldName += CBMGenerics::ComponentManager::getInstance().getSpeciesInputName( component );
 
       double mass = oldRecord->getValue<double> (fieldName);
@@ -1623,8 +1623,8 @@ database::Record * Migrator::copyMigrationRecord (database::Record * oldRecord, 
    return newRecord;
 }
 
-void Migrator::addMigrationRecord (const string & srcReservoirName, const string & srcFormationName,
-                                   const string & dstReservoirName, migration::MigrationRequest & mr)
+void Migrator::addMigrationRecord (const std::string & srcReservoirName, const std::string & srcFormationName,
+                                   const std::string & dstReservoirName, migration::MigrationRequest & mr)
 {
    assert (GetRank () == 0);
 
@@ -1644,7 +1644,7 @@ void Migrator::addMigrationRecord (const string & srcReservoirName, const string
 
    for (unsigned int component = 0; component < NumComponents; ++component)
    {
-      string fieldName = "Mass";
+      std::string fieldName = "Mass";
       fieldName += CBMGenerics::ComponentManager::getInstance().getSpeciesInputName( component );
 
       double mass = (newlyCreated ? 0 : record->getValue<double> (fieldName));
@@ -1654,8 +1654,8 @@ void Migrator::addMigrationRecord (const string & srcReservoirName, const string
    }
 }
 
-database::Record * Migrator::createMigrationRecord (const string & srcReservoirName, const string & srcFormationName,
-                                                    const string & dstReservoirName,
+database::Record * Migrator::createMigrationRecord (const std::string & srcReservoirName, const std::string & srcFormationName,
+                                                    const std::string & dstReservoirName,
                                                     MigrationRequest & mr)
 {
    assert (GetRank () == 0);
@@ -1682,14 +1682,14 @@ database::Record * Migrator::createMigrationRecord (const string & srcReservoirN
    return record;
 }
 
-database::Record * Migrator::findMigrationRecord (const string & srcReservoirName, const string & srcFormationName,
-                                                  const string & dstReservoirName,
+database::Record * Migrator::findMigrationRecord (const std::string & srcReservoirName, const std::string & srcFormationName,
+                                                  const std::string & dstReservoirName,
                                                   MigrationRequest & mr)
 {
    assert (GetRank () == 0);
 
-   vector<database::Record *> & recordList = m_migrationRecordLists[mr.process];
-   vector<database::Record *>::iterator iter;
+   std::vector<database::Record *> & recordList = m_migrationRecordLists[mr.process];
+   std::vector<database::Record *>::iterator iter;
    for (iter = recordList.begin (); iter != recordList.end (); ++iter)
    {
       database::Record * record = *iter;
@@ -1804,7 +1804,7 @@ bool MigrationIoTblMerge (database::Record * recordL, database::Record * recordR
 {
    for (unsigned int component = 0; component < NumComponents; ++component)
    {
-      string fieldName = "Mass";
+      std::string fieldName = "Mass";
       fieldName += CBMGenerics::ComponentManager::getInstance().getSpeciesInputName( component );
 
       double massL = recordL->getValue<double> (fieldName);
@@ -1827,7 +1827,7 @@ void Migrator::checkMigrationRecords (void)
 {
    // cerr << "Start checking MigrationIoTbl" << endl;
    database::Table::iterator iter;
-   string migrationProcess;
+   std::string migrationProcess;
 
    // cerr << "MigrationIoTbl size = " << m_migrationIoTbl->size () << endl;
    int index = 0;
@@ -1862,7 +1862,7 @@ void Migrator::sanitizeMigrationRecords (void)
    for (iter = m_migrationIoTbl->begin (); iter != m_migrationIoTbl->end (); iter = nextIter)
    {
       database::Record * record = *iter;
-      const string & migrationProcess = getMigrationProcess (record);
+      const std::string & migrationProcess = getMigrationProcess (record);
       int sourceTrapId = getSourceTrapID (record);
       int destinationTrapId = getDestinationTrapID (record);
 
@@ -1964,8 +1964,8 @@ void Migrator::renumberMigrationRecordTrap (const Interface::Snapshot * snapshot
    assert (GetRank () == 0);
    for (int i = 0; i < NUMBEROFPROCESSES; ++i)
    {
-      vector<database::Record *> & recordList = m_migrationRecordLists[i];
-      vector<database::Record *>::iterator iter;
+      std::vector<database::Record *> & recordList = m_migrationRecordLists[i];
+      std::vector<database::Record *>::iterator iter;
       for (iter = recordList.begin (); iter != recordList.end (); ++iter)
       {
          database::Record * record = *iter;
@@ -1982,7 +1982,7 @@ void Migrator::renumberMigrationRecordTrap (const Interface::Snapshot * snapshot
    }
 }
 
-const Interface::GridMap * Migrator::getPropertyGridMap (const string & propertyName, const Interface::Snapshot * snapshot,
+const Interface::GridMap * Migrator::getPropertyGridMap (const std::string & propertyName, const Interface::Snapshot * snapshot,
                                                          const Interface::Reservoir * reservoir,
                                                          const Interface::Formation * formation, const Interface::Surface * surface)
 {
@@ -2031,8 +2031,8 @@ bool Migrator::mergeOutputFiles ()
    database::Table* snapshotTable =  m_projectHandle->getTable ( "SnapshotIoTbl" );
 
    assert ( snapshotTable != 0 );
-   const string timepart = "_";
-   const string flowpart = flowPathsFileNamePrefix;
+   const std::string timepart = "_";
+   const std::string flowpart = flowPathsFileNamePrefix;
 
    PetscBool minorSnapshots;
    PetscOptionsHasName (PETSC_IGNORE, PETSC_IGNORE, "-minor", &minorSnapshots);
@@ -2044,14 +2044,14 @@ bool Migrator::mergeOutputFiles ()
       if( minorSnapshots or ( not minorSnapshots and not isMinor )) {
 
          // constract the file name to megre
-         string snapshotFileName = database::getSnapshotFileName ( *timeTableIter );
+         std::string snapshotFileName = database::getSnapshotFileName ( *timeTableIter );
          if ( !snapshotFileName.empty() ) {
             // find a time part in the snapshot file name
             std::size_t found = snapshotFileName.find(timepart);
 
             if (found != std::string::npos ) {
                // create the file name
-               string flowFile = flowpart + snapshotFileName.substr(found);
+               std::string flowFile = flowpart + snapshotFileName.substr(found);
 
                // check if the temporary file exists
                std::stringstream tempname;

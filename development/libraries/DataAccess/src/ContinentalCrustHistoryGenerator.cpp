@@ -32,6 +32,7 @@
 #include "AbstractValidator.h"
 
 using namespace DataAccess::Interface;
+using namespace std;
 
 void ContinentalCrustHistoryGenerator::createCrustThickness(const BottomBoundaryConditions mode)
 {

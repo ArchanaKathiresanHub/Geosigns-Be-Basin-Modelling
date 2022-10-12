@@ -24,6 +24,7 @@
 #include "ConstantsMathematics.h"
 
 using namespace AbstractDerivedProperties;
+using namespace std;
 
 DerivedProperties::PorosityFormationCalculator::PorosityFormationCalculator ( const GeoPhysics::ProjectHandle& projectHandle ) : m_projectHandle ( projectHandle ) {
    addPropertyName ( "Porosity" );

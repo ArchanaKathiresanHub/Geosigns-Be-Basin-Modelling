@@ -148,7 +148,7 @@ void Display_Merging_Progress( const string & fileName, double startTime, const 
    char time[124];
    snprintf (time, sizeof (time), "%2.2ld:%2.2ld:%2.2ld", hrs, mins, secs);
 
-   ostringstream buf;
+   std::ostringstream buf;
    buf.precision(4);
    buf.setf(ios::fixed);
 
@@ -217,7 +217,7 @@ void Display_Temperature_Solver_Progress( const double Age,
   char time[124];
   getElapsedTime (time);
 
-  ostringstream buf;
+  std::ostringstream buf;
   buf.precision(4);
   buf.setf(ios::fixed);
 
@@ -243,7 +243,7 @@ void Display_Pressure_Solver_Progress( const int    Iteration_Number,
   char time[124];
   getElapsedTime (time);
 
-  ostringstream buf;
+  std::ostringstream buf;
   buf.precision(4);
   buf.setf(ios::fixed);
 
@@ -270,7 +270,7 @@ void Display_Coupled_Solver_Progress ( const int    Iteration_Number,
   char time[124];
   getElapsedTime (time);
 
-  ostringstream buf;
+  std::ostringstream buf;
   buf.precision(4);
   buf.setf(ios::fixed);
 

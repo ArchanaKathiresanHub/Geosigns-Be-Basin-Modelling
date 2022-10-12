@@ -109,7 +109,7 @@ void Genex0dSimulator::setLangmuirData(const std::string& adsorptionFunctionTPVD
   }
 }
 
-void Genex0d::Genex0dSimulator::setIrreducibleWaterSaturationData(const string &irreducibleWaterSaturationData)
+void Genex0d::Genex0dSimulator::setIrreducibleWaterSaturationData(const std::string &irreducibleWaterSaturationData)
 {
   deleteIrreducibleWaterSaturationSample();
 
@@ -142,8 +142,8 @@ void Genex0dSimulator::setRequestedOutputProperties()
   for (tblIter = timeIoTbl->begin(); tblIter != timeIoTbl->end(); ++tblIter)
   {
     database::Record * filterTimeIoRecord = *tblIter;
-    const string & outPutOption = database::getOutputOption(filterTimeIoRecord);
-    const string & propertyName = database::getPropertyName (filterTimeIoRecord);
+    const std::string & outPutOption = database::getOutputOption(filterTimeIoRecord);
+    const std::string & propertyName = database::getPropertyName (filterTimeIoRecord);
 
     if (!isPropertyRegistered(propertyName))
     {

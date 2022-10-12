@@ -57,6 +57,8 @@
 #include <algorithm>
 #include <sstream>
 
+using namespace std;
+
 namespace mbapi {
 
 // generates pseudo random string from alphanumeric characters with given length

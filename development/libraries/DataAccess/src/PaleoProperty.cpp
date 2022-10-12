@@ -139,7 +139,7 @@ void PaleoProperty::printOn (ostream & ostr) const
 
 void PaleoProperty::asString (string & str) const
 {
-   ostringstream buf;
+   std::ostringstream buf;
 
    buf << "PaleoProperty:";
    buf << " age = " << getSnapshot ()->getTime ();

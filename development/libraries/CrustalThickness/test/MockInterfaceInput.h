@@ -69,7 +69,7 @@ class MockInterfaceInput : public InterfaceInput {
 
       void setConstants( const CrustalThickness::ConfigFileParameterCtc& constants ) { m_constants = constants; }
 
-      void setBaseRiftSurfaceName( const string baseRiftName ) { m_baseRiftSurfaceName = baseRiftName; }
+      void setBaseRiftSurfaceName( const std::string baseRiftName ) { m_baseRiftSurfaceName = baseRiftName; }
 
       void setHCuMap      (const GridMap* map  ) { m_HCuMap  = map;          }
       void setHLMuMap     (const GridMap* map  ) { m_HLMuMap = map;          }

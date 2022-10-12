@@ -22,19 +22,19 @@ namespace migration {
    {
    private:
 
-      const vector< vector<translateProps::CreateCapillaryLithoProp::output> > m_lithProps;
-      const vector< vector<double> > m_lithFracs;
-      const vector<CBMGenerics::capillarySealStrength::MixModel> m_mixModel;
-      const vector<double> m_permeability;
+      const std::vector< std::vector<translateProps::CreateCapillaryLithoProp::output> > m_lithProps;
+      const std::vector< std::vector<double> > m_lithFracs;
+      const std::vector<CBMGenerics::capillarySealStrength::MixModel> m_mixModel;
+      const std::vector<double> m_permeability;
       const double m_sealFluidDensity;
       const double m_lambdaPC;
 
    public:
 
-      MigrationCapillarySealStrength( const vector< vector<translateProps::CreateCapillaryLithoProp::output> >& lithProps,
-                             const vector< vector<double> >& lithFracs, 
-                             const vector<CBMGenerics::capillarySealStrength::MixModel>& mixModel,
-                             const vector<double>& permeability, 
+      MigrationCapillarySealStrength( const std::vector< std::vector<translateProps::CreateCapillaryLithoProp::output> >& lithProps,
+                             const std::vector< std::vector<double> >& lithFracs, 
+                             const std::vector<CBMGenerics::capillarySealStrength::MixModel>& mixModel,
+                             const std::vector<double>& permeability, 
                              const double sealFluidDensity, 
                              const double lambdaPC );
       

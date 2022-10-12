@@ -30,6 +30,7 @@ using namespace DataAccess;
 // utilities library
 #include "NumericFunctions.h"
 
+using namespace std;
 
 GeoPhysics::GeoPhysicsCrustFormation::GeoPhysicsCrustFormation ( DataAccess::Interface::ProjectHandle& projectHandle,
                                                                  database::Record*                          record ) :

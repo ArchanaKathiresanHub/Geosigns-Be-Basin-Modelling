@@ -10,7 +10,6 @@
 #include "SpeciesManager.h"
 #include "ChemicalModel.h"
 
-using namespace std;
 
 namespace Genex6
 {
@@ -25,7 +24,7 @@ public:
    double GetSpeciesConcentrationByName(const int in_SpeciesName) const;
    SpeciesState *GetSpeciesStateById(const int in_SpeciesId);
    void AddSpeciesStateById(const int in_SpeciesId, SpeciesState *theSpeciesState);
-   void GetSpeciesStateConcentrations(const ChemicalModel* chemicalModel, std::map<string, double> &currentSpeciesConcs) const;
+   void GetSpeciesStateConcentrations(const ChemicalModel* chemicalModel, std::map<std::string, double> &currentSpeciesConcs) const;
    void GetSpeciesStateConcentrations( double * currentSpeciesConcs ) const;
    
    double GetReferenceTime() const;

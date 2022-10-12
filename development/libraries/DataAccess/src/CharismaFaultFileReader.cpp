@@ -20,6 +20,7 @@
 
 using namespace DataAccess;
 using namespace Interface;
+using namespace std;
 
 
 CharismaFaultFileReader::CharismaFaultFileReader() :

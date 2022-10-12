@@ -24,7 +24,7 @@ struct CropException : formattingexception::BaseException<CropException> {};
 
 struct LayerInfo
 {
-   string name;
+   std::string name;
    int index;
 };
 
@@ -113,9 +113,9 @@ int main(int argc, char ** argv)
    if (inputProjectFile.empty () || outputDir.empty())
    {
 #if 1
-      std::cerr << "usage: " << argv[0] << " [-oversample x y] input_project output_dir" << endl;
+      std::cerr << "usage: " << argv[0] << " [-oversample x y] input_project output_dir" << std::endl;
 #else
-      std::cerr << "usage: " << argv[0] << " [-oversample x y] [-subsample x y] input_project output_dir" << endl;
+      std::cerr << "usage: " << argv[0] << " [-oversample x y] [-subsample x y] input_project output_dir" << std::endl;
 #endif
       return 1;
    }

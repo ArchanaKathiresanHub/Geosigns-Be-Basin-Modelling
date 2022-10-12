@@ -20,6 +20,7 @@
 #include "cmbAPI.h"
 #include "LithologyManager.h"
 using namespace mbapi;
+using namespace std;
 
 //------------------------------------------------------------//
 

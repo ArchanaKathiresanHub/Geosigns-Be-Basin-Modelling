@@ -182,7 +182,7 @@ namespace cauldron_to_voxet
         void writeVOproperty(ofstream& file,
             const int& propertyCount,
             const CauldronProperty* cauldronProperty,
-            const string& propertyFileName,
+            const std::string& propertyFileName,
             const float& nullValue) const;
 
         /// @brief Write the tail of the  ascii voxet header (vo-file)

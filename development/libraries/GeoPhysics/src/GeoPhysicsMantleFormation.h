@@ -28,7 +28,7 @@ namespace GeoPhysics {
 
       // redefine set of methods which are differently were defined in base classes
       // Inherited from BasementFormation
-      const string                                        & getName()                    const { return DataAccess::Interface::BasementFormation::getName(); }
+      const std::string                                        & getName()                    const { return DataAccess::Interface::BasementFormation::getName(); }
       const DataAccess::Interface::LithoType              * getLithoType1()              const { return DataAccess::Interface::BasementFormation::getLithoType1(); }
       const DataAccess::Interface::GridMap                * getLithoType1PercentageMap() const { return DataAccess::Interface::BasementFormation::getLithoType1PercentageMap(); }
       const DataAccess::Interface::LithoType              * getLithoType2()              const { return DataAccess::Interface::BasementFormation::getLithoType2(); }
@@ -58,7 +58,7 @@ namespace GeoPhysics {
       // Inherited from MantleFormation
       const DataAccess::Interface::GridMap                * getInputThicknessMap()       const { return DataAccess::Interface::MantleFormation::getInputThicknessMap(); }
       int                                                   getDepositionSequence()      const { return DataAccess::Interface::MantleFormation::getDepositionSequence(); }
-      void                                                  asString( string & str )     const { return DataAccess::Interface::MantleFormation::asString( str ); }
+      void                                                  asString(std::string & str )     const { return DataAccess::Interface::MantleFormation::asString( str ); }
 
       bool isMantle () const;
 
@@ -83,9 +83,9 @@ namespace GeoPhysics {
                                                                  const GridMap* lithoMap1 = nullptr,
                                                                  const GridMap* lithoMap2 = nullptr,
                                                                  const GridMap* lithoMap3 = nullptr,
-                                                                 const string& lithoName1 = "",
-                                                                 const string& lithoName2 = "",
-                                                                 const string& lithoName3 = "") const;
+                                                                 const std::string& lithoName1 = "",
+                                                                 const std::string& lithoName2 = "",
+                                                                 const std::string& lithoName3 = "") const;
    private:
       double m_mantleElementHeight0;
       double m_globalMaxCrustThinningRatio;

@@ -13,7 +13,6 @@
 #include "ConfigFileParameterAlc.h"
 #include "SimpleLithology.h"
 
-using namespace std;
 using namespace DataAccess;
 
 namespace GeoPhysics {
@@ -56,7 +55,7 @@ class BasementLithology : public SimpleLithology
    double thermalconductivity(double t, double p) const;
    double basaltThermalConductivity(double t, double p) const;
 
-   bool   setThermalModel( const string& aThermalModel );
+   bool   setThermalModel( const std::string& aThermalModel );
 
    virtual double heatcapacity( const double t ) const;
    double getDensity( double t, double p ) const;

@@ -3,6 +3,8 @@
 #include "C1AdsorptionSimulator.h"
 #include "OTGCC1AdsorptionSimulator.h"
 
+using namespace std;
+
 Genex6::AdsorptionSimulatorFactory* Genex6::AdsorptionSimulatorFactory::s_adsorptionSimulatorFactory = nullptr;
 
 

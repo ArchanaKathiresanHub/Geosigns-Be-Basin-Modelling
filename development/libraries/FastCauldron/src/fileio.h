@@ -2,17 +2,16 @@
 #define _FILEIO_H_
 
 #include <string>
-using namespace std;
 
 // void checkFileSystem( string& str );
 
-string generatePropertyFileName( const string&  outputDirectory, 
+std::string generatePropertyFileName( const std::string&  outputDirectory,
 				 const bool     isMinorSnapshot, 
 				 const double   time );
 
-string generatePropertyGridName( string        propertyName, 
-				 string        surfaceName,
-				 string        formationName, 
+std::string generatePropertyGridName(std::string        propertyName,
+	std::string        surfaceName,
+	std::string        formationName,
 				 const double  time );
 
 

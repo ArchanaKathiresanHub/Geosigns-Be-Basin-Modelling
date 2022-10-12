@@ -232,7 +232,7 @@ void Surface::printOn (ostream & ostr) const
 
 void Surface::asString (string & str) const
 {
-   ostringstream buf;
+   std::ostringstream buf;
 
    buf << "Surface:";
    buf << " name = " << getName ();

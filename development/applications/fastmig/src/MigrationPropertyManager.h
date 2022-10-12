@@ -39,7 +39,7 @@ namespace migration
       DataAccess::Interface::GridMap * produceDerivedGridMap (AbstractDerivedProperties::SurfacePropertyPtr aProperty);
 
    private:
-      vector <DataAccess::Interface::GridMap *> m_derivedMaps;
+      std::vector <DataAccess::Interface::GridMap *> m_derivedMaps;
 
    };
 

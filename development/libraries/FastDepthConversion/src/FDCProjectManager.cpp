@@ -103,7 +103,7 @@ void FDCProjectManager::appendCorrectedMapNamesInStratIoTbl(const std::map<const
 {
   for (auto it = correctedMapsNames.begin(); it != correctedMapsNames.end(); ++it)
   {
-    const string correctedMapName = it->second;
+    const std::string correctedMapName = it->second;
     if (correctedMapName.empty()) { continue; }
     if (ErrorHandler::NoError != m_mdl->setTableValue("StratIoTbl", it->first, "DepthGrid", it->second)) { throw T2Zexception() << "Cannot set DepthGrid "; }
   }
@@ -127,7 +127,7 @@ void FDCProjectManager::appendCorrectedMapNamesInGridMapIoTbl(const std::map<con
 {
   for (auto it = correctedMapsNames.begin(); it != correctedMapsNames.end(); ++it)
   {
-    const string correctedMapName = it->second;
+    const std::string correctedMapName = it->second;
     if (correctedMapName.empty()) { continue; }    
     setCurrentMapDataInGridMapIoTbl("StratIoTbl", correctedMapName, resultsMapFileName, (long)correctedMapsSequenceNbr.at(it->first));
   }
@@ -308,7 +308,7 @@ std::vector<double> FDCProjectManager::getGridMapDepthValues(const mbapi::Strati
   return values;
 }
 
-ErrorHandler::ReturnCode FDCProjectManager::saveModelToProjectFile(const string& projectFileName, bool copyFiles)
+ErrorHandler::ReturnCode FDCProjectManager::saveModelToProjectFile(const std::string& projectFileName, bool copyFiles)
 {
   return m_mdl->saveModelToProjectFile( projectFileName, copyFiles );
 }

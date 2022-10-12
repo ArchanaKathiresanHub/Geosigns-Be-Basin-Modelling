@@ -136,7 +136,7 @@ void Genex0dProjectManager::setInTable()
     ++m_posData;
   }
 
-  m_propertyPosMap[m_propertyName] = make_pair(m_posDataPrevious, m_posData);
+  m_propertyPosMap[m_propertyName] = std::make_pair(m_posDataPrevious, m_posData);
 }
 
 std::vector<double> Genex0dProjectManager::agesAll() const

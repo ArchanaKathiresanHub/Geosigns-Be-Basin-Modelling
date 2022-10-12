@@ -29,6 +29,7 @@
 
 namespace casa
 {
+    using namespace std;
 
    std::vector<double> PrmLithoFraction::createLithoPercentages( const std::vector<double> & lithoFractions, const std::vector<int> & lithoFractionInds )
    {

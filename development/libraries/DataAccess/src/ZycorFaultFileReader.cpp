@@ -40,7 +40,7 @@ void ZyCorFaultFileReader::preParseFaults ()
 
    while (m_faultFile.good ())
    {
-      ostringstream newFaultName;
+      std::ostringstream newFaultName;
 
       newFaultLine.clear ();
 

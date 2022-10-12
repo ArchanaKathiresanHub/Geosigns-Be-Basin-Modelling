@@ -16,7 +16,6 @@
 #include "EosPack.h"
 #include "LookUp.h"
 
-using namespace std;
 
 namespace TSR_Tables { 
 
@@ -25,7 +24,7 @@ enum TSR_Table {
     CO2_H2Om, CO2_H2O_NaCl1m, CO2_H2O_NaCl2m, CO2_H2O_NaCl4m, CO2_H2O_NaCl6m,
     NumberOfTables };
 
-typedef map < TSR_Table, const double* > TSR_TablesData;
+typedef std::map < TSR_Table, const double* > TSR_TablesData;
 
 const double invMolarMass = 17.1115674; // 1000 / 58.44 ) (molarMass NaCl = 58.44 g/mol)
 

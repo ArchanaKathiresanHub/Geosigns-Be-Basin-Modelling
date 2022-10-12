@@ -16,6 +16,7 @@
 
 namespace casa
 {
+    using namespace std;
 
 namespace
 {
