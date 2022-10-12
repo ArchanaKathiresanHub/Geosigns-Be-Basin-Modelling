@@ -13,7 +13,7 @@
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Version				Date of update
 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-Cauldron-v2.9.6		2022-10-07 14:36:32 +0000
+Cauldron-v2.9.7		2022-10-12 06:57:14 +0000
 =============================================================
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Third-party Software 		version
@@ -36,6 +36,14 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2022-10-12  Richard Faasse  <Richard.Faasse@shell.com>
+
+	chg: Removing 'using namespace std' from header files.
+	 * The 'using namespace std' statements were removed from header file and the std:: added where needed
+	================== COMMIT-END ========================
+	Commit-ID:<6f9e3bbf2684967bbe22197e4bfa39de416eea40>	  (tag: refs/tags/v2.9.7, refs/heads/master)
+
+++
 2022-10-07  Sven van Leeuwen  <Sven.van-Leeuwen@shell.com>
 
 	chg: dev: user: Resultstab refactor + inputtab refactor & implementation into SAC Thermal
