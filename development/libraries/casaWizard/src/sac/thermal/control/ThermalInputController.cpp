@@ -8,12 +8,10 @@
 
 #include "ThermalInputController.h"
 
-#include "view/ThermalInputTab.h"
 #include "view/assets/ThermalTabIDs.h"
-#include "view/SacInputTab.h"
 
-#include "model/SacScenario.h"
 #include "model/script/ThermalScript.h"
+#include "model/extractor/OptimizedTCHPExtractor.h"
 
 #include "model/logger.h"
 #include "model/scenarioBackup.h"
@@ -30,8 +28,8 @@
 
 #include <cmath>
 
-const static QString defaultMinHCP = "0";
-const static QString defaultMaxHCP = "5";
+const static QString defaultMinTCHP = "0.0";
+const static QString defaultMaxTCHP = "5.0";
 
 namespace casaWizard
 {
@@ -43,18 +41,19 @@ namespace thermal
 {
 
 ThermalInputController::ThermalInputController(ThermalInputTab* inputTab,
-                                               SacScenario& casaScenario,
+                                               ThermalScenario& scenario,
                                                ScriptRunController& scriptRunController,
                                                QObject* parent) :
-   SacInputController(inputTab, casaScenario, scriptRunController, parent),
-   m_scenario(casaScenario)
+   SacInputController(inputTab, scenario, scriptRunController, parent),
+   m_scenario(scenario),
+   m_inputTab(inputTab)
 {
    connect(inputTab->pushButtonImportTargets(), SIGNAL(clicked()), this, SLOT(slotImportTargetsClicked()));
-   connect(inputTab->lineEditMinHCP(), SIGNAL(textChanged(QString)), this, SLOT(slotMinHCPChanged(QString)));
-   connect(inputTab->lineEditMaxHCP(), SIGNAL(textChanged(QString)), this, SLOT(slotMaxHCPChanged(QString)));
+   connect(inputTab->lineEditMinTCHP(), SIGNAL(textChanged(QString)), this, SLOT(slotMinTCHPChanged(QString)));
+   connect(inputTab->lineEditMaxTCHP(), SIGNAL(textChanged(QString)), this, SLOT(slotMaxTCHPChanged(QString)));
 
-   inputTab->lineEditMinHCP()->setText(defaultMinHCP);
-   inputTab->lineEditMaxHCP()->setText(defaultMaxHCP);
+   inputTab->lineEditMinTCHP()->setText(defaultMinTCHP);
+   inputTab->lineEditMaxTCHP()->setText(defaultMaxTCHP);
 
    emit signalRefreshChildWidgets();
 }
@@ -70,7 +69,7 @@ void ThermalInputController::slotImportTargetsClicked()
       return;
    }
 
-   if (!scenario().calibrationTargetManager().wells().empty())
+   if (!m_scenario.calibrationTargetManager().wells().empty())
    {
       QMessageBox overwriteData(QMessageBox::Icon::Information,
                                 "SAC already has wells",
@@ -82,19 +81,19 @@ void ThermalInputController::slotImportTargetsClicked()
 
       if (overwriteData.exec() == QDialog::Accepted)
       {
-         scenario().clearWellsAndCalibrationTargets();
+         m_scenario.clearWellsAndCalibrationTargets();
       }
    }
 
-   ImportWellPopupXlsxController controller(this, scenario(), {"Temperature", "VRe", "Unknown"});
-   controller.importWellsToCalibrationTargetManager({fileName}, scenario().calibrationTargetManager());
+   ImportWellPopupXlsxController controller(this, m_scenario, {"Temperature", "VRe", "Unknown"});
+   controller.importWellsToCalibrationTargetManager({fileName}, m_scenario.calibrationTargetManager());
 
-   scenario().updateObjectiveFunctionFromTargets();
-   scenario().wellTrajectoryManager().updateWellTrajectories(scenario().calibrationTargetManager());
+   m_scenario.updateObjectiveFunctionFromTargets();
+   m_scenario.wellTrajectoryManager().updateWellTrajectories(m_scenario.calibrationTargetManager());
 
-   if (!scenario().project3dPath().isEmpty())
+   if (!m_scenario.project3dPath().isEmpty())
    {
-     scenario().updateWellsForProject3D();
+     m_scenario.updateWellsForProject3D();
    }
    emit signalRefreshChildWidgets();
 }
@@ -107,12 +106,13 @@ void ThermalInputController::refreshGUI()
 
 std::unique_ptr<SACScript> ThermalInputController::optimizationScript(const QString& baseDirectory, bool doOptimization)
 {
-   return std::unique_ptr<SACScript>(new ThermalScript(scenario(), baseDirectory, doOptimization));
+   return std::unique_ptr<SACScript>(new ThermalScript(m_scenario, baseDirectory, doOptimization));
 }
 
 void ThermalInputController::readOptimizedResults()
 {
-   //placeholder
+   OptimizedTCHPExtractor TCHPExtractor{m_scenario};
+   dataExtractionController()->readOptimizedResults(TCHPExtractor);
 }
 
 void ThermalInputController::slotUpdateTabGUI(int tabID)
@@ -124,16 +124,14 @@ void ThermalInputController::slotUpdateTabGUI(int tabID)
    refreshGUI();
 }
 
-void ThermalInputController::slotMinHCPChanged(QString text)
+void ThermalInputController::slotMinTCHPChanged(QString text)
 {
-   m_minHCP = text.toDouble();
-   m_minHCP = std::round(m_minHCP * 10000.0) / 10000.0;
+   m_scenario.TCHPmanager().setMinTCHP(std::round(text.toDouble() * 10000.0) / 10000.0);
 }
 
-void ThermalInputController::slotMaxHCPChanged(QString text)
+void ThermalInputController::slotMaxTCHPChanged(QString text)
 {
-   m_maxHCP = text.toDouble();
-   m_minHCP = std::round(m_maxHCP * 10000.0) / 10000.0;
+   m_scenario.TCHPmanager().setMaxTCHP(std::round(text.toDouble() * 10000.0) / 10000.0);
 }
 
 void ThermalInputController::slotPushButtonSelectProject3dClicked()
@@ -144,14 +142,24 @@ void ThermalInputController::slotPushButtonSelectProject3dClicked()
    }
 }
 
-SacScenario& ThermalInputController::scenario()
+ThermalScenario& ThermalInputController::scenario()
 {
    return m_scenario;
 }
 
-SacScenario& ThermalInputController::scenario() const
+ThermalScenario& ThermalInputController::scenario() const
 {
    return m_scenario;
+}
+
+ThermalInputTab* ThermalInputController::inputTab()
+{
+   return m_inputTab;
+}
+
+const ThermalInputTab* ThermalInputController::inputTab() const
+{
+   return m_inputTab;
 }
 
 } //namespace thermal

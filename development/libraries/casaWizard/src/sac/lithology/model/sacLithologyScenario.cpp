@@ -28,8 +28,7 @@ SacLithologyScenario::SacLithologyScenario(ProjectReader* projectReader) :
    t2zReferenceSurface_{defaultReferenceSurface},
    t2zSubSampling_{1},
    t2zRunOnOriginalProject_{false},
-   t2zNumberCPUs_{defaultt2zNumberCPUs},
-   showSurfaceLines_{true}
+   t2zNumberCPUs_{defaultt2zNumberCPUs}
 {}
 
 int SacLithologyScenario::t2zReferenceSurface() const
@@ -75,16 +74,6 @@ bool SacLithologyScenario::t2zRunOnOriginalProject() const
 void SacLithologyScenario::setT2zRunOnOriginalProject(bool t2zRunOnOriginalProject)
 {
    t2zRunOnOriginalProject_ = t2zRunOnOriginalProject;
-}
-
-bool SacLithologyScenario::showSurfaceLines() const
-{
-   return showSurfaceLines_;
-}
-
-void SacLithologyScenario::setShowSurfaceLines(const bool showSurfaceLines)
-{
-   showSurfaceLines_ = showSurfaceLines;
 }
 
 LithofractionManager& SacLithologyScenario::lithofractionManager()

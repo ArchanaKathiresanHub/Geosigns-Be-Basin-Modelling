@@ -24,6 +24,7 @@ public:
   virtual void domainRange(double& xMin, double& xMax, double& yMin, double& yMax) const = 0;
 
   virtual double heatProductionRate() const = 0;
+  virtual double topCrustHeatProdAtLocation(const double xLoc, const double yLoc) const = 0;
   virtual double initialLithosphericMantleThickness() const = 0;
   virtual double equilibriumOceanicLithosphereThickness() const = 0;
   virtual QVector<double> agesFromMajorSnapshots() const = 0;

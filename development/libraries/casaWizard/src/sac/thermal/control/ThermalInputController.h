@@ -9,6 +9,8 @@
 #pragma once
 
 #include "control/SacInputController.h"
+#include "model/ThermalScenario.h"
+#include "view/ThermalInputTab.h"
 #include <memory>
 
 namespace casaWizard
@@ -22,15 +24,13 @@ class SACScript;
 namespace thermal
 {
 
-class ThermalInputTab;
-
 class ThermalInputController : public SacInputController
 {
    Q_OBJECT
 
 public:
    ThermalInputController(ThermalInputTab* inputTab,
-                          SacScenario& casaScenario,
+                          ThermalScenario& casaScenario,
                           ScriptRunController& scriptRunController,
                           QObject* parent);
 
@@ -38,20 +38,23 @@ private slots:
    void slotImportTargetsClicked();
    void slotPushButtonSelectProject3dClicked() final;
    void slotUpdateTabGUI(int tabID) final;
-   void slotMinHCPChanged(QString text);
-   void slotMaxHCPChanged(QString text);
+   void slotMinTCHPChanged(QString text);
+   void slotMaxTCHPChanged(QString text);
 
 private:
+   ThermalScenario& scenario() final;
+   ThermalScenario& scenario() const final;
+
+   ThermalInputTab* inputTab() final;
+   const ThermalInputTab* inputTab() const final;
+
    void refreshGUI() final;
-   SacScenario& scenario() override;
-   SacScenario& scenario() const override;
    std::unique_ptr<SACScript> optimizationScript(const QString& baseDirectory,
                                                  bool doOptimization = true) final;
    void readOptimizedResults() final;
 
-   SacScenario& m_scenario;
-   double m_minHCP;
-   double m_maxHCP;
+   ThermalScenario& m_scenario;
+   ThermalInputTab* m_inputTab;
 };
 
 } //namespace thermal

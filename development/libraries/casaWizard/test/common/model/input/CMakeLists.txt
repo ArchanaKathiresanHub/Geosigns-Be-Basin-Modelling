@@ -19,6 +19,7 @@ add_casawizard_common_gtest( NAME XlsxFileMapCreator
 add_casawizard_common_gtest( NAME CMBProjectReader
                              SOURCES testCMBProjectReader.cpp )
 configure_file( CMBProjectReaderTest.project3d CMBProjectReaderTest.project3d COPYONLY )
+configure_file( HeatMap.hdf HeatMap.hdf COPYONLY )
 
 add_casawizard_common_gtest( NAME MapReader
                              SOURCES testMapReader.cpp )

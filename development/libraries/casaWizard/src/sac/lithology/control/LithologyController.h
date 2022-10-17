@@ -36,8 +36,8 @@ class LithologyController : public SacController
 public:
   LithologyController();
   virtual ~LithologyController() override = default;
-  MainWindow& mainWindow() override;
-  SacScenario& scenario() override;
+  MainWindow& mainWindow() final;
+  SacLithologyScenario& scenario() final;
 
 private:
   LithologyWindow m_ui;

@@ -8,6 +8,7 @@
 
 #pragma once
 #include "control/SacController.h"
+#include "model/ThermalScenario.h"
 #include "view/ThermalWindow.h"
 
 namespace casaWizard
@@ -20,17 +21,21 @@ namespace thermal
 {
 
 class ThermalInputController;
+class ThermalResultsController;
 
 class ThermalController : public SacController
 {
 public:
    ThermalController();
    virtual ~ThermalController() override = default;
-   MainWindow& mainWindow() override;
+   MainWindow& mainWindow() final;
+   ThermalScenario& scenario() final;
 
 private:
    ThermalWindow m_ui;
+   ThermalScenario m_scenario;
    ThermalInputController* m_inputController;
+   ThermalResultsController* m_resultsController;
 };
 
 } // namespace thermal

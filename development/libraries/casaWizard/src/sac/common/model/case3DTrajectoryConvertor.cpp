@@ -9,6 +9,7 @@
 #include "case3DTrajectoryConvertor.h"
 
 #include "input/case3DTrajectoryReader.h"
+#include "model/script/WizardDataToCasaScriptMapper.h"
 #include "SacScenario.h"
 
 #include <assert.h>
@@ -73,7 +74,8 @@ void convertToScenario(const Case3DTrajectoryReader& reader, SacScenario& scenar
       iEnd = size-1;
     }
 
-    const QVector<double> propValue = reader.readProperty(scenario.calibrationTargetManager().getCauldronPropertyName(traj.propertyUserName()));
+    const QString propertyName = wizardDataToCasaScriptMapper::mapName(scenario.calibrationTargetManager().getCauldronPropertyName(traj.propertyUserName()));
+    const QVector<double> propValue = reader.readProperty(propertyName);
 
     if (propValue.size() <= iEnd)
     {

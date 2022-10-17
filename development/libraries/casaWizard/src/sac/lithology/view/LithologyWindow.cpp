@@ -1,12 +1,12 @@
 #include "LithologyWindow.h"
 
-#include "view/mapsTabLithology.h"
 #include "view/menuBar.h"
-#include "view/LithologyResultsTab.h"
-#include "view/LithologyInputTab.h"
 #include "view/LithoTabIDs.h"
-#include "view/t2zTab.h"
 #include "view/wellPrepTab.h"
+#include "view/LithologyInputTab.h"
+#include "view/LithologyResultsTab.h"
+#include "view/mapsTabLithology.h"
+#include "view/t2zTab.h"
 
 #include <cassert>
 

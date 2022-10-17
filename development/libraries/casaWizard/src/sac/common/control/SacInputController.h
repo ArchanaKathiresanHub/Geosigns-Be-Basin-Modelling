@@ -53,12 +53,12 @@ protected slots:
    void slotRunOriginal3D();
    void slotPushButton1DOptimalizationClicked();
 
-protected:
-   virtual std::unique_ptr<SACScript> optimizationScript(const QString& baseDirectory, bool doOptimization = true) = 0;
-   virtual void readOptimizedResults() = 0;
    virtual SacScenario& scenario() = 0;
    virtual SacScenario& scenario() const = 0;
 
+protected:
+   virtual std::unique_ptr<SACScript> optimizationScript(const QString& baseDirectory, bool doOptimization = true) = 0;
+   virtual void readOptimizedResults() = 0;
    virtual void refreshGUI();
 
    bool selectWorkspace();
@@ -67,8 +67,9 @@ protected:
    void prepareOptimizationRun() const;
    void prepareRun1D() const;
 
-   SacInputTab* inputTab();
-   const SacInputTab* inputTab() const;
+   virtual SacInputTab* inputTab() = 0;
+   virtual const SacInputTab* inputTab() const = 0;
+
    ScriptRunController& scriptRunController();
    CalibrationTargetController* calibrationTargetController();
    DataExtractionController* dataExtractionController();
@@ -79,7 +80,6 @@ private slots:
    void slotComboBoxApplicationChanged(QString application);
 
 private:
-   SacInputTab* m_inputTab;
    ScriptRunController& m_scriptRunController;
    CalibrationTargetController* m_calibrationTargetController;
    ObjectiveFunctionControllerSAC* m_objectiveFunctionController;

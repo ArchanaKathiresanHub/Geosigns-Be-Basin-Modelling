@@ -1,0 +1,6 @@
+TCHPManagerVersion|int|0
+minimalProduction|double|0.5
+maximumProduction|double|4.5
+optimizedTopCrustHeatProduction|vector|2
+optimizedTopCrustHeatProduction|0|0|0.5
+optimizedTopCrustHeatProduction|0|1|2.5

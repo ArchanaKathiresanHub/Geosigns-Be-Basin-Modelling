@@ -339,4 +339,10 @@ TEST_F(CMBProjectReaderTest, testReadSubSamplingFactor)
    EXPECT_EQ(5, reader_.subSamplingFactor());
 }
 
+TEST_F(CMBProjectReaderTest, testTopCrustHeatProdAtLocation)
+{
+   EXPECT_DOUBLE_EQ(reader_.topCrustHeatProdAtLocation(179000, 603500), 1234.0);
+   EXPECT_DOUBLE_EQ(reader_.topCrustHeatProdAtLocation(179250, 603750), 4321.0);
+}
+
 

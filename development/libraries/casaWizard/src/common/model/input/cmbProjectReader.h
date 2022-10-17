@@ -42,6 +42,7 @@ public:
   void domainRange(double& xMin, double& xMax, double& yMin, double& yMax) const override;
   QVector<double> agesFromMajorSnapshots() const override;
   double heatProductionRate() const override;
+  double topCrustHeatProdAtLocation(const double xLoc, const double yLoc) const override;
   double initialLithosphericMantleThickness() const override;
   double equilibriumOceanicLithosphereThickness() const override;
   bool hasTWTData(int surfaceID) const override;

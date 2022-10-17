@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2022 Shell International Exploration & Production.
+// Copyright (C) 2012-2022 Shell International Exploration & Production.
 // All rights reserved.
 //
 // Confidential and proprietary source code of Shell.
@@ -22,44 +22,45 @@ namespace sac
 class SacScenario : public CasaScenario
 {
 public:
-  SacScenario(ProjectReader* projectReader);
+   SacScenario(ProjectReader* projectReader);
 
-  QString stateFileNameSAC() const;
-  QString calibrationDirectory() const;
-  QString optimizedProjectDirectory() const;
+   void writeToFile(ScenarioWriter& writer) const override;
+   void readFromFile(const ScenarioReader& reader) override;
+   void clear() override;
+   QString iterationDirName() const override;
 
-  bool fitRangeToData() const;
-  void setFitRangeToData(const bool fitRangeToData);
+   void wellPrepToSAC();
+   bool hasOptimizedSuccessfully(const int caseIndex);
+   void updateWellsForProject3D();
 
-  WellTrajectoryManager& wellTrajectoryManager();
-  const WellTrajectoryManager& wellTrajectoryManager() const;
+   void setFitRangeToData(const bool fitRangeToData);
+   void setShowSurfaceLines(const bool showSurfaceLines);
+   void setActivePlots(const QVector<bool>& activePlots);
 
-  MapsManager& mapsManager();
-  const MapsManager& mapsManager() const;
-
-  void writeToFile(ScenarioWriter& writer) const override;
-  void readFromFile(const ScenarioReader& reader) override;
-  void clear() override;
-  QString iterationDirName() const override;
-
-  QVector<bool> activePlots() const;
-  void setActivePlots(const QVector<bool>& activePlots);
-  void wellPrepToSAC();
-  QVector<int> getIncludedWellIndicesFromSelectedWells(const QVector<int>& selectedWellIndices);
-  bool hasOptimizedSuccessfully(const int caseIndex);
-  void updateWellsForProject3D();
+   QString stateFileNameSAC() const;
+   QString calibrationDirectory() const;
+   QString optimizedProjectDirectory() const;
+   bool fitRangeToData() const;
+   bool showSurfaceLines() const;
+   WellTrajectoryManager& wellTrajectoryManager();
+   const WellTrajectoryManager& wellTrajectoryManager() const;
+   MapsManager& mapsManager();
+   const MapsManager& mapsManager() const;
+   QVector<bool> activePlots() const;
+   QVector<int> getIncludedWellIndicesFromSelectedWells(const QVector<int>& selectedWellIndices);
 
 protected:
-  bool openMaps(MapReader& mapReader, const int layerID) const;
+   bool openMaps(MapReader& mapReader, const int layerID) const;
 
 private:
-  QString m_stateFileNameSAC;
-  QString m_calibrationDirectory;
-  MapsManager m_mapsManager;
-  WellTrajectoryManager m_wellTrajectoryManager;
+   QString m_stateFileNameSAC;
+   QString m_calibrationDirectory;
+   MapsManager m_mapsManager;
+   WellTrajectoryManager m_wellTrajectoryManager;
 
-  QVector<bool> m_activePlots;
-  bool m_fitRangeToData;
+   QVector<bool> m_activePlots;
+   bool m_fitRangeToData;
+   bool m_showSurfaceLines;
 };
 
 } // namespace sac

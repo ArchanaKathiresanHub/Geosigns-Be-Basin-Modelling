@@ -9,14 +9,14 @@
 
 TEST(SACScriptTest, testWriteThermalScript)
 {
-//  casaWizard::sac::SacThermalScenario scenario{new casaWizard::StubProjectReader()};
-//  casaWizard::sac::HCPManager& hcpManager{scenario.HCPManager()};
-  casaWizard::sac::SacScenario scenario{new casaWizard::StubProjectReader()};
+  casaWizard::sac::thermal::ThermalScenario scenario{new casaWizard::StubProjectReader()};
+  casaWizard::sac::thermal::TCHPManager& tchpManager{scenario.TCHPmanager()};
+  tchpManager.setMinTCHP(1);
+  tchpManager.setMaxTCHP(4.8);
+
   casaWizard::sac::WellTrajectoryManager& wellTrajectoryManager{scenario.wellTrajectoryManager()};
   scenario.setWorkingDirectory(".");
   scenario.setProject3dFileNameAndLoadFile("projStub.project3d");
-
-//  hcpManager.addHCP(0, 0, 5);
 
   casaWizard::CalibrationTargetManager& ctManager = scenario.calibrationTargetManager();
 
@@ -42,7 +42,7 @@ TEST(SACScriptTest, testWriteThermalScript)
   scenario.calibrationTargetManager().addToMapping("Temp", "Temperature");
   scenario.calibrationTargetManager().addToMapping("DT", "SonicSlowness");
 
-  const std::string expectedFile{"SACThermalScriptExpected.casa"};
+  const std::string expectedFile{"ThermalScriptExpected.casa"};
   const std::string actualFile{"sacScript.casa"};
 
   casaWizard::sac::thermal::ThermalScript script(scenario, scenario.workingDirectory());

@@ -69,6 +69,11 @@ public:
     return 0.0;
   }
 
+  double topCrustHeatProdAtLocation(const double x, const double y) const override
+  {
+     return 0.0;
+  }
+
   double initialLithosphericMantleThickness() const override
   {
     return 0.0;

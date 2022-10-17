@@ -52,48 +52,47 @@ namespace casaWizard
 namespace sac
 {
 
-SacInputController::SacInputController(SacInputTab* inputTab,
+SacInputController::SacInputController(SacInputTab* sacInputTab,
                                        SacScenario& casaScenario,
                                        ScriptRunController& scriptRunController,
                                        QObject* parent) :
    QObject(parent),
-   m_inputTab{inputTab},
    m_scriptRunController{scriptRunController},
-   m_calibrationTargetController{new CalibrationTargetController(inputTab->calibrationTargetTable(), casaScenario, this)},
-   m_objectiveFunctionController{new ObjectiveFunctionControllerSAC(inputTab->objectiveFunctionTable(), casaScenario, this)},
+   m_calibrationTargetController{new CalibrationTargetController(sacInputTab->calibrationTargetTable(), casaScenario, this)},
+   m_objectiveFunctionController{new ObjectiveFunctionControllerSAC(sacInputTab->objectiveFunctionTable(), casaScenario, this)},
    m_dataExtractionController{new DataExtractionController(casaScenario, m_scriptRunController, this)}
 {
-   m_inputTab->lineEditProject3D()->setText("");
-   m_inputTab->comboBoxCluster()->setCurrentText(casaScenario.clusterName());
+   sacInputTab->lineEditProject3D()->setText("");
+   sacInputTab->comboBoxCluster()->setCurrentText(casaScenario.clusterName());
 
    connect( parent, SIGNAL(signalReload1Ddata()), this, SLOT(slotExtractData()));
-   connect(m_inputTab->pushRun1DOptimalization(),  SIGNAL(clicked()),    this, SLOT(slotPushButton1DOptimalizationClicked()));
-   connect(m_inputTab->pushSelectProject3D(),   SIGNAL(clicked()),    this, SLOT(slotPushButtonSelectProject3dClicked()));
-   connect(m_inputTab->pushSelectAllWells(), SIGNAL(clicked()),       m_calibrationTargetController, SLOT(slotSelectAllWells()));
-   connect(m_inputTab->pushClearSelection(), SIGNAL(clicked()),       m_calibrationTargetController, SLOT(slotClearWellSelection()));
+   connect(sacInputTab->pushRun1DOptimalization(),  SIGNAL(clicked()),    this, SLOT(slotPushButton1DOptimalizationClicked()));
+   connect(sacInputTab->pushSelectProject3D(),   SIGNAL(clicked()),    this, SLOT(slotPushButtonSelectProject3dClicked()));
+   connect(sacInputTab->pushSelectAllWells(), SIGNAL(clicked()),       m_calibrationTargetController, SLOT(slotSelectAllWells()));
+   connect(sacInputTab->pushClearSelection(), SIGNAL(clicked()),       m_calibrationTargetController, SLOT(slotClearWellSelection()));
 
-   connect(m_inputTab->buttonRunOriginal1D(),     SIGNAL(clicked()), this, SLOT(slotRunOriginal1D()));
-   connect(m_inputTab->buttonRunOriginal3D(),     SIGNAL(clicked()), this, SLOT(slotRunOriginal3D()));
+   connect(sacInputTab->buttonRunOriginal1D(),     SIGNAL(clicked()), this, SLOT(slotRunOriginal1D()));
+   connect(sacInputTab->buttonRunOriginal3D(),     SIGNAL(clicked()), this, SLOT(slotRunOriginal3D()));
 
-   connect(m_inputTab->comboBoxCluster(),       SIGNAL(currentTextChanged(QString)), this, SLOT(slotComboBoxClusterCurrentTextChanged(QString)));
-   connect(m_inputTab->comboBoxApplication(),   SIGNAL(currentTextChanged(QString)), this, SLOT(slotComboBoxApplicationChanged(QString)));
+   connect(sacInputTab->comboBoxCluster(),       SIGNAL(currentTextChanged(QString)), this, SLOT(slotComboBoxClusterCurrentTextChanged(QString)));
+   connect(sacInputTab->comboBoxApplication(),   SIGNAL(currentTextChanged(QString)), this, SLOT(slotComboBoxApplicationChanged(QString)));
 }
 
 void SacInputController::refreshGUI()
 {
-   m_inputTab->lineEditProject3D()->setText(scenario().project3dPath());
-   m_inputTab->comboBoxCluster()->setCurrentText(scenario().clusterName());
+   inputTab()->lineEditProject3D()->setText(scenario().project3dPath());
+   inputTab()->comboBoxCluster()->setCurrentText(scenario().clusterName());
 
    if (scenario().applicationName() == "fastcauldron \"-itcoupled\"")
    {
-      m_inputTab->comboBoxApplication()->setCurrentText("Iteratively Coupled");
+      inputTab()->comboBoxApplication()->setCurrentText("Iteratively Coupled");
    }
    else if (scenario().applicationName() == "fastcauldron \"-temperature\"")
    {
-      m_inputTab->comboBoxApplication()->setCurrentText("Hydrostatic");
+      inputTab()->comboBoxApplication()->setCurrentText("Hydrostatic");
    }
 
-   m_inputTab->setContentsActive(!(scenario().workingDirectory().isEmpty()));
+   inputTab()->setContentsActive(!(scenario().workingDirectory().isEmpty()));
 }
 
 ScriptRunController& SacInputController::scriptRunController()
@@ -109,16 +108,6 @@ CalibrationTargetController* SacInputController::calibrationTargetController()
 DataExtractionController* SacInputController::dataExtractionController()
 {
    return m_dataExtractionController;
-}
-
-SacInputTab* SacInputController::inputTab()
-{
-   return m_inputTab;
-}
-
-const SacInputTab* SacInputController::inputTab() const
-{
-   return m_inputTab;
 }
 
 void SacInputController::slotExtractData()
@@ -313,7 +302,7 @@ void SacInputController::renameCaseFolders(const QString& pathName)
 
 bool SacInputController::selectWorkspace()
 {
-   const QString fileName = QFileDialog::getOpenFileName(m_inputTab,
+   const QString fileName = QFileDialog::getOpenFileName(inputTab(),
                                                          "Select project file",
                                                          QDir::currentPath(),
                                                          "Project files (*.project3d)");

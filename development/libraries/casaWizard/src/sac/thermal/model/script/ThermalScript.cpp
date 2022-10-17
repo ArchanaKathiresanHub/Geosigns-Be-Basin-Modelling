@@ -7,6 +7,7 @@
 //
 
 #include "ThermalScript.h"
+#include "model/TCHPManager.h"
 
 #include "model/SacScenario.h"
 #include "model/logger.h"
@@ -25,7 +26,9 @@ namespace sac
 namespace thermal
 {
 
-ThermalScript::ThermalScript(const SacScenario& scenario, const QString& baseDirectory, const bool doOptimization) :
+ThermalScript::ThermalScript(const ThermalScenario& scenario,
+                             const QString& baseDirectory,
+                             const bool doOptimization) :
    SACScript(baseDirectory, doOptimization),
    m_scenario(scenario)
 {}
@@ -35,23 +38,10 @@ const SacScenario& ThermalScript::scenario() const
    return m_scenario;
 }
 
-// placeholder
 void ThermalScript::writeParameters(QTextStream& stream) const
 {
-   stream << writeHCP();
-//      const HCPManager& manager{m_scenario.HCPManager()};
-//      for (const HCP& hcp : manager.HCPs())
-//      {
-//         stream << writeHCP(hcp);
-//      }
-}
-
-// placeholder
-QString ThermalScript::writeHCP() const
-{
-   //extract minmax from HCP
-   const double min = 0;
-   const double max = 5;
+   const double min = m_scenario.TCHPmanager().minTCHP();
+   const double max = m_scenario.TCHPmanager().maxTCHP();
 
    QString scriptLine = "varprm \"BasementIoTbl:TopCrustHeatProd\" ";
    scriptLine.append(QString::number(min, 'g', 3));
@@ -60,8 +50,9 @@ QString ThermalScript::writeHCP() const
    scriptLine.append(" ");
    scriptLine.append("\"Normal\"\n");
 
-   return scriptLine;
+   stream << scriptLine;
 }
+
 
 } // namespace thermal
 

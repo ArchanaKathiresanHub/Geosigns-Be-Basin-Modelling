@@ -40,10 +40,6 @@ public:
   bool t2zRunOnOriginalProject() const;
   void setT2zRunOnOriginalProject(bool t2zRunOnOriginalProject);
 
-  bool showSurfaceLines() const;
-  void setShowSurfaceLines(const bool showSurfaceLines);
-
-
   LithofractionManager& lithofractionManager();
   const LithofractionManager& lithofractionManager() const;
 
@@ -68,8 +64,6 @@ private:
   int t2zSubSampling_;
   bool t2zRunOnOriginalProject_;
   int t2zNumberCPUs_;
-
-  bool showSurfaceLines_;
 
   QVector<OptimizedLithofraction> getOptimizedLithoFractionsInLayer(const QString& layer) const;
   bool wellHasDataInActiveLayer(const Well* well, const QString& activeLayer) const;

@@ -38,27 +38,28 @@ LithologyInputController::LithologyInputController(LithologyInputTab* inputTab,
                       casaScenario,
                       scriptRunController,
                       parent),
-   casaScenario_{casaScenario},
-   lithofractionController_{new LithofractionController(inputTab->lithofractionTable(), casaScenario_, this)}
+   m_scenario{casaScenario},
+   m_inputTab{inputTab},
+   m_lithofractionController{new LithofractionController(inputTab->lithofractionTable(), m_scenario, this)}
 {
 }
 
 void LithologyInputController::refreshGUI()
 {
    SacInputController::refreshGUI();
-   lithofractionController_->updateLithofractionTable();
+   m_lithofractionController->updateLithofractionTable();
 
    emit signalRefreshChildWidgets();
 }
 
 std::unique_ptr<SACScript> LithologyInputController::optimizationScript(const QString& baseDirectory, bool doOptimization)
 {
-   return std::unique_ptr<SACScript>(new SACLithologyScript(casaScenario_, baseDirectory, doOptimization));
+   return std::unique_ptr<SACScript>(new SACLithologyScript(m_scenario, baseDirectory, doOptimization));
 }
 
 void LithologyInputController::readOptimizedResults()
 {
-   OptimizedLithofractionExtractor lithoExtractor{casaScenario_};
+   OptimizedLithofractionExtractor lithoExtractor{m_scenario};
    dataExtractionController()->readOptimizedResults(lithoExtractor);
 }
 
@@ -75,20 +76,30 @@ void LithologyInputController::slotPushButtonSelectProject3dClicked()
 {
    if (selectWorkspace())
    {
-      casaScenario_.updateT2zLastSurface();
-      lithofractionController_->loadLayersFromProject();
+      m_scenario.updateT2zLastSurface();
+      m_lithofractionController->loadLayersFromProject();
       refreshGUI();
    }
 }
 
 SacLithologyScenario& LithologyInputController::scenario()
 {
-   return casaScenario_;
+   return m_scenario;
 }
 
 SacLithologyScenario& LithologyInputController::scenario() const
 {
-   return casaScenario_;
+   return m_scenario;
+}
+
+LithologyInputTab*LithologyInputController::inputTab()
+{
+   return m_inputTab;
+}
+
+const LithologyInputTab*LithologyInputController::inputTab() const
+{
+   return m_inputTab;
 }
 
 } // namespace lithology

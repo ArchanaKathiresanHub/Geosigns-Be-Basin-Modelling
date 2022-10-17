@@ -122,11 +122,11 @@ void SacResultsTab::updateWellPlot(const QVector<QVector<const CalibrationTarget
 {
    assert(targets.size() ==  units.size());
    m_multiWellPlot->updatePlots(targets,
-                               units,
-                               allTrajectories,
-                               activePlots,
-                               surfaceLines,
-                               fitRangeToData);
+                                units,
+                                allTrajectories,
+                                activePlots,
+                                surfaceLines,
+                                fitRangeToData);
 }
 
 void SacResultsTab::updateCorrelationPlot(const QVector<QVector<double>>& measuredValueTrajectories,
@@ -138,12 +138,12 @@ void SacResultsTab::updateCorrelationPlot(const QVector<QVector<double>>& measur
                                           const QVector<int>& wellIndices)
 {
    m_wellCorrelationPlotLayout->updateCorrelationPlot(measuredValueTrajectories,
-                                                     simulatedValueTrajectories,
-                                                     activeProperty,
-                                                     activePlots,
-                                                     minValue,
-                                                     maxValue,
-                                                     wellIndices);
+                                                      simulatedValueTrajectories,
+                                                      activeProperty,
+                                                      activePlots,
+                                                      minValue,
+                                                      maxValue,
+                                                      wellIndices);
 }
 
 void SacResultsTab::updateBirdsView(const QVector<const Well*> wells)
@@ -240,6 +240,16 @@ QTableWidget* SacResultsTab::optimizedResultsTable() const
 QVBoxLayout* SacResultsTab::layoutWellList() const
 {
    return m_layoutWellList;
+}
+
+QPushButton*SacResultsTab::selectAll() const
+{
+   return m_selectAll;
+}
+
+QPushButton*SacResultsTab::selectClear() const
+{
+   return m_selectClear;
 }
 
 

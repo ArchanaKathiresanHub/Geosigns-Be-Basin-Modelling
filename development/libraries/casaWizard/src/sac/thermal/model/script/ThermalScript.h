@@ -10,8 +10,7 @@
 #pragma once
 
 #include "model/script/sacScript.h"
-#include "model/SacScenario.h"
-//#include "model/HCP.h"
+#include "model/ThermalScenario.h"
 
 class QFile;
 
@@ -31,14 +30,15 @@ namespace thermal
 class ThermalScript : public SACScript
 {
 public:
-   explicit ThermalScript(const SacScenario& scenario, const QString& baseDirectory, bool doOptimization = true);
+   explicit ThermalScript(const ThermalScenario& scenario,
+                          const QString& baseDirectory,
+                          bool doOptimization = true);
    const SacScenario& scenario() const override;
 
 private:
    void writeParameters(QTextStream& stream) const override;
 
-   const SacScenario& m_scenario;
-   QString writeHCP(/*const HCP& hcp*/) const;
+   const ThermalScenario& m_scenario;
 };
 
 } // thermal

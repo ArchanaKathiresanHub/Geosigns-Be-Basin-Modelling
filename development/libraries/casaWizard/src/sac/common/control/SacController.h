@@ -26,10 +26,6 @@ public:
    SacController();
    virtual ~SacController() override = default;
    virtual MainWindow& mainWindow() override = 0;
-   SacScenario& scenario() override;
-
-private:
-   SacScenario m_scenario;
 };
 
 } // namespace sac

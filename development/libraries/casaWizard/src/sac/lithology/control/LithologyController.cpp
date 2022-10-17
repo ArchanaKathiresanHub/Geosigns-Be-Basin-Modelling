@@ -9,11 +9,11 @@
 #include "LithologyController.h"
 
 #include "control/logDisplayController.h"
-#include "control/mapsController.h"
-#include "control/LithologyResultsController.h"
-#include "control/LithologyInputController.h"
-#include "control/t2zController.h"
 #include "control/wellPrepSACcontroller.h"
+#include "control/LithologyInputController.h"
+#include "control/LithologyResultsController.h"
+#include "control/mapsController.h"
+#include "control/t2zController.h"
 
 #include "model/input/cmbProjectReader.h"
 
@@ -52,7 +52,7 @@ MainWindow& LithologyController::mainWindow()
   return m_ui;
 }
 
-SacScenario& LithologyController::scenario()
+SacLithologyScenario& LithologyController::scenario()
 {
   return m_scenario;
 }

@@ -38,57 +38,13 @@ SacScenario::SacScenario(ProjectReader* projectReader) :
   m_mapsManager{},
   m_wellTrajectoryManager{},
   m_activePlots(4, true),
-  m_fitRangeToData{false}
+  m_fitRangeToData{false},
+  m_showSurfaceLines{true}
 {
   m_activePlots[2] = false;
   m_activePlots[3] = false;
 
   calibrationTargetManager().setShowPropertiesInTable(false);
-}
-
-QString SacScenario::stateFileNameSAC() const
-{
-  return m_stateFileNameSAC;
-}
-
-QString SacScenario::calibrationDirectory() const
-{
-  return workingDirectory() + "/" + m_calibrationDirectory;
-}
-
-QString SacScenario::optimizedProjectDirectory() const
-{
-  return calibrationDirectory() + "/ThreeDFromOneD/";
-}
-
-bool SacScenario::fitRangeToData() const
-{
-  return m_fitRangeToData;
-}
-
-void SacScenario::setFitRangeToData(const bool fitRangeToData)
-{
-  m_fitRangeToData = fitRangeToData;
-}
-
-WellTrajectoryManager& SacScenario::wellTrajectoryManager()
-{
-  return m_wellTrajectoryManager;
-}
-
-const WellTrajectoryManager& SacScenario::wellTrajectoryManager() const
-{
-  return m_wellTrajectoryManager;
-}
-
-MapsManager& SacScenario::mapsManager()
-{
-  return m_mapsManager;
-}
-
-const MapsManager&SacScenario::mapsManager() const
-{
-  return m_mapsManager;
 }
 
 void SacScenario::writeToFile(ScenarioWriter& writer) const
@@ -138,19 +94,6 @@ QString SacScenario::iterationDirName() const
   return dirName;
 }
 
-QVector<bool> SacScenario::activePlots() const
-{
-  return m_activePlots;
-}
-
-void SacScenario::setActivePlots(const QVector<bool>& activePlots)
-{
-  if (activePlots.size() == 4)
-  {
-    m_activePlots = activePlots;
-  }
-}
-
 void SacScenario::wellPrepToSAC()
 {
   calibrationTargetManager().appendFrom(calibrationTargetManagerWellPrep());
@@ -176,7 +119,7 @@ QVector<int> SacScenario::getIncludedWellIndicesFromSelectedWells(const QVector<
 
 bool SacScenario::hasOptimizedSuccessfully(const int caseIndex)
 {
-  const QVector<int> sortedIndices = casaWizard::functions::sortedByXYWellIndices(calibrationTargetManager().activeWells());  
+  const QVector<int> sortedIndices = casaWizard::functions::sortedByXYWellIndices(calibrationTargetManager().activeWells());
   const QString caseFolderNumber = QString::number(sortedIndices.indexOf(caseIndex) + 1);
   QFile successFile(calibrationDirectory() + "/" + runLocation() + "/" + iterationDirName() + "/Case_" + caseFolderNumber + "/Stage_0.sh.success");
   return successFile.exists();
@@ -197,6 +140,74 @@ bool SacScenario::openMaps(MapReader& mapReader, const int layerID) const
   }
 
   return true;
+}
+
+void SacScenario::setActivePlots(const QVector<bool>& activePlots)
+{
+  if (activePlots.size() == 4)
+  {
+    m_activePlots = activePlots;
+  }
+}
+
+void SacScenario::setFitRangeToData(const bool fitRangeToData)
+{
+  m_fitRangeToData = fitRangeToData;
+}
+
+void SacScenario::setShowSurfaceLines(const bool showSurfaceLines)
+{
+   m_showSurfaceLines = showSurfaceLines;
+}
+
+QVector<bool> SacScenario::activePlots() const
+{
+  return m_activePlots;
+}
+
+QString SacScenario::stateFileNameSAC() const
+{
+  return m_stateFileNameSAC;
+}
+
+QString SacScenario::calibrationDirectory() const
+{
+  return workingDirectory() + "/" + m_calibrationDirectory;
+}
+
+QString SacScenario::optimizedProjectDirectory() const
+{
+  return calibrationDirectory() + "/ThreeDFromOneD/";
+}
+
+bool SacScenario::fitRangeToData() const
+{
+  return m_fitRangeToData;
+}
+
+WellTrajectoryManager& SacScenario::wellTrajectoryManager()
+{
+  return m_wellTrajectoryManager;
+}
+
+const WellTrajectoryManager& SacScenario::wellTrajectoryManager() const
+{
+  return m_wellTrajectoryManager;
+}
+
+MapsManager& SacScenario::mapsManager()
+{
+  return m_mapsManager;
+}
+
+const MapsManager&SacScenario::mapsManager() const
+{
+  return m_mapsManager;
+}
+
+bool SacScenario::showSurfaceLines() const
+{
+   return m_showSurfaceLines;
 }
 
 } // namespace sac

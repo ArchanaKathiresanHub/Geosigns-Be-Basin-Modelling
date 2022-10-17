@@ -8,7 +8,7 @@
 ;
 ProjectName ProjectSize Description ProjectTeam ProjectStartDate ProjectEndDate ProgramVersion ModellingMode XCoord YCoord NumberX NumberY DeltaX DeltaY ScaleX ScaleY OffsetX OffsetY WindowXMin WindowXMax WindowYMin WindowYMax WktGeometryOutline
 () () () () () () () () () () () () () () () () () () () () () () ()
-"00_Ameland_Playground" "Big" "" "" "" "" "v2016.11" "3d" 179000 603500 107 61 250 250 5 5 0 0 0 106 0 60 "<WktGeometryOutline><CoordinateOperationName>urn:ogc:def:coordinateOperation:EPSG::1672</CoordinateOperationName><SrsName>urn:ogc:def:crs:EPSG::28992</SrsName><Wkt>POLYGON  (( 178874.99472 603375.01215, 205625.0022 603375.02694, 205624.9725 618625.04702, 178875.03139 618624.96325, 178874.99472 603375.01215))</Wkt></WktGeometryOutline>"
+"00_Ameland_Playground" "Big" "" "" "" "" "v2016.11" "3d" 179000 603500 107 61 250 250 5 5 0 0 0 1 0 1 "<WktGeometryOutline><CoordinateOperationName>urn:ogc:def:coordinateOperation:EPSG::1672</CoordinateOperationName><SrsName>urn:ogc:def:crs:EPSG::28992</SrsName><Wkt>POLYGON  (( 178874.99472 603375.01215, 205625.0022 603375.02694, 205624.9725 618625.04702, 178875.03139 618624.96325, 178874.99472 603375.01215))</Wkt></WktGeometryOutline>"
 [End]
 ;
 ;

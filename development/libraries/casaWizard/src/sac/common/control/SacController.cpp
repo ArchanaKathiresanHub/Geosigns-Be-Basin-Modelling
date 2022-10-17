@@ -8,9 +8,6 @@
 
 #include "SacController.h"
 
-#include "control/SacInputController.h"
-#include "model/input/cmbProjectReader.h"
-
 namespace casaWizard
 {
 
@@ -18,14 +15,8 @@ namespace sac
 {
 
 SacController::SacController() :
-   MainController(),
-   m_scenario{new CMBProjectReader()}
+   MainController()
 {}
-
-SacScenario& SacController::scenario()
-{
-   return m_scenario;
-}
 
 } // namespace sac
 

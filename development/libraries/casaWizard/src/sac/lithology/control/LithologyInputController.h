@@ -10,6 +10,7 @@
 
 #include "control/SacInputController.h"
 #include "model/sacLithologyScenario.h"
+#include "view/LithologyInputTab.h"
 
 #include <QObject>
 #include <QVector>
@@ -24,8 +25,6 @@ class LithofractionController;
 
 namespace lithology
 {
-
-class LithologyInputTab;
 
 class LithologyInputController : public SacInputController
 {
@@ -42,15 +41,20 @@ private slots:
    void slotUpdateTabGUI(int tabID) final;
 
 private:
-   void refreshGUI() override;
-   SacLithologyScenario& scenario() override;
-   SacLithologyScenario& scenario() const override;
+   SacLithologyScenario& scenario() final;
+   SacLithologyScenario& scenario() const final;
+
+   LithologyInputTab* inputTab();
+   const LithologyInputTab* inputTab() const;
+
+   void refreshGUI() final;
    std::unique_ptr<SACScript> optimizationScript(const QString& baseDirectory,
                                                  bool doOptimization = true) final;
    void readOptimizedResults() final;
 
-   SacLithologyScenario& casaScenario_;
-   LithofractionController* lithofractionController_;
+   SacLithologyScenario& m_scenario;
+   LithologyInputTab* m_inputTab;
+   LithofractionController* m_lithofractionController;
 };
 
 } // namespace lithology

@@ -76,6 +76,8 @@ protected:
    QTableWidgetItem* createHeaderItem(const QString& name, int align);
    QTableWidget* optimizedResultsTable() const;
    QVBoxLayout* layoutWellList() const;
+   QPushButton* selectAll() const;
+   QPushButton* selectClear() const;
 
 private:
    QVBoxLayout* m_layoutWellList;

@@ -9,8 +9,8 @@
 #include "ThermalWindow.h"
 
 #include "view/ThermalInputTab.h"
+#include "view/ThermalResultsTab.h"
 //#include "view/ThermalMapsTab.h"
-//#include "view/ThermalResultsTab.h"
 
 #include "view/assets/ThermalTabIDs.h"
 
@@ -26,15 +26,15 @@ namespace thermal {
 
 ThermalWindow::ThermalWindow(QWidget* parent) :
   sac::Window(parent),
-  m_inputTab{new ThermalInputTab{this}}
-//  m_resultsTab{new ThermalResultsTab{this}},
-//  m_mapsTab{new ThermalMapsTab{this}},
+  m_inputTab{new ThermalInputTab{this}},
+  m_resultsTab{new ThermalResultsTab{this}}
+//  m_mapsTab{new ThermalMapsTab{this}}
 {
   setWindowTitle("SAC Thermal Wizard");
   tabWidget()->addTab(m_inputTab, "Input");
-//  tabWidget()->addTab(m_resultsTab, "Well log plots and results");
+  tabWidget()->addTab(m_resultsTab, "Well log plots and results");
 //  tabWidget()->addTab(m_mapsTab, "Maps");
-  assert(tabWidget()->count() == 1);
+  assert(tabWidget()->count() == 2);
 }
 
 ThermalInputTab* ThermalWindow::inputTab() const

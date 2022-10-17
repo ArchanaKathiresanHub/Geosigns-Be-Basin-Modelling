@@ -23,12 +23,12 @@ public:
    explicit ThermalInputTab(QWidget* parent = nullptr);
 
    const QPushButton* pushButtonImportTargets() const;
-   QLineEdit* lineEditMinHCP() const;
-   QLineEdit* lineEditMaxHCP() const;
+   QLineEdit* lineEditMinTCHP() const;
+   QLineEdit* lineEditMaxTCHP() const;
 private:
    QPushButton* m_pushImportTargets;
-   QLineEdit* m_lineMinHCP;
-   QLineEdit* m_lineMaxHCP;
+   QLineEdit* m_lineMinTCHP;
+   QLineEdit* m_lineMaxTCHP;
 };
 
 } //namespace thermal

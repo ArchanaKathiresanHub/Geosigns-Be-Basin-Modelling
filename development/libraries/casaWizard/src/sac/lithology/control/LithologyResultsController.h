@@ -8,10 +8,10 @@
 
 #pragma once
 
-#include <QObject>
-#include <QVector>
-
+#include "control/SacResultsController.h"
+#include "model/sacLithologyScenario.h"
 #include "model/wellTrajectoryManager.h"
+#include "view/LithologyResultsTab.h"
 
 class QString;
 
@@ -25,64 +25,34 @@ class ScriptRunController;
 namespace sac
 {
 
-class SacLithologyScenario;
-
 namespace lithology
 {
 
-class LithologyResultsTab;
-
-class LithologyResultsController : public QObject
+class LithologyResultsController : public SacResultsController
 {
-  Q_OBJECT
+   Q_OBJECT
 
 public:
-  explicit LithologyResultsController(LithologyResultsTab* resultsTab,
-                             SacLithologyScenario& scenario,
-                             ScriptRunController& scriptRunController,
-                             QObject* parent);
-  void updateTab();
-
+   explicit LithologyResultsController(LithologyResultsTab* resultsTab,
+                                       SacLithologyScenario& scenario,
+                                       ScriptRunController& scriptRunController,
+                                       QObject* parent);
 private slots:
-  void slotUpdateWell();
-  void slotActiveChanged();
-  void slotTogglePlotType(const int currentIndex);
-  void slotUpdateProperty(QString property);
-  void slotUpdateWellFromBirdView(const int lineIndex, const int pointIndex);
-  void slotSelectedWellFromCorrelation(const int wellIndex);
-  void slotUpdateTabGUI(int tabID);
-  void slotWellPrepOrSAC(int buttonId);
-
-  void slotUpdateSurfaceLines(const bool showSurfaceLines);
-  void slotUpdateFitRangeToData(const bool fitRangeToData);
-  void slotUpdateIsExpanded(int state, int plotID);
+   void slotUpdateTabGUI(int tabID) final;
+   void slotTogglePlotType(const int currentIndex) final;
+   void slotWellPrepOrSAC(int buttonId);
 
 private:
-  void refreshGUI();
-  void refreshPlot();
-  void updateOptimizedTable();
-  void updateWellPlot();
-  void updateCorrelationPlot();
-  void updateBirdView();
-  QVector<int> selectedWellsIDs();
+   SacLithologyScenario& scenario() final;
+   SacLithologyScenario& scenario() const final;
 
-  LithologyResultsTab* m_resultsTab;
-  SacLithologyScenario& m_scenario;
-  ScriptRunController& m_scriptRunController;
-  QVector<int> m_selectedWellsIDs;
-  QString m_activeProperty;
-  bool m_wellPrepWells;
+   LithologyResultsTab* resultsTab() final;
+   const LithologyResultsTab* resultsTab() const final;
 
-  void initializeWellSelection();
-  void setGuiOptionsInPlots();
-  void setActiveWells();
-  void setActivePropertiesToWells();
-  void setDomainBirdsView();
-  void setDefaultWellSelection();
-  QMap<QString, double> getSurfaceValues();
-  QStringList getUnitsForProperties(const QVector<QVector<const CalibrationTarget*>> targets);
-  const CalibrationTargetManager& calibrationTargetManager() const;
-  QVector<QVector<WellTrajectory>> getAllTrajectories(const QStringList& propertyUserNames) const;
+   void updateOptimizedTable() final;
+
+   LithologyResultsTab* m_resultsTab;
+   SacLithologyScenario& m_scenario;
 };
 
 } // namespace lithology

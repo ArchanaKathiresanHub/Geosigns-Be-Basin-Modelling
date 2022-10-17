@@ -8,6 +8,7 @@
 
 #pragma once
 #include "model/sacLithologyScenario.h"
+#include "model/ThermalScenario.h"
 #include "stubProjectReader.h"
 
 #include <memory>
@@ -25,6 +26,16 @@ public:
   {
   }
 };
+
+class StubThermalScenario : public thermal::ThermalScenario
+{
+public:
+  explicit StubThermalScenario() :
+    ThermalScenario(new StubProjectReader())
+  {
+  }
+};
+
 
 } // sac
 

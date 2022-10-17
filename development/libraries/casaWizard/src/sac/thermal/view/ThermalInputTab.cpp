@@ -9,6 +9,7 @@
 #include "ThermalInputTab.h"
 #include <QPushButton>
 #include <QLineEdit>
+#include <QDoubleValidator>
 
 #include "view/sharedComponents/helpLabel.h"
 
@@ -24,32 +25,34 @@ namespace thermal
 ThermalInputTab::ThermalInputTab(QWidget* parent) :
    SacInputTab(parent),
    m_pushImportTargets{new QPushButton("Import Targets", this)},
-   m_lineMinHCP{new QLineEdit(this)},
-   m_lineMaxHCP{new QLineEdit(this)}
+   m_lineMinTCHP{new QLineEdit(this)},
+   m_lineMaxTCHP{new QLineEdit(this)}
 {
-   m_lineMaxHCP->setFixedWidth(48);
-   m_lineMinHCP->setFixedWidth(48);
-   m_lineMinHCP->setMaxLength(5);
-   m_lineMaxHCP->setMaxLength(5);
+   m_lineMaxTCHP->setFixedWidth(48);
+   m_lineMinTCHP->setFixedWidth(48);
+   m_lineMinTCHP->setMaxLength(5);
+   m_lineMaxTCHP->setMaxLength(5);
+   m_lineMinTCHP->setValidator(new QDoubleValidator(-9999, 9999, 4, this));
+   m_lineMaxTCHP->setValidator(new QDoubleValidator(-9999, 9999, 4, this));
 
-   QGridLayout* layoutHCPRange = new QGridLayout();
-   QLabel* labelMinHCP = new QLabel(this);
-   labelMinHCP->setText("Min A0:");
-   HelpLabel* helpLabelMinHCP = new HelpLabel(this, "minimal value to optimize Heat Crust Production (HCP) / \"A0\" for");
-   layoutHCPRange->addWidget(labelMinHCP, 0, 0);
-   layoutHCPRange->addWidget(m_lineMinHCP, 0, 1);
-   layoutHCPRange->addWidget(helpLabelMinHCP, 0, 2);
+   QGridLayout* layoutTCHPRange = new QGridLayout();
+   QLabel* labelMinTCHP = new QLabel(this);
+   labelMinTCHP->setText("Min A0:");
+   HelpLabel* helpLabelMinTCHP = new HelpLabel(this, "Minimal value for the optimizing range of the Top Crust Heat Production / \"A0\"");
+   layoutTCHPRange->addWidget(labelMinTCHP, 0, 0);
+   layoutTCHPRange->addWidget(m_lineMinTCHP, 0, 1);
+   layoutTCHPRange->addWidget(helpLabelMinTCHP, 0, 2);
 
-   QLabel* labelMaxHCP = new QLabel(this);
-   labelMaxHCP->setText("Max A0:");
-   HelpLabel* helpLabelMaxHCP = new HelpLabel(this, "maximum value to optimize Heat Crust Production (HCP) / \"A0\" for");
-   layoutHCPRange->addWidget(labelMaxHCP, 1, 0);
-   layoutHCPRange->addWidget(m_lineMaxHCP, 1, 1);
-   layoutHCPRange->addWidget(helpLabelMaxHCP, 1, 2);
+   QLabel* labelMaxTCHP = new QLabel(this);
+   labelMaxTCHP->setText("Max A0:");
+   HelpLabel* helpLabelMaxTCHP = new HelpLabel(this, "Maximum value for the optimizing range of the Top Crust Heat Production / \"A0\"");
+   layoutTCHPRange->addWidget(labelMaxTCHP, 1, 0);
+   layoutTCHPRange->addWidget(m_lineMaxTCHP, 1, 1);
+   layoutTCHPRange->addWidget(helpLabelMaxTCHP, 1, 2);
 
-   layoutHCPRange->setMargin(0);
+   layoutTCHPRange->setMargin(0);
 
-   layoutRunOptions()->insertLayout(1, layoutHCPRange);
+   layoutRunOptions()->insertLayout(0, layoutTCHPRange);
    layoutCalibrationOptions()->insertWidget(1, m_pushImportTargets);
 }
 
@@ -58,14 +61,14 @@ const QPushButton* ThermalInputTab::pushButtonImportTargets() const
    return m_pushImportTargets;
 }
 
-QLineEdit* ThermalInputTab::lineEditMinHCP() const
+QLineEdit* ThermalInputTab::lineEditMinTCHP() const
 {
-   return m_lineMinHCP;
+   return m_lineMinTCHP;
 }
 
-QLineEdit* ThermalInputTab::lineEditMaxHCP() const
+QLineEdit* ThermalInputTab::lineEditMaxTCHP() const
 {
-   return m_lineMaxHCP;
+   return m_lineMaxTCHP;
 }
 
 } // namespace thermal

@@ -35,7 +35,7 @@ const SacLithologyScenario& SACLithologyScript::scenario() const
 
 void SACLithologyScript::writeParameters(QTextStream& stream) const
 {
-   const LithofractionManager& manager{scenario().lithofractionManager()};
+   const LithofractionManager& manager{m_scenario.lithofractionManager()};
    for (const Lithofraction& lithofraction : manager.lithofractions())
    {
       stream << writeLithofraction(lithofraction);

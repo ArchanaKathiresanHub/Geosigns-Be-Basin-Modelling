@@ -304,6 +304,18 @@ double CMBProjectReader::heatProductionRate() const
   return heatProd;
 }
 
+double CMBProjectReader::topCrustHeatProdAtLocation(const double xLoc, const double yLoc) const
+{
+   const std::string topCrustHeatGridMapName = cmbModel_->tableValueAsString("BasementIoTbl", 0, "TopCrustHeatProdGrid");
+   if (topCrustHeatGridMapName == "")
+   {
+      return heatProductionRate();
+   }
+
+   const mbapi::MapsManager::MapID id = cmbModel_->mapsManager().findID(topCrustHeatGridMapName);
+   return cmbModel_->mapsManager().mapGetValue(id, xLoc, yLoc);
+}
+
 double CMBProjectReader::initialLithosphericMantleThickness() const
 {
   if (!loaded_)
