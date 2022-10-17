@@ -50,7 +50,7 @@ namespace hpc
     static std::string readValue(Type type, database::Record * record, const std::string & field);
     static void writeValue(Type type, database::Record * record, const std::string & field, const std::string & value);
     static Type parseType(const std::string & type);
-    static const std::tr1::array< std::string, 6 > typeStrings;
+    static const std::array< std::string, 6 > typeStrings;
   };
 
   inline bool operator==( const Project3DParameter & a, const Project3DParameter & b)

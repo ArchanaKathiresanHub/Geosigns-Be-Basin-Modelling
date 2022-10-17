@@ -26,7 +26,7 @@ create_bm_library( TARGET ${CASAWIZARD_UA_LIBNAME}
                    ADD_HEADERS ${CASAWIZARD_UA_H_HEADER} )
 
 create_bm_library( TARGET ${CASAWIZARD_UA_MODEL_LIBNAME}
-                   LIBRARIES Qt5::Core Qt5::Gui Qt5::Widgets casaCmdInterface ${CASAWIZARD_COMMON_MODEL_LIBNAME}
+                   LIBRARIES ${CASAWIZARD_COMMON_MODEL_LIBNAME} casaCmdInterface
                    ADD_SOURCES ${CASAWIZARD_UA_MODEL_CPP_SOURCES}
                    ADD_HEADERS ${CASAWIZARD_UA_MODEL_H_HEADER} )
 

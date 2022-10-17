@@ -56,84 +56,84 @@ set ( MockPorosityCalculatorFiles
 add_gtest( NAME ${LIB_NAME}::${LIB_NAME}
            SOURCES test/DerivedProperties.cpp
            INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/../DataModel/test
-           LIBRARIES ${LIB_NAME} SerialDataAccess GeoPhysics DataModel
+           LIBRARIES ${LIB_NAME} GeoPhysics DataModel DataAccess SerialDataAccess
            FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
 add_gtest( NAME ${LIB_NAME}::SimplePropertyManagerTest
            SOURCES test/SimplePropertyManagerTest.cpp
            INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/../DataModel/test
-           LIBRARIES ${LIB_NAME} SerialDataAccess GeoPhysics DataModel
+           LIBRARIES ${LIB_NAME} GeoPhysics DataModel DataAccess SerialDataAccess
            FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
 add_gtest( NAME ${LIB_NAME}::CompoundFormationMapPropertyManagerTest
            SOURCES test/CompoundFormationMapPropertyManagerTest.cpp
            INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/../DataModel/test
-           LIBRARIES ${LIB_NAME} SerialDataAccess GeoPhysics DataModel
+           LIBRARIES ${LIB_NAME} GeoPhysics DataModel DataAccess SerialDataAccess
            FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
 add_gtest( NAME ${LIB_NAME}::CompoundContinuousPropertyManagerTest
            SOURCES test/CompoundContinuousPropertyManagerTest.cpp
            INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/../DataModel/test
-           LIBRARIES ${LIB_NAME} SerialDataAccess GeoPhysics DataModel
+           LIBRARIES ${LIB_NAME} GeoPhysics DataModel DataAccess SerialDataAccess
            FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
 add_gtest( NAME ${LIB_NAME}::CompoundDiscontinuousPropertyManagerTest
            SOURCES test/CompoundDiscontinuousPropertyManagerTest.cpp
            INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/../DataModel/test
-           LIBRARIES ${LIB_NAME} SerialDataAccess GeoPhysics DataModel
+           LIBRARIES ${LIB_NAME} GeoPhysics DataModel DataAccess SerialDataAccess
            FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
 add_gtest( NAME ${LIB_NAME}::MultiplePropertyManagerTest
            SOURCES test/MultiplePropertyManagerTest.cpp
            INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/../DataModel/test
-           LIBRARIES ${LIB_NAME} SerialDataAccess GeoPhysics DataModel
+           LIBRARIES ${LIB_NAME} GeoPhysics DataModel DataAccess SerialDataAccess
            FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
 add_gtest( NAME ${LIB_NAME}::MultipleFormationMapPropertyManagerTest
            SOURCES test/MultipleFormationMapPropertyManagerTest.cpp
            INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/../DataModel/test
-           LIBRARIES ${LIB_NAME} SerialDataAccess GeoPhysics DataModel
+           LIBRARIES ${LIB_NAME} GeoPhysics DataModel DataAccess SerialDataAccess
            FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
 add_gtest( NAME ${LIB_NAME}::MultipleFormationSurfacePropertyManagerTest
            SOURCES test/MultipleFormationSurfacePropertyManagerTest.cpp
            INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/../DataModel/test
-           LIBRARIES ${LIB_NAME} SerialDataAccess GeoPhysics DataModel
+           LIBRARIES ${LIB_NAME} GeoPhysics DataModel DataAccess SerialDataAccess
            FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
 add_gtest( NAME ${LIB_NAME}::MultipleFormationPropertyManagerTest
            SOURCES test/MultipleFormationPropertyManagerTest.cpp
            INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/../DataModel/test
-           LIBRARIES ${LIB_NAME} SerialDataAccess GeoPhysics DataModel
+           LIBRARIES ${LIB_NAME} GeoPhysics DataModel DataAccess SerialDataAccess
            FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
 add_gtest( NAME ${LIB_NAME}::ThicknessPropertyTest
            SOURCES test/ThicknessPropertyTest.cpp
            INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/../DataModel/test
-           LIBRARIES ${LIB_NAME} SerialDataAccess GeoPhysics DataModel
+           LIBRARIES ${LIB_NAME} GeoPhysics DataModel DataAccess SerialDataAccess
            FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
 add_gtest( NAME ${LIB_NAME}::OverpressurePropertyTest
            SOURCES test/OverpressurePropertyTest.cpp
            INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/../DataModel/test
-           LIBRARIES ${LIB_NAME} SerialDataAccess GeoPhysics DataModel
+           LIBRARIES ${LIB_NAME} GeoPhysics DataModel DataAccess SerialDataAccess
            FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
 add_gtest( NAME ${LIB_NAME}::SurfacePropertyTest
            SOURCES test/SurfacePropertyTest.cpp
            INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/../DataModel/test
-           LIBRARIES ${LIB_NAME} SerialDataAccess GeoPhysics DataModel
+           LIBRARIES ${LIB_NAME} GeoPhysics DataModel DataAccess SerialDataAccess
            FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
@@ -148,7 +148,7 @@ add_gtest( NAME ${LIB_NAME}::GammaRayFormationCalculatorTest
 add_gtest( NAME ${LIB_NAME}::DepthBelowMudlinePropertyTest
            SOURCES test/DepthBelowMudlinePropertyTest.cpp
            INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/../DataModel/test ${CMAKE_CURRENT_SOURCE_DIR}/../GeoPhysics/src ${CMAKE_CURRENT_SOURCE_DIR}/src ${CMAKE_CURRENT_SOURCE_DIR}/../DataAccess/src ${CMAKE_CURRENT_SOURCE_DIR}/../DistributedDataAccess/src
-           LIBRARIES ${LIB_NAME} SerialDataAccess GeoPhysics DataModel DataAccess DistributedDataAccess
+           LIBRARIES ${LIB_NAME} GeoPhysics DataModel DataAccess DistributedDataAccess
 	       ENV_VARS CTCDIR=${PROJECT_SOURCE_DIR}/geocase/misc
            FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
@@ -156,7 +156,7 @@ add_gtest( NAME ${LIB_NAME}::DepthBelowMudlinePropertyTest
 add_gtest( NAME ${LIB_NAME}::HeatFlowPropertyTest
            SOURCES test/HeatFlowPropertyTest.cpp test/MockHeatFlowPropertyManager.cpp
            INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/test ${CMAKE_CURRENT_SOURCE_DIR}/../DataModel/test ${CMAKE_CURRENT_SOURCE_DIR}/../GeoPhysics/src ${CMAKE_CURRENT_SOURCE_DIR}/src ${CMAKE_CURRENT_SOURCE_DIR}/../DataAccess/src ${CMAKE_CURRENT_SOURCE_DIR}/../DistributedDataAccess/src
-           LIBRARIES ${LIB_NAME} SerialDataAccess GeoPhysics DataModel DataAccess DistributedDataAccess
+           LIBRARIES ${LIB_NAME} GeoPhysics DataModel DataAccess DistributedDataAccess
 	       ENV_VARS CTCDIR=${PROJECT_SOURCE_DIR}/geocase/misc
            FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )

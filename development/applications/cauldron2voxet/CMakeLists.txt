@@ -122,10 +122,10 @@ install(TARGETS ${TARGET_NAME}
 #
 
 # 1. cauldron2voxet.cpp
-#
+
 add_gtest( NAME ${TARGET_NAME}::cauldron2voxet
-           SOURCES test/cauldron2voxetTest.cpp 
-           ${mainSources} 
+           SOURCES test/cauldron2voxetTest.cpp
+           ${mainSources}
            ${PROJECT_BINARY_DIR}/applications/cauldron2voxet/voxetschema.cpp
            ${PROJECT_BINARY_DIR}/applications/cauldron2voxet/voxetschemafuncs.cpp
            LIBRARIES cmbapi

@@ -27,7 +27,7 @@ class ElementDofsMixin {
 public :
 
    /// \brief Fixed size 1d array of integers for holding dof numbers.
-   typedef std::tr1::array<int, NumberOfElementNodes> DofArray;
+   typedef std::array<int, NumberOfElementNodes> DofArray;
 
    /// \brief Default constructor.
    ElementDofsMixin ();
@@ -72,7 +72,7 @@ public :
 private :
 
    /// \brief Fixed size 1d array of boundary condition data for the nodes.
-   typedef std::tr1::array<Boundary_Conditions, NumberOfElementNodes> BoundaryConditionArray;
+   typedef std::array<Boundary_Conditions, NumberOfElementNodes> BoundaryConditionArray;
 
 
    /// \brief The global dof numbers for each node.

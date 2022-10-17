@@ -21,7 +21,7 @@ class PermeabilityImpermeable: public Permeability::Algorithm
 public:
 
    /// \brief The permeability of impermeable lithologies.
-   static const double ImpermeablePermeability;
+   static double impermeablePermeability() { return 1.0e-9; }
 
 
    PermeabilityImpermeable( double depoPermeability, Permeability::Model model)
@@ -36,7 +36,7 @@ public:
       (void) ves;
       (void) maxVes;
       (void) calculatedPorosity;
-      return ImpermeablePermeability;
+      return impermeablePermeability();
    }
 
    virtual void calculate ( const unsigned int       n,
@@ -46,7 +46,7 @@ public:
                             ArrayDefs::Real_ptr      permeabilities ) const
    {
       for ( unsigned int i = 0; i < n; ++i ) {
-         permeabilities [ i ] = ImpermeablePermeability;
+         permeabilities [ i ] = impermeablePermeability();
       }
    }
 
@@ -65,7 +65,7 @@ public:
       (void) calculatedPorosity;
       (void) porosityDerivativeWrtVes;
 
-      permeability = ImpermeablePermeability;
+      permeability = impermeablePermeability();
       derivative = 0.0;
    }
 
@@ -78,7 +78,7 @@ public:
                                       ArrayDefs::Real_ptr      derivatives ) const
    {
       for ( unsigned int i = 0; i < n; ++i ) {
-         permeabilities [ i ] = ImpermeablePermeability;
+         permeabilities [ i ] = impermeablePermeability();
          derivatives [ i ] = 0.0;
       }
 
@@ -113,7 +113,5 @@ private:
 
 
 }
-
-const double GeoPhysics::PermeabilityImpermeable::ImpermeablePermeability = 1.0e-9;
 
 #endif

@@ -10,9 +10,9 @@
 #                                                                       #
 #########################################################################
 
-set(Eigen_ROOT "${THIRD_PARTY_DIR}/Eigen-3.2.8" CACHE PATH "Path to Eigen include files" )
+set(Eigen_ROOT "${THIRD_PARTY_DIR}/Eigen-3.4.0" CACHE PATH "Path to Eigen include files" )
 set(EIGEN_INCLUDE_DIRS "${Eigen_ROOT}" "${Eigen_ROOT}/eigen3")
-
+message(WARNING "Using EIGEN_INCLUDE_DIRS=${EIGEN_INCLUDE_DIRS}")
 # Definining EIGEN_MPL2_ONLY is crucial for use within Shell, because this
 # ensures that only codes is used with MPL2 and possible more permissive
 # licenses (like BSD).
@@ -22,7 +22,7 @@ add_external_package_info(
    CAPABILITY EigenLib
    NAME    "Eigen"
    VENDOR  "Eigen"
-   VERSION "3.2"
+   VERSION "3.4"
    LICENSE_TYPE "MPL2"
    LICENSE_FILE "${THIRD_PARTY_DIR}/licenses/MPL2.txt"
    URL "http://eigen.tuxfamily.org"

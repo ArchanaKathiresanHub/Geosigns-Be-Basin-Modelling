@@ -35,10 +35,10 @@ public :
    static const unsigned int NumberOfEquations = Size;
 
    /// \brief Array of length NumberOfCoefficients.
-   typedef std::tr1::array<double, NumberOfCoefficients> CoefficientArray;
+   typedef std::array<double, NumberOfCoefficients> CoefficientArray;
 
    /// \brief Array of length NumberOfCoefficients.
-   typedef std::tr1::array<CoefficientArray, NumberOfEquations> CoefficientMatrix;
+   typedef std::array<CoefficientArray, NumberOfEquations> CoefficientMatrix;
 
 
    /// \brief Compute the coefficients of the interpolating polynomial.

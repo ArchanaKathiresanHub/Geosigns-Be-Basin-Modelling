@@ -53,7 +53,7 @@ TEST_F( PermeabilityImpermeableTest, permeabilityVector )
 
    for ( unsigned int i = 0; i < Size; ++i ) {
       EXPECT_FLOAT_EQ ( m_p.calculate( NullValue, NullValue, NullValue ), permeability [ i ] );
-      EXPECT_FLOAT_EQ ( PermeabilityImpermeable::ImpermeablePermeability, permeability [ i ] );
+      EXPECT_FLOAT_EQ ( PermeabilityImpermeable::impermeablePermeability(), permeability [ i ] );
    }
 
 }

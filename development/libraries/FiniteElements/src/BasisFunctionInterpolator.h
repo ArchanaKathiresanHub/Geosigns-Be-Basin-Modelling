@@ -12,7 +12,7 @@
 
 // Access to STL
 #ifdef __INTEL_COMPILER
-#include <tr1/array>
+#include <array>
 #include <cmath>
 #include <xmmintrin.h>
 #include <immintrin.h>
@@ -52,10 +52,10 @@ namespace FiniteElementMethod {
 #ifdef __INTEL_COMPILER
 
       /// \brief An array of four vectors of doubles.
-      typedef std::tr1::array<__m256d, 4> FourByFour;
+      typedef std::array<__m256d, 4> FourByFour;
 
       /// \brief An array of two vectors of doubles.
-      typedef std::tr1::array<__m256d, 2> FourByTwo;
+      typedef std::array<__m256d, 2> FourByTwo;
 
       /// \brief Set all four vectors to zero
       void zero ( FourByFour& avx );

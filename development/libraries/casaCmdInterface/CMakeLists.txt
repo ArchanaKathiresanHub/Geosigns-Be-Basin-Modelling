@@ -4,4 +4,4 @@ create_bm_library( TARGET "casaCmdInterface"
 
 add_gtest( NAME "casaCmdInterface::casaCmdInterface"
    SOURCES test/TestCasaCmdInterface.cpp
-   LIBRARIES casaCmdInterface)
+   LIBRARIES casaCmdInterface DataAccess SerialDataAccess)

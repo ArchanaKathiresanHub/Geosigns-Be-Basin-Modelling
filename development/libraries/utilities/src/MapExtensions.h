@@ -18,11 +18,20 @@
 #include "NumericFunctions.h"
 
 /// @file MapExtensions.h Contains type definitions for maps using floating points numbers as a key
+namespace Mystd {
+    template<class Arg1, class Arg2, class Result>
+    struct binary_function
+    {
+        using first_argument_type = Arg1;
+        using second_argument_type = Arg2;
+        using result_type = Result;
+    };
+}
 
 namespace Utilities{
    /// @class Less Utility to compare floating points numbers
    template <class T>
-   class Less : public std::binary_function<T,T,bool>
+   class Less : public Mystd::binary_function<T,T,bool>
    {
       static_assert(std::is_floating_point<T>::value, "Class Less needs to be instantiated with floating point type");
 

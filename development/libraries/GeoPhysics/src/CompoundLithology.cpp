@@ -1311,7 +1311,7 @@ void GeoPhysics::CompoundLithology::calcBulkPermeabilityNP ( const double       
 
       case 2:
       case 3:
-         std::tr1::array<double,MaximumNumberOfLithologies> permVal;
+         std::array<double,MaximumNumberOfLithologies> permVal;
 
          while (m_lithoComponents.end() != componentIter)
          {
@@ -1416,8 +1416,8 @@ void GeoPhysics::CompoundLithology::calcBulkPermeabilityNPDerivativeWRTVes(
          throw fastCauldronException() << "Cannot handle multiple lithologies with a fault";
       }
 
-      std::tr1::array<double,MaximumNumberOfLithologies> derivativesWRTVes;
-      std::tr1::array<double,MaximumNumberOfLithologies> permeabilities;
+      std::array<double,MaximumNumberOfLithologies> derivativesWRTVes;
+      std::array<double,MaximumNumberOfLithologies> permeabilities;
 
       for (int lithoIdx = 0; lithoIdx < lithologiesNum; ++lithoIdx)
       {

@@ -12,7 +12,7 @@
 option(BM_CSHARP_API "Build the C sharp interface" ON)
 
 # Version of .NET for C# projects
-set(DONET_TARGET_VERSION "4.8.0") 
+set(DONET_TARGET_VERSION "4.8") 
 
 STRING(REPLACE "." "" DONET_TARGET_VERSION_SHORT ${DONET_TARGET_VERSION})
 

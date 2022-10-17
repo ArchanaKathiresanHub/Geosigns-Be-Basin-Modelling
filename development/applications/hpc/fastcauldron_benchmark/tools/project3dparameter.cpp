@@ -100,7 +100,7 @@ Project3DParameter
    return param;
 }
 
-const std::tr1::array< std::string, 6 >
+const std::array< std::string, 6 >
 Project3DParameter
    :: typeStrings = { { "bool", "int", "long", "float", "double", "string" } };
 

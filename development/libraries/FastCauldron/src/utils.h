@@ -187,33 +187,6 @@ int Integer_Min ( const int X, const int Y ) {
 
 } // end Integer_Min
 
-
-
-template <class Number>
-class EqualityTest :public std::binary_function<Number,Number,bool> {
-public:
-   bool operator ()( const Number &X, const Number &Y )
-   {
-      return NumericFunctions::isEqual ( X, Y, std::numeric_limits<Number>::epsilon() );
-   }
-};
-
-template <class Number>
-class LessThan:public std::binary_function<Number,Number,bool> {
-public:
-   bool operator ()( const Number &X, const Number &Y )
-   {
-      EqualityTest<Number> theTest;
-
-      if( false == theTest(X,Y))
-      {
-         return X < Y;
-      }
-
-      return false;
-   }
-};
-
 template<typename Scalar>
 inline bool inRange ( const Scalar& value, 
                       const Scalar& lowerLimit,

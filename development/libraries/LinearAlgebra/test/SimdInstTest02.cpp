@@ -2,40 +2,14 @@
 #include "../src/SimdInstruction.h"
 #include <gtest/gtest.h>
 #include <stdlib.h>
-
-#ifdef _WIN32
-namespace std {
-    namespace tr1 {
-        template<typename Type, const unsigned int Size>
-        class array {
-        public:
-
-            const Type& operator [](const unsigned int i) const {
-                return m_values[i];
-            }
-
-            Type& operator [](const unsigned int i) {
-                return m_values[i];
-            }
-
-        private:
-
-            Type m_values[Size];
-
-        };
-    }
-}
-#else
-#include <tr1/array>
-#endif
-
+#include <array>
 
 TEST ( SimdInstrTests, NoSimdTest02 ) {
 
    typedef Numerics::SimdTraits<Numerics::NO_SIMD> SimdTraits;
    typedef Numerics::SimdInstruction<Numerics::NO_SIMD> SimdInstruction;
 
-   typedef std::tr1::array<double, SimdTraits::DoubleStride> DoubleArray;
+   typedef std::array<double, SimdTraits::DoubleStride> DoubleArray;
 
    double value1 = 2.5;
    double value2 = 3.25;
@@ -75,7 +49,7 @@ TEST ( SimdInstrTests, SseTest02 ) {
    typedef Numerics::SimdInstruction<SimdUsed> SimdInstruction;
 
 
-   typedef std::tr1::array<double, SimdTraits::DoubleStride> DoubleArray;
+   typedef std::array<double, SimdTraits::DoubleStride> DoubleArray;
 
    double value1 = 2.5;
    double value2 = 3.25;

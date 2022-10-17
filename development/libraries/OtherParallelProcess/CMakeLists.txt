@@ -54,7 +54,7 @@ add_gtest( NAME ${LIB_NAME}::rewriteFileName
 )
 
 add_gtest( NAME ${LIB_NAME}::h5mergeTest-MPIPROCS=2
-           SOURCES test/readDataset.cpp src/h5merge.cpp
+           SOURCES test/readDataset.cpp
            LIBRARIES ${LIB_NAME}
            MPI_SIZE 2
            MPIRUN_PRMS ${MACHINE_FILE}

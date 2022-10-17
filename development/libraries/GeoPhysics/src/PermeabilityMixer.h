@@ -33,7 +33,7 @@ namespace GeoPhysics {
 
    public :
 
-      typedef std::tr1::array<double,MaximumNumberOfLithologies> FixedSizeArray;
+      typedef std::array<double,MaximumNumberOfLithologies> FixedSizeArray;
 
       /// \brief Create typedef for the workspace of vectors used in intermediate permeability calculation.
       typedef AlignedWorkSpaceArrays<MaximumNumberOfLithologies> PermeabilityWorkSpaceArrays;

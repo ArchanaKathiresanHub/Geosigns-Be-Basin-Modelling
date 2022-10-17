@@ -58,32 +58,32 @@ copy_test_file(AcquiferScale1_Genex0dSourceRock_CauldronOutputDir/HydrostaticTem
 copy_test_file(TestGenex0dSimulator.project3d)
 
 add_gtest( NAME "Genex0dInputManager"
-    SOURCES src/Genex0dInputManager.cpp test/TestGenex0dInputManager.cpp
-    LIBRARIES ${GENEX0D_LIB_NAME}
+    SOURCES test/TestGenex0dInputManager.cpp
+    LIBRARIES ${GENEX0D_LIB_NAME} DataAccess SerialDataAccess
     FOLDER "${BASE_FOLDER}/${GENEX0D_LIB_NAME}"
 )
 
 add_gtest( NAME "Genex0dFormationManager"
-    SOURCES src/Genex0dFormationManager.cpp test/TestGenex0dFormationManager.cpp
+    SOURCES test/TestGenex0dFormationManager.cpp
     LIBRARIES ${GENEX0D_LIB_NAME} DataAccess SerialDataAccess
     FOLDER "${BASE_FOLDER}/${GENEX0D_LIB_NAME}"
 )
 
 add_gtest( NAME "Genex0dProjectManager"
-    SOURCES src/Genex0dProjectManager.cpp test/TestGenex0dProjectManager.cpp
+    SOURCES test/TestGenex0dProjectManager.cpp
     LIBRARIES ${GENEX0D_LIB_NAME} utilities cmbapi DataAccess SerialDataAccess TableIO ${HDF5_LIBRARIES} FileSystem
     FOLDER "${BASE_FOLDER}/${GENEX0D_LIB_NAME}"
 )
 
 add_gtest( NAME "Genex0dSourceRock"
-    SOURCES src/Genex0dSourceRock.cpp test/TestGenex0dSourceRock.cpp
+    SOURCES test/TestGenex0dSourceRock.cpp
     LIBRARIES ${GENEX0D_LIB_NAME} utilities cmbapi DataAccess SerialDataAccess TableIO ${HDF5_LIBRARIES} FileSystem
     ENV_VARS EOSPACKDIR=${CFGFLS}/eospack GENEX5DIR=${CFGFLS}/genex50 CTCDIR=${CFGFLS}/
     FOLDER "${BASE_FOLDER}/${GENEX0D_LIB_NAME}"
 )
 
 add_gtest( NAME "Genex0dSimulator"
-    SOURCES src/Genex0dSimulator.cpp test/TestGenex0dSimulator.cpp
+    SOURCES test/TestGenex0dSimulator.cpp
     LIBRARIES ${GENEX0D_LIB_NAME} utilities cmbapi DataAccess SerialDataAccess TableIO ${HDF5_LIBRARIES} FileSystem
     FOLDER "${BASE_FOLDER}/${GENEX0D_LIB_NAME}"
 )

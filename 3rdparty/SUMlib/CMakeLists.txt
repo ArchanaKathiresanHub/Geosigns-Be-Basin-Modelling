@@ -10,6 +10,10 @@
 #                                                                       #
 #########################################################################
 
+## std::bind2nd used in this version was removed from c++17
+set (CMAKE_CXX_STANDARD 14)
+set (CMAKE_C_STANDARD 14)
+
 FILE( GLOB all_headers include/*.h )
 source_group(include FILES ${all_headers})
 

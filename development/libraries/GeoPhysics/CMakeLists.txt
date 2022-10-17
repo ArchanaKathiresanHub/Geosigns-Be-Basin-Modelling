@@ -55,49 +55,49 @@ add_gtest( NAME ${LIB_NAME}::BrineConductivity
 
 add_gtest( NAME ${LIB_NAME}::BrineDensity
       SOURCES test/BrineDensity.cpp src/BrinePhases.cpp
-      LIBRARIES ${LIB_NAME} SerialDataAccess
+      LIBRARIES ${LIB_NAME} DataAccess SerialDataAccess
       FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
 add_gtest( NAME ${LIB_NAME}::BrineVelocity
       SOURCES test/BrineVelocity.cpp src/BrinePhases.cpp
-      LIBRARIES ${LIB_NAME} SerialDataAccess
+      LIBRARIES ${LIB_NAME} DataAccess SerialDataAccess
       FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
 add_gtest( NAME ${LIB_NAME}::BrineViscosity
       SOURCES test/BrineViscosity.cpp
-      LIBRARIES ${LIB_NAME} SerialDataAccess
+      LIBRARIES ${LIB_NAME} DataAccess SerialDataAccess
       FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
 add_gtest( NAME ${LIB_NAME}::BrooksCorey
       SOURCES test/PceTest.cpp
-      LIBRARIES ${LIB_NAME} SerialDataAccess
+      LIBRARIES ${LIB_NAME} DataAccess SerialDataAccess
       FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
 add_gtest( NAME ${LIB_NAME}::ChemicalCompactionCalculator
       SOURCES test/ChemicalCompactionCalculatorTest.cpp
-      LIBRARIES ${LIB_NAME} SerialDataAccess
+      LIBRARIES ${LIB_NAME} DataAccess SerialDataAccess
       FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
 add_gtest( NAME ${LIB_NAME}::DoubleExponentialPorosity
       SOURCES test/DoubleExponentialPorosity.cpp
-      LIBRARIES ${LIB_NAME} SerialDataAccess
+      LIBRARIES ${LIB_NAME} DataAccess SerialDataAccess
       FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
 add_gtest( NAME ${LIB_NAME}::ExponentialPorosity
       SOURCES test/ExponentialPorosity.cpp
-      LIBRARIES ${LIB_NAME} SerialDataAccess
+      LIBRARIES ${LIB_NAME} DataAccess SerialDataAccess
       FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
 add_gtest( NAME ${LIB_NAME}::LambdaMixer
       SOURCES test/LambdaMixer.cpp
-      LIBRARIES ${LIB_NAME} SerialDataAccess
+      LIBRARIES ${LIB_NAME} DataAccess SerialDataAccess
       FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
@@ -124,116 +124,116 @@ add_gtest( NAME ${LIB_NAME}::MultiMixingPermeability
 
 add_gtest( NAME ${LIB_NAME}::MixingPermeabilityArray3litho
    SOURCES test/MixingPermeabilityArray3Litho.cpp
-   LIBRARIES ${LIB_NAME} SerialDataAccess
+   LIBRARIES ${LIB_NAME} DataAccess SerialDataAccess
    FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
 add_gtest( NAME ${LIB_NAME}::MixingPermeabilityArray2litho
    SOURCES test/MixingPermeabilityArray2Litho.cpp
-   LIBRARIES ${LIB_NAME} SerialDataAccess
+   LIBRARIES ${LIB_NAME} DataAccess SerialDataAccess
    FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
 add_gtest( NAME ${LIB_NAME}::MixingPermeabilityArray1litho
    SOURCES test/MixingPermeabilityArray1Litho.cpp
-   LIBRARIES ${LIB_NAME} SerialDataAccess
+   LIBRARIES ${LIB_NAME} DataAccess SerialDataAccess
    FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
 
 add_gtest( NAME ${LIB_NAME}::PermeabilityImpermeable
    SOURCES test/PermeabilityImpermeable.cpp
-   LIBRARIES ${LIB_NAME} SerialDataAccess
+   LIBRARIES ${LIB_NAME} DataAccess SerialDataAccess
    FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
 add_gtest( NAME ${LIB_NAME}::PermeabilitySandStone
    SOURCES test/PermeabilitySandStone.cpp
-   LIBRARIES ${LIB_NAME} SerialDataAccess
+   LIBRARIES ${LIB_NAME} DataAccess SerialDataAccess
    FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
 add_gtest( NAME ${LIB_NAME}::PermeabilityMudStone
       SOURCES test/PermeabilityMudStone.cpp
-      LIBRARIES ${LIB_NAME} SerialDataAccess
+      LIBRARIES ${LIB_NAME} DataAccess SerialDataAccess
       FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
 add_gtest( NAME ${LIB_NAME}::PermeabilityMultiPoint
       SOURCES test/PermeabilityMultiPoint.cpp
-      LIBRARIES ${LIB_NAME} SerialDataAccess
+      LIBRARIES ${LIB_NAME} DataAccess SerialDataAccess
       FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
 add_gtest( NAME ${LIB_NAME}::PermeabilityMultiPointArrayTest
       SOURCES test/PermeabilityMultiPointArrayTest.cpp
-      LIBRARIES ${LIB_NAME} SerialDataAccess
+      LIBRARIES ${LIB_NAME} DataAccess SerialDataAccess
       FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
 add_gtest( NAME ${LIB_NAME}::SchneiderCompactionCalculator
       SOURCES test/SchneiderCompactionCalculatorTest.cpp
-      LIBRARIES ${LIB_NAME} SerialDataAccess
+      LIBRARIES ${LIB_NAME} DataAccess SerialDataAccess
       FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
 add_gtest( NAME ${LIB_NAME}::SeismicVelocityGardner
       SOURCES test/SeismicVelocityGardner.cpp
-      LIBRARIES ${LIB_NAME} SerialDataAccess
+      LIBRARIES ${LIB_NAME} DataAccess SerialDataAccess
       FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
 add_gtest( NAME ${LIB_NAME}::SeismicVelocityKennan
       SOURCES test/SeismicVelocityKennan.cpp
-      LIBRARIES ${LIB_NAME} SerialDataAccess
+      LIBRARIES ${LIB_NAME} DataAccess SerialDataAccess
       FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
 add_gtest( NAME ${LIB_NAME}::SeismicVelocityWyllie
       SOURCES test/SeismicVelocityWyllie.cpp
-      LIBRARIES ${LIB_NAME} SerialDataAccess
+      LIBRARIES ${LIB_NAME} DataAccess SerialDataAccess
       FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
 add_gtest( NAME ${LIB_NAME}::SoilMechanicsPorosity
       SOURCES test/SoilMechanicsPorosity.cpp
-      LIBRARIES ${LIB_NAME} SerialDataAccess
+      LIBRARIES ${LIB_NAME} DataAccess SerialDataAccess
       FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
 add_gtest( NAME ${LIB_NAME}::VitriniteReflectance
       SOURCES test/VitriniteReflectance.cpp test/InputGrid.cpp test/OutputGrid.cpp
-      LIBRARIES ${LIB_NAME} SerialDataAccess
+      LIBRARIES ${LIB_NAME} DataAccess SerialDataAccess
       FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
 add_gtest( NAME ${LIB_NAME}::VreTtiMethod
       SOURCES test/VreTtiMethod.cpp test/InputGrid.cpp test/OutputGrid.cpp
-      LIBRARIES ${LIB_NAME} SerialDataAccess
+      LIBRARIES ${LIB_NAME} DataAccess SerialDataAccess
       FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
 add_gtest( NAME ${LIB_NAME}::VreArrheniusMethod
       SOURCES test/VreArrheniusMethod.cpp test/InputGrid.cpp test/OutputGrid.cpp
-      LIBRARIES ${LIB_NAME} SerialDataAccess
+      LIBRARIES ${LIB_NAME} DataAccess SerialDataAccess
       FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
 add_gtest( NAME ${LIB_NAME}::WalderhaugCompactionCalculator
       SOURCES test/WalderhaugCompactionCalculatorTest.cpp
-      LIBRARIES ${LIB_NAME} SerialDataAccess
+      LIBRARIES ${LIB_NAME} DataAccess SerialDataAccess
       FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
 add_gtest( NAME ${LIB_NAME}::MultiCompoundPropertyTest
       SOURCES test/MultiCompoundPropertyTest.cpp
-      LIBRARIES ${LIB_NAME} SerialDataAccess utilities
+      LIBRARIES ${LIB_NAME} DataAccess SerialDataAccess utilities
       FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
 add_gtest( NAME ${LIB_NAME}::ConfigFileAlc
       SOURCES test/ConfigFileAlc.cpp
-      LIBRARIES ${LIB_NAME} SerialDataAccess
+      LIBRARIES ${LIB_NAME} DataAccess SerialDataAccess
       ENV_VARS CTCDIR=${PROJECT_SOURCE_DIR}/geocase/misc
       FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )

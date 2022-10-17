@@ -10,6 +10,8 @@
 #                                                                       #
 #########################################################################
 
+set (CMAKE_CXX_STANDARD 14)
+set (CMAKE_C_STANDARD 14)
 
 set( LIB_NAME "casalib" )
 

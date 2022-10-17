@@ -1,12 +1,7 @@
 #ifndef FASTCAULDRON__MATRIX_INTERPOLATOR_H
 #define FASTCAULDRON__MATRIX_INTERPOLATOR_H
 
-#ifdef _MSC_VER
 #include <array>
-#else
-#include <tr1/array>
-#endif
-
 #include "Numerics.h"
 #include "Vector.h"
 #include "FortranMatrix.h"
@@ -34,13 +29,13 @@ public :
    static const unsigned int NumberOfEquations = RowCount * ColCount;
 
    /// \brief Array of length NumberOfCoefficients.
-   typedef std::tr1::array<double, NumberOfCoefficients> CoefficientArray;
+   typedef std::array<double, NumberOfCoefficients> CoefficientArray;
 
    /// \brief Array of length ColCount.
-   typedef std::tr1::array<CoefficientArray, ColCount> ColumnMatrix;
+   typedef std::array<CoefficientArray, ColCount> ColumnMatrix;
 
    /// \brief Array of length RowCount.
-   typedef std::tr1::array<ColumnMatrix, RowCount> CoefficientTensor;
+   typedef std::array<ColumnMatrix, RowCount> CoefficientTensor;
 
 
    /// \brief Compute the coefficients of the interpolating polynomial.

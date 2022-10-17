@@ -21,7 +21,7 @@ namespace hpc
 
    void benchmark( const Path & parameterDefinitionsFile, const Path & settingsFile, const Path & variableDefinitionsFile, const Path & environment, const Path & workingDir, HPCCluster & cluster )
    {
-      std::tr1::array<std::string, 4> mandatorySettings = { { "ID", "Project", "Processors", "CauldronVersion" } };
+      std::array<std::string, 4> mandatorySettings = { { "ID", "Project", "Processors", "CauldronVersion" } };
 
       struct MandatorySetting { static
          std::string getValue(const ParameterSettings::Map & map, const std::string & parameter)

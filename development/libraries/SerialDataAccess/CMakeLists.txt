@@ -36,12 +36,12 @@ endif(UNIX)
 
 add_gtest( NAME SerialGridMap
            SOURCES test/SerialGridMap.cpp
-           LIBRARIES ${LIB_NAME} DataAccess
+           LIBRARIES ${LIB_NAME} DataAccess SerialDataAccess
            FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
 add_gtest( NAME SerialMapWriter
            SOURCES test/SerialMapWriter.cpp
-           LIBRARIES ${LIB_NAME} DataAccess Serial_Hdf5 FileSystem
+           LIBRARIES ${LIB_NAME} DataAccess SerialDataAccess Serial_Hdf5 FileSystem
            FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )

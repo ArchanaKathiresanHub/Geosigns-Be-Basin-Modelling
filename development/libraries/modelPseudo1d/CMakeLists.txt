@@ -42,18 +42,18 @@ copy_test_file(Input.HDF)
 copy_test_file(Inputs.HDF)
 
 add_gtest( NAME "ModelPseudo1dInputManager"
-    SOURCES src/ModelPseudo1dInputManager.cpp test/TestModelPseudo1dInputManager.cpp
-    LIBRARIES ${M1D_LIB_NAME} utilities
+    SOURCES test/TestModelPseudo1dInputManager.cpp
+    LIBRARIES ${M1D_LIB_NAME} utilities cmbapi DataAccess SerialDataAccess
     FOLDER "${BASE_FOLDER}/${M1D_TARGET_NAME}" )
 
 add_gtest( NAME "ModelPseudo1dProjectManager"
-    SOURCES src/ModelPseudo1dProjectManager.cpp test/TestModelPseudo1dProjectManager.cpp
-    LIBRARIES ${M1D_LIB_NAME} utilities cmbapi DataAccess DataMining TableIO
+    SOURCES test/TestModelPseudo1dProjectManager.cpp
+    LIBRARIES ${M1D_LIB_NAME} utilities cmbapi DataMining TableIO DataAccess SerialDataAccess
     ENV_VARS CTCDIR=${CFGFLS}
     FOLDER "${BASE_FOLDER}/${M1D_TARGET_NAME}" )
 
   add_gtest( NAME "ModelPseudo1d"
-      SOURCES src/ModelPseudo1d.cpp test/TestModelPseudo1d.cpp
-      LIBRARIES ${M1D_LIB_NAME} utilities cmbapi DataAccess DataMining TableIO
+      SOURCES test/TestModelPseudo1d.cpp
+      LIBRARIES ${M1D_LIB_NAME} utilities cmbapi DataMining TableIO DataAccess SerialDataAccess
       ENV_VARS CTCDIR=${CFGFLS}
       FOLDER "${BASE_FOLDER}/${M1D_TARGET_NAME}" )

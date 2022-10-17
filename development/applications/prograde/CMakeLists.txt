@@ -96,7 +96,7 @@ add_gtest( NAME ${TARGET_NAME}::BrineModelConverter
            SOURCES test/BrineModelConverterTest.cpp src/BrineModelConverter.cpp
            INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/src
                         ${CMAKE_CURRENT_SOURCE_DIR}/../../libraries/cmbAPI/src
-                   LIBRARIES cmbapi
+                   LIBRARIES cmbapi DataAccess SerialDataAccess
            FOLDER "${BASE_FOLDER}/${TARGET_NAME}"
 )
 
@@ -107,7 +107,7 @@ add_gtest( NAME ${TARGET_NAME}::ReservoirConverter
            SOURCES test/ReservoirConverter.cpp src/ReservoirConverter.cpp
            INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/src
                         ${CMAKE_CURRENT_SOURCE_DIR}/../../libraries/cmbAPI/src
-                   LIBRARIES cmbapi
+                   LIBRARIES cmbapi DataAccess SerialDataAccess
            FOLDER "${BASE_FOLDER}/${TARGET_NAME}"
 )
 
@@ -117,7 +117,7 @@ add_gtest( NAME ${TARGET_NAME}::BiodegradeConverter
            SOURCES test/BiodegradeConverterTest.cpp src/BiodegradeConverter.cpp
            INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/src
                         ${CMAKE_CURRENT_SOURCE_DIR}/../../libraries/cmbAPI/src
-           LIBRARIES cmbapi
+           LIBRARIES cmbapi DataAccess SerialDataAccess
            FOLDER "${BASE_FOLDER}/${TARGET_NAME}"
 )
 
@@ -128,7 +128,7 @@ add_gtest( NAME ${TARGET_NAME}::PorosityModelConverter
            SOURCES test/PorosityModelConverterTest.cpp src/PorosityModelConverter.cpp
            INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/src
                         ${CMAKE_CURRENT_SOURCE_DIR}/../../libraries/cmbAPI/src
-                   LIBRARIES cmbapi
+                   LIBRARIES cmbapi DataAccess SerialDataAccess
            FOLDER "${BASE_FOLDER}/${TARGET_NAME}"
 )
 
@@ -139,7 +139,7 @@ add_gtest( NAME ${TARGET_NAME}::BasicCrustThinningModelConverter
            SOURCES test/BasicCrustThinningConverter.cpp src/BasicCrustThinningModelConverter.cpp
            INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/src
                         ${CMAKE_CURRENT_SOURCE_DIR}/../../libraries/cmbAPI/src
-                   LIBRARIES cmbapi
+                   LIBRARIES cmbapi DataAccess SerialDataAccess
            FOLDER "${BASE_FOLDER}/${TARGET_NAME}"
 )
 
@@ -150,7 +150,7 @@ add_gtest( NAME ${TARGET_NAME}::AlcModelConverter
            SOURCES test/AlcConverter.cpp src/AlcModelConverter.cpp
            INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/src
                         ${CMAKE_CURRENT_SOURCE_DIR}/../../libraries/cmbAPI/src
-           LIBRARIES cmbapi
+           LIBRARIES cmbapi DataAccess SerialDataAccess
            FOLDER "${BASE_FOLDER}/${TARGET_NAME}"
 )
 
@@ -161,7 +161,7 @@ add_gtest( NAME ${TARGET_NAME}::CtcModelConverter
            SOURCES test/CtcConverter.cpp src/CtcModelConverter.cpp
            INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/src
                         ${CMAKE_CURRENT_SOURCE_DIR}/../../libraries/cmbAPI/src
-           LIBRARIES cmbapi
+           LIBRARIES cmbapi DataAccess SerialDataAccess
            FOLDER "${BASE_FOLDER}/${TARGET_NAME}"
 )
 
@@ -171,7 +171,7 @@ add_gtest( NAME ${TARGET_NAME}::ProjectIoModelConverter
            SOURCES test/ProjectInputConverterTest.cpp src/ProjectIoModelConverter.cpp
            INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/src
                         ${CMAKE_CURRENT_SOURCE_DIR}/../../libraries/cmbAPI/src
-           LIBRARIES cmbapi
+           LIBRARIES cmbapi DataAccess SerialDataAccess
                    FOLDER "${BASE_FOLDER}/${TARGET_NAME}"
 )
 #
@@ -181,7 +181,7 @@ add_gtest( NAME ${TARGET_NAME}::TopBoundaryModelConverter
            SOURCES test/TopBoundaryConverterTest.cpp src/TopBoundaryUpgradeManager.cpp
            INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/src
                         ${CMAKE_CURRENT_SOURCE_DIR}/../../libraries/cmbAPI/src
-           LIBRARIES cmbapi DataAccess
+           LIBRARIES cmbapi DataAccess SerialDataAccess
            FOLDER "${BASE_FOLDER}/${TARGET_NAME}"
 )
 
@@ -193,7 +193,7 @@ add_gtest( NAME ${TARGET_NAME}::RunOptionsModelConverter
            SOURCES test/RunOptionsConverterTest.cpp src/RunOptionsModelConverter.cpp
            INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/src
                         ${CMAKE_CURRENT_SOURCE_DIR}/../../libraries/cmbAPI/src
-                   LIBRARIES cmbapi
+                   LIBRARIES cmbapi DataAccess SerialDataAccess
            FOLDER "${BASE_FOLDER}/${TARGET_NAME}"
 )
 
@@ -204,7 +204,7 @@ add_gtest( NAME ${TARGET_NAME}::LithologyConverter
            SOURCES test/LithologyConverterTest.cpp src/LithologyConverter.cpp
            INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/src
                         ${CMAKE_CURRENT_SOURCE_DIR}/../../libraries/cmbAPI/src
-                   LIBRARIES cmbapi
+                   LIBRARIES cmbapi DataAccess SerialDataAccess
            FOLDER "${BASE_FOLDER}/${TARGET_NAME}"
 )
 
@@ -215,7 +215,7 @@ add_gtest( NAME ${TARGET_NAME}::SgsConverter
            SOURCES test/SgsConverter.cpp src/SgsConverter.cpp
            INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/src
                         ${CMAKE_CURRENT_SOURCE_DIR}/../../libraries/cmbAPI/src
-                   LIBRARIES cmbapi
+                   LIBRARIES cmbapi DataAccess SerialDataAccess
            FOLDER "${BASE_FOLDER}/${TARGET_NAME}"
 )
 
@@ -226,7 +226,7 @@ add_gtest( NAME ${TARGET_NAME}::SourceRockConverter
            SOURCES test/SourceRockConverter.cpp src/SourceRockConverter.cpp
            INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/src
                         ${CMAKE_CURRENT_SOURCE_DIR}/../../libraries/cmbAPI/src
-                   LIBRARIES cmbapi
+                   LIBRARIES cmbapi DataAccess SerialDataAccess
            FOLDER "${BASE_FOLDER}/${TARGET_NAME}"
 )
 
@@ -237,7 +237,7 @@ add_gtest( NAME ${TARGET_NAME}::StratigraphyConverter
            SOURCES test/StratigraphyModelConverterTest.cpp src/StratigraphyModelConverter.cpp
            INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/src
                         ${CMAKE_CURRENT_SOURCE_DIR}/../../libraries/cmbAPI/src
-                   LIBRARIES cmbapi
+                   LIBRARIES cmbapi DataAccess SerialDataAccess
            FOLDER "${BASE_FOLDER}/${TARGET_NAME}"
 )
 

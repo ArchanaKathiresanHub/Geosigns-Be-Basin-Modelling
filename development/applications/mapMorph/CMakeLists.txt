@@ -39,6 +39,7 @@ target_link_libraries( ${TARGET_NAME}
    TableIO
    DataModel
    DataAccess
+   SerialDataAccess
    utilities
    ${HDF5_LIBRARIES}
 )

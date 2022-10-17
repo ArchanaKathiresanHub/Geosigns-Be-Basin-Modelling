@@ -99,26 +99,26 @@ configure_file(test/Inputs.HDF ${CMAKE_CURRENT_BINARY_DIR}/Inputs.HDF COPYONLY)
 configure_file(test/increasedDepthsSurf3.txt ${CMAKE_CURRENT_BINARY_DIR}/increasedDepthsSurf3.txt COPYONLY)
 
 add_gtest( NAME "FDCProjectManager"
-    SOURCES src/FDCProjectManager.cpp test/TestsFDCProjectManager.cpp
+    SOURCES test/TestsFDCProjectManager.cpp
     LIBRARIES ${FDC_LIB_NAME} ${PETSC_LIBRARIES} utilities cmbapi DataAccess SerialDataAccess TableIO ${HDF5_LIBRARIES} FileSystem
     LINK_FLAGS "${PETSC_LINK_FLAGS}"
     FOLDER "${BASE_FOLDER}/${FDC_TARGET_NAME}"
 )
 
 add_gtest( NAME "FDCMapFieldProperties"
-    SOURCES src/FDCMapFieldProperties.cpp test/TestsFDCMapFieldProperties.cpp
+    SOURCES test/TestsFDCMapFieldProperties.cpp
     LIBRARIES ${FDC_LIB_NAME} utilities cmbapi DataAccess SerialDataAccess TableIO ${HDF5_LIBRARIES} FileSystem
     FOLDER "${BASE_FOLDER}/${FDC_TARGET_NAME}"
 )
 
 add_gtest( NAME "FDCVectorFieldProperties"
-    SOURCES src/FDCVectorFieldProperties.cpp test/TestsFDCVectorFieldProperties.cpp
+    SOURCES test/TestsFDCVectorFieldProperties.cpp
     LIBRARIES ${FDC_LIB_NAME} utilities cmbapi DataAccess SerialDataAccess TableIO ${HDF5_LIBRARIES} FileSystem
     FOLDER "${BASE_FOLDER}/${FDC_TARGET_NAME}"
 )
 
 add_gtest( NAME "FDCLithoProperties"
-    SOURCES src/FDCLithoProperties.cpp test/TestsFDCLithoProperties.cpp
+    SOURCES test/TestsFDCLithoProperties.cpp
     LIBRARIES ${FDC_LIB_NAME} utilities cmbapi DataAccess SerialDataAccess TableIO ${HDF5_LIBRARIES} FileSystem
     FOLDER "${BASE_FOLDER}/${FDC_TARGET_NAME}"
 )
