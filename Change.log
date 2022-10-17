@@ -13,7 +13,7 @@
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Version				Date of update
 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-Cauldron-v2.9.7		2022-10-12 06:57:14 +0000
+Cauldron-v2.9.8		2022-10-17 07:20:34 +0000
 =============================================================
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Third-party Software 		version
@@ -36,6 +36,16 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2022-10-17  Sven van Leeuwen  <Sven.van-Leeuwen@shell.com>
+
+	new: usr: dev:  SAC Thermal Results tab & tchp scripts.
+	New tab added to the new SAC Thermal wizard,
+	This tab is similar to the orgininal Sac results tub, however there are no more WellPrep targets and the table displays the original to optimized top crust heat production for a target.
+
+	================== COMMIT-END ========================
+	Commit-ID:<f9f59abe52b0afafb0209d9ba4ed3f6f7fbbcbf7>	  (tag: refs/tags/v2.9.8, refs/heads/master, refs/heads/changelog)
+
+++
 2022-10-12  Richard Faasse  <Richard.Faasse@shell.com>
 
 	chg: Removing 'using namespace std' from header files.
