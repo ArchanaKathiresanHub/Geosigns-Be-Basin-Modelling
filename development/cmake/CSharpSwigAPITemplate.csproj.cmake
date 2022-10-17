@@ -55,7 +55,11 @@
      <Error Condition="'@(Compile)' == ''" Text="No source files included in build of Shell.BasinModeling.@CSPROJ_NAME@.dll. Reload the project, and build the solution again"/>
   </Target>
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
-    <PostBuildEvent>cd @CMAKE_CURRENT_BINARY_DIR@/../../
-    @NUGET_EXECUTABLE@ pack @CSPROJ_NAME@.nuspec</PostBuildEvent>
+    <PostBuildEvent>cd @CMAKE_CURRENT_BINARY_DIR@/../../</PostBuildEvent>
+	
+	<!-- The pack option is disable here because the Project3dAPI NuGet creation is performed separately -->
+	<!-- Removal of these lines requires further investigation -->
+	<!-- <PostBuildEvent>cd @CMAKE_CURRENT_BINARY_DIR@/../../ -->
+    <!-- #@NUGET_EXECUTABLE@ pack @CSPROJ_NAME@.nuspec</PostBuildEvent> -->
   </PropertyGroup>
 </Project>

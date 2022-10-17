@@ -22,9 +22,12 @@ if (IS_DIRECTORY "c:/opt/3rdparty/")
   
 elseif (IS_DIRECTORY "e:/opt/3rdparty/")
    set(CBM_HOME "e:/opt")
+   
+elseif (IS_DIRECTORY "${BM_THIRD_PARTY_LOCATION}/3rdparty/")
+   set(CBM_HOME "${BM_THIRD_PARTY_LOCATION}")
 
 else()
-   message(FATAL_ERROR "Can not find 3rdparty tools set in the standard places: c:/opt, e:/opt.")
+   message(FATAL_ERROR "Can not find 3rdparty tools set in the standard places: c:/opt, e:/opt, ${BM_THIRD_PARTY_LOCATION}.")
 endif()
 
 set(BM_EXTERNAL_COMPONENTS_DIR "${CBM_HOME}/3rdparty" CACHE PATH "The path to the directory of prebuilt libraries")

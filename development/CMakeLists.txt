@@ -97,6 +97,7 @@ set(BM_SSSDEV_INSTALL_DIR "${CMAKE_BINARY_DIR}/sssdev" CACHE PATH "sssdev instal
 set(BM_TFS_BUILD_NUMBER "" CACHE STRING "TFS Build identifier (aka BuildDetail.BuildNumber)")
 set(BM_TFS_SERVER_URL "" CACHE STRING "TFS Collection URL of Cauldron")
 set(BM_TFS_PROJECT_NAME "" CACHE STRING "TFS Project Name (i.e. 'Basin Modeling'")
+set(BM_THIRD_PARTY_LOCATION "" CACHE STRING "Location of the third party packages")
 
 message(STATUS "Loading common configuration flags...")
 #
