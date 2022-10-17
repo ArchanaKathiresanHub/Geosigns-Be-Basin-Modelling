@@ -13,7 +13,7 @@
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Version				Date of update
 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-Cauldron-v2.9.9		2022-10-17 09:17:37 +0000
+Cauldron-v2.9.10		2022-10-17 15:13:47 +0000
 =============================================================
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Third-party Software 		version
@@ -36,6 +36,19 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2022-10-17  Subhra-Sankar.Kalita  <Subhra-Sankar.Kalita@shell.com>
+
+	chg: dev: Project3dAPI Nuget package can be published to the Artifacts from ADO Pipeline
+	 * Created an automated Project3dAPI NuGet package creation .bat script.
+	 * Resolved .NetFramework 4.8 warning of the C# projects in Windows.
+	 * Resolved the release build error of the Bpa2.Basin.Project3d.Project3dAPI C# project by commenting out the nuget pack command.
+	 * Introduced a new flexible location for the Windows 3rd-party libraries for the ADO pipeline.
+
+	Related work items: #476445
+	================== COMMIT-END ========================
+	Commit-ID:<a96e41dc38240525b5e4b70fee627e550d85092f>	  (tag: refs/tags/v2.9.10, refs/heads/master, refs/heads/Developers/Subhra-Sankar.Kalita/feature-476445/ChangeLogUpdate)
+
+++
 2022-10-17  Richard Faasse  <Richard.Faasse@shell.com>
 
 	chg: dev: Cpp 17 upgrade.
