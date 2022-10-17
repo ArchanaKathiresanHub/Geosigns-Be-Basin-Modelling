@@ -13,7 +13,7 @@
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Version				Date of update
 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-Cauldron-v2.9.8		2022-10-17 07:20:34 +0000
+Cauldron-v2.9.9		2022-10-17 09:17:37 +0000
 =============================================================
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Third-party Software 		version
@@ -36,6 +36,15 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2022-10-17  Richard Faasse  <Richard.Faasse@shell.com>
+
+	chg: dev: Cpp 17 upgrade.
+	 * C++ standard is updated to the 2017 version
+	 * Issues that arose due to the upgrade are fixed. These include mainly CMake and linking issues.
+	================== COMMIT-END ========================
+	Commit-ID:<877b9a018918286a15018abc3cb498a1c42dd96b>	  (tag: refs/tags/v2.9.9, refs/heads/master)
+
+++
 2022-10-17  Sven van Leeuwen  <Sven.van-Leeuwen@shell.com>
 
 	new: usr: dev:  SAC Thermal Results tab & tchp scripts.
