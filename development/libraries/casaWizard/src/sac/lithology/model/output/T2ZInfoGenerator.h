@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2021 Shell International Exploration & Production.
+// Copyright (C) 2022 Shell International Exploration & Production.
 // All rights reserved.
 //
 // Confidential and proprietary source code of Shell.
@@ -8,9 +8,10 @@
 
 #pragma once
 
-#include "model/output/SACInfoGenerator.h"
+#include "SacInfoGeneratorLithology.h"
 
 #include <QString>
+
 namespace casaWizard
 {
 
@@ -19,18 +20,18 @@ namespace sac
 
 class SacLithologyScenario;
 
-class T2ZInfoGenerator : public SACInfoGenerator
+class T2ZInfoGenerator : public SacInfoGeneratorLithology
 {
 public:
-  T2ZInfoGenerator(const SacLithologyScenario& scenario, ProjectReader& t2zProjectReader);
-  void generateInfoTextFile() override;
+   T2ZInfoGenerator(const SacLithologyScenario& scenario, ProjectReader& t2zProjectReader);
+   void generateInfoTextFile() override;
 
 private:
-  void addT2ZSection();
-  void addT2ZRunSettings();
-  void addSurfaceInfo();
+   void addT2ZSection();
+   void addT2ZRunSettings();
+   void addSurfaceInfo();
 
-  void getOptionValue(const QString& surface, const int id);
+   void getOptionValue(const QString& surface, const int id);
 };
 
 } // namespace sac

@@ -9,7 +9,8 @@
 // Tab to display the results, as well as the results from the 1D case
 #pragma once
 
-#include <QWidget>
+#include "view/SacMapsTab.h"
+#include "lithofractionVisualisation.h"
 
 class QLabel;
 class QListWidget;
@@ -30,58 +31,23 @@ namespace sac
 
 class ActiveWellsTable;
 class OptimizationOptions;
-class LithofractionVisualisation;
 
-class MapsTabLithology : public QWidget
+class MapsTabLithology : public SacMapsTab
 {
   Q_OBJECT
 
 public:
   explicit MapsTabLithology(QWidget* parent = nullptr);
 
-  QPushButton* createGridsButton() const;
-  QPushButton* buttonExportOptimized() const;
-  QPushButton* buttonExportOptimizedToZycor() const;
-  QPushButton* buttonRunOptimized() const;  
-  QComboBox* interpolationType() const;
-  LithofractionVisualisation* lithofractionVisualisation() const;
-  QSpinBox* pValue() const;
-  QSpinBox* smoothingRadius() const;
-  QComboBox* smoothingType() const;  
+  LithofractionVisualisation* mapsVisualisation() const override;
   CustomCheckbox* smartGridding() const;
-  ActiveWellsTable* activeWellsTable() const;
-  int numberOfActiveWells() const;
-
-  void highlightWell(const QString& wellName);
-  void disableWellAtIndex(const int index);
-
-private slots:
-  void slotInterpolationTypeChange(int interpolationType);
-  void slotSmoothingTypeChange(int smoothingType);
 
 private:
-  void connectSignalsAndSlots() const;
-  void setDefaultGridGenerationOptions();
-  void setGridGenerationOptionsLayout();
-  void setIdwOptionsLayout();
-  void setSmoothingOptionsLayout();
+  void setGridGenerationOptionsLayout() override;
   void setTotalLayout();
-  QVBoxLayout* setWellsAndOptionsLayout();
 
-  ActiveWellsTable* activeWellsTable_;
-  LithofractionVisualisation* lithofractionVisualisation_;
-  EmphasisButton* createGridsButton_;
-  QPushButton* buttonExportOptimized_;
-  QPushButton* buttonExportOptimizedToZycor_;
-  QPushButton* buttonRunOptimized_;  
-  QComboBox* interpolationType_;
-  QWidget* iwdOptions_;
-  QWidget* gridGenerationOptions_;
-  QSpinBox* pValue_;
-  QWidget* smoothingOptions_;
-  QSpinBox* smoothingRadius_;
-  QComboBox* smoothingType_;  
-  CustomCheckbox* smartGridding_;
+  LithofractionVisualisation* m_lithofractionVisualisation;
+  CustomCheckbox* m_smartGridding;
 };
 
 } // namespace sac

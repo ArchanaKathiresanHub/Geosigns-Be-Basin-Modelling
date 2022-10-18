@@ -9,7 +9,7 @@
 // Controller for the SAC wizard
 #pragma once
 
-#include "control/SacController.h"
+#include "control/mainController.h"
 #include "model/sacLithologyScenario.h"
 #include "view/LithologyWindow.h"
 
@@ -19,7 +19,8 @@ namespace casaWizard
 namespace sac
 {
 
-class MapsController;
+class MapsControllerLithology;
+class ResultsController;
 class T2Zcontroller;
 class WellPrepSACcontroller;
 
@@ -29,13 +30,14 @@ namespace lithology
 class LithologyInputController;
 class LithologyResultsController;
 
-class LithologyController : public SacController
+class LithologyController : public MainController
 {
   Q_OBJECT
 
 public:
   LithologyController();
   virtual ~LithologyController() override = default;
+
   MainWindow& mainWindow() final;
   SacLithologyScenario& scenario() final;
 
@@ -44,7 +46,7 @@ private:
   SacLithologyScenario m_scenario;
   WellPrepSACcontroller* m_wellPrepSACcontroller;
   LithologyInputController* m_inputController;
-  MapsController* m_mapsController;
+  MapsControllerLithology* m_mapsController;
   T2Zcontroller* m_t2zController;
   LithologyResultsController* m_resultsController;
 };

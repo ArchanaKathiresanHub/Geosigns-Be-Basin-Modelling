@@ -2,6 +2,7 @@
 
 #include "model/functions/sortedByXWellIndices.h"
 #include "model/SacScenario.h"
+#include "model/MapsManager.h"
 
 #include <QFile>
 #include <QTextStream>
@@ -14,14 +15,13 @@ namespace sac
 
 Generate3DScenarioScript::Generate3DScenarioScript(const SacScenario& scenario) :
   CasaScript(scenario.calibrationDirectory()),
-  mapsManager_{scenario.mapsManager()},
-  scenario_{scenario}
+  m_scenario{scenario}
 {
 }
 
 const CasaScenario& Generate3DScenarioScript::scenario() const
 {
-  return scenario_;
+  return m_scenario;
 }
 
 QString Generate3DScenarioScript::scriptFilename() const
@@ -31,17 +31,17 @@ QString Generate3DScenarioScript::scriptFilename() const
 
 QString Generate3DScenarioScript::workingDirectory() const
 {
-  return QString(scenario_.workingDirectory());
+  return QString(m_scenario.workingDirectory());
 }
 
 QString Generate3DScenarioScript::generateThreeDFromOneD() const
 {
   QString command("generateThreeDFromOneD");
-  switch ( mapsManager_.interpolationMethod() )
+  switch ( mapsManager().interpolationMethod() )
   {
     case 0:
     {
-      command += " IDW " + QString::number(mapsManager_.pIDW());
+      command += " IDW " + QString::number(mapsManager().pIDW());
       break;
     }
     case 1:
@@ -55,16 +55,16 @@ QString Generate3DScenarioScript::generateThreeDFromOneD() const
     }
   }
 
-  switch ( mapsManager_.smoothingOption() )
+  switch ( mapsManager().smoothingOption() )
   {
     case 1:
     {
-      command += " Gaussian " + QString::number(mapsManager_.radiusSmoothing()) + " 12";
+      command += " Gaussian " + QString::number(mapsManager().radiusSmoothing()) + " 12";
       break;
     }
     case 2:
     {
-      command += " MovingAverage " + QString::number(mapsManager_.radiusSmoothing()) + " 12";
+      command += " MovingAverage " + QString::number(mapsManager().radiusSmoothing()) + " 12";
       break;
     }
   }
@@ -72,40 +72,35 @@ QString Generate3DScenarioScript::generateThreeDFromOneD() const
   return command;
 }
 
-QString Generate3DScenarioScript::setFilterOneDResults() const
+void Generate3DScenarioScript::addWellIndicesToFilter1DResults(QString& command) const
 {
-  QString command("setFilterOneDResults ");
+   const CalibrationTargetManager& ctManager = m_scenario.calibrationTargetManager();
 
-  command += mapsManager_.smartGridding() ? "smartLithoFractionGridding" : "none";
-
-  const CalibrationTargetManager& ctManager = scenario_.calibrationTargetManager();
-
-  int i = 0;
-  const QVector<int> sortedIndices = casaWizard::functions::sortedByXYWellIndices(ctManager.activeWells());
-  for (const Well* well: ctManager.activeWells())
-  {
-    if (well->isExcluded())
-    {
-      for (int j = 0; j < sortedIndices.size(); j++)
+   int i = 0;
+   const QVector<int> sortedIndices = casaWizard::functions::sortedByXYWellIndices(ctManager.activeWells());
+   for (const Well* well: ctManager.activeWells())
+   {
+      if (well->isExcluded())
       {
-        if (sortedIndices[j] == i)
-        {
-          command += QString(" ") + QString::number(j);
-          break;
-        }
+         for (int j = 0; j < sortedIndices.size(); j++)
+         {
+            if (sortedIndices[j] == i)
+            {
+               command += QString(" ") + QString::number(j);
+               break;
+            }
+         }
       }
-    }
-    ++i;
-  }
-  command += "\n";
-  return command;
+      ++i;
+   }
+   command += "\n";
 }
 
 void Generate3DScenarioScript::writeScriptContents(QFile& file) const
 {
   QTextStream out(&file);
 
-  out << writeLoadState(scenario_.runLocation() + "/" + scenario_.iterationDirName() + "/" + scenario_.stateFileNameSAC());
+  out << writeLoadState(m_scenario.runLocation() + "/" + m_scenario.iterationDirName() + "/" + m_scenario.stateFileNameSAC());
   out << setFilterOneDResults();
   out << writeRunDataDigger();
   out << QString("importOneDResults\n");

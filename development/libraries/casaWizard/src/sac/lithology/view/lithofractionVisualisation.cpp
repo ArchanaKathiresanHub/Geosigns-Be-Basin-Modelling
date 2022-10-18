@@ -11,7 +11,7 @@
 #include "view/ColorBar.h"
 #include "view/colormap.h"
 #include "grid2dplot.h"
-#include "MapPlotOptions.h"
+#include "MapPlotOptionsLithofraction.h"
 #include "plot/lithoPercent2Dview.h"
 #include "view/sharedComponents/customcheckbox.h"
 #include "view/sharedComponents/customtitle.h"
@@ -30,14 +30,12 @@ namespace sac
 {
 
 LithofractionVisualisation::LithofractionVisualisation(QWidget *parent) :
-   QWidget(parent),
-   colormap_{new ColorMap},
-   plotOptions_{new MapPlotOptions(this)},
+   MapsVisualisation(parent),
+   plotOptions_{new MapPlotOptionsLithofraction(this)},
    plotsAndOptions_{new QGridLayout(this)}
 {
    initializeLithoFractionPlots();
    setTotalLayout();
-
    connectSignalsAndSlots();
 }
 
@@ -45,8 +43,13 @@ void LithofractionVisualisation::initializeLithoFractionPlots()
 {
    for (int i = 0 ; i < 3; i++)
    {
-      lithoFractionPlots_.push_back(new Grid2DPlot(*colormap_, this));
+      lithoFractionPlots_.push_back(new Grid2DPlot(colormap(), this));
    }
+}
+
+const MapPlotOptionsLithofraction* LithofractionVisualisation::plotOptions() const
+{
+   return plotOptions_;
 }
 
 void LithofractionVisualisation::setTotalLayout()
@@ -255,11 +258,6 @@ CustomCheckbox* LithofractionVisualisation::singleMapLayout() const
    return plotOptions_->singleMapLayout();
 }
 
-QCheckBox* LithofractionVisualisation::wellsVisible() const
-{
-   return plotOptions_->wellsVisible();
-}
-
 void LithofractionVisualisation::clearPlots()
 {
    for (Grid2DPlot* plot : lithoFractionPlots_)
@@ -271,10 +269,10 @@ void LithofractionVisualisation::clearPlots()
 
 void LithofractionVisualisation::setColorMapType(const std::string& colorMapType)
 {
-   colormap_->setColorMapType(colorMapType);
+   colormap().setColorMapType(colorMapType);
    for (Grid2DPlot* plot : lithoFractionPlots_)
    {
-      plot->setColorBarMap(*colormap_);
+      plot->setColorBarMap(colormap());
    }
 }
 

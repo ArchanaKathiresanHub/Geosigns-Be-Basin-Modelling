@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2021 Shell International Exploration & Production.
+// Copyright (C) 2022 Shell International Exploration & Production.
 // All rights reserved.
 //
 // Confidential and proprietary source code of Shell.
@@ -8,21 +8,27 @@
 
 #pragma once
 
-#include "model/output/SACInfoGenerator.h"
+#include "SacInfoGeneratorLithology.h"
 
 namespace casaWizard
 {
+
+class CMBProjectReader;
 
 namespace sac
 {
 
 class SacLithologyScenario;
 
-class LithoMapsInfoGenerator : public SACInfoGenerator
+class LithoMapsInfoGenerator : public SacInfoGeneratorLithology
 {
 public:
-  LithoMapsInfoGenerator(const SacLithologyScenario& scenario, ProjectReader &projectReader);
-  void generateInfoTextFile() override;
+   LithoMapsInfoGenerator(const SacLithologyScenario& scenario, std::unique_ptr<ProjectReader> projectReader);
+   virtual ~LithoMapsInfoGenerator();
+   void generateInfoTextFile() override;
+
+private:
+   std::unique_ptr<ProjectReader> m_projectReader;
 };
 
 } // namespace sac

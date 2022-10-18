@@ -11,6 +11,7 @@
 
 #include "model/lithofractionManager.h"
 #include "model/SacScenario.h"
+#include "model/MapsManagerLithology.h"
 
 namespace casaWizard
 {
@@ -23,50 +24,53 @@ namespace sac
 class SacLithologyScenario : public SacScenario
 {
 public:
-  SacLithologyScenario(ProjectReader* projectReader);
+   SacLithologyScenario(ProjectReader* projectReader);
 
-  int t2zReferenceSurface() const;
-  void setT2zReferenceSurface(int t2zReferenceSurface);
+   MapsManagerLithology& mapsManager() override;
+   const MapsManagerLithology& mapsManager() const override;
 
-  int t2zLastSurface() const;
-  void updateT2zLastSurface();
+   int t2zReferenceSurface() const;
+   void setT2zReferenceSurface(int t2zReferenceSurface);
 
-  int t2zNumberCPUs() const;
-  void setT2zNumberCPUs(int t2zNumberCPUs);
+   int t2zLastSurface() const;
+   void updateT2zLastSurface();
 
-  int t2zSubSampling() const;
-  void setT2zSubSampling(int t2zSubSampling);
+   int t2zNumberCPUs() const;
+   void setT2zNumberCPUs(int t2zNumberCPUs);
 
-  bool t2zRunOnOriginalProject() const;
-  void setT2zRunOnOriginalProject(bool t2zRunOnOriginalProject);
+   int t2zSubSampling() const;
+   void setT2zSubSampling(int t2zSubSampling);
 
-  LithofractionManager& lithofractionManager();
-  const LithofractionManager& lithofractionManager() const;
+   bool t2zRunOnOriginalProject() const;
+   void setT2zRunOnOriginalProject(bool t2zRunOnOriginalProject);
 
-  void writeToFile(ScenarioWriter& writer) const override;
-  void readFromFile(const ScenarioReader& reader) override;
-  void clear() override;
+   LithofractionManager& lithofractionManager();
+   const LithofractionManager& lithofractionManager() const;
 
-  void getVisualisationData(QVector<OptimizedLithofraction>& optimizedLithoFractions,
-                            QVector<const Well*>& activeAndIncludedWells,
-                            const QString& activeLayer) const;
-  void exportOptimizedLithofractionMapsToZycor(const QString& targetPath);
+   void writeToFile(ScenarioWriter& writer) const override;
+   void readFromFile(const ScenarioReader& reader) override;
+   void clear() override;
 
-  QVector<int> getHighlightedWells(const QVector<int>& selectedWells, const QString& activeLayer);
-  bool getLithologyTypesAndMaps(const QString& layerName, std::vector<VectorVectorMap>& lithologyMaps, QStringList& lithologyTypes);
-  std::vector<double> getLithopercentagesOfClosestWell(const double xInKm, const double yInKm, const QString& activeLayer, int& closestWellID) const;
+   void getVisualisationData(QVector<OptimizedLithofraction>& optimizedLithoFractions,
+                             QVector<const Well*>& activeAndIncludedWells,
+                             const QString& activeLayer) const;
+
+   QVector<int> getHighlightedWells(const QVector<int>& selectedWells, const QString& activeLayer);
+   bool getLithologyTypesAndMaps(const QString& layerName, std::vector<VectorVectorMap>& lithologyMaps, QStringList& lithologyTypes);
+   std::vector<double> getLithopercentagesOfClosestWell(const double xInKm, const double yInKm, const QString& activeLayer, int& closestWellID) const;
 
 private:
-  LithofractionManager lithofractionManager_;
+   QVector<OptimizedLithofraction> getOptimizedLithoFractionsInLayer(const QString& layer) const;
+   bool wellHasDataInActiveLayer(const Well* well, const QString& activeLayer) const;
 
-  int t2zLastSurface_;
-  int t2zReferenceSurface_;
-  int t2zSubSampling_;
-  bool t2zRunOnOriginalProject_;
-  int t2zNumberCPUs_;
+   LithofractionManager m_lithofractionManager;
+   MapsManagerLithology m_mapsManager;
 
-  QVector<OptimizedLithofraction> getOptimizedLithoFractionsInLayer(const QString& layer) const;
-  bool wellHasDataInActiveLayer(const Well* well, const QString& activeLayer) const;
+   int m_t2zLastSurface;
+   int m_t2zReferenceSurface;
+   int m_t2zSubSampling;
+   bool m_t2zRunOnOriginalProject;
+   int m_t2zNumberCPUs;
 };
 
 } // namespace sac

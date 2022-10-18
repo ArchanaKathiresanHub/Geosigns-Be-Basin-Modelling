@@ -8,8 +8,8 @@
 
 #pragma once
 
-#include <QWidget>
-#include <memory>
+#include "MapPlotOptionsLithofraction.h"
+#include "view/assets/MapsVisualisation.h"
 #include "view/colormap.h"
 
 class QPushButton;
@@ -28,57 +28,57 @@ namespace sac
 {
 class Grid2DPlot;
 class OptimizedLithofraction;
-class MapPlotOptions;
 
-class LithofractionVisualisation : public QWidget
+class LithofractionVisualisation : public MapsVisualisation
 {
-  Q_OBJECT
+   Q_OBJECT
 public:
-  explicit LithofractionVisualisation(QWidget *parent = nullptr);
+   explicit LithofractionVisualisation(QWidget *parent = nullptr);
 
-  std::vector<Grid2DPlot*> lithoFractionPlots() const;
+   std::vector<Grid2DPlot*> lithoFractionPlots() const;
 
-  const QComboBox* layerSelection() const;
-  QComboBox* lithotypeSelection() const;
-  CustomCheckbox* singleMapLayout() const;
-  QCheckBox* wellsVisible() const;
+   const QComboBox* layerSelection() const;
+   QComboBox* lithotypeSelection() const;
+   CustomCheckbox* singleMapLayout() const;
 
-  void clearPlots();
-  void updateBirdsView(const QVector<const Well*> wells, const QVector<OptimizedLithofraction>& optimizedLithoFractions);
-  void updateLayerOptions(QStringList availableLayers);
-  void updateSelectedWells(const QVector<int> selectedWells);
-  void updateMapLayout(const bool singleMapLayout);
-  void refreshCurrentPercentageRange();
-  void hideAllTooltips();
-  void finalizeTooltip(const std::vector<double>& lithofractionsAtPoint, const QString& wellName, const int plotID);
+   void clearPlots() override;
+   void updateBirdsView(const QVector<const Well*> wells, const QVector<OptimizedLithofraction>& optimizedLithoFractions);
+   void updateLayerOptions(QStringList availableLayers);
+   void updateSelectedWells(const QVector<int> selectedWells) override;
+   void updateMapLayout(const bool singleMapLayout);
+   void refreshCurrentPercentageRange();
+   void hideAllTooltips() override;
+   void finalizeTooltip(const std::vector<double>& lithofractionsAtPoint, const QString& wellName, const int plotID);
 
 private:
-  std::unique_ptr<ColorMap> colormap_;
-  std::vector<Grid2DPlot*> lithoFractionPlots_;
-  MapPlotOptions* plotOptions_;
-  QGridLayout* plotsAndOptions_;
-  QLabel* lithoSelectionLabel_;
 
-  void setTotalLayout();
-  void initializeLithoFractionPlots();
-  void connectSignalsAndSlots();
+   virtual const MapPlotOptionsLithofraction* plotOptions() const override;
 
-  std::pair<double, double> getGlobalRange();
-  void setThreePlotLayout();
-  void setOnePlotLayout(const int activePlot);
+   std::vector<Grid2DPlot*> lithoFractionPlots_;
+   MapPlotOptionsLithofraction* plotOptions_;
+   QLabel* lithoSelectionLabel_;
+   QGridLayout* plotsAndOptions_;
+
+   void setTotalLayout();
+   void initializeLithoFractionPlots();
+   void connectSignalsAndSlots();
+
+   std::pair<double, double> getGlobalRange();
+   void setThreePlotLayout();
+   void setOnePlotLayout(const int activePlot);
 
 signals:
-  void updateAvailableLayers();
+   void updateAvailableLayers();
 
 public slots:
-  void setColorMapType(const std::string& colorMapType);
-  void slotUpdatePercentageRanges(const QString& percentageRangeType);
+   void setColorMapType(const std::string& colorMapType) override;
+   void slotUpdatePercentageRanges(const QString& percentageRangeType);
 
 private slots:
-  void slotUpdateAspectRatio(int state);
-  void slotUpdateColorMaps(const QString& colormapType);
-  void slotUpdateWellsVisibility(int state);
-  void slotUpdateActivePlot(int activePlot);
+   void slotUpdateAspectRatio(int state);
+   void slotUpdateColorMaps(const QString& colormapType);
+   void slotUpdateWellsVisibility(int state);
+   void slotUpdateActivePlot(int activePlot);
 };
 
 }

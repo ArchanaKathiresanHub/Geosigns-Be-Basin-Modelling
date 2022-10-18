@@ -16,23 +16,25 @@ namespace casaWizard
 class InfoGenerator
 {
 public:
-  InfoGenerator();
-  virtual void generateInfoTextFile() = 0;
-  virtual void loadProjectReader(const std::string& projectFileName) = 0;
-  virtual ~InfoGenerator() = default;
-  void setFileName(const std::string& fileName);
+   InfoGenerator();
+   virtual ~InfoGenerator() = default;
+
+   virtual void generateInfoTextFile() = 0;
+   virtual void loadProjectReader(const std::string& projectFileName) = 0;
+
+   void setFileName(const std::string& fileName);
 
 protected:
-  void writeTextToFile();
-  void addHeader(const std::string& headerTitle);
-  void addOption(const std::string& option, const std::string& optionValue);
-  void addSectionSeparator();
+   void writeTextToFile();
+   void addHeader(const std::string& headerTitle);
+   void addOption(const std::string& option, const std::string& optionValue);
+   void addSectionSeparator();
 
 private:
-  void addHeaderSeparator();
+   void addHeaderSeparator();
 
-  std::string infoText_;
-  std::string fileName_;
+   std::string infoText_;
+   std::string fileName_;
 };
 
 }

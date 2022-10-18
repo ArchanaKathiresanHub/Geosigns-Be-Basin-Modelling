@@ -8,7 +8,7 @@
 
 #pragma once
 
-#include <QObject>
+#include "control/assets/SacVisualisationController.h"
 
 namespace casaWizard
 {
@@ -25,7 +25,7 @@ class LithofractionVisualisation;
 class OptimizedLithofraction;
 class SacLithologyScenario;
 
-class LithofractionVisualisationController : public QObject
+class LithofractionVisualisationController : public SacVisualisationController
 {
   Q_OBJECT
 public:
@@ -34,16 +34,12 @@ public:
                                        QObject* parent);
 
   void updateAvailableLayers();
-  void updateBirdsView();
-  void updateSelectedWells(QVector<int> selectedWells);
-  void hideAllTooltips();
-
-signals:
-  void wellClicked(const QString&);
-  void clearWellListHighlightSelection();
+  void updateBirdsView() override;
+  void updateSelectedWells(QVector<int> selectedWells) override;
+  void hideAllTooltips() override;
 
 private slots:
-  void slotRefresh();
+  void slotRefresh() override;
 
 private:
   QString activeLayer_;

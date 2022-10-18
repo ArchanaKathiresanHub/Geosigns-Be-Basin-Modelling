@@ -8,11 +8,12 @@
 
 #pragma once
 
-#include "model/well.h"
 #include <QTableWidget>
 
 namespace casaWizard
 {
+
+class Well;
 
 namespace sac
 {
@@ -23,7 +24,6 @@ class ActiveWellsTable : public QTableWidget
 
 public:
    explicit ActiveWellsTable(QWidget* parent = nullptr);
-
    void updateTable(const QVector<const Well*> wells);
 
 signals:

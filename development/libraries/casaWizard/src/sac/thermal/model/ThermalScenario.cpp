@@ -29,6 +29,16 @@ ThermalScenario::ThermalScenario(ProjectReader* projectReader) :
 {
 }
 
+MapsManager& ThermalScenario::mapsManager()
+{
+   return m_mapsManager;
+}
+
+const MapsManager& ThermalScenario::mapsManager() const
+{
+   return m_mapsManager;
+}
+
 TCHPManager& ThermalScenario::TCHPmanager()
 {
    return m_TCHPManager;

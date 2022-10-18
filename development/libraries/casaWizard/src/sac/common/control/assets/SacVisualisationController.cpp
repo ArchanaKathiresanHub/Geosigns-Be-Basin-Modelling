@@ -6,7 +6,7 @@
 // Do not distribute without written permission from Shell.
 //
 
-#include "SacController.h"
+#include "SacVisualisationController.h"
 
 namespace casaWizard
 {
@@ -14,8 +14,8 @@ namespace casaWizard
 namespace sac
 {
 
-SacController::SacController() :
-   MainController()
+SacVisualisationController::SacVisualisationController(QObject* parent):
+   QObject(parent)
 {}
 
 } // namespace sac

@@ -10,14 +10,17 @@
 #pragma once
 
 #include "model/casaScenario.h"
-#include "model/MapsManager.h"
 #include "model/wellTrajectoryManager.h"
 
 namespace casaWizard
 {
 
+class MapReader;
+
 namespace sac
 {
+
+class MapsManager;
 
 class SacScenario : public CasaScenario
 {
@@ -28,6 +31,11 @@ public:
    void readFromFile(const ScenarioReader& reader) override;
    void clear() override;
    QString iterationDirName() const override;
+
+   virtual MapsManager& mapsManager() = 0;
+   virtual const MapsManager& mapsManager() const = 0;
+
+   void exportOptimizedMapsToZycor(const QString& targetPath);
 
    void wellPrepToSAC();
    bool hasOptimizedSuccessfully(const int caseIndex);
@@ -44,8 +52,6 @@ public:
    bool showSurfaceLines() const;
    WellTrajectoryManager& wellTrajectoryManager();
    const WellTrajectoryManager& wellTrajectoryManager() const;
-   MapsManager& mapsManager();
-   const MapsManager& mapsManager() const;
    QVector<bool> activePlots() const;
    QVector<int> getIncludedWellIndicesFromSelectedWells(const QVector<int>& selectedWellIndices);
 
@@ -55,7 +61,7 @@ protected:
 private:
    QString m_stateFileNameSAC;
    QString m_calibrationDirectory;
-   MapsManager m_mapsManager;
+
    WellTrajectoryManager m_wellTrajectoryManager;
 
    QVector<bool> m_activePlots;

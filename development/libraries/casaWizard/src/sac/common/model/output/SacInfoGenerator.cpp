@@ -6,13 +6,13 @@
 // Do not distribute without written permission from Shell.
 //
 
-#include "SACInfoGenerator.h"
+#include "SacInfoGenerator.h"
 
 #include "model/input/projectReader.h"
 #include "model/input/cmbMapReader.h"
-#include "model/MapsManager.h"
 #include "model/objectiveFunctionValue.h"
-#include "model/sacLithologyScenario.h"
+#include "model/SacScenario.h"
+#include "model/MapsManager.h"
 
 #include <iomanip>
 #include <sstream>
@@ -22,41 +22,37 @@ namespace casaWizard
 namespace sac
 {
 
-SACInfoGenerator::SACInfoGenerator(const SacLithologyScenario& scenario, ProjectReader& projectReader) :
+SacInfoGenerator::SacInfoGenerator(ProjectReader& projectReader) :
   casaWizard::InfoGenerator(),
-  scenario_{scenario},
-  mapsManager_{scenario.mapsManager()},
-  projectReader_{projectReader}
-{
+  m_projectReader{projectReader}
+{}
 
+void SacInfoGenerator::loadProjectReader(const std::string& projectFileLocation)
+{
+  m_projectReader.load(QString::fromStdString(projectFileLocation) + "/" + scenario().project3dFilename());
 }
 
-void SACInfoGenerator::loadProjectReader(const std::string& projectFileLocation)
-{
-  projectReader_.load(QString::fromStdString(projectFileLocation) + "/" + scenario().project3dFilename());
-}
-
-void SACInfoGenerator::addGeneralSettingsSection()
+void SacInfoGenerator::addGeneralSettingsSection()
 {
   addSectionSeparator();
   addHeader("General Settings");
   addRunMode();
-  addOption("Cluster", scenario_.clusterName().toStdString());
+  addOption("Cluster", scenario().clusterName().toStdString());
 }
 
-void SACInfoGenerator::addRunMode()
+void SacInfoGenerator::addRunMode()
 {
-  if (scenario_.applicationName() == "fastcauldron \"-itcoupled\"")
+  if (scenario().applicationName() == "fastcauldron \"-itcoupled\"")
   {
     addOption("Run mode", "Iteratively Coupled");
   }
-  else if (scenario_.applicationName() == "fastcauldron \"-temperature\"")
+  else if (scenario().applicationName() == "fastcauldron \"-temperature\"")
   {
     addOption("Run mode", "Hydrostatic");
   }
 }
 
-void SACInfoGenerator::addInputTabSection()
+void SacInfoGenerator::addInputTabSection()
 {
   addSectionSeparator();
   addHeader("Input Tab");
@@ -64,10 +60,10 @@ void SACInfoGenerator::addInputTabSection()
   addObjectiveFunction();
 }
 
-void SACInfoGenerator::addFormationInfo()
+void SacInfoGenerator::addFormationInfo()
 {
-  const QStringList layerNames = projectReader_.layerNames();
-  const QStringList mapNames = projectReader_.mapNames();
+  const QStringList layerNames = m_projectReader.layerNames();
+  const QStringList mapNames = m_projectReader.mapNames();
 
   int layerID = 0;
   for (const QString& layerName: layerNames)
@@ -90,10 +86,10 @@ void SACInfoGenerator::addFormationInfo()
   }
 }
 
-void SACInfoGenerator::addObjectiveFunction()
+void SacInfoGenerator::addObjectiveFunction()
 {
   addHeader("Objective Function");  
-  QVector<ObjectiveFunctionValue> objectiveFunctionValues = scenario_.objectiveFunctionManager().values();
+  QVector<ObjectiveFunctionValue> objectiveFunctionValues = scenario().objectiveFunctionManager().values();
 
   std::sort(objectiveFunctionValues.begin(), objectiveFunctionValues.end(), [](const ObjectiveFunctionValue& a, const ObjectiveFunctionValue& b)
   {
@@ -110,64 +106,58 @@ void SACInfoGenerator::addObjectiveFunction()
   }
 }
 
-void SACInfoGenerator::addMapsGenerationSection()
+void SacInfoGenerator::addMapsGenerationSection()
 {
   addSectionSeparator();
   addHeader("Map Generation");
   addInterpolation();
   addSmoothing();
-  addSmartGridding();
 }
 
-void SACInfoGenerator::addInterpolation()
+void SacInfoGenerator::addInterpolation()
 {
   std::string interpolationOption;
-  if (mapsManager_.interpolationMethod() == 0)
+  if (mapsManager().interpolationMethod() == 0)
   {
-    interpolationOption = "Inverse Distance Weighting, P = " + std::to_string(mapsManager_.pIDW());
+    interpolationOption = "Inverse Distance Weighting, P = " + std::to_string(mapsManager().pIDW());
   }
-  else if (mapsManager_.interpolationMethod() == 1)
+  else if (mapsManager().interpolationMethod() == 1)
   {
     interpolationOption = "Natural Neighbor";
   }
   addOption("Interpolation", interpolationOption);
 }
 
-void SACInfoGenerator::addSmoothing()
+void SacInfoGenerator::addSmoothing()
 {
   std::string smoothingOption = "";
-  switch (mapsManager_.smoothingOption())
+  switch (mapsManager().smoothingOption())
   {
     case 0:
       smoothingOption = "None";
       break;
     case 1:
-      smoothingOption = "Gaussian, Radius = " + std::to_string(mapsManager_.radiusSmoothing());
+      smoothingOption = "Gaussian, Radius = " + std::to_string(mapsManager().radiusSmoothing());
       break;
     case 2:
-      smoothingOption = "Moving Average, Radius = " + std::to_string(mapsManager_.radiusSmoothing());
+      smoothingOption = "Moving Average, Radius = " + std::to_string(mapsManager().radiusSmoothing());
       break;
   }
   addOption("Smoothing", smoothingOption);
 }
 
-void SACInfoGenerator::addSmartGridding()
-{
-  addOption("Smart gridding", mapsManager_.smartGridding() ? "Enabled" : "Disabled");
-}
-
-void SACInfoGenerator::addWellsSection()
+void SacInfoGenerator::addWellsSection()
 {
   addSectionSeparator();
   addHeader("Wells");
-  const casaWizard::CalibrationTargetManager& manager = scenario_.calibrationTargetManager();
+  const casaWizard::CalibrationTargetManager& manager = scenario().calibrationTargetManager();
   for (const casaWizard::Well* well : manager.wells())
   {
     addWellInfo(well);
   }
 }
 
-void SACInfoGenerator::addWellInfo(const casaWizard::Well* well)
+void SacInfoGenerator::addWellInfo(const casaWizard::Well* well)
 {
   std::string optionValue = "";
   if (well->isActive() && !well->isExcluded())
@@ -182,23 +172,16 @@ void SACInfoGenerator::addWellInfo(const casaWizard::Well* well)
   addOption(well->name().toStdString() + ", " + doubleToFormattedString(well->x()) + ", " + doubleToFormattedString(well->y()), optionValue);
 }
 
-
-std::string SACInfoGenerator::doubleToFormattedString(const double inputDouble)
+std::string SacInfoGenerator::doubleToFormattedString(const double inputDouble)
 {
   std::stringstream stream;
   stream << std::fixed << std::setprecision(2) << inputDouble;
   return stream.str();
 }
 
-
-const SacLithologyScenario& SACInfoGenerator::scenario() const
+const ProjectReader& SacInfoGenerator::projectReader() const
 {
-  return scenario_;
-}
-
-const ProjectReader& SACInfoGenerator::projectReader() const
-{
-  return projectReader_;
+  return m_projectReader;
 }
 
 } // namespace sac

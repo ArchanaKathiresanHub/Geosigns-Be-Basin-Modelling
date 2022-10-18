@@ -8,7 +8,7 @@
 
 #pragma once
 
-#include <QWidget>
+#include "view/assets/MapPlotOptions.h"
 
 class QPushButton;
 class QComboBox;
@@ -24,35 +24,29 @@ class CustomCheckbox;
 namespace sac
 {
 
-class MapPlotOptions : public QWidget
+class MapPlotOptionsLithofraction : public MapPlotOptions
 {
    Q_OBJECT
 public:
-   explicit MapPlotOptions(QWidget *parent = nullptr);
+   explicit MapPlotOptionsLithofraction(QWidget *parent = nullptr);
 
    QComboBox* percentageRange() const;
-   QComboBox* colorMapSelection() const;
    QComboBox* layerSelection() const;
    QComboBox* lithotypeSelection() const;
    CustomCheckbox* singleMapLayout() const;
-   CustomCheckbox* stretched() const;
-   CustomCheckbox* wellsVisible() const;
 
 private:
    QComboBox* percentageRange_;
-   QComboBox* colorMapSelection_;
    QComboBox* layerSelection_;
    QComboBox* lithotypeSelection_;
    QLabel* lithoSelectionLabel_;
 
    CustomCheckbox* singleMapLayout_;
-   CustomCheckbox* stretched_;
-   CustomCheckbox* wellsVisible_;
 
 private slots:
    void slotUpdateSingleMapLayout(int state);
 };
 
-}
+} //sac
 
-}
+} //casaWizard

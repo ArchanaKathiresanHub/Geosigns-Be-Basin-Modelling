@@ -6,7 +6,7 @@
 // Do not distribute without written permission from Shell.
 //
 
-#include "model/MapsManager.h"
+#include "model/MapsManagerLithology.h"
 
 #include "model/scenarioReader.h"
 #include "model/scenarioWriter.h"
@@ -23,14 +23,14 @@ using namespace casaWizard;
 
 TEST(MapsManager, testReadWrite)
 {
-  MapsManager writeMapsManager;
+  MapsManagerLithology writeMapsManager;
   writeMapsManager.setSmartGridding(false);
 
   ScenarioWriter writer("mapsManager.dat");
   writeMapsManager.writeToFile(writer);
   writer.close();
 
-  MapsManager readMapsManager;
+  MapsManagerLithology readMapsManager;
   ScenarioReader reader("mapsManager.dat");
   readMapsManager.readFromFile(reader);
 
@@ -44,10 +44,10 @@ TEST(MapsManager, testExportOptimizedLithofractionMapsToZycor)
   std::remove("Layer2_Type1.zyc");
   std::remove("Layer2_Type2.zyc");
 
-  MapsManager mapsManager;
+  MapsManagerLithology mapsManager;
   StubProjectReader projectReader;
   StubMapReader mapReader;
-  mapsManager.exportOptimizedLithofractionMapsToZycor(projectReader, mapReader, ".");
+  mapsManager.exportOptimizedMapsToZycor(projectReader, mapReader, ".");
 
   expectFileEq("Layer_Type1Expected.zyc", "Layer1_Type1.zyc");
   expectFileEq("Layer_Type2Expected.zyc", "Layer1_Type2.zyc");
@@ -57,7 +57,7 @@ TEST(MapsManager, testExportOptimizedLithofractionMapsToZycor)
 
 TEST(MapsManager, testTransformToActiveAndIncludedWithoutExcludedIndices)
 {
-  MapsManager mapsManager;
+  MapsManagerLithology mapsManager;
   QVector<int> selectedWellIndices = {0, 3, 4, 5};
   QVector<int> excludedIndices;
 
@@ -73,7 +73,7 @@ TEST(MapsManager, testTransformToActiveAndIncludedWithoutExcludedIndices)
 
 TEST(MapsManager, testTransformToActiveAndIncluded)
 {
-  MapsManager mapsManager;
+  MapsManagerLithology mapsManager;
   QVector<int> selectedWellIndices = {0, 3, 5, 9, 17};
   QVector<int> excludedIndices = {3, 9};
 

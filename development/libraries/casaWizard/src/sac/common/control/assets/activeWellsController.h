@@ -34,12 +34,16 @@ public:
 
 public slots:
   void slotClearWellListHighlightSelection();
+  void slotSelectAllWells();
+  void slotDeselectAllWells();
 
 private slots:
   void slotWellCheckBoxStateChanged(int state, int wellIndex);
   void slotRefresh();
 
 private:
+  void setAllsWellsExcludedState(bool excludedState);
+
   ActiveWellsTable* activeWellsTable_;
   CasaScenario& casaScenario_;
 };

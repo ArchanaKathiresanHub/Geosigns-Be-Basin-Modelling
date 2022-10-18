@@ -23,67 +23,68 @@ const int defaultt2zNumberCPUs{1};
 
 SacLithologyScenario::SacLithologyScenario(ProjectReader* projectReader) :
    SacScenario{projectReader},
-   lithofractionManager_{},
-   t2zLastSurface_{projectReader->lowestSurfaceWithTWTData()},
-   t2zReferenceSurface_{defaultReferenceSurface},
-   t2zSubSampling_{1},
-   t2zRunOnOriginalProject_{false},
-   t2zNumberCPUs_{defaultt2zNumberCPUs}
+   m_lithofractionManager{},
+   m_mapsManager{},
+   m_t2zLastSurface{projectReader->lowestSurfaceWithTWTData()},
+   m_t2zReferenceSurface{defaultReferenceSurface},
+   m_t2zSubSampling{1},
+   m_t2zRunOnOriginalProject{false},
+   m_t2zNumberCPUs{defaultt2zNumberCPUs}
 {}
 
 int SacLithologyScenario::t2zReferenceSurface() const
 {
-   return t2zReferenceSurface_;
+   return m_t2zReferenceSurface;
 }
 
 void SacLithologyScenario::setT2zReferenceSurface(int refSurface)
 {
-   t2zReferenceSurface_ = refSurface;
+   m_t2zReferenceSurface = refSurface;
 }
 
 int SacLithologyScenario::t2zLastSurface() const
 {
-   return t2zLastSurface_;
+   return m_t2zLastSurface;
 }
 
 int SacLithologyScenario::t2zNumberCPUs() const
 {
-   return t2zNumberCPUs_;
+   return m_t2zNumberCPUs;
 }
 
 void SacLithologyScenario::setT2zNumberCPUs(int t2zNumberCPUs)
 {
-   t2zNumberCPUs_ = t2zNumberCPUs;
+   m_t2zNumberCPUs = t2zNumberCPUs;
 }
 
 int SacLithologyScenario::t2zSubSampling() const
 {
-   return t2zSubSampling_;
+   return m_t2zSubSampling;
 }
 
 void SacLithologyScenario::setT2zSubSampling(int t2zSubSampling)
 {
-   t2zSubSampling_ = t2zSubSampling;
+   m_t2zSubSampling = t2zSubSampling;
 }
 
 bool SacLithologyScenario::t2zRunOnOriginalProject() const
 {
-   return t2zRunOnOriginalProject_;
+   return m_t2zRunOnOriginalProject;
 }
 
 void SacLithologyScenario::setT2zRunOnOriginalProject(bool t2zRunOnOriginalProject)
 {
-   t2zRunOnOriginalProject_ = t2zRunOnOriginalProject;
+   m_t2zRunOnOriginalProject = t2zRunOnOriginalProject;
 }
 
 LithofractionManager& SacLithologyScenario::lithofractionManager()
 {
-   return lithofractionManager_;
+   return m_lithofractionManager;
 }
 
 const LithofractionManager& SacLithologyScenario::lithofractionManager() const
 {
-   return lithofractionManager_;
+   return m_lithofractionManager;
 }
 
 void SacLithologyScenario::writeToFile(ScenarioWriter& writer) const
@@ -91,12 +92,13 @@ void SacLithologyScenario::writeToFile(ScenarioWriter& writer) const
    SacScenario::writeToFile(writer);
    writer.writeValue("SACLithologyScenarioVersion", s_sacLithologyScenarioVersion);
 
-   writer.writeValue("referenceSurface", t2zReferenceSurface_);
-   writer.writeValue("t2zSubSampling", t2zSubSampling_);
-   writer.writeValue("t2zRunOnOriginalProject", t2zRunOnOriginalProject_);
-   writer.writeValue("t2zNumberOfCPUs", t2zNumberCPUs_);
+   writer.writeValue("referenceSurface", m_t2zReferenceSurface);
+   writer.writeValue("t2zSubSampling", m_t2zSubSampling);
+   writer.writeValue("t2zRunOnOriginalProject", m_t2zRunOnOriginalProject);
+   writer.writeValue("t2zNumberOfCPUs", m_t2zNumberCPUs);
 
-   lithofractionManager_.writeToFile(writer);
+   m_mapsManager.writeToFile(writer);
+   m_lithofractionManager.writeToFile(writer);
 }
 
 void SacLithologyScenario::readFromFile(const ScenarioReader& reader)
@@ -108,42 +110,53 @@ void SacLithologyScenario::readFromFile(const ScenarioReader& reader)
    //Note that the version variable of this class is SACLithologyScenarioVersion! sacScenarioVersion is the previous one, before refactoring.
    if (sacScenarioVersion > 1)
    {
-      t2zSubSampling_ = reader.readInt("t2zSubSampling") > 0 ? reader.readInt("t2zSubSampling") : t2zSubSampling_;
-      t2zRunOnOriginalProject_ = reader.readBool("t2zRunOnOriginalProject");
-      t2zNumberCPUs_ = reader.readInt("t2zNumberOfCPUs");
+      m_t2zSubSampling = reader.readInt("t2zSubSampling") > 0 ? reader.readInt("t2zSubSampling") : m_t2zSubSampling;
+      m_t2zRunOnOriginalProject = reader.readBool("t2zRunOnOriginalProject");
+      m_t2zNumberCPUs = reader.readInt("t2zNumberOfCPUs");
    }
 
-   t2zLastSurface_ = projectReader().lowestSurfaceWithTWTData();
-   t2zReferenceSurface_ = reader.readInt("referenceSurface");
+   m_t2zLastSurface = projectReader().lowestSurfaceWithTWTData();
+   m_t2zReferenceSurface = reader.readInt("referenceSurface");
 
-   lithofractionManager_.readFromFile(reader);
+   m_lithofractionManager.readFromFile(reader);
+   m_mapsManager.readFromFile(reader);
 }
 
 void SacLithologyScenario::clear()
 {
    SacScenario::clear();
 
-   t2zReferenceSurface_ = defaultReferenceSurface;
-   t2zSubSampling_ = 1;
-   t2zRunOnOriginalProject_ = false;
-   t2zNumberCPUs_ = defaultt2zNumberCPUs;
+   m_t2zReferenceSurface = defaultReferenceSurface;
+   m_t2zSubSampling = 1;
+   m_t2zRunOnOriginalProject = false;
+   m_t2zNumberCPUs = defaultt2zNumberCPUs;
 
-   lithofractionManager_.clear();
+   m_lithofractionManager.clear();
+}
+
+MapsManagerLithology& SacLithologyScenario::mapsManager()
+{
+   return m_mapsManager;
+}
+
+const MapsManagerLithology& SacLithologyScenario::mapsManager() const
+{
+   return m_mapsManager;
 }
 
 void SacLithologyScenario::updateT2zLastSurface()
 {
-   t2zLastSurface_ = projectReader().lowestSurfaceWithTWTData();
+   m_t2zLastSurface = projectReader().lowestSurfaceWithTWTData();
 }
 
 QVector<OptimizedLithofraction> SacLithologyScenario::getOptimizedLithoFractionsInLayer(const QString& layer) const
 {
-   const QVector<Lithofraction>& lithofractions = lithofractionManager_.lithofractions();
+   const QVector<Lithofraction>& lithofractions = m_lithofractionManager.lithofractions();
 
    QVector<OptimizedLithofraction> optimizedLithoFractionsInLayer;
    for (const Well* well : calibrationTargetManager().activeAndIncludedWells())
    {
-      QVector<OptimizedLithofraction> optimizedLithoFractions = lithofractionManager_.optimizedInWell(well->id());
+      QVector<OptimizedLithofraction> optimizedLithoFractions = m_lithofractionManager.optimizedInWell(well->id());
       for (OptimizedLithofraction lithofraction : optimizedLithoFractions)
       {
          if (lithofractions[lithofraction.lithofractionId()].layerName() == layer)
@@ -189,13 +202,6 @@ bool SacLithologyScenario::wellHasDataInActiveLayer(const Well* well, const QStr
    }
 
    return well->hasDataInLayer()[projectReader().getLayerID(activeLayer.toStdString())];
-}
-
-void SacLithologyScenario::exportOptimizedLithofractionMapsToZycor(const QString& targetPath)
-{
-   CMBMapReader mapReader;
-   mapReader.load((optimizedProjectDirectory() + project3dFilename()).toStdString());
-   mapsManager().exportOptimizedLithofractionMapsToZycor(projectReader(), mapReader, targetPath);
 }
 
 QVector<int> SacLithologyScenario::getHighlightedWells(const QVector<int>& selectedWells, const QString& activeLayer)

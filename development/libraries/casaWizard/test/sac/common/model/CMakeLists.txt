@@ -1,4 +1,4 @@
-add_casawizard_sac_gtest( NAME MapsManager               SOURCES testMapsManager.cpp )
+add_casawizard_sac_gtest( NAME MapsManagerLithology      SOURCES testMapsManagerLithology.cpp )
 
 add_casawizard_sac_gtest( NAME WellTrajectoryManager     SOURCES testWellTrajectoryManager.cpp )
 add_casawizard_sac_gtest( NAME Case3DTrajectoryConvertor SOURCES testCase3DTrajectoryConvertor.cpp )

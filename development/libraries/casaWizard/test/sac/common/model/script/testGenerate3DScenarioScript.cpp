@@ -1,4 +1,5 @@
-#include "model/script/Generate3DScenarioScript.h"
+#include "model/script/Generate3DScenarioScriptLithology.h"
+#include "model/MapsManagerLithology.h"
 
 #include "model/calibrationTargetManager.h"
 #include "expectFileEq.h"
@@ -36,7 +37,7 @@ TEST(Generate3DScenarioScriptTest, testWriteScript)
   manager.addWellTrajectory(2, "Density");
   manager.addWellTrajectory(3, "Density");
 
-  Generate3DScenarioScript script(scenario);
+  Generate3DScenarioScriptLithology script(scenario);
 
   // When
   script.writeScript();
@@ -53,7 +54,7 @@ TEST(Generate3DScenarioScriptTest, testWriteScriptIDWGaussian)
   scenario.setWorkingDirectory(".");
   scenario.setProject3dFileNameAndLoadFile("projStub.project3d");
 
-  MapsManager& mapsManager = scenario.mapsManager();
+  MapsManagerLithology& mapsManager = scenario.mapsManager();
   mapsManager.setSmoothingOption(1);
   mapsManager.setPIDW(3);
   mapsManager.setSmartGridding(false);
@@ -61,7 +62,7 @@ TEST(Generate3DScenarioScriptTest, testWriteScriptIDWGaussian)
   const std::string expectedFile{"generate3DScenarioScript_IDW_GaussianExpected.casa"};
   const std::string actualFile{"generate3DScenarioScript.casa"};
 
-  Generate3DScenarioScript script(scenario);
+  Generate3DScenarioScriptLithology script(scenario);
   script.writeScript();
 
   expectFileEq(expectedFile, actualFile);
@@ -81,7 +82,7 @@ TEST(Generate3DScenarioScriptTest, testWriteScriptNNMovingAverage)
   const std::string expectedFile{"generate3DScenarioScript_NN_MovingAverageExpected.casa"};
   const std::string actualFile{"generate3DScenarioScript.casa"};
 
-  Generate3DScenarioScript script(scenario);
+  Generate3DScenarioScriptLithology script(scenario);
   script.writeScript();
 
   expectFileEq(expectedFile, actualFile);

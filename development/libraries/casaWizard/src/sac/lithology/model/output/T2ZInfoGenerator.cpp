@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2021 Shell International Exploration & Production.
+// Copyright (C) 2022 Shell International Exploration & Production.
 // All rights reserved.
 //
 // Confidential and proprietary source code of Shell.
@@ -17,10 +17,8 @@ namespace sac
 {
 
 T2ZInfoGenerator::T2ZInfoGenerator(const SacLithologyScenario& scenario, ProjectReader& t2zProjectReader) :
-  SACInfoGenerator(scenario, t2zProjectReader)
-{
-
-}
+  SacInfoGeneratorLithology(scenario, t2zProjectReader)
+{}
 
 void T2ZInfoGenerator::generateInfoTextFile()
 {

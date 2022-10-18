@@ -50,6 +50,28 @@ void ActiveWellsController::slotWellCheckBoxStateChanged(int state, int wellInde
    calibrationTargetManager.setWellIsExcluded(state == Qt::Unchecked, wellIndex);
 }
 
+void ActiveWellsController::slotSelectAllWells()
+{
+   setAllsWellsExcludedState(false);
+   slotRefresh();
+}
+
+void ActiveWellsController::slotDeselectAllWells()
+{
+   setAllsWellsExcludedState(true);
+   slotRefresh();
+}
+
+void ActiveWellsController::setAllsWellsExcludedState(bool excludedState)
+{
+   CalibrationTargetManager& calibrationTargetManager = casaScenario_.calibrationTargetManager();
+   int numWells = calibrationTargetManager.wells().size();
+   for (int i = 0; i < numWells; i++)
+   {
+      calibrationTargetManager.setWellIsExcluded(excludedState, i);
+   }
+}
+
 }  // namespace sac
 
 }  // namespace casaWizard

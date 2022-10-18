@@ -11,6 +11,7 @@
 
 #include "model/SacScenario.h"
 #include "model/TCHPManager.h"
+#include "model/MapsManagerThermal.h"
 
 namespace casaWizard
 {
@@ -24,17 +25,21 @@ namespace thermal
 class ThermalScenario : public SacScenario
 {
 public:
-  ThermalScenario(ProjectReader* projectReader);
+   ThermalScenario(ProjectReader* projectReader);
 
-  TCHPManager& TCHPmanager();
-  const TCHPManager& TCHPmanager() const;
+   virtual MapsManager& mapsManager() final;
+   virtual const MapsManager& mapsManager() const final;
 
-  void writeToFile(ScenarioWriter& writer) const override;
-  void readFromFile(const ScenarioReader& reader) override;
-  void clear() override;
+   TCHPManager& TCHPmanager();
+   const TCHPManager& TCHPmanager() const;
+
+   void writeToFile(ScenarioWriter& writer) const override;
+   void readFromFile(const ScenarioReader& reader) override;
+   void clear() override;
 
 private:
-  TCHPManager m_TCHPManager;
+   TCHPManager m_TCHPManager;
+   MapsManagerThermal m_mapsManager;
 };
 
 } // namespace thermal

@@ -8,12 +8,14 @@
 
 #include "activeWellsTable.h"
 
+#include "model/well.h"
+
+#include "view/sharedComponents/customcheckbox.h"
+
 #include <QTableWidget>
 #include <QHBoxLayout>
 #include <QHeaderView>
 #include <QSignalBlocker>
-
-#include "view/sharedComponents/customcheckbox.h"
 
 namespace casaWizard
 {

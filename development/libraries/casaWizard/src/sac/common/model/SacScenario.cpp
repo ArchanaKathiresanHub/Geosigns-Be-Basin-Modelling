@@ -11,6 +11,7 @@
 #include "model/functions/sortedByXWellIndices.h"
 #include "model/input/cmbMapReader.h"
 #include "model/input/projectReader.h"
+#include "model/MapsManager.h"
 #include "model/scenarioReader.h"
 #include "model/scenarioWriter.h"
 
@@ -35,7 +36,6 @@ SacScenario::SacScenario(ProjectReader* projectReader) :
   CasaScenario{projectReader},
   m_stateFileNameSAC{"casaStateSAC.txt"},
   m_calibrationDirectory{"calibration_step1"},
-  m_mapsManager{},
   m_wellTrajectoryManager{},
   m_activePlots(4, true),
   m_fitRangeToData{false},
@@ -51,17 +51,13 @@ void SacScenario::writeToFile(ScenarioWriter& writer) const
 {
   CasaScenario::writeToFile(writer);
   writer.writeValue("SACScenarioVersion", s_scenario_version);
-
   m_wellTrajectoryManager.writeToFile(writer);
-  m_mapsManager.writeToFile(writer);
 }
 
 void SacScenario::readFromFile(const ScenarioReader& reader)
 {
   CasaScenario::readFromFile(reader);
-
   m_wellTrajectoryManager.readFromFile(reader);
-  m_mapsManager.readFromFile(reader);
 }
 
 void SacScenario::clear()
@@ -114,7 +110,7 @@ void SacScenario::updateWellsForProject3D()
 
 QVector<int> SacScenario::getIncludedWellIndicesFromSelectedWells(const QVector<int>& selectedWellIndices)
 {
-  return m_mapsManager.transformToActiveAndIncluded(selectedWellIndices, calibrationTargetManager().getExcludedWellsFromActiveWells());
+  return mapsManager().transformToActiveAndIncluded(selectedWellIndices, calibrationTargetManager().getExcludedWellsFromActiveWells());
 }
 
 bool SacScenario::hasOptimizedSuccessfully(const int caseIndex)
@@ -123,6 +119,13 @@ bool SacScenario::hasOptimizedSuccessfully(const int caseIndex)
   const QString caseFolderNumber = QString::number(sortedIndices.indexOf(caseIndex) + 1);
   QFile successFile(calibrationDirectory() + "/" + runLocation() + "/" + iterationDirName() + "/Case_" + caseFolderNumber + "/Stage_0.sh.success");
   return successFile.exists();
+}
+
+void SacScenario::exportOptimizedMapsToZycor(const QString& targetPath)
+{
+   CMBMapReader mapReader;
+   mapReader.load((optimizedProjectDirectory() + project3dFilename()).toStdString());
+   mapsManager().exportOptimizedMapsToZycor(projectReader(), mapReader, targetPath);
 }
 
 bool SacScenario::openMaps(MapReader& mapReader, const int layerID) const
@@ -193,16 +196,6 @@ WellTrajectoryManager& SacScenario::wellTrajectoryManager()
 const WellTrajectoryManager& SacScenario::wellTrajectoryManager() const
 {
   return m_wellTrajectoryManager;
-}
-
-MapsManager& SacScenario::mapsManager()
-{
-  return m_mapsManager;
-}
-
-const MapsManager&SacScenario::mapsManager() const
-{
-  return m_mapsManager;
 }
 
 bool SacScenario::showSurfaceLines() const

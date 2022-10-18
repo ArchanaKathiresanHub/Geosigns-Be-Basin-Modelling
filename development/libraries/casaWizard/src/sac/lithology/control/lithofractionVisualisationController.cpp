@@ -35,7 +35,7 @@ namespace sac
 LithofractionVisualisationController::LithofractionVisualisationController(LithofractionVisualisation* lithofractionVisualisation,
                                                                            SacLithologyScenario& casaScenario,
                                                                            QObject* parent) :
-  QObject{parent},
+  SacVisualisationController{parent},
   singleMapLayout_{false},
   lithofractionVisualisation_{lithofractionVisualisation},
   scenario_{casaScenario}
@@ -230,7 +230,6 @@ void LithofractionVisualisationController::updateBirdsView()
   QVector<const Well*> activeAndIncludedWells;
 
   scenario_.getVisualisationData(optimizedLithoFractions, activeAndIncludedWells, activeLayer_);
-
   lithofractionVisualisation_->updateBirdsView(activeAndIncludedWells, optimizedLithoFractions);
 }
 

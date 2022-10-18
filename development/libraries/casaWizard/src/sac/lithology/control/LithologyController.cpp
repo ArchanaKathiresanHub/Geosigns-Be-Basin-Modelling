@@ -8,11 +8,14 @@
 
 #include "LithologyController.h"
 
+#include "wellPrepSACcontroller.h"
 #include "control/logDisplayController.h"
-#include "control/wellPrepSACcontroller.h"
+#include "control/mapsControllerLithology.h"
+#include "control/LithologyResultsController.h"
+
 #include "control/LithologyInputController.h"
 #include "control/LithologyResultsController.h"
-#include "control/mapsController.h"
+#include "control/mapsControllerLithology.h"
 #include "control/t2zController.h"
 
 #include "model/input/cmbProjectReader.h"
@@ -27,12 +30,12 @@ namespace lithology
 {
 
 LithologyController::LithologyController() :
-  SacController(),
+  MainController(),
   m_ui{},
   m_scenario{new CMBProjectReader()},
   m_wellPrepSACcontroller{new WellPrepSACcontroller{m_ui.wellPrepTab(), m_scenario, scriptRunController(), this}},
   m_inputController{new LithologyInputController{m_ui.inputTab(), m_scenario, scriptRunController(), this}},
-  m_mapsController{new MapsController{m_ui.mapsTab(), m_scenario, scriptRunController(), this}},
+  m_mapsController{new MapsControllerLithology{m_ui.mapsTab(), m_scenario, scriptRunController(), this}},
   m_t2zController{new T2Zcontroller{m_ui.t2zTab(), m_scenario, scriptRunController(), this}},
   m_resultsController{new LithologyResultsController{m_ui.resultsTab(), m_scenario, scriptRunController(), this}}
 {

@@ -7,7 +7,8 @@
 //
 
 #pragma once
-#include "control/SacController.h"
+
+#include "control/mainController.h"
 #include "model/ThermalScenario.h"
 #include "view/ThermalWindow.h"
 
@@ -23,11 +24,12 @@ namespace thermal
 class ThermalInputController;
 class ThermalResultsController;
 
-class ThermalController : public SacController
+class ThermalController : public MainController
 {
 public:
    ThermalController();
    virtual ~ThermalController() override = default;
+
    MainWindow& mainWindow() final;
    ThermalScenario& scenario() final;
 

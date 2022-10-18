@@ -9,6 +9,7 @@
 #include "ThermalController.h"
 
 #include "control/logDisplayController.h"
+#include "model/input/cmbProjectReader.h"
 #include "ThermalInputController.h"
 #include "ThermalResultsController.h"
 
@@ -24,7 +25,7 @@ namespace thermal
 {
 
 ThermalController::ThermalController() :
-   SacController(),
+   MainController(),
    m_ui{},
    m_scenario{new CMBProjectReader()},
    m_inputController{new ThermalInputController{m_ui.inputTab(), m_scenario, scriptRunController(), this}},
@@ -40,7 +41,7 @@ ThermalController::ThermalController() :
 
 MainWindow& ThermalController::mainWindow()
 {
-  return m_ui;
+   return m_ui;
 }
 
 ThermalScenario& ThermalController::scenario()

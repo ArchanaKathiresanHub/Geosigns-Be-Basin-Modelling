@@ -27,10 +27,11 @@ class MapsManager : public Writable
 {
 public:
    MapsManager();
+   virtual ~MapsManager() override = default;
 
-   void clear() override;
-   void readFromFile(const ScenarioReader &reader) override;
-   void writeToFile(ScenarioWriter &writer) const override;
+   virtual void clear() override;
+   virtual void readFromFile(const ScenarioReader &reader) override;
+   virtual void writeToFile(ScenarioWriter &writer) const override;
 
    int interpolationMethod() const;
    void setInterpolationMethod(int interpolationMethod);
@@ -44,19 +45,14 @@ public:
    int radiusSmoothing() const;
    void setRadiusSmoothing(int radiusSmoothing);
 
-   bool smartGridding() const;
-   void setSmartGridding(bool smartGridding);
-
-   void exportOptimizedLithofractionMapsToZycor(const ProjectReader& projectReader, MapReader& mapReader, const QString& targetPath);
-
    QVector<int> transformToActiveAndIncluded(const QVector<int>& selectedWellIndices, const QVector<int>& excludedWells);
+   virtual void exportOptimizedMapsToZycor(const ProjectReader& projectReader, MapReader& mapReader, const QString& targetPath) = 0;
 
 private:
    int m_interpolationMethod;
    int m_smoothingOption;
    int m_pIDW;
    int m_radiusSmoothing; //[m]
-   bool m_smartGridding;
 };
 
 } // namespace sac
