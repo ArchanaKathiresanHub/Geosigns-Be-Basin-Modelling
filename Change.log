@@ -13,7 +13,7 @@
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Version				Date of update
 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-Cauldron-v2.9.12		2022-10-18 08:50:01 +0000
+Cauldron-v2.9.13		2022-10-18 09:06:30 +0000
 =============================================================
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Third-party Software 		version
@@ -36,6 +36,17 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2022-10-18  Marnix.vandenBerg  <Marnix.vandenBerg@shell.com>
+
+	chg: usr: fix: Fix for failing simulations when base lithology value is outside of valid range.
+	 * Disabled the lithology percentage range check for most cases.
+
+	Related work items: #480400
+
+	================== COMMIT-END ========================
+	Commit-ID:<a729d669c20e1c752e3332dedb0239483a7a10d3>	  (tag: refs/tags/v2.9.13, refs/heads/master)
+
+++
 2022-10-18  Marnix.vandenBerg  <Marnix.vandenBerg@shell.com>
 
 	chg: usr: Refactor of SAC classes used in the maps tab.
