@@ -65,7 +65,7 @@ protected:
    void renameCaseFolders(const QString& pathName);
 
    void prepareOptimizationRun() const;
-   void prepareRun1D() const;
+   bool prepareRun1D() const;
 
    virtual SacInputTab* inputTab() = 0;
    virtual const SacInputTab* inputTab() const = 0;

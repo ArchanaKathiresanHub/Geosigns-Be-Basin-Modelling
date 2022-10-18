@@ -125,7 +125,10 @@ void SacInputController::slotExtractData()
 
 void SacInputController::slotRunOriginal1D()
 {
-   prepareRun1D();
+   if (!prepareRun1D())
+   {
+      return;
+   }
 
    const QString original1dDir{scenario().original1dDirectory()};
 
@@ -159,7 +162,7 @@ void SacInputController::slotRunOriginal1D()
    scenarioBackup::backup(scenario());
 }
 
-void SacInputController::prepareRun1D() const
+bool SacInputController::prepareRun1D() const
 {
    try
    {
@@ -175,7 +178,7 @@ void SacInputController::prepareRun1D() const
 
    if (workingDir.isEmpty())
    {
-      return;
+      return false;
    }
 
    QDir calDir(original1dDir);
@@ -193,11 +196,16 @@ void SacInputController::prepareRun1D() const
 
    Logger::log() << (filesCopied ? "Finished copying case to " + original1dDir :
                                    "Failed copying case, no files were copied") << Logger::endl();
+   if (!filesCopied)
+   {
+      return false;
+   }
 
    CMBProjectWriter projectWriter(original1dDir + "/" + scenario().project3dFilename());
    scenario().updateRelevantProperties(projectWriter);
 
    scenarioBackup::backup(scenario());
+   return true;
 }
 
 void SacInputController::slotPushButton1DOptimalizationClicked()
