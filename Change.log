@@ -13,7 +13,7 @@
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Version				Date of update
 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-Cauldron-v2.9.10		2022-10-17 15:13:47 +0000
+Cauldron-v2.9.11		2022-10-18 07:26:23 +0000
 =============================================================
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Third-party Software 		version
@@ -36,6 +36,15 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2022-10-18  Sven van Leeuwen  <Sven.van-Leeuwen@shell.com>
+
+	fix: usr: hotfix cancel original 1D run crash.
+	fixed an issue that caused the SAC wizards to crash when canceling an original 1D run.
+
+	================== COMMIT-END ========================
+	Commit-ID:<d2bb5ee7ad0787a9d84b241282f3a96a4480f376>	  (tag: refs/tags/v2.9.11, refs/heads/master, refs/heads/changelog)
+
+++
 2022-10-17  Subhra-Sankar.Kalita  <Subhra-Sankar.Kalita@shell.com>
 
 	chg: dev: Project3dAPI Nuget package can be published to the Artifacts from ADO Pipeline
