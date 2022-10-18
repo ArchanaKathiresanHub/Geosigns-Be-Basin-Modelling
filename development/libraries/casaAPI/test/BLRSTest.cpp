@@ -129,8 +129,8 @@ TEST_F( BLRSTest, VarySourceRockTOCDepOnSrourceRockTypeTest )
 {
    // constants for the test
    std::vector<std::string> srList = { "Type_I_CenoMesozoic_Lacustrine_kin"
-                                     , "Type_II_Mesozoic_MarineShale_kin"
-                                     , "Type_III_II_Mesozoic_HumicCoal_lit"
+                                       , "Type_II_Mesozoic_MarineShale_kin"
+                                       , "Type_III_II_Mesozoic_HumicCoal_lit"
                                      };
 
    std::vector<double> srWeights( 3, 0.33 );
@@ -248,8 +248,8 @@ TEST_F( BLRSTest, VarySourceRockHIDepOnSrourceRockTypeTest )
 {
    // constants for the test
    std::vector<std::string> srList { "Type_I_CenoMesozoic_Lacustrine_kin"
-                                   , "Type_II_Mesozoic_MarineShale_kin"
-                                   , "Type_III_II_Mesozoic_HumicCoal_lit"
+                                     , "Type_II_Mesozoic_MarineShale_kin"
+                                     , "Type_III_II_Mesozoic_HumicCoal_lit"
                                    };
 
    std::vector<double> srWeights( 3, 0.33 );
@@ -281,16 +281,16 @@ TEST_F( BLRSTest, VarySourceRockHIDepOnSrourceRockTypeTest )
       {
          // !!! check for the different name for the same layer/mixing ID for HI
          ASSERT_EQ( ErrorHandler::OutOfRangeValue, VarySourceRockHI( sc, "lowerJurHI2", layerName, 1, srList[i].c_str(),
-                                                                                         valRgs[i][0], valRgs[i][2],  pdft ) );
+                                                                     valRgs[i][0], valRgs[i][2],  pdft ) );
       }
       // set the parameter which depends on SourceRockType parameter
       ASSERT_EQ( ErrorHandler::NoError, VarySourceRockHI( sc, "lowerJurHI", layerName, 1, srList[i].c_str(), valRgs[i][0],
-                                                                             valRgs[i][2], pdft ) );
+                 valRgs[i][2], pdft ) );
    }
 
    // !!! add unexistent category - expecting some error
    ASSERT_EQ( ErrorHandler::UndefinedValue, VarySourceRockHI( sc, "lowerJurHI", layerName, 1,
-                                                "Type III MesoPaleozoic Vitrinitic Coals (Kinetics)", 84.0, 104.0, pdft ) );
+                                                              "Type III MesoPaleozoic Vitrinitic Coals (Kinetics)", 84.0, 104.0, pdft ) );
 
 
    // get varspace
@@ -363,8 +363,8 @@ TEST_F( BLRSTest, VarySourceRockHCDepOnSrourceRockTypeTest )
 {
    // constants for the test
    std::vector<std::string> srList = { "Type_I_CenoMesozoic_Lacustrine_kin"
-                                     , "Type_II_Mesozoic_MarineShale_kin"
-                                     , "Type_III_II_Mesozoic_HumicCoal_lit"
+                                       , "Type_II_Mesozoic_MarineShale_kin"
+                                       , "Type_III_II_Mesozoic_HumicCoal_lit"
                                      };
 
    std::vector<double> srWeights( 3, 0.33 );
@@ -396,16 +396,16 @@ TEST_F( BLRSTest, VarySourceRockHCDepOnSrourceRockTypeTest )
       {
          // !!! check for the different name for the same layer/mixing ID for H/C
          ASSERT_EQ( ErrorHandler::OutOfRangeValue, VarySourceRockHC( sc, "lowerJurHC2", layerName, 1, srList[i].c_str(),
-                                                                                         valRgs[i][0], valRgs[i][2],  pdft ) );
+                                                                     valRgs[i][0], valRgs[i][2],  pdft ) );
       }
       // set the parameter which depends on SourceRockType parameter
       ASSERT_EQ( ErrorHandler::NoError, VarySourceRockHC( sc, "lowerJurHC", layerName, 1, srList[i].c_str(), valRgs[i][0],
-                                                                             valRgs[i][2], pdft ) );
+                 valRgs[i][2], pdft ) );
    }
 
    // !!! add unexistent category - expecting some error
    ASSERT_EQ( ErrorHandler::UndefinedValue, VarySourceRockHC( sc, "lowerJurHC", layerName, 1,
-                                                "Type III MesoPaleozoic Vitrinitic Coals (Kinetics)", 0.751, 0.851, pdft ) );
+                                                              "Type III MesoPaleozoic Vitrinitic Coals (Kinetics)", 0.751, 0.851, pdft ) );
 
 
    // get varspace
@@ -478,8 +478,8 @@ TEST_F( BLRSTest, VarySourceRockPreAsphaltActEnergyDepOnSrourceRockTypeTest )
 {
    // constants for the test
    std::vector<std::string> srList = { "Type_I_CenoMesozoic_Lacustrine_kin"
-                                     , "Type_II_Mesozoic_MarineShale_kin"
-                                     , "Type_III_II_Mesozoic_HumicCoal_lit"
+                                       , "Type_II_Mesozoic_MarineShale_kin"
+                                       , "Type_III_II_Mesozoic_HumicCoal_lit"
                                      };
 
    std::vector<double> srWeights( 3, 0.33 );
@@ -511,16 +511,16 @@ TEST_F( BLRSTest, VarySourceRockPreAsphaltActEnergyDepOnSrourceRockTypeTest )
       {
          // !!! check for the different name for the same layer/mixing ID for TOC
          ASSERT_EQ( ErrorHandler::OutOfRangeValue, VarySourceRockPreAsphaltActEnergy( sc, "LowerJurActEn2", layerName, 1, srList[i].c_str(),
-                                                                                           valRgs[i][0], valRgs[i][2],  pdft ) );
+                                                                                      valRgs[i][0], valRgs[i][2],  pdft ) );
       }
       // set the parameter which depends on SourceRockType parameter
       ASSERT_EQ( ErrorHandler::NoError, VarySourceRockPreAsphaltActEnergy( sc, "LowerJurActEn", layerName, 1, srList[i].c_str(), valRgs[i][0],
-                                                                               valRgs[i][2], pdft ) );
+                 valRgs[i][2], pdft ) );
    }
 
    // !!! add unexistent category - expecting some error
    ASSERT_EQ( ErrorHandler::UndefinedValue, VarySourceRockPreAsphaltActEnergy( sc, "LowerJurActEn", layerName, 1,
-                                                "Type III MesoPaleozoic Vitrinitic Coals (Kinetics)", 205.0, 207.0, pdft ) );
+                                                                               "Type III MesoPaleozoic Vitrinitic Coals (Kinetics)", 205.0, 207.0, pdft ) );
 
 
    // get varspace
@@ -562,8 +562,8 @@ TEST_F( BLRSTest, VarySourceRockPreAsphaltActEnergyDepOnSrourceRockTypeTest )
 TEST_F( BLRSTest, VarySourceRockTypeTest )
 {
    std::vector<std::string> srList = { "Type_I_CenoMesozoic_Lacustrine_kin"
-                                     , "Type_II_Mesozoic_MarineShale_kin"
-                                     , "Type_III_II_Mesozoic_HumicCoal_lit"
+                                       , "Type_II_Mesozoic_MarineShale_kin"
+                                       , "Type_III_II_Mesozoic_HumicCoal_lit"
                                      };
 
    std::vector<double> srWeights( 3, 0.33 );
@@ -585,11 +585,11 @@ TEST_F( BLRSTest, VarySourceRockTypeTest )
       // set one of the Source Rock parameter
       switch( i )
       {
-         case 0: ASSERT_EQ( ErrorHandler::NoError, VarySourceRockTOC(    sc, 0, layerName, 1, 0, tocRng, vector<string>(),  pdft ) ); break;
-         case 1: ASSERT_EQ( ErrorHandler::NoError, VarySourceRockHI(                  sc, 0, layerName, 1, 0, 371.0, 571.0, pdft ) ); break;
-         case 2: ASSERT_EQ( ErrorHandler::NoError, VarySourceRockHC(                  sc, 0, layerName, 1, 0, 0.5,   1.75,  pdft ) ); break;
-         case 3: ASSERT_EQ( ErrorHandler::NoError, VarySourceRockPreAsphaltActEnergy( sc, 0, layerName, 1, 0, 208.0, 212.0, pdft ) ); break;
-         default: break;
+      case 0: ASSERT_EQ( ErrorHandler::NoError, VarySourceRockTOC(    sc, 0, layerName, 1, 0, tocRng, vector<string>(),  pdft ) ); break;
+      case 1: ASSERT_EQ( ErrorHandler::NoError, VarySourceRockHI(                  sc, 0, layerName, 1, 0, 371.0, 571.0, pdft ) ); break;
+      case 2: ASSERT_EQ( ErrorHandler::NoError, VarySourceRockHC(                  sc, 0, layerName, 1, 0, 0.5,   1.75,  pdft ) ); break;
+      case 3: ASSERT_EQ( ErrorHandler::NoError, VarySourceRockPreAsphaltActEnergy( sc, 0, layerName, 1, 0, 208.0, 212.0, pdft ) ); break;
+      default: break;
       }
       // expect a failure if any of source rock variable parameters are defined before source rock type variation
       ASSERT_EQ( ErrorHandler::AlreadyDefined, VarySourceRockType( sc, 0, layerName, 1, srList, srWeights ) );
@@ -682,37 +682,37 @@ TEST_F( BLRSTest, VarySurfacePorosity )
 
    // the first one - try to give range where base value is outside
    ASSERT_EQ( ErrorHandler::OutOfRangeValue, casa::BusinessLogicRulesSet::VarySurfacePorosity( sc, "SufrPorTest", layLst
-                                                                                    , std::vector<std::string>()
-                                                                                    , std::vector<std::pair<std::string,std::string> >()
-                                                                                    , "Std. Sandstone"
-                                                                                    , 50.0, 70.0
-                                                                                    , VarPrmContinuous::Block ) );
+                                                                                               , std::vector<std::string>()
+                                                                                               , std::vector<std::pair<std::string,std::string> >()
+                                                                                               , "Std. Sandstone"
+                                                                                               , 50.0, 70.0
+                                                                                               , VarPrmContinuous::Block ) );
    layLst[0].first = "Triassics"; //define wrong name for the layer
    // and expect another error
    ASSERT_EQ( ErrorHandler::NonexistingID, casa::BusinessLogicRulesSet::VarySurfacePorosity( sc, "SufrPorTest", layLst
-                                                                                 , std::vector<std::string>()
-                                                                                 , std::vector<std::pair<std::string,std::string> >()
-                                                                                 , "Std. Sandstone"
-                                                                                 , 40.0, 60.0
-                                                                                 , VarPrmContinuous::Block ) );
+                                                                                             , std::vector<std::string>()
+                                                                                             , std::vector<std::pair<std::string,std::string> >()
+                                                                                             , "Std. Sandstone"
+                                                                                             , 40.0, 60.0
+                                                                                             , VarPrmContinuous::Block ) );
    // define wrong mixing id
    layLst[0].first = "Triassic";
    layLst[0].second = 0;
    // and expect another error
    ASSERT_EQ( ErrorHandler::NonexistingID, casa::BusinessLogicRulesSet::VarySurfacePorosity( sc, "SufrPorTest", layLst
-                                                                                 , std::vector<std::string>()
-                                                                                 , std::vector<std::pair<std::string,std::string> >()
-                                                                                 , "Std. Sandstone"
-                                                                                 , 40.0, 60.0
-                                                                                 , VarPrmContinuous::Block ) );
+                                                                                             , std::vector<std::string>()
+                                                                                             , std::vector<std::pair<std::string,std::string> >()
+                                                                                             , "Std. Sandstone"
+                                                                                             , 40.0, 60.0
+                                                                                             , VarPrmContinuous::Block ) );
 
    layLst[0].second = 1;
    ASSERT_EQ( ErrorHandler::NoError, casa::BusinessLogicRulesSet::VarySurfacePorosity( sc, "SufrPorTest", layLst
-                                                                                     , std::vector<std::string>()
-                                                                                     , std::vector<std::pair<std::string,std::string> >()
-                                                                                     , "Std. Sandstone"
-                                                                                     , 40.0, 60.0
-                                                                                     , VarPrmContinuous::Block ) );
+                                                                                       , std::vector<std::string>()
+                                                                                       , std::vector<std::pair<std::string,std::string> >()
+                                                                                       , "Std. Sandstone"
+                                                                                       , 40.0, 60.0
+                                                                                       , VarPrmContinuous::Block ) );
 
    ASSERT_EQ( sc.baseCase().lithologyManager().lithologiesIDs().size() - numLithologies, 3U ); //one new lithology
 
@@ -780,19 +780,19 @@ TEST_F( BLRSTest, VarySurfacePorosity )
 
    // vary surface porosity
    ASSERT_EQ( ErrorHandler::NoError, casa::BusinessLogicRulesSet::VarySurfacePorosity( sc, "SoilMechanicsTest", layLst
-      , std::vector<std::string>( )
-      , std::vector<std::pair<std::string, std::string> >( )
-      , "SM.Mudstone.40%Clay"
-      , 50.0, 70.0
-      , VarPrmContinuous::Block ) );
+                                                                                       , std::vector<std::string>( )
+                                                                                       , std::vector<std::pair<std::string, std::string> >( )
+                                                                                       , "SM.Mudstone.40%Clay"
+                                                                                       , 50.0, 70.0
+                                                                                       , VarPrmContinuous::Block ) );
 
    // vary compaction coefficient, an error must be issued
    ASSERT_EQ( ErrorHandler::OutOfRangeValue, casa::BusinessLogicRulesSet::VaryCompactionCoefficient( sc, "SoilMechanicsTest", layLst
-      , std::vector<std::string>( )
-      , std::vector<std::pair<std::string, std::string> >( )
-      , "SM.Mudstone.40%Clay"
-      , 0.04,  0.7
-      , VarPrmContinuous::Block ) );
+                                                                                                     , std::vector<std::string>( )
+                                                                                                     , std::vector<std::pair<std::string, std::string> >( )
+                                                                                                     , "SM.Mudstone.40%Clay"
+                                                                                                     , 0.04,  0.7
+                                                                                                     , VarPrmContinuous::Block ) );
 
 }
 
@@ -813,38 +813,38 @@ TEST_F( BLRSTest, VaryCompactionCoefficient )
 
    // the first one - try to give range where base value is outside
    ASSERT_EQ( ErrorHandler::OutOfRangeValue, casa::BusinessLogicRulesSet::VaryCompactionCoefficient( sc, "CompCoefTest", layLst
-      , std::vector<std::string>( )
-      , std::vector<std::pair<std::string, std::string> >( )
-      , "Std. Sandstone"
-      , 5.0, 10.0
-      , VarPrmContinuous::Block ) );
+                                                                                                     , std::vector<std::string>( )
+                                                                                                     , std::vector<std::pair<std::string, std::string> >( )
+                                                                                                     , "Std. Sandstone"
+                                                                                                     , 5.0, 10.0
+                                                                                                     , VarPrmContinuous::Block ) );
 
    layLst[0].first = "Triassics"; //define wrong name for the layer
    // and expect another error
    ASSERT_EQ( ErrorHandler::NonexistingID, casa::BusinessLogicRulesSet::VaryCompactionCoefficient( sc, "CompCoefTest", layLst
-      , std::vector<std::string>( )
-      , std::vector<std::pair<std::string, std::string> >( )
-      , "Std. Sandstone"
-      , 1.0, 10.0
-      , VarPrmContinuous::Block ) );
+                                                                                                   , std::vector<std::string>( )
+                                                                                                   , std::vector<std::pair<std::string, std::string> >( )
+                                                                                                   , "Std. Sandstone"
+                                                                                                   , 1.0, 10.0
+                                                                                                   , VarPrmContinuous::Block ) );
    // define wrong mixing id
    layLst[0].first = "Triassic";
    layLst[0].second = 0;
    // and expect another error
    ASSERT_EQ( ErrorHandler::NonexistingID, casa::BusinessLogicRulesSet::VaryCompactionCoefficient( sc, "CompCoefTest", layLst
-      , std::vector<std::string>( )
-      , std::vector<std::pair<std::string, std::string> >( )
-      , "Std. Sandstone"
-      , 1.0, 10.0
-      , VarPrmContinuous::Block ) );
+                                                                                                   , std::vector<std::string>( )
+                                                                                                   , std::vector<std::pair<std::string, std::string> >( )
+                                                                                                   , "Std. Sandstone"
+                                                                                                   , 1.0, 10.0
+                                                                                                   , VarPrmContinuous::Block ) );
 
    layLst[0].second = 1;
    ASSERT_EQ( ErrorHandler::NoError, casa::BusinessLogicRulesSet::VaryCompactionCoefficient( sc, "CompCoefTest", layLst
-      , std::vector<std::string>( )
-      , std::vector<std::pair<std::string, std::string> >( )
-      , "Std. Sandstone"
-      , 1.0, 10.0
-      , VarPrmContinuous::Block ) );
+                                                                                             , std::vector<std::string>( )
+                                                                                             , std::vector<std::pair<std::string, std::string> >( )
+                                                                                             , "Std. Sandstone"
+                                                                                             , 1.0, 10.0
+                                                                                             , VarPrmContinuous::Block ) );
 
    ASSERT_EQ( sc.baseCase( ).lithologyManager( ).lithologiesIDs( ).size( ) - numLithologies, 3U ); //one new lithology
 
@@ -912,19 +912,19 @@ TEST_F( BLRSTest, VaryCompactionCoefficient )
 
    // vary compaction coefficient
    ASSERT_EQ( ErrorHandler::NoError, casa::BusinessLogicRulesSet::VaryCompactionCoefficient( sc, "SoilMechanicsTest", layLst
-      , std::vector<std::string>( )
-      , std::vector<std::pair<std::string, std::string> >( )
-      , "SM.Mudstone.40%Clay"
-      , 0.04, 0.70
-      , VarPrmContinuous::Block ) );
+                                                                                             , std::vector<std::string>( )
+                                                                                             , std::vector<std::pair<std::string, std::string> >( )
+                                                                                             , "SM.Mudstone.40%Clay"
+                                                                                             , 0.04, 0.70
+                                                                                             , VarPrmContinuous::Block ) );
 
    // vary surface porosity, an error must be issued
    ASSERT_EQ( ErrorHandler::OutOfRangeValue, casa::BusinessLogicRulesSet::VarySurfacePorosity( sc, "SoilMechanicsTest", layLst
-      , std::vector<std::string>( )
-      , std::vector<std::pair<std::string, std::string> >( )
-      , "SM.Mudstone.40%Clay"
-      , 50.0, 70.0
-      , VarPrmContinuous::Block ) );
+                                                                                               , std::vector<std::string>( )
+                                                                                               , std::vector<std::pair<std::string, std::string> >( )
+                                                                                               , "SM.Mudstone.40%Clay"
+                                                                                               , 50.0, 70.0
+                                                                                               , VarPrmContinuous::Block ) );
 
 }
 
@@ -953,11 +953,11 @@ TEST_F( BLRSTest, VaryCrustThinningNoMaps )
    // set the parameter
    ASSERT_EQ( ErrorHandler::NoError,
               casa::BusinessLogicRulesSet::VaryCrustThinning( sc, 0
-                                                                , 15000.0,        40000.0
-                                                                , minT0,          maxT0
-                                                                , minDeltaT,      maxDeltaT
-                                                                , minThinningFct, maxThinningFct
-                                                                , mapsList, VarPrmContinuous::Block ) );
+                                                              , 15000.0,        40000.0
+                                                              , minT0,          maxT0
+                                                              , minDeltaT,      maxDeltaT
+                                                              , minThinningFct, maxThinningFct
+                                                              , mapsList, VarPrmContinuous::Block ) );
    // get varspace
    casa::VarSpaceImpl & varPrms = dynamic_cast<casa::VarSpaceImpl&>( sc.varSpace( ) );
 
@@ -1003,28 +1003,28 @@ TEST_F( BLRSTest, VaryPorosityExponentialModelParameters )
 
    // the first one - try to give wrong porosity model name
    ASSERT_EQ( ErrorHandler::OutOfRangeValue, casa::BusinessLogicRulesSet::VaryPorosityModelParameters( sc, 0, "Permian", sandLithology
-               , "Eponential"
-               , 30.0, 60.0, 2.0, 4.0,
-               Utilities::Numerical::IbsNoDataValue, Utilities::Numerical::IbsNoDataValue,
-               Utilities::Numerical::IbsNoDataValue, Utilities::Numerical::IbsNoDataValue,
-               Utilities::Numerical::IbsNoDataValue, Utilities::Numerical::IbsNoDataValue,
-               VarPrmContinuous::Block
-               ) );
+                                                                                                       , "Eponential"
+                                                                                                       , 30.0, 60.0, 2.0, 4.0,
+                                                                                                       Utilities::Numerical::IbsNoDataValue, Utilities::Numerical::IbsNoDataValue,
+                                                                                                       Utilities::Numerical::IbsNoDataValue, Utilities::Numerical::IbsNoDataValue,
+                                                                                                       Utilities::Numerical::IbsNoDataValue, Utilities::Numerical::IbsNoDataValue,
+                                                                                                       VarPrmContinuous::Block
+                                                                                                       ) );
 
    // set the parameter
    ASSERT_EQ( ErrorHandler::NoError, casa::BusinessLogicRulesSet::VaryPorosityModelParameters(
-              sc
-            , 0
-            , "Permian"
-            , sandLithology
-            , "Exponential"
-            , 30.0, 60.0
-            , 2.0, 4.0
-            , Utilities::Numerical::IbsNoDataValue, Utilities::Numerical::IbsNoDataValue
-            , Utilities::Numerical::IbsNoDataValue, Utilities::Numerical::IbsNoDataValue
-            , Utilities::Numerical::IbsNoDataValue, Utilities::Numerical::IbsNoDataValue
-            , VarPrmContinuous::Block )
-            );
+                 sc
+                 , 0
+                 , "Permian"
+                 , sandLithology
+                 , "Exponential"
+                 , 30.0, 60.0
+                 , 2.0, 4.0
+                 , Utilities::Numerical::IbsNoDataValue, Utilities::Numerical::IbsNoDataValue
+                 , Utilities::Numerical::IbsNoDataValue, Utilities::Numerical::IbsNoDataValue
+                 , Utilities::Numerical::IbsNoDataValue, Utilities::Numerical::IbsNoDataValue
+                 , VarPrmContinuous::Block )
+              );
 
    // get varspace
    casa::VarSpaceImpl & varPrms = dynamic_cast<casa::VarSpaceImpl&>( sc.varSpace( ) );
@@ -1084,27 +1084,27 @@ TEST_F( BLRSTest, VaryPorositySoilMechanicsModelParameters )
 
    // the first one - try to define both parameters in inconsistent way
    ASSERT_EQ( ErrorHandler::OutOfRangeValue, casa::BusinessLogicRulesSet::VaryPorosityModelParameters( sc, 0, NULL, "Std. Sandstone"
-               , "Soil_Mechanics"
-               , 30.0, 60.0, 2.0, 4.0
-               , Utilities::Numerical::IbsNoDataValue, Utilities::Numerical::IbsNoDataValue
-               , Utilities::Numerical::IbsNoDataValue, Utilities::Numerical::IbsNoDataValue
-               , Utilities::Numerical::IbsNoDataValue, Utilities::Numerical::IbsNoDataValue, VarPrmContinuous::Block
-               ) );
+                                                                                                       , "Soil_Mechanics"
+                                                                                                       , 30.0, 60.0, 2.0, 4.0
+                                                                                                       , Utilities::Numerical::IbsNoDataValue, Utilities::Numerical::IbsNoDataValue
+                                                                                                       , Utilities::Numerical::IbsNoDataValue, Utilities::Numerical::IbsNoDataValue
+                                                                                                       , Utilities::Numerical::IbsNoDataValue, Utilities::Numerical::IbsNoDataValue, VarPrmContinuous::Block
+                                                                                                       ) );
 
    // set the parameter
    ASSERT_EQ( ErrorHandler::NoError, casa::BusinessLogicRulesSet::VaryPorosityModelParameters(
-              sc
-            , 0
-            , NULL
-            , "Std. Sandstone"
-            , "Soil_Mechanics"
-            , 30.0, 60.0
-            , Utilities::Numerical::IbsNoDataValue, Utilities::Numerical::IbsNoDataValue
-            , Utilities::Numerical::IbsNoDataValue, Utilities::Numerical::IbsNoDataValue
-            , Utilities::Numerical::IbsNoDataValue, Utilities::Numerical::IbsNoDataValue
-            , Utilities::Numerical::IbsNoDataValue, Utilities::Numerical::IbsNoDataValue
-            , VarPrmContinuous::Block )
-            );
+                 sc
+                 , 0
+                 , NULL
+                 , "Std. Sandstone"
+                 , "Soil_Mechanics"
+                 , 30.0, 60.0
+                 , Utilities::Numerical::IbsNoDataValue, Utilities::Numerical::IbsNoDataValue
+                 , Utilities::Numerical::IbsNoDataValue, Utilities::Numerical::IbsNoDataValue
+                 , Utilities::Numerical::IbsNoDataValue, Utilities::Numerical::IbsNoDataValue
+                 , Utilities::Numerical::IbsNoDataValue, Utilities::Numerical::IbsNoDataValue
+                 , VarPrmContinuous::Block )
+              );
 
    // get varspace
    casa::VarSpaceImpl & varPrms = dynamic_cast<casa::VarSpaceImpl&>( sc.varSpace( ) );
@@ -1143,18 +1143,18 @@ TEST_F( BLRSTest, VaryPorosityDoubleExponentialModelParameters )
 
    // set the parameter
    ASSERT_EQ( ErrorHandler::NoError, casa::BusinessLogicRulesSet::VaryPorosityModelParameters(
-              sc
-            , 0
-            , "Permian"
-            , "Std. Sandstone"
-            , "Double_Exponential"
-            , 30.0, 60.0  // surface porosity
-            , 2.0,  4.0   // compaction coeff. A
-            , 10,   20    // minimal porosity
-            , 3.0,  5.0   // compaction coeff. B
-            , 0.1, 0.3    // compaction ratio
-            , VarPrmContinuous::Block )
-            );
+                 sc
+                 , 0
+                 , "Permian"
+                 , "Std. Sandstone"
+                 , "Double_Exponential"
+                 , 30.0, 60.0  // surface porosity
+                 , 2.0,  4.0   // compaction coeff. A
+                 , 10,   20    // minimal porosity
+                 , 3.0,  5.0   // compaction coeff. B
+                 , 0.1, 0.3    // compaction ratio
+                 , VarPrmContinuous::Block )
+              );
 
    // get varspace
    casa::VarSpaceImpl & varPrms = dynamic_cast<casa::VarSpaceImpl&>( sc.varSpace( ) );
@@ -1174,7 +1174,7 @@ TEST_F( BLRSTest, VaryPorosityDoubleExponentialModelParameters )
    ASSERT_EQ( maxV.size(),  5U );
    ASSERT_EQ( baseV.size(), 5U );
 
-    // does it range have given min value
+   // does it range have given min value
    ASSERT_NEAR( minV[0], 30.0,  eps );
    ASSERT_NEAR( minV[1], 2.0,   eps );
    ASSERT_NEAR( minV[2], 10.0,  eps );
@@ -1246,24 +1246,24 @@ TEST_F( BLRSTest, VaryPermeabilityNoneModelParameters )
 
    // Try to set variation of None model - it has no any parameters and can't be varied
    ASSERT_EQ( ErrorHandler::OutOfRangeValue, casa::BusinessLogicRulesSet::VaryPermeabilityModelParameters( sc
-                                                                                                         , 0
-                                                                                                         , "Upper Jurassic"
-                                                                                                         , "Std. Shale"
-                                                                                                         , "None"
-                                                                                                         , minMdlPrms
-                                                                                                         , maxMdlPrms
-                                                                                                         , VarPrmContinuous::Block
-                                                                                                         ) );
+                                                                                                           , 0
+                                                                                                           , "Upper Jurassic"
+                                                                                                           , "Std. Shale"
+                                                                                                           , "None"
+                                                                                                           , minMdlPrms
+                                                                                                           , maxMdlPrms
+                                                                                                           , VarPrmContinuous::Block
+                                                                                                           ) );
    // Try to set variation of None model - it has no any parameters and can't be varied
    ASSERT_EQ( ErrorHandler::OutOfRangeValue, casa::BusinessLogicRulesSet::VaryPermeabilityModelParameters( sc
-                                                                                                         , 0
-                                                                                                         , "Upper Jurassic"
-                                                                                                         , "Std. Shale"
-                                                                                                         , "Impermeable"
-                                                                                                         , minMdlPrms
-                                                                                                         , maxMdlPrms
-                                                                                                         , VarPrmContinuous::Block
-                                                                                                         ) );
+                                                                                                           , 0
+                                                                                                           , "Upper Jurassic"
+                                                                                                           , "Std. Shale"
+                                                                                                           , "Impermeable"
+                                                                                                           , minMdlPrms
+                                                                                                           , maxMdlPrms
+                                                                                                           , VarPrmContinuous::Block
+                                                                                                           ) );
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -1289,26 +1289,26 @@ TEST_F( BLRSTest, VaryPermeabilitySandstoneModelParameters )
 
    // Try to set variation of Sandstone model with different number of input parameters
    ASSERT_EQ( ErrorHandler::UndefinedValue, casa::BusinessLogicRulesSet::VaryPermeabilityModelParameters( sc
-                                                                                                         , 0
-                                                                                                         , "Upper Jurassic"
-                                                                                                         , "Std. Sandstone"
-                                                                                                         , "Sandstone"
-                                                                                                         , minMdlPrms
-                                                                                                         , maxMdlPrms
-                                                                                                         , VarPrmContinuous::Block
-                                                                                                         ) );
+                                                                                                          , 0
+                                                                                                          , "Upper Jurassic"
+                                                                                                          , "Std. Sandstone"
+                                                                                                          , "Sandstone"
+                                                                                                          , minMdlPrms
+                                                                                                          , maxMdlPrms
+                                                                                                          , VarPrmContinuous::Block
+                                                                                                          ) );
    maxMdlPrms.push_back( 2.0 ); // add clay percentage prm
 
    // try to give wrong porosity model name
    ASSERT_EQ( ErrorHandler::OutOfRangeValue, casa::BusinessLogicRulesSet::VaryPermeabilityModelParameters( sc
-                                                                                                         , 0
-                                                                                                         , "Upper Jurassic"
-                                                                                                         , "Std. Sandstone"
-                                                                                                         , "Std. Sandstone"
-                                                                                                         , minMdlPrms
-                                                                                                         , maxMdlPrms
-                                                                                                         , VarPrmContinuous::Block
-                                                                                                         ) );
+                                                                                                           , 0
+                                                                                                           , "Upper Jurassic"
+                                                                                                           , "Std. Sandstone"
+                                                                                                           , "Std. Sandstone"
+                                                                                                           , minMdlPrms
+                                                                                                           , maxMdlPrms
+                                                                                                           , VarPrmContinuous::Block
+                                                                                                           ) );
    // try to give wrong layer name
    ASSERT_EQ( ErrorHandler::NonexistingID, casa::BusinessLogicRulesSet::VaryPermeabilityModelParameters( sc
                                                                                                          , 0
@@ -1340,14 +1340,14 @@ TEST_F( BLRSTest, VaryPermeabilitySandstoneModelParameters )
    maxMdlPrms[ PrmPermeabilityModel::RecoverCoeff ] = Utilities::Numerical::IbsNoDataValue;
 
    ASSERT_EQ( ErrorHandler::UndefinedValue, casa::BusinessLogicRulesSet::VaryPermeabilityModelParameters( sc
-                                                                                                        , 0
-                                                                                                        , "Upper Jurassic"
-                                                                                                        , "Std. Sandstone"
-                                                                                                        , "Shales"
-                                                                                                        , minMdlPrms
-                                                                                                        , maxMdlPrms
-                                                                                                        , VarPrmContinuous::Block
-                                                                                                        ) );
+                                                                                                          , 0
+                                                                                                          , "Upper Jurassic"
+                                                                                                          , "Std. Sandstone"
+                                                                                                          , "Shales"
+                                                                                                          , minMdlPrms
+                                                                                                          , maxMdlPrms
+                                                                                                          , VarPrmContinuous::Block
+                                                                                                          ) );
    minMdlPrms.resize( PrmPermeabilityModel::ClayPercentage + 1 );
    maxMdlPrms.resize( PrmPermeabilityModel::ClayPercentage + 1 );
 
@@ -1356,16 +1356,16 @@ TEST_F( BLRSTest, VaryPermeabilitySandstoneModelParameters )
 
    // set the parameters variation
    ASSERT_EQ( ErrorHandler::NoError, casa::BusinessLogicRulesSet::VaryPermeabilityModelParameters( sc
-                                                                                                 , 0
-                                                                                                 , "Upper Jurassic"
-                                                                                                 , "Std. Sandstone"
-                                                                                                 , "Sands"
-                                                                                                 , minMdlPrms
-                                                                                                 , maxMdlPrms
-                                                                                                 , VarPrmContinuous::Block
-                                                                                                 ) );
+                                                                                                   , 0
+                                                                                                   , "Upper Jurassic"
+                                                                                                   , "Std. Sandstone"
+                                                                                                   , "Sands"
+                                                                                                   , minMdlPrms
+                                                                                                   , maxMdlPrms
+                                                                                                   , VarPrmContinuous::Block
+                                                                                                   ) );
 
-  // get varspace
+   // get varspace
    casa::VarSpaceImpl & varPrms = dynamic_cast<casa::VarSpaceImpl&>( sc.varSpace() );
 
    // check how the parameter was set
@@ -1426,14 +1426,14 @@ TEST_F( BLRSTest, VaryPermeabilityMudstoneModelParameters )
 
    // set the parameters variation
    ASSERT_EQ( ErrorHandler::NoError, casa::BusinessLogicRulesSet::VaryPermeabilityModelParameters( sc
-                                                                                                 , 0
-                                                                                                 , "Mid Cretaceous"
-                                                                                                 , "Std. Chalk"
-                                                                                                 , "Shales"
-                                                                                                 , minMdlPrms
-                                                                                                 , maxMdlPrms
-                                                                                                 , VarPrmContinuous::Block
-                                                                                                 ) );
+                                                                                                   , 0
+                                                                                                   , "Mid Cretaceous"
+                                                                                                   , "Std. Chalk"
+                                                                                                   , "Shales"
+                                                                                                   , minMdlPrms
+                                                                                                   , maxMdlPrms
+                                                                                                   , VarPrmContinuous::Block
+                                                                                                   ) );
    // get varspace
    casa::VarSpaceImpl & varPrms = dynamic_cast<casa::VarSpaceImpl&>( sc.varSpace() );
 
@@ -1498,22 +1498,22 @@ TEST_F( BLRSTest, VaryPermeabilityMultipointModelParameters )
 
    // set the parameters variation, expecting an error here because Permian layer has Std. Sandstone lithology
    ASSERT_EQ( ErrorHandler::NonexistingID, casa::BusinessLogicRulesSet::VaryPermeabilityModelParameters( sc
-                                                                                                 , 0
-                                                                                                 , "Permian"
-                                                                                                 , "SM. Sandstone"
-                                                                                                 , "Multipoint"
-                                                                                                 , minMdlPrms
-                                                                                                 , maxMdlPrms
-                                                                                                 , VarPrmContinuous::Block ) );
+                                                                                                         , 0
+                                                                                                         , "Permian"
+                                                                                                         , "SM. Sandstone"
+                                                                                                         , "Multipoint"
+                                                                                                         , minMdlPrms
+                                                                                                         , maxMdlPrms
+                                                                                                         , VarPrmContinuous::Block ) );
    // no it should be smooth
    ASSERT_EQ( ErrorHandler::NoError, casa::BusinessLogicRulesSet::VaryPermeabilityModelParameters( sc
-                                                                                                 , 0
-                                                                                                 , "Permian"
-                                                                                                 , "Std. Sandstone"
-                                                                                                 , "Multipoint"
-                                                                                                 , minMdlPrms
-                                                                                                 , maxMdlPrms
-                                                                                                 , VarPrmContinuous::Block ) );
+                                                                                                   , 0
+                                                                                                   , "Permian"
+                                                                                                   , "Std. Sandstone"
+                                                                                                   , "Multipoint"
+                                                                                                   , minMdlPrms
+                                                                                                   , maxMdlPrms
+                                                                                                   , VarPrmContinuous::Block ) );
    // get varspace
    VarSpaceImpl & varPrms = dynamic_cast< VarSpaceImpl & >( sc.varSpace() );
 
@@ -1584,14 +1584,14 @@ TEST_F( BLRSTest, VaryPermeabilityMultipointModelParameters )
 
    // set the parameters variation
    ASSERT_EQ( ErrorHandler::NoError, casa::BusinessLogicRulesSet::VaryPermeabilityModelParameters( sc
-                                                                                                 , 0
-                                                                                                 , "Triassic"
-                                                                                                 , "Std. Shale"
-                                                                                                 , "Multipoint"
-                                                                                                 , minMdlPrms
-                                                                                                 , maxMdlPrms
-                                                                                                 , VarPrmContinuous::Block
-                                                                                                 ) );
+                                                                                                   , 0
+                                                                                                   , "Triassic"
+                                                                                                   , "Std. Shale"
+                                                                                                   , "Multipoint"
+                                                                                                   , minMdlPrms
+                                                                                                   , maxMdlPrms
+                                                                                                   , VarPrmContinuous::Block
+                                                                                                   ) );
    // check how the parameter was set
    ASSERT_EQ( varPrms.size(), 2U );
 
@@ -1655,51 +1655,51 @@ TEST_F( BLRSTest, VaryLithoFractionParameter )
 
    // expecting an error here due to layer Westphalian has only 2 fractions, ration must be fixed for 1
    ASSERT_EQ( ErrorHandler::OutOfRangeValue, casa::BusinessLogicRulesSet:: VaryLithoFraction( sc
-                                                                                            , "One"
-                                                                                            , "Westphalian"
-                                                                                            , litInd
-                                                                                            , minFrac
-                                                                                            , maxFrac
-                                                                                            , casa::VarPrmContinuous::Block
-                                                                                            )
-            );
+                                                                                              , "One"
+                                                                                              , "Westphalian"
+                                                                                              , litInd
+                                                                                              , minFrac
+                                                                                              , maxFrac
+                                                                                              , casa::VarPrmContinuous::Block
+                                                                                              )
+              );
    // fix ratio, must be [1:1] for the mix from 2 lithologies
    minFrac[1] = 1.0;
    maxFrac[1] = 1.0;
 
    // set wrong max value
    maxFrac[0] = 60.0;
-   // expecting an error here due to layer Westphalian fraction 1 in base case has 75% value
-   ASSERT_EQ( ErrorHandler::OutOfRangeValue, casa::BusinessLogicRulesSet:: VaryLithoFraction( sc
-                                                                                            , "One"
-                                                                                            , "Westphalian"
-                                                                                            , litInd
-                                                                                            , minFrac
-                                                                                            , maxFrac
-                                                                                            , casa::VarPrmContinuous::Block
-                                                                                            )
-            );
+   // Layer Westphalian fraction 1 in base case has 75% value. Expect no error as base values outside of the min/max range are allowed
+   ASSERT_EQ( ErrorHandler::NoError, casa::BusinessLogicRulesSet:: VaryLithoFraction( sc
+                                                                                      , "One"
+                                                                                      , "Westphalian"
+                                                                                      , litInd
+                                                                                      , minFrac
+                                                                                      , maxFrac
+                                                                                      , casa::VarPrmContinuous::Block
+                                                                                      )
+              );
 
    maxFrac[0] = 90.0;
 
    // Now it should be all OK
    ASSERT_EQ( ErrorHandler::NoError, casa::BusinessLogicRulesSet:: VaryLithoFraction( sc
-                                                                                    , "One"
-                                                                                    , "Westphalian"
-                                                                                    , litInd
-                                                                                    , minFrac
-                                                                                    , maxFrac
-                                                                                    , casa::VarPrmContinuous::Block
-                                                                                    )
-            );
+                                                                                      , "One"
+                                                                                      , "Westphalian"
+                                                                                      , litInd
+                                                                                      , minFrac
+                                                                                      , maxFrac
+                                                                                      , casa::VarPrmContinuous::Block
+                                                                                      )
+              );
 
    // get varspace
    VarSpaceImpl & varPrms = dynamic_cast< VarSpaceImpl & >( sc.varSpace() );
 
    // check how the parameter was set
-   ASSERT_EQ( varPrms.size(), 1U );
+   ASSERT_EQ( varPrms.size(), 2 );
 
-   const VarPrmLithoFraction * p1c = dynamic_cast<const VarPrmLithoFraction*>( varPrms.continuousParameter( 0 ) );
+   const VarPrmLithoFraction * p1c = dynamic_cast<const VarPrmLithoFraction*>( varPrms.continuousParameter( 1 ) );
    ASSERT_TRUE( p1c != NULL ); // do we have required the parameter in the list?
 
    const PrmLithoFraction * prmMin = dynamic_cast<const PrmLithoFraction *>( p1c->minValue().get()  );
