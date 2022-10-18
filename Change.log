@@ -13,7 +13,7 @@
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Version				Date of update
 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-Cauldron-v2.9.11		2022-10-18 07:26:23 +0000
+Cauldron-v2.9.12		2022-10-18 08:50:01 +0000
 =============================================================
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Third-party Software 		version
@@ -36,6 +36,18 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2022-10-18  Marnix.vandenBerg  <Marnix.vandenBerg@shell.com>
+
+	chg: usr: Refactor of SAC classes used in the maps tab.
+	 * Refactored classes used in SAC maps tab.
+	 * Added select all and deselect all buttons to maps tab wells table.
+
+	Related work items: #467016
+
+	================== COMMIT-END ========================
+	Commit-ID:<38fda58f1abda27332e385973dcce7c8d5ae2d46>	  (tag: refs/tags/v2.9.12, refs/heads/master)
+
+++
 2022-10-18  Sven van Leeuwen  <Sven.van-Leeuwen@shell.com>
 
 	fix: usr: hotfix cancel original 1D run crash.
