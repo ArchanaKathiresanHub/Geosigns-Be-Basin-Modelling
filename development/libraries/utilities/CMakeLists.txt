@@ -122,6 +122,13 @@ add_gtest( NAME "${LIB_NAME}::StringHandler"
    FOLDER "${BASE_FOLDER}/${LIB_NAME}")
 
 ######################
+# Undefined values tests
+add_gtest( NAME "${LIB_NAME}::UndefinedValues"
+   SOURCES test/UndefinedValuesTest.cpp
+   LIBRARIES ${LIB_NAME}
+   FOLDER "${BASE_FOLDER}/${LIB_NAME}")
+
+######################
 # MapExtensions tests
 add_gtest( NAME "${LIB_NAME}::MapExtensions"
    SOURCES test/MapExtensionsTest.cpp

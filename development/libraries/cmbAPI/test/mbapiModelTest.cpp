@@ -179,12 +179,12 @@ TEST_F(mbapiModelTest, SourceRockTOCSettings)
    for (size_t i = 0; i < sizeof(ltocOld) / sizeof(double); ++i)
    {  // find correct source rock type
       mbapi::StratigraphyManager::LayerID lid = stMgr.layerID(lNames[i]);
-      ASSERT_EQ(IsValueUndefined(lid), false);
+      ASSERT_EQ(Utilities::isValueUndefined(lid), false);
       const std::vector<std::string> & layerSourceRocks = stMgr.sourceRockTypeName(lid);
       ASSERT_EQ(layerSourceRocks.size(), (i == 0 ? 2U : 1U));
 
       mbapi::SourceRockManager::SourceRockID sid = srMgr.findID(lNames[i], layerSourceRocks.front());
-      ASSERT_EQ(IsValueUndefined(sid), false);
+      ASSERT_EQ(Utilities::isValueUndefined(sid), false);
 
       // check what was set before
       double tocInFile = srMgr.tocIni(sid);
@@ -210,13 +210,13 @@ TEST_F(mbapiModelTest, SourceRockTOCSettings)
    {
       // find correct source rock type
       mbapi::StratigraphyManager::LayerID lid = stModMgr.layerID(lNames[i]);
-      ASSERT_EQ(IsValueUndefined(lid), false);
+      ASSERT_EQ(Utilities::isValueUndefined(lid), false);
 
       const std::vector<std::string> & layerSourceRocks = stModMgr.sourceRockTypeName(lid);
       ASSERT_EQ(layerSourceRocks.size(), (i == 0 ? 2U : 1U));
 
       mbapi::SourceRockManager::SourceRockID sid = srModMgr.findID(lNames[i], layerSourceRocks.front());
-      ASSERT_EQ(IsValueUndefined(sid), false);
+      ASSERT_EQ(Utilities::isValueUndefined(sid), false);
 
       // check if the new values are set
       double tocInFile = srModMgr.tocIni(sid);
@@ -244,7 +244,7 @@ TEST_F(mbapiModelTest, SourceRockHI_HCSettings)
    for (size_t i = 0; i < 2; ++i)
    {  // find correct source rock type
       mbapi::StratigraphyManager::LayerID lid = stMgr.layerID(lNames[i]);
-      ASSERT_EQ(IsValueUndefined(lid), false);
+      ASSERT_EQ(Utilities::isValueUndefined(lid), false);
 
       // source rock must be active
       ASSERT_EQ(stMgr.isSourceRockActive(lid), true);
@@ -254,7 +254,7 @@ TEST_F(mbapiModelTest, SourceRockHI_HCSettings)
 
       // and find it id
       mbapi::SourceRockManager::SourceRockID sid = srMgr.findID(lNames[i], layerSourceRocks.front());
-      ASSERT_EQ(IsValueUndefined(sid), false);
+      ASSERT_EQ(Utilities::isValueUndefined(sid), false);
 
       double hiSR = srMgr.hiIni(sid);
       double hcSR = srMgr.hcIni(sid);
@@ -269,7 +269,7 @@ TEST_F(mbapiModelTest, SourceRockHI_HCSettings)
          ASSERT_NEAR(stMgr.sourceRockMixHI(lid), 700.0, eps);
 
          mbapi::SourceRockManager::SourceRockID sid2 = srMgr.findID(lNames[i], layerSourceRocks.back());
-         ASSERT_EQ(IsValueUndefined(sid2), false);
+         ASSERT_EQ(Utilities::isValueUndefined(sid2), false);
 
          double hiSR2 = srMgr.hiIni(sid2);
          double hcSR2 = srMgr.hcIni(sid2);
@@ -339,12 +339,12 @@ TEST_F(mbapiModelTest, SourceRockPreAsphActEnergySettings)
    for (size_t i = 0; i < sizeof(lvalOld) / sizeof(double); ++i)
    {  // find correct source rock type
       mbapi::StratigraphyManager::LayerID lid = stMgr.layerID(lNames[i]);
-      ASSERT_EQ(IsValueUndefined(lid), false);
+      ASSERT_EQ(Utilities::isValueUndefined(lid), false);
       const std::vector<std::string> & layerSourceRocks = stMgr.sourceRockTypeName(lid);
       ASSERT_EQ(layerSourceRocks.size(), (i == 0 ? 2U : 1U));
 
       mbapi::SourceRockManager::SourceRockID sid = srMgr.findID(lNames[i], layerSourceRocks.front());
-      ASSERT_EQ(IsValueUndefined(sid), false);
+      ASSERT_EQ(Utilities::isValueUndefined(sid), false);
 
       // check what was set before
       double valInFile = srMgr.preAsphActEnergy(sid);
@@ -370,13 +370,13 @@ TEST_F(mbapiModelTest, SourceRockPreAsphActEnergySettings)
    {
       // find correct source rock type
       mbapi::StratigraphyManager::LayerID lid = stModMgr.layerID(lNames[i]);
-      ASSERT_EQ(IsValueUndefined(lid), false);
+      ASSERT_EQ(Utilities::isValueUndefined(lid), false);
 
       const std::vector<std::string> & layerSourceRocks = stModMgr.sourceRockTypeName(lid);
       ASSERT_EQ(layerSourceRocks.size(), (i == 0 ? 2U : 1U));
 
       mbapi::SourceRockManager::SourceRockID sid = srModMgr.findID(lNames[i], layerSourceRocks.front());
-      ASSERT_EQ(IsValueUndefined(sid), false);
+      ASSERT_EQ(Utilities::isValueUndefined(sid), false);
 
       // check if the new values are set
       double valInFile = srModMgr.preAsphActEnergy(sid);
@@ -398,10 +398,10 @@ TEST_F(mbapiModelTest, CopyLithologyTest)
    mbapi::LithologyManager & lthMgr = testModel.lithologyManager();
 
    mbapi::LithologyManager::LithologyID lid = lthMgr.findID("Std. Sandstone");
-   ASSERT_FALSE(IsValueUndefined(lid));
+   ASSERT_FALSE(Utilities::isValueUndefined(lid));
 
    // first try to copy to existent lithology
-   ASSERT_TRUE(IsValueUndefined(lthMgr.copyLithology(lid, "Crust")));
+   ASSERT_TRUE(Utilities::isValueUndefined(lthMgr.copyLithology(lid, "Crust")));
    ASSERT_EQ(lthMgr.errorCode(), ErrorHandler::AlreadyDefined);
    lthMgr.resetError();
 
@@ -409,7 +409,7 @@ TEST_F(mbapiModelTest, CopyLithologyTest)
 
    mbapi::LithologyManager::LithologyID newLID = lthMgr.copyLithology(lid, "Std. Sandstone COPY");
 
-   ASSERT_FALSE(IsValueUndefined(newLID));
+   ASSERT_FALSE(Utilities::isValueUndefined(newLID));
    const std::string & newName = lthMgr.lithologyName(newLID);
    ASSERT_TRUE(newName == "Std. Sandstone COPY");
    ASSERT_EQ(lithNum + 1, lthMgr.lithologiesIDs().size());
@@ -427,9 +427,9 @@ TEST_F(mbapiModelTest, DeleteLithologyTest)
 
    // First create a copy of lithology
    mbapi::LithologyManager::LithologyID lid = lthMgr.findID("Std. Sandstone");
-   ASSERT_FALSE(IsValueUndefined(lid));
+   ASSERT_FALSE(Utilities::isValueUndefined(lid));
    mbapi::LithologyManager::LithologyID newLID = lthMgr.copyLithology(lid, "Std. Sandstone COPY");
-   ASSERT_FALSE(IsValueUndefined(newLID));
+   ASSERT_FALSE(Utilities::isValueUndefined(newLID));
 
    // then try to delete lithology which has references. Expecting ValidationError on this.
    ASSERT_EQ(ErrorHandler::ValidationError, lthMgr.deleteLithology(lid));
@@ -438,7 +438,7 @@ TEST_F(mbapiModelTest, DeleteLithologyTest)
    ASSERT_EQ(ErrorHandler::NoError, lthMgr.deleteLithology(newLID));
 
    newLID = lthMgr.findID("Std. Sandstone COPY");
-   ASSERT_TRUE(IsValueUndefined(newLID));
+   ASSERT_TRUE(Utilities::isValueUndefined(newLID));
 }
 
 TEST_F(mbapiModelTest, DeleteDuplicatedLithologyTest)
@@ -473,7 +473,7 @@ TEST_F(mbapiModelTest, GetPermeabilityModelParametersTest)
 
    // Check Sands permeability
    mbapi::LithologyManager::LithologyID lid = lthMgr.findID("Std. Sandstone");
-   ASSERT_FALSE(IsValueUndefined(lid));
+   ASSERT_FALSE(Utilities::isValueUndefined(lid));
 
    mbapi::LithologyManager::PermeabilityModel permModel;
    std::vector<double> modelPrms;
@@ -491,7 +491,7 @@ TEST_F(mbapiModelTest, GetPermeabilityModelParametersTest)
 
    // Check Shales permeability
    lid = lthMgr.findID("Std. Shale");
-   ASSERT_FALSE(IsValueUndefined(lid));
+   ASSERT_FALSE(Utilities::isValueUndefined(lid));
 
    ASSERT_EQ(ErrorHandler::NoError, lthMgr.permeabilityModel(lid, permModel, modelPrms, mpPor, mpPerm));
    ASSERT_EQ(permModel, mbapi::LithologyManager::PermMudstone);
@@ -505,7 +505,7 @@ TEST_F(mbapiModelTest, GetPermeabilityModelParametersTest)
 
    // Check Nones permeability
    lid = lthMgr.findID("Crust");
-   ASSERT_FALSE(IsValueUndefined(lid));
+   ASSERT_FALSE(Utilities::isValueUndefined(lid));
 
    ASSERT_EQ(ErrorHandler::NoError, lthMgr.permeabilityModel(lid, permModel, modelPrms, mpPor, mpPerm));
    ASSERT_EQ(permModel, mbapi::LithologyManager::PermNone);
@@ -515,7 +515,7 @@ TEST_F(mbapiModelTest, GetPermeabilityModelParametersTest)
 
    // Check Impermeable permeability
    lid = lthMgr.findID("Standard Ice");
-   ASSERT_FALSE(IsValueUndefined(lid));
+   ASSERT_FALSE(Utilities::isValueUndefined(lid));
 
    ASSERT_EQ(ErrorHandler::NoError, lthMgr.permeabilityModel(lid, permModel, modelPrms, mpPor, mpPerm));
    ASSERT_EQ(permModel, mbapi::LithologyManager::PermImpermeable);
@@ -525,7 +525,7 @@ TEST_F(mbapiModelTest, GetPermeabilityModelParametersTest)
 
    // Check Multipoint permeability
    lid = lthMgr.findID("SM. Sandstone");
-   ASSERT_FALSE(IsValueUndefined(lid));
+   ASSERT_FALSE(Utilities::isValueUndefined(lid));
 
    ASSERT_EQ(ErrorHandler::NoError, lthMgr.permeabilityModel(lid, permModel, modelPrms, mpPor, mpPerm));
    ASSERT_EQ(permModel, mbapi::LithologyManager::PermMultipoint);
@@ -550,7 +550,7 @@ TEST_F(mbapiModelTest, GetPermeabilityModelTest)
 
    // Check Sands permeability
    mbapi::LithologyManager::LithologyID lid = lthMgr.findID("Std. Sandstone");
-   ASSERT_FALSE(IsValueUndefined(lid));
+   ASSERT_FALSE(Utilities::isValueUndefined(lid));
 
    mbapi::LithologyManager::PermeabilityModel permModel;
    std::vector<double> mpPor;
@@ -565,7 +565,7 @@ TEST_F(mbapiModelTest, GetPermeabilityModelTest)
 
    // Check Shales permeability
    lid = lthMgr.findID("Std. Shale");
-   ASSERT_FALSE(IsValueUndefined(lid));
+   ASSERT_FALSE(Utilities::isValueUndefined(lid));
 
    ASSERT_EQ(ErrorHandler::NoError, lthMgr.getPermeabilityModel(lid, permModel, mpPor, mpPerm, numPts));
    ASSERT_EQ(permModel, mbapi::LithologyManager::PermMudstone);
@@ -575,7 +575,7 @@ TEST_F(mbapiModelTest, GetPermeabilityModelTest)
 
    // Check Nones permeability
    lid = lthMgr.findID("Crust");
-   ASSERT_FALSE(IsValueUndefined(lid));
+   ASSERT_FALSE(Utilities::isValueUndefined(lid));
 
    ASSERT_EQ(ErrorHandler::NoError, lthMgr.getPermeabilityModel(lid, permModel, mpPor, mpPerm, numPts));
    ASSERT_EQ(permModel, mbapi::LithologyManager::PermNone);
@@ -585,7 +585,7 @@ TEST_F(mbapiModelTest, GetPermeabilityModelTest)
 
    // Check Multipoint permeability
    lid = lthMgr.findID("SM. Sandstone");
-   ASSERT_FALSE(IsValueUndefined(lid));
+   ASSERT_FALSE(Utilities::isValueUndefined(lid));
 
    ASSERT_EQ(ErrorHandler::NoError, lthMgr.getPermeabilityModel(lid, permModel, mpPor, mpPerm, numPts));
    ASSERT_EQ(permModel, mbapi::LithologyManager::PermMultipoint);
@@ -611,7 +611,7 @@ TEST_F(mbapiModelTest, SetPermeabilityModelTest)
 
    // Check Sands permeability
    mbapi::LithologyManager::LithologyID lid = lthMgr.findID("Std. Sandstone");
-   ASSERT_FALSE(IsValueUndefined(lid));
+   ASSERT_FALSE(Utilities::isValueUndefined(lid));
    mbapi::LithologyManager::PermeabilityModel permModel = mbapi::LithologyManager::PermSandstone;
    mpPor.resize(numPts);
    mpPerm.resize(numPts);
@@ -637,7 +637,7 @@ TEST_F(mbapiModelTest, SetPermeabilityModelParametersTest)
 
    // Check Sands permeability
    mbapi::LithologyManager::LithologyID lid = lthMgr.findID("Crust");
-   ASSERT_FALSE(IsValueUndefined(lid));
+   ASSERT_FALSE(Utilities::isValueUndefined(lid));
 
    // change model from None to Impermeable
    mbapi::LithologyManager::PermeabilityModel permModel = mbapi::LithologyManager::PermImpermeable;
@@ -649,14 +649,14 @@ TEST_F(mbapiModelTest, SetPermeabilityModelParametersTest)
 
    // change from Impermeable to None
    lid = lthMgr.findID("Standard Ice");
-   ASSERT_FALSE(IsValueUndefined(lid));
+   ASSERT_FALSE(Utilities::isValueUndefined(lid));
 
    permModel = mbapi::LithologyManager::PermNone;
    ASSERT_EQ(ErrorHandler::NoError, lthMgr.setPermeabilityModel(lid, permModel, modelPrms, mpPor, mpPerm));
 
    // change a bit coeff for Mudstone
    lid = lthMgr.findID("Std. Shale");
-   ASSERT_FALSE(IsValueUndefined(lid));
+   ASSERT_FALSE(Utilities::isValueUndefined(lid));
 
    permModel = mbapi::LithologyManager::PermMudstone;
    modelPrms.push_back(1.0);  // anisothropic coeff
@@ -668,7 +668,7 @@ TEST_F(mbapiModelTest, SetPermeabilityModelParametersTest)
 
    // change Sandstone permeability
    lid = lthMgr.findID("Std. Sandstone");
-   ASSERT_FALSE(IsValueUndefined(lid));
+   ASSERT_FALSE(Utilities::isValueUndefined(lid));
 
    permModel = mbapi::LithologyManager::PermSandstone;
    modelPrms.resize(1);
@@ -679,7 +679,7 @@ TEST_F(mbapiModelTest, SetPermeabilityModelParametersTest)
 
    // change Multipoint permeability
    lid = lthMgr.findID("SM. Sandstone");
-   ASSERT_FALSE(IsValueUndefined(lid));
+   ASSERT_FALSE(Utilities::isValueUndefined(lid));
    permModel = mbapi::LithologyManager::PermMultipoint;
 
    modelPrms.resize(1);
@@ -707,7 +707,7 @@ TEST_F(mbapiModelTest, SetPermeabilityModelParametersTest)
    ASSERT_EQ(ErrorHandler::NoError, testModel.loadModelFromProjectFile(newProjName.c_str()));
 
    lid = lthMgr.findID("Crust");
-   ASSERT_FALSE(IsValueUndefined(lid));
+   ASSERT_FALSE(Utilities::isValueUndefined(lid));
 
    ASSERT_EQ(ErrorHandler::NoError, lthMgr.permeabilityModel(lid, permModel, modelPrms, mpPor, mpPerm));
    ASSERT_EQ(permModel, mbapi::LithologyManager::PermImpermeable);
@@ -716,7 +716,7 @@ TEST_F(mbapiModelTest, SetPermeabilityModelParametersTest)
    ASSERT_EQ(mpPerm.size(), 0U);
 
    lid = lthMgr.findID("Standard Ice");
-   ASSERT_FALSE(IsValueUndefined(lid));
+   ASSERT_FALSE(Utilities::isValueUndefined(lid));
 
    ASSERT_EQ(ErrorHandler::NoError, lthMgr.permeabilityModel(lid, permModel, modelPrms, mpPor, mpPerm));
    ASSERT_EQ(permModel, mbapi::LithologyManager::PermNone);
@@ -725,7 +725,7 @@ TEST_F(mbapiModelTest, SetPermeabilityModelParametersTest)
    ASSERT_EQ(mpPerm.size(), 0U);
 
    lid = lthMgr.findID("Std. Shale");
-   ASSERT_FALSE(IsValueUndefined(lid));
+   ASSERT_FALSE(Utilities::isValueUndefined(lid));
 
    ASSERT_EQ(ErrorHandler::NoError, lthMgr.permeabilityModel(lid, permModel, modelPrms, mpPor, mpPerm));
    ASSERT_EQ(permModel, mbapi::LithologyManager::PermMudstone);
@@ -738,7 +738,7 @@ TEST_F(mbapiModelTest, SetPermeabilityModelParametersTest)
    ASSERT_NEAR(modelPrms[3], 0.02, eps);
 
    lid = lthMgr.findID("Std. Sandstone");
-   ASSERT_FALSE(IsValueUndefined(lid));
+   ASSERT_FALSE(Utilities::isValueUndefined(lid));
 
    ASSERT_EQ(ErrorHandler::NoError, lthMgr.permeabilityModel(lid, permModel, modelPrms, mpPor, mpPerm));
    ASSERT_EQ(permModel, mbapi::LithologyManager::PermSandstone);
@@ -751,7 +751,7 @@ TEST_F(mbapiModelTest, SetPermeabilityModelParametersTest)
 
    // Check Multipoint permeability
    lid = lthMgr.findID("SM. Sandstone");
-   ASSERT_FALSE(IsValueUndefined(lid));
+   ASSERT_FALSE(Utilities::isValueUndefined(lid));
 
    ASSERT_EQ(ErrorHandler::NoError, lthMgr.permeabilityModel(lid, permModel, modelPrms, mpPor, mpPerm));
    ASSERT_EQ(permModel, mbapi::LithologyManager::PermMultipoint);
@@ -779,7 +779,7 @@ TEST_F(mbapiModelTest, PorosityModelParametersTest)
 
    // Check get Exponential porosity model
    mbapi::LithologyManager::LithologyID lid1 = lthMgr.findID("Std. Sandstone");
-   ASSERT_FALSE(IsValueUndefined(lid1));
+   ASSERT_FALSE(Utilities::isValueUndefined(lid1));
 
    mbapi::LithologyManager::PorosityModel porModel1;
    std::vector<double> modelPrms1;
@@ -793,7 +793,7 @@ TEST_F(mbapiModelTest, PorosityModelParametersTest)
 
    // Check get Soil mechanics porosity model
    mbapi::LithologyManager::LithologyID lid2 = lthMgr.findID("SM.Mudst.40%Clay");
-   ASSERT_FALSE(IsValueUndefined(lid2));
+   ASSERT_FALSE(Utilities::isValueUndefined(lid2));
 
    mbapi::LithologyManager::PorosityModel porModel2;
    std::vector<double> modelPrms2;
@@ -1089,11 +1089,11 @@ TEST_F(mbapiModelTest, MapsManagerNNInterpolation)
 
       // first map, produce the map and update GridmapIoTbl
       mbapi::MapsManager::MapID id = mapsMgr.generateMap("StratIoTbl", correctFirstLithoFractionMap, lf1CorrInt, mapSeqNbr, masterResults.path());
-      ASSERT_FALSE(IsValueUndefined(id));
+      ASSERT_FALSE(Utilities::isValueUndefined(id));
 
       // second map, produce the map and update GridmapIoTbl
       id = mapsMgr.generateMap("StratIoTbl", correctSecondLithoFractionMap, lf2CorrInt, mapSeqNbr, masterResults.path());
-      ASSERT_FALSE(IsValueUndefined(id));
+      ASSERT_FALSE(Utilities::isValueUndefined(id));
       std::string firstReplacedMap, secondReplacedMap;
       ASSERT_EQ(ErrorHandler::NoError, strMgr.setLayerLithologiesPercentageMaps(lid, correctFirstLithoFractionMap, correctSecondLithoFractionMap, firstReplacedMap, secondReplacedMap));
 

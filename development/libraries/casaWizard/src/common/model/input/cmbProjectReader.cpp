@@ -130,7 +130,7 @@ bool CMBProjectReader::hasDepthDefinedInAllLayers() const
   mbapi::StratigraphyManager& stratigraphyManager = cmbModel_->stratigraphyManager();
   for (const mbapi::StratigraphyManager::LayerID id : stratigraphyManager.layersIDs() )
   {
-    if (stratigraphyManager.depthGridName(id).empty() && IsValueUndefined(stratigraphyManager.depthScalarValue(id)))
+    if (stratigraphyManager.depthGridName(id).empty() && Utilities::isValueUndefined(stratigraphyManager.depthScalarValue(id)))
     {
       return false;
     }
@@ -274,7 +274,7 @@ QVector<double> CMBProjectReader::lithologyValuesForLayerAtLocation(const int la
   stratigraphyManager.layerLithologiesList(layerIndex, lithoNames, lithoPercent, lithoPercMap);
   for (int i = 0; i<2; ++i)
   {
-    if (!IsValueUndefined(lithoPercent[i]))
+    if (!Utilities::isValueUndefined(lithoPercent[i]))
     {
       values.push_back(lithoPercent[i]);
     }

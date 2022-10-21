@@ -24,6 +24,7 @@
 
 //utilities library
 #include "LogHandler.h"
+#include "Utilities.h"
 
 namespace fastDepthConversion
 {
@@ -170,7 +171,7 @@ void FastDepthConversion::setDepthAndTwtMapsForNextSurfaceInTables(std::string &
   if (!(generated_Twt && !m_noCalculatedTWToutput)) { return; }
 
   mapsSequenceNbr = Utilities::Numerical::NoDataIDValue;
-  if(IsValueUndefined(m_fdcProjectManager.generateMapInTwoWayTimeIoTbl(m_fdcVectorFieldProperties.tarTwts(), mapsSequenceNbr, m_caseStorageManager.resultsMapFileName())))
+  if(Utilities::isValueUndefined(m_fdcProjectManager.generateMapInTwoWayTimeIoTbl(m_fdcVectorFieldProperties.tarTwts(), mapsSequenceNbr, m_caseStorageManager.resultsMapFileName())))
   { throw T2Zexception() << " Cannot generate the twt map for the surface " << nextSurface; }
   m_fdcMapFieldProperties.setAddedTwtmapsequenceNbr(mapsSequenceNbr);
 }

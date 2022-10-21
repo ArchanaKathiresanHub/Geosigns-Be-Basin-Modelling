@@ -374,7 +374,7 @@ ErrorHandler::ReturnCode SourceRockManagerImpl::setTOCIni( SourceRockID id, doub
 
    try
    {
-      if ( (newTOC < 0.0 || newTOC > 100.0 ) && !IsValueUndefined( newTOC ) )
+      if ( (newTOC < 0.0 || newTOC > 100.0 ) && !Utilities::isValueUndefined( newTOC ) )
       {
          throw Exception( OutOfRangeValue ) << "TOC value must be in range [0:100] but given is: " << newTOC;
       }

@@ -79,8 +79,8 @@ namespace casa
 
    void TornadoSensitivityInfo::addSensitivity( double minV, double maxV, const VarParameter * prm, size_t prmSubID )
    {
-      if ( !IsValueUndefined( minV ) ) { minV -= m_refObsValue; }
-      if ( !IsValueUndefined( maxV ) ) { maxV -= m_refObsValue; }
+      if ( !Utilities::isValueUndefined( minV ) ) { minV -= m_refObsValue; }
+      if ( !Utilities::isValueUndefined( maxV ) ) { maxV -= m_refObsValue; }
 
       if ( prm->variationType() == VarParameter::Continuous )
       {
@@ -112,8 +112,8 @@ namespace casa
 
       const VarParameter * vprm = m_vprmPtr.back().first;
 
-      if ( !IsValueUndefined( minVal ) ) { minVal -= m_refObsValue; }
-      if ( !IsValueUndefined( maxVal ) ) { maxVal -= m_refObsValue; }
+      if ( !Utilities::isValueUndefined( minVal ) ) { minVal -= m_refObsValue; }
+      if ( !Utilities::isValueUndefined( maxVal ) ) { maxVal -= m_refObsValue; }
 
       if ( vprm->variationType() == VarParameter::Continuous )
       {
@@ -147,7 +147,7 @@ namespace casa
 
       for ( size_t i = 0; i < allPrmVals.size(); ++i )
       {
-         if ( !IsValueUndefined( allObsVals[i] ) )
+         if ( !Utilities::isValueUndefined( allObsVals[i] ) )
          {
             if ( rngBeg == allPrmVals.size() ) { rngBeg = i; }
             else                               { rngEnd = i; }
@@ -187,8 +187,8 @@ namespace casa
       // first accumulate sensitivities
       for ( size_t i = 0; i < m_sensitivities.size(); ++i ) // min/max on boundaries of IP range
       {
-         double smin = IsValueUndefined( m_sensitivities[i].front() ) ? 0.0 : m_sensitivities[i].front();
-         double smax = IsValueUndefined( m_sensitivities[i].back()  ) ? 0.0 : m_sensitivities[i].back();
+         double smin = Utilities::isValueUndefined( m_sensitivities[i].front() ) ? 0.0 : m_sensitivities[i].front();
+         double smax = Utilities::isValueUndefined( m_sensitivities[i].back()  ) ? 0.0 : m_sensitivities[i].back();
          switch ( m_vprmPtr[i].first->variationType() )
          {
             case VarParameter::Continuous:
@@ -203,8 +203,8 @@ namespace casa
 
       for ( size_t i = 0; i < m_maxSensitivities.size(); ++i ) // min/max inside IP range
       {
-         double smin = IsValueUndefined( m_maxSensitivities[i].front() ) ? 0.0 : m_maxSensitivities[i].front();
-         double smax = IsValueUndefined( m_maxSensitivities[i].back()  ) ? 0.0 : m_maxSensitivities[i].back();
+         double smin = Utilities::isValueUndefined( m_maxSensitivities[i].front() ) ? 0.0 : m_maxSensitivities[i].front();
+         double smax = Utilities::isValueUndefined( m_maxSensitivities[i].back()  ) ? 0.0 : m_maxSensitivities[i].back();
          switch ( m_vprmPtr[i].first->variationType() )
          {
             case VarParameter::Continuous:
@@ -225,8 +225,8 @@ namespace casa
       {
          for ( size_t i = 0; i < m_sensitivities.size(); ++i )
          {
-            double smin = IsValueUndefined( m_sensitivities[i].front() ) ? 0.0 : m_sensitivities[i].front();
-            double smax = IsValueUndefined( m_sensitivities[i].back()  ) ? 0.0 : m_sensitivities[i].back();
+            double smin = Utilities::isValueUndefined( m_sensitivities[i].front() ) ? 0.0 : m_sensitivities[i].front();
+            double smax = Utilities::isValueUndefined( m_sensitivities[i].back()  ) ? 0.0 : m_sensitivities[i].back();
 
             m_relSensitivities.push_back( std::vector<double>() );
 
@@ -250,8 +250,8 @@ namespace casa
       {
          for ( size_t i = 0; i < m_maxSensitivities.size(); ++i )
          {
-            double smin = IsValueUndefined( m_maxSensitivities[i].front() ) ? 0.0 : m_maxSensitivities[i].front();
-            double smax = IsValueUndefined( m_maxSensitivities[i].back()  ) ? 0.0 : m_maxSensitivities[i].back();
+            double smin = Utilities::isValueUndefined( m_maxSensitivities[i].front() ) ? 0.0 : m_maxSensitivities[i].front();
+            double smax = Utilities::isValueUndefined( m_maxSensitivities[i].back()  ) ? 0.0 : m_maxSensitivities[i].back();
 
             m_maxRelSensitivities.push_back( std::vector<double>() );
 

@@ -25,6 +25,7 @@
 #include "ConstantsNames.h"
 #include "NumericFunctions.h"
 #include "LogHandler.h"
+#include "Utilities.h"
 
 // Eigen
 #include <unsupported/Eigen/LevenbergMarquardt>
@@ -575,7 +576,7 @@ size_t LMOptAlgorithm::prepareObservables()
          for ( int k = 0; k < obSp.observable(i)->dimension(); ++k )
          {
             // user undefined values are excluded
-            if ( IsValueUndefined(obv[k]) )
+            if ( Utilities::isValueUndefined(obv[k]) )
             {
                LogHandler(LogHandler::ERROR_SEVERITY) << "Invalid observation " << obSp.observable(i)->name()[k] << " with reference value  " << obv[k]
                   << " has been removed from the LM optimization ";
@@ -785,7 +786,7 @@ void LMOptAlgorithm::removeInvalidObservations(size_t & nValues)
 
       for ( size_t k = 0; k < m_optimObsMask[i].size(); ++k )
       {
-         if ( IsValueUndefined(obv[k]) )
+         if ( Utilities::isValueUndefined(obv[k]) )
          {
             LogHandler(LogHandler::ERROR_SEVERITY) << "Invalid observation " << obs->name()[k] << " with simulated value in the base case " << obv[k]
                << " has been removed from the LM optimization ";
@@ -836,7 +837,7 @@ void LMOptAlgorithm::calculateFunctionValue(Eigen::VectorXd & fvec)
 
          // If the observation is undefined or invalid at this stage after the filtering of the invalid observations in the base case
          // we should push the algorithm back to a defined value by giving a large offset (10 sigma)
-         if ( IsValueUndefined(obv[k]) )
+         if ( Utilities::isValueUndefined(obv[k]) )
          {
             dif = std::sqrt(uaWeight) * 10.0;
          }

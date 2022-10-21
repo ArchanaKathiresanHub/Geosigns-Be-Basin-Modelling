@@ -13,6 +13,7 @@
 #include "ErrorHandler.h"
 
 #include "LogHandler.h"
+#include "Utilities.h"
 
 namespace fastDepthConversion
 {
@@ -132,12 +133,12 @@ void FDCMapFieldProperties::detectHiatusForAllSurfaces()
   for (mbapi::StratigraphyManager::SurfaceID currentSurface = m_referenceSurface; currentSurface <= m_endSurface; ++currentSurface)
   {    
     const std::string depthMapS = stMgr.depthGridName(currentSurface);
-    if ( IsValueUndefined(depthMapS) ) { continue; }
+    if ( Utilities::isValueUndefined(depthMapS) ) { continue; }
 
     for (mbapi::StratigraphyManager::SurfaceID it = m_referenceSurface; it < currentSurface; ++it)
     {
       const std::string depthMap = stMgr.depthGridName(it);
-      if (twtMaps(currentSurface) ==  twtMaps(it) && !IsValueUndefined(depthMap) && depthMap == depthMapS)
+      if (twtMaps(currentSurface) ==  twtMaps(it) && !Utilities::isValueUndefined(depthMap) && depthMap == depthMapS)
       {
         LogHandler(LogHandler::WARNING_SEVERITY) << "Hiatus detected: "<< stMgr.surfaceName(currentSurface) << "on Surface" << stMgr.surfaceName(it);
         setHiatus(currentSurface-1, it);

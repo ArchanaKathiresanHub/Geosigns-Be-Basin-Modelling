@@ -10,6 +10,8 @@
 
 #include "FDCProjectManager.h"
 
+#include "Utilities.h"
+
 namespace fastDepthConversion
 {
 
@@ -58,14 +60,14 @@ double FDCLithoProperties::getMaxSeismicVelocityForCurrentLayer() const
     if ( lith.empty() ) { continue; }
 
     const mbapi::LithologyManager::LithologyID lithID = lithoManager.findID(lith);
-    if ( IsValueUndefined( lithID ) )
+    if ( Utilities::isValueUndefined( lithID ) )
     {
       throw ErrorHandler::Exception(lithoManager.errorCode()) << "Cannot find the id for the lithology " << lith
                                                                 << ", " << lithoManager.errorMessage();
     }
 
     const double seisVel = lithoManager.seisVelocity(lithID);
-    if ( IsValueUndefined( seisVel ) )
+    if ( Utilities::isValueUndefined( seisVel ) )
     {
       throw ErrorHandler::Exception(lithoManager.errorCode()) << "Cannot find the seismic velocity for the lithology "
                                                                 << lith << ", " << lithoManager.errorMessage();

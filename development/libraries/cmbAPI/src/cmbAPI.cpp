@@ -2007,7 +2007,7 @@ std::vector<std::string> Model::ModelImpl::copyLithology( const std::string     
    // get lithology ID
    mbapi::LithologyManager::LithologyID lithID = m_lithMgr.findID( litName );
 
-   if ( IsValueUndefined( lithID ) )
+   if ( Utilities::isValueUndefined( lithID ) )
    {
       throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "No lithology with name: " <<  litName << " in lithologies type table";
    }
@@ -2017,7 +2017,7 @@ std::vector<std::string> Model::ModelImpl::copyLithology( const std::string     
    {
       // get layer ID from stratigraphy manager
       mbapi::StratigraphyManager::LayerID lyd = m_stratMgr.layerID( layersName[i].first );
-      if ( IsValueUndefined( lyd ) )
+      if ( Utilities::isValueUndefined( lyd ) )
       {
          throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "No such layer: " << layersName[i].first << " in stratigraphy table";
       }
@@ -2058,7 +2058,7 @@ std::vector<std::string> Model::ModelImpl::copyLithology( const std::string     
       std::string newLithoName = litName + "_" + randomString( randStringSize ) + "_CASA";
 
       mbapi::LithologyManager::LithologyID newLithID = m_lithMgr.copyLithology( lithID, newLithoName );
-      if ( IsValueUndefined( newLithID ) ) throw ErrorHandler::Exception( m_lithMgr.errorCode() ) << m_lithMgr.errorMessage();
+      if ( Utilities::isValueUndefined( newLithID ) ) throw ErrorHandler::Exception( m_lithMgr.errorCode() ) << m_lithMgr.errorMessage();
       mixList[layersName[i].second] = newLithoName;
 
       // set updated lithologies list back to the layer
@@ -2073,7 +2073,7 @@ std::vector<std::string> Model::ModelImpl::copyLithology( const std::string     
    for ( size_t i = 0; i < allochtLitName.size(); ++i )
    {
       mbapi::LithologyManager::AllochtLithologyID alID = m_lithMgr.findAllochtID( allochtLitName[i] );
-      if ( IsValueUndefined( alID ) )
+      if ( Utilities::isValueUndefined( alID ) )
       {
          throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "No allochtonous lithology for the layer: " <<  allochtLitName[i];
       }
@@ -2098,7 +2098,7 @@ std::vector<std::string> Model::ModelImpl::copyLithology( const std::string     
       std::string newLithoName = litName + "_" + randomString( randStringSize ) + "_CASA";
 
       mbapi::LithologyManager::LithologyID newLithID = m_lithMgr.copyLithology( lithID, newLithoName );
-      if ( IsValueUndefined( newLithID ) ) throw ErrorHandler::Exception( m_lithMgr.errorCode() ) << m_lithMgr.errorMessage();
+      if ( Utilities::isValueUndefined( newLithID ) ) throw ErrorHandler::Exception( m_lithMgr.errorCode() ) << m_lithMgr.errorMessage();
 
       // set copied lithology back to the layer
       if ( ErrorHandler::NoError != m_lithMgr.setAllochtonLithology( alID, newLithoName ) )
@@ -2113,7 +2113,7 @@ std::vector<std::string> Model::ModelImpl::copyLithology( const std::string     
    for ( size_t i = 0; i < faultsName.size(); ++i )
    {
       mbapi::StratigraphyManager::PrFaultCutID flID = m_stratMgr.findFaultCut( faultsName[i].first, faultsName[i].second );
-      if ( IsValueUndefined( flID ) )
+      if ( Utilities::isValueUndefined( flID ) )
       {
          throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "No lithology for the fault cut: " <<  faultsName[i].first <<
             ":" << faultsName[i].second;
@@ -2139,7 +2139,7 @@ std::vector<std::string> Model::ModelImpl::copyLithology( const std::string     
       std::string newLithoName = litName + "_" + randomString( randStringSize ) + "_CASA";
 
       mbapi::LithologyManager::LithologyID newLithID = m_lithMgr.copyLithology( lithID, newLithoName );
-      if ( IsValueUndefined( newLithID ) ) throw ErrorHandler::Exception( m_lithMgr.errorCode() ) << m_lithMgr.errorMessage();
+      if ( Utilities::isValueUndefined( newLithID ) ) throw ErrorHandler::Exception( m_lithMgr.errorCode() ) << m_lithMgr.errorMessage();
 
       // set copied lithology back to the layer
       if ( ErrorHandler::NoError != m_stratMgr.setFaultCutLithology( flID, newLithoName ) )
@@ -2198,10 +2198,10 @@ bool Model::ModelImpl::getGridMapDepthValues( const mbapi::StratigraphyManager::
 
    // Get the map name and id
    std::string depthMap = tableValueAsString( "StratIoTbl", s, "DepthGrid" );
-   if ( IsValueUndefined( depthMap ) ) { return false; }
+   if ( Utilities::isValueUndefined( depthMap ) ) { return false; }
 
    mbapi::MapsManager::MapID depthMapID = m_mapMgr.findID( depthMap );
-   if ( IsValueUndefined( depthMapID ) ) { return false; }
+   if ( Utilities::isValueUndefined( depthMapID ) ) { return false; }
 
    // Get the values
    if ( ErrorHandler::ReturnCode::NoError != m_mapMgr.mapGetValues( depthMapID, v ) ) { return false; }

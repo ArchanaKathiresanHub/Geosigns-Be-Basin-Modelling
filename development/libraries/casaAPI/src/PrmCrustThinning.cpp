@@ -20,6 +20,7 @@
 
 // Utilities lib
 #include <NumericFunctions.h>
+#include "UndefinedValues.h"
 #include "Path.h" // for to_string
 
 // STL/C lib
@@ -121,7 +122,7 @@ ErrorHandler::ReturnCode PrmCrustThinning::setInModel( mbapi::Model & caldModel,
    {
       // get age of the eldest layer
       double eldestAge = caldModel.stratigraphyManager().eldestLayerAge();
-      if ( IsValueUndefined( eldestAge ) )
+      if ( Utilities::isValueUndefined( eldestAge ) )
       {
          throw ErrorHandler::Exception( caldModel.stratigraphyManager().errorCode() ) << caldModel.stratigraphyManager().errorMessage();
       }
@@ -163,7 +164,7 @@ ErrorHandler::ReturnCode PrmCrustThinning::setInModel( mbapi::Model & caldModel,
          if ( !NumericFunctions::isEqual( m_coeff[i], 1.0, s_eps ) ) // copy and scale maps
          {
             mbapi::MapsManager::MapID id = mMgr.findID( oldMapName );
-            if ( IsValueUndefined( id ) )
+            if ( Utilities::isValueUndefined( id ) )
             {
                throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Crust thinning, unknown map is given: " << oldMapName;
             }
@@ -172,7 +173,7 @@ ErrorHandler::ReturnCode PrmCrustThinning::setInModel( mbapi::Model & caldModel,
             newMapName += ibs::to_string( i );
 
             id = mMgr.copyMap( id, newMapName );
-            if ( IsValueUndefined( id ) )
+            if ( Utilities::isValueUndefined( id ) )
             {
                throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Crust thinning, copying " << oldMapName << " map failed";
             }

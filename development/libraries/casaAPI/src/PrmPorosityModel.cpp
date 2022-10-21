@@ -240,7 +240,7 @@ std::string PrmPorosityModel::validate( mbapi::Model & caldModel )
    mbapi::LithologyManager              & mgr = caldModel.lithologyManager();
    mbapi::LithologyManager::LithologyID   lid = mgr.findID( m_lithoName );
 
-   if ( IsValueUndefined( lid ) ) { oss << "Can't find lithology: " << m_lithoName << " in project file\n"; }
+   if ( Utilities::isValueUndefined( lid ) ) { oss << "Can't find lithology: " << m_lithoName << " in project file\n"; }
    else
    {
       // check that parameter value in project the same as in this parameter
@@ -445,7 +445,7 @@ void PrmPorosityModel::initSoilMechanicsPorModel( const std::vector<double> & md
    double surfPor = mdlPrms[0];
    double cc      = mdlPrms[1];
 
-   if ( !IsValueUndefined( surfPor ) && IsValueUndefined( cc ) )
+   if ( !Utilities::isValueUndefined( surfPor ) && Utilities::isValueUndefined( cc ) )
    {
       m_clayFraction = SMsp2cf( surfPor ); // calculate clay fraction from surface porosity
       if ( m_clayFraction < 0.0 || m_clayFraction > 1.0 )
@@ -455,7 +455,7 @@ void PrmPorosityModel::initSoilMechanicsPorModel( const std::vector<double> & md
             SMcf2sp( 0.0 ) << ":" << SMcf2sp(1.0) << "]";
       }
    }
-   else if ( IsValueUndefined( surfPor ) && !IsValueUndefined( cc ) )
+   else if ( Utilities::isValueUndefined( surfPor ) && !Utilities::isValueUndefined( cc ) )
    {
       m_clayFraction = SMcc2cf( cc ); // calculate clay fraction from compaction coefficient
       if ( m_clayFraction < 0.0 || m_clayFraction > 1.0 )
@@ -465,7 +465,7 @@ void PrmPorosityModel::initSoilMechanicsPorModel( const std::vector<double> & md
             SMcf2cc( 0.0 ) << ":" << SMcf2cc(1.0) << "]";
       }
    }
-   else if ( !IsValueUndefined( surfPor ) && !IsValueUndefined( cc ) )
+   else if ( !Utilities::isValueUndefined( surfPor ) && !Utilities::isValueUndefined( cc ) )
    {
       m_clayFraction = SMsp2cf( surfPor );
       if ( !NumericFunctions::isEqual( m_clayFraction, SMcc2cf( cc ), 1.e-3 ) )

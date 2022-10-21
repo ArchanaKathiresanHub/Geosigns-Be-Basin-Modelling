@@ -19,6 +19,7 @@
 //utilities
 #include "LogHandler.h"
 #include "NumericFunctions.h"
+#include "UndefinedValues.h"
 
 
 /// @brief Prints usage of the mapMorph application
@@ -102,7 +103,7 @@ int main( const int argc, char** argv )
     }
 
     const mbapi::MapsManager::MapID mID = mpMgr.findID( mapName );
-    if ( IsValueUndefined( mID ) )
+    if ( Utilities::isValueUndefined( mID ) )
     {
       throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "Can't find the map: " << mapName
                                                                    << " defined for top crust heat production rate in maps catalog";
@@ -119,7 +120,7 @@ int main( const int argc, char** argv )
       // Copy map to avoid influence on other project parts
       const std::string newMapName = mapName + s_mapAddition[i];
       mbapi::MapsManager::MapID cmID = mpMgr.copyMap( mID, newMapName, mapName + s_mapFileSuffix );
-      if ( IsValueUndefined( cmID ) )
+      if ( Utilities::isValueUndefined( cmID ) )
       {
         throw ErrorHandler::Exception( ErrorHandler::IoError ) << "Copy map " << mapName << " failed";
       }

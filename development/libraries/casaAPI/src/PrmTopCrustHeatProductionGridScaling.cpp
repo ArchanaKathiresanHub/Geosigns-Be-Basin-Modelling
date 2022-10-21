@@ -34,7 +34,7 @@ PrmTopCrustHeatProductionGridScaling::PrmTopCrustHeatProductionGridScaling(mbapi
   {
     const double production = mdl.tableValueAsDouble(tableName, 0, prodColumn);
 
-    if ( !IsValueUndefined(production) )
+    if ( !Utilities::isValueUndefined(production) )
     {
       throw ErrorHandler::Exception ( ErrorHandler::ValidationError )
           << tableName << ":" << prodColumn << " was defined in this model. Grid scaling is not possible";
@@ -49,7 +49,7 @@ PrmTopCrustHeatProductionGridScaling::PrmTopCrustHeatProductionGridScaling(mbapi
 
     mbapi::MapsManager& mapManager = mdl.mapsManager();
     mbapi::MapsManager::MapID mapID = mapManager.findID( mapName );
-    if ( IsValueUndefined( mapID ) )
+    if ( Utilities::isValueUndefined( mapID ) )
     {
       throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "Can't find the map: " << mapName
                                                                    << " defined for top crust heat production rate in maps catalog";
@@ -85,7 +85,7 @@ ErrorHandler::ReturnCode PrmTopCrustHeatProductionGridScaling::setInModel(mbapi:
   mbapi::MapsManager & mpMgr = caldModel.mapsManager();
   mbapi::MapsManager::MapID mID = mpMgr.findID( m_mapName );
 
-  if ( IsValueUndefined( mID ) )
+  if ( Utilities::isValueUndefined( mID ) )
   {
     throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "Can't find the map: " << m_mapName
                                                                  << " defined for top crust heat production rate in maps catalog";
@@ -94,7 +94,7 @@ ErrorHandler::ReturnCode PrmTopCrustHeatProductionGridScaling::setInModel(mbapi:
   // copy map to avoid influence on other project parts
   std::string newMapName = m_mapName + "_Case_" + std::to_string( caseID + 1 ) + mapNameSuffix;
   mbapi::MapsManager::MapID cmID = mpMgr.copyMap( mID, newMapName );
-  if ( IsValueUndefined( cmID ) )
+  if ( Utilities::isValueUndefined( cmID ) )
   {
     throw ErrorHandler::Exception( ErrorHandler::IoError ) << "Copy radiogenic heat production rate map " << m_mapName << " failed";
   }
@@ -136,7 +136,7 @@ std::string PrmTopCrustHeatProductionGridScaling::validate(mbapi::Model& caldMod
 
   const double productionRate = caldModel.tableValueAsDouble(tableName, 0, prodColumn);
 
-  if ( !IsValueUndefined(productionRate) )
+  if ( !Utilities::isValueUndefined(productionRate) )
   {
     oss << tableName << ":" << prodColumn << " was defined in this model. Grid scaling is not possible";
   }
@@ -149,7 +149,7 @@ std::string PrmTopCrustHeatProductionGridScaling::validate(mbapi::Model& caldMod
 
   mbapi::MapsManager& mapManager = caldModel.mapsManager();
   mbapi::MapsManager::MapID mapID = mapManager.findID( mapName );
-  if ( IsValueUndefined( mapID ) )
+  if ( Utilities::isValueUndefined( mapID ) )
   {
     oss << "Can't find the map: " << mapName
         << " defined for top crust heat production rate in maps catalog";

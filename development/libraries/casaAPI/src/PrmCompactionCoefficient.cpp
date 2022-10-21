@@ -21,6 +21,7 @@
 
 // Utilities lib
 #include "NumericFunctions.h"
+#include "UndefinedValues.h"
 
 // STL/C lib
 #include <cassert>
@@ -41,7 +42,7 @@ PrmCompactionCoefficient::PrmCompactionCoefficient( mbapi::Model & mdl, const st
 
    // go over all lithologies and look for the first lithology with the same name as given
    mbapi::LithologyManager::LithologyID lid = mgr.findID( lithoName );
-   if ( IsValueUndefined( lid ) ) { throw ErrorHandler::Exception( mgr.errorCode() ) << mgr.errorMessage(); }
+   if ( Utilities::isValueUndefined( lid ) ) { throw ErrorHandler::Exception( mgr.errorCode() ) << mgr.errorMessage(); }
 
    mbapi::LithologyManager::PorosityModel porModel = mbapi::LithologyManager::PorUnknown;
    std::vector<double> porModelPrms;
@@ -82,7 +83,7 @@ ErrorHandler::ReturnCode PrmCompactionCoefficient::setInModel( mbapi::Model & ca
    for ( size_t i = 0; i < m_lithosName.size(); ++i )
    {
       mbapi::LithologyManager::LithologyID lid = mgr.findID( m_lithosName[i] );
-      if ( IsValueUndefined( lid ) ) { return caldModel.moveError( mgr ); }
+      if ( Utilities::isValueUndefined( lid ) ) { return caldModel.moveError( mgr ); }
 
       mbapi::LithologyManager::PorosityModel mdlType = mbapi::LithologyManager::PorUnknown;
       std::vector<double> porModelPrms;
@@ -123,7 +124,7 @@ std::string PrmCompactionCoefficient::validate( mbapi::Model & caldModel )
 
       mbapi::LithologyManager::LithologyID lid = mgr.findID( m_lithosName[i] );
 
-      if ( IsValueUndefined( lid ) )
+      if ( Utilities::isValueUndefined( lid ) )
       {
          oss << "Lithology " << m_lithosName[i] << " is not defined in the project" << std::endl;
          return oss.str();

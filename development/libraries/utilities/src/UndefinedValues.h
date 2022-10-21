@@ -11,33 +11,43 @@
 /// @file UndefinedValues.h
 /// @brief This file keeps set of macroses which define undevined numerical values
 
-#ifndef CMB_UNDEFINED_VALUES
-#define CMB_UNDEFINED_VALUES
+#pragma once
 
 #include "ConstantsNumerical.h"
+#include <cmath>
+
+namespace Utilities
+{
 
 /// @brief Do check if the given value is equal to one of the "no data values" 
 /// @param val float point number to check
 /// @return true if given value is exact as one of the "no data values", false otherwise
-inline bool IsValueUndefined( double val )
+inline bool isValueUndefined( double val )
 { 
-   return val == Utilities::Numerical::IbsNoDataValue or
-          val == Utilities::Numerical::CauldronNoDataValue;
+   using namespace Numerical;
+   return std::abs(val - IbsNoDataValue) < DefaultNumericalTolerance ||
+          std::abs(val - CauldronNoDataValue) < DefaultNumericalTolerance;
 }
 
 /// @brief Do check is given value is equal to "no data integer value" 
 /// @param val integerf value to check
 /// @return true if given value is exact as "no data integer value", false otherwise
-inline bool IsValueUndefined( int val ) { return val == Utilities::Numerical::NoDataIntValue; }
+inline bool isValueUndefined( int val )
+{
+   using namespace Numerical;
+   return val == NoDataIntValue ||
+         val == IbsNoDataValueInt ||
+         val == CauldronNoDataValueInt;
+}
 
 /// @brief Do check is given value is equal to "undefined string value" 
 /// @param val string to check
 /// @return true if given value is exact as "undefined string value", false otherwise
-inline bool IsValueUndefined( const std::string & val ) { return val == Utilities::Numerical::NoDataStringValue; }
+inline bool isValueUndefined( const std::string & val ) { return val == Numerical::NoDataStringValue; }
 
 /// \brief Do check is given value is equal to "undefined size_t/ID-type value" 
 /// \param val integer value to check
 /// \return true if given value is exact as "undefined ID value", false otherwise
-inline bool IsValueUndefined( size_t val ) { return val == Utilities::Numerical::NoDataIDValue; }
+inline bool isValueUndefined( size_t val ) { return val == Numerical::NoDataIDValue; }
 
-#endif // CMB_API
+}

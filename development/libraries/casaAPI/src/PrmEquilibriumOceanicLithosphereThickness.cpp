@@ -19,6 +19,7 @@
 
 // utilities lib
 #include <NumericFunctions.h>
+#include "UndefinedValues.h"
 
 // STL/C lib
 #include <cassert>
@@ -84,7 +85,7 @@ std::string PrmEquilibriumOceanicLithosphereThickness::validate( mbapi::Model & 
      oss << "Equilibrium oceanic lithosphere thickness value can not be negative: " << m_value << std::endl;
    }
 
-   if ( IsValueUndefined(m_value) )
+   if ( Utilities::isValueUndefined(m_value) )
    {
      oss << "Equilibrium oceanic lithosphere thickness value can not be undefined" << std::endl;
    }

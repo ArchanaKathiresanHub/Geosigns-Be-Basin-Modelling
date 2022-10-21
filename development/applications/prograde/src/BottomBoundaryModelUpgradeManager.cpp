@@ -28,9 +28,10 @@
 #include "ErrorHandler.h"
 #include "LogHandler.h"
 
+//Utilities
+#include "UndefinedValues.h"
+
 using namespace mbapi;
-//using namespace std;
-//#include<map>
 #include <algorithm>
 
 Prograde::BottomBoundaryModelUpgradeManager::BottomBoundaryModelUpgradeManager(std::string name, mbapi::Model & model) :
@@ -225,7 +226,7 @@ void Prograde::BottomBoundaryModelUpgradeManager::saveInterpolatedMap(DataAccess
 	else
 	{
 		size_t mapIdToSave = m_model.mapsManager().generateMap(tableName, mapName, gridmap, mapsSequenceNbr, outputFileName);
-		if (IsValueUndefined(mapIdToSave))
+      if (Utilities::isValueUndefined(mapIdToSave))
 		{
 			throw ErrorHandler::Exception(ErrorHandler::ValidationError) << "Interpolated " << propertyName << " map not valid in " << tableName;
 		}

@@ -45,7 +45,7 @@ PrmPermeabilityModel::PrmPermeabilityModel( mbapi::Model & mdl, const char * lit
    mbapi::LithologyManager & lmgr = mdl.lithologyManager();
 
    mbapi::LithologyManager::LithologyID lid = lmgr.findID( m_lithoName );
-   if ( IsValueUndefined( lid ) )
+   if ( Utilities::isValueUndefined( lid ) )
    {
       throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) <<  "Can't find lithology type with name " <<
          m_lithoName << "in lithologies list";
@@ -117,7 +117,7 @@ PrmPermeabilityModel::PrmPermeabilityModel( const VarPrmPermeabilityModel * pare
    // check model parameters for undefined values
    for ( size_t i = 0; i < modelPrms.size(); ++i )
    {
-      if ( IsValueUndefined( modelPrms[i] ) )
+      if ( Utilities::isValueUndefined( modelPrms[i] ) )
       {
          throw ErrorHandler::Exception( ErrorHandler::UndefinedValue ) << "Undefined parameter value for permeability model for lithology: " << lithoName;
       }
@@ -216,7 +216,7 @@ ErrorHandler::ReturnCode PrmPermeabilityModel::setInModel( mbapi::Model & caldMo
    // get lithology ID
    mbapi::LithologyManager & lmgr = caldModel.lithologyManager();
    mbapi::LithologyManager::LithologyID lid = lmgr.findID( m_lithoName );
-   if ( IsValueUndefined( lid ) )
+   if ( Utilities::isValueUndefined( lid ) )
    {
       throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) <<  "Can't find lithology type with name " <<
          m_lithoName << "in lithologies list";
@@ -275,7 +275,7 @@ std::string PrmPermeabilityModel::validate( mbapi::Model & caldModel )
    mbapi::LithologyManager & lmgr = caldModel.lithologyManager();
 
    mbapi::LithologyManager::LithologyID lid = lmgr.findID( m_lithoName );
-   if ( IsValueUndefined( lid ) )
+   if ( Utilities::isValueUndefined( lid ) )
    {
       oss << "Can't find lithology type with name " << m_lithoName << "in lithologies list";
    }

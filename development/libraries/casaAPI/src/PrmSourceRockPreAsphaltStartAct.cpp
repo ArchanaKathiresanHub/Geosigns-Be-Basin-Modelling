@@ -92,7 +92,7 @@ ErrorHandler::ReturnCode PrmSourceRockPreAsphaltStartAct::setInModel( mbapi::Mod
       }
 
       mbapi::SourceRockManager::SourceRockID sid = srMgr.findID( m_layerName, (!m_srTypeName.empty() ? m_srTypeName : srtNames[m_mixID-1]) );
-      if ( IsValueUndefined( sid ) )
+      if ( Utilities::isValueUndefined( sid ) )
       {
          throw ErrorHandler::Exception( ErrorHandler::UndefinedValue ) << "Can not find source rock lithology for layer "
             << m_layerName << " and SR type " << (!m_srTypeName.empty() ? m_srTypeName : srtNames[m_mixID-1]);
@@ -155,7 +155,7 @@ std::string PrmSourceRockPreAsphaltStartAct::validate( mbapi::Model & caldModel 
       }
 
       mbapi::SourceRockManager::SourceRockID sid = srMgr.findID( m_layerName, (!m_srTypeName.empty() ? m_srTypeName : srtNames[m_mixID-1]) );
-      if ( IsValueUndefined( sid ) )
+      if ( Utilities::isValueUndefined( sid ) )
       {
          throw ErrorHandler::Exception( ErrorHandler::UndefinedValue ) << "Can not find source rock lithology for layer "
             << m_layerName << " and SR type " << (!m_srTypeName.empty() ? m_srTypeName : srtNames[m_mixID-1]);

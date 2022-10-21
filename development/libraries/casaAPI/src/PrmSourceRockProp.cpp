@@ -72,7 +72,7 @@ PrmSourceRockProp::PrmSourceRockProp( mbapi::Model & mdl
    }
 
    mbapi::SourceRockManager::SourceRockID sid = srMgr.findID( m_layerName, (m_srTypeName.empty() ? srtNames[m_mixID-1] : m_srTypeName) );
-   if ( IsValueUndefined( sid ) )
+   if ( Utilities::isValueUndefined( sid ) )
    {
       throw ErrorHandler::Exception(ErrorHandler::UndefinedValue) << "Can not find source rock lithology for layer "
          << m_layerName << " and SR type " << (srType ? std::string( srType ) : srtNames[m_mixID-1]);

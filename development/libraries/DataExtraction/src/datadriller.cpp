@@ -22,6 +22,8 @@
 #include "GeoPhysicsFormation.h"
 #include "derivedPropertyDriller.h"
 
+#include "UndefinedValues.h"
+
 namespace DataExtraction
 {
 
@@ -281,6 +283,12 @@ bool DataDriller::readPropertyFromHDF(const std::string& surfaceName, const std:
       }
 
       readFromHDF = get3dPropertyFromHDF( i, j, formationMangledName, true, property, snapshot, value );
+
+      if (Utilities::isValueUndefined(value))
+      {
+         //Convert to IbsNoDataValue, such that the same undefined value is always returned when the data driller fails to retrieve the data.
+         value = DataAccess::Interface::DefaultUndefinedScalarValue;
+      }
     }
   }
   else

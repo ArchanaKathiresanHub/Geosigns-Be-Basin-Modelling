@@ -22,6 +22,7 @@
 // Utilities lib
 #include "NumericFunctions.h"
 #include "LogHandler.h"
+#include "Utilities.h"
 
 // STL/C lib
 #include <cassert>
@@ -107,12 +108,12 @@ ObsValue * ObsTrapProp::getFromModel( mbapi::Model & caldModel )
 
    // Data digger can't find specified trap property. It could be due to absence of the trap at given place
    // here we will try to avoid undefined values for some trap properties
-   if ( IsValueUndefined( val ) )
+   if ( Utilities::isValueUndefined( val ) )
    {
       if ( propertyName().substr( 0, 6 ) == "Volume" || propertyName().substr( 0, 4 ) == "Mass" ) { val = 0.0; } // no trap at this place - no HC
    }
 
-   if ( m_logTransf && !IsValueUndefined( val ) )
+   if ( m_logTransf && !Utilities::isValueUndefined( val ) )
    {
       if ( val < 0.0 )
       {

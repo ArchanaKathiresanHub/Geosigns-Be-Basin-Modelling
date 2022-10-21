@@ -751,7 +751,7 @@ TEST_F( BLRSTest, VarySurfacePorosity )
    for ( size_t i = 0; i < layLst.size(); ++i )
    {
       mbapi::StratigraphyManager::LayerID lid = strMgr.layerID( layLst[i].first );
-      ASSERT_FALSE( IsValueUndefined( lid ) );
+      ASSERT_FALSE( Utilities::isValueUndefined( lid ) );
 
       std::vector<std::string>      lithoList;
       std::vector<double>           lithoPercent;
@@ -883,7 +883,7 @@ TEST_F( BLRSTest, VaryCompactionCoefficient )
    for ( size_t i = 0; i < layLst.size( ); ++i )
    {
       mbapi::StratigraphyManager::LayerID lid = strMgr.layerID( layLst[i].first );
-      ASSERT_FALSE( IsValueUndefined( lid ) );
+      ASSERT_FALSE( Utilities::isValueUndefined( lid ) );
 
       std::vector<std::string>      lithoList;
       std::vector<double>           lithoPercent;
@@ -1060,7 +1060,7 @@ TEST_F( BLRSTest, VaryPorosityExponentialModelParameters )
    mbapi::StratigraphyManager & strMgr = mdl.stratigraphyManager();
 
    mbapi::StratigraphyManager::LayerID lid = strMgr.layerID( "Permian" );
-   ASSERT_FALSE( IsValueUndefined( lid ) );
+   ASSERT_FALSE( Utilities::isValueUndefined( lid ) );
 
    std::vector<std::string>      lithoList;
    std::vector<double>           lithoPercent;
@@ -1072,7 +1072,7 @@ TEST_F( BLRSTest, VaryPorosityExponentialModelParameters )
    ASSERT_EQ( lithoList[0].find( sandLithology ), 0U );
 
    mbapi::LithologyManager & lthMgr = mdl.lithologyManager();
-   ASSERT_FALSE( IsValueUndefined( lthMgr.findID( lithoList[0] ) ) );
+   ASSERT_FALSE( Utilities::isValueUndefined( lthMgr.findID( lithoList[0] ) ) );
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////

@@ -60,7 +60,7 @@ PrmSourceRockType::PrmSourceRockType( mbapi::Model & mdl, const std::string & la
       }
 
       mbapi::SourceRockManager::SourceRockID sid = srMgr.findID( m_layerName, srtNames[mixID-1] );
-      if ( IsValueUndefined( sid ) )
+      if ( Utilities::isValueUndefined( sid ) )
       {
          throw ErrorHandler::Exception( ErrorHandler::UndefinedValue ) << "Can not find source rock lithology for layer "
                   << m_layerName << " and SR type " << (m_srtName.empty() ? srtNames[mixID-1] : m_srtName);
@@ -168,7 +168,7 @@ std::string PrmSourceRockType::validate( mbapi::Model & caldModel )
       }
 
       mbapi::SourceRockManager::SourceRockID sid = srMgr.findID( m_layerName, m_srtName );
-      if ( IsValueUndefined( sid ) )
+      if ( Utilities::isValueUndefined( sid ) )
       {
          oss << "Source rock lithology table does not contains layer/source rock type combination for " << m_layerName << "/" << m_srtName;
       }

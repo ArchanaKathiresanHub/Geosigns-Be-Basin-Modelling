@@ -140,7 +140,7 @@ std::vector<VectorVectorMap> CMBMapReader::getInputLithoMapsInLayer(const int la
   stratigraphyManager.layerLithologiesList(layerIndex, lithoNames, lithoPercent, lithoPercMap);
   for (int i = 0; i<2; ++i)
   {
-    if (!IsValueUndefined(lithoPercent[i]))
+    if (!Utilities::isValueUndefined(lithoPercent[i]))
     {
       maps.push_back(createConstantMap(lithoPercent[i]));
     }

@@ -16,6 +16,7 @@
 #include "cmbAPI.h"
 
 #include "LogHandler.h"
+#include "Utilities.h"
 
 #include <cmath>
 
@@ -199,7 +200,7 @@ void ObservableSinglePoint::saveCommon( const Observable * observableClass
   ok = ok ? sz.save( m_x, "X" ) : ok;
   ok = ok ? sz.save( m_y, "Y" ) : ok;
 
-  if ( !IsValueUndefined( m_z ) )
+  if ( !Utilities::isValueUndefined( m_z ) )
   {
     ok = ok ? sz.save( m_z, "Z" ) : ok;
   }

@@ -110,7 +110,7 @@ bool Observable::checkObsMatchesModel( mbapi::Model      & caldModel
   double yCoordModel = caldModel.tableValueAsDouble( s_dataMinerTable, iTable, "YCoord" );
   if ( caldModel.errorCode() != ErrorHandler::NoError || !NumericFunctions::isEqual( yCoordModel, yCoord, epsilon ) ) { return false; }
 
-  if ( !IsValueUndefined( zCoord ) )
+  if ( !Utilities::isValueUndefined( zCoord ) )
   {
     double zCoordModel = caldModel.tableValueAsDouble( s_dataMinerTable, iTable, "ZCoord" );
     if ( caldModel.errorCode() != ErrorHandler::NoError || !NumericFunctions::isEqual( zCoordModel, zCoord, epsilon ) ) { return false; }
@@ -233,7 +233,7 @@ std::vector<bool> Observable::isValid( const ObsValue * obv ) const
    if ( obv == nullptr ) { return ret; }
 
    const std::vector<double> & vals = obv->asDoubleArray();
-   for ( auto v : vals ) { ret.push_back( !IsValueUndefined( v ) ); }
+   for ( auto v : vals ) { ret.push_back( !Utilities::isValueUndefined( v ) ); }
  
    return ret;
 }

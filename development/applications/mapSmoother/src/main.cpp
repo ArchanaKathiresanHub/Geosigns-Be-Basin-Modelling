@@ -16,6 +16,7 @@
 //utilities
 #include "LogHandler.h"
 #include "NumericFunctions.h"
+#include "UndefinedValues.h"
 
 
 
@@ -99,7 +100,7 @@ int main( const int argc, char** argv )
 
       const std::string newMapName = mapName + s_addition;
       mbapi::MapsManager::MapID cmID = mpMgr.copyMap( mpMgr.findID( mapName ), newMapName, s_smoothMapsFileName );
-      if ( IsValueUndefined( cmID ) )
+      if ( Utilities::isValueUndefined( cmID ) )
       {
         throw ErrorHandler::Exception( ErrorHandler::IoError ) << "Copy map " << mapName << " failed";
       }

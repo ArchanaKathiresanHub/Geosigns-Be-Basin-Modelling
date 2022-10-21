@@ -79,7 +79,7 @@ std::string PrmTopCrustHeatProduction::validate( mbapi::Model & cldModel )
      oss << "Top crust heat production rate value can not be negative: " << m_value << std::endl;
    }
 
-   if ( IsValueUndefined(m_value) )
+   if ( Utilities::isValueUndefined(m_value) )
    {
      oss << "Top crust heat production rate value can not be undefined" << std::endl;
    }

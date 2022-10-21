@@ -64,7 +64,7 @@ static size_t findMixingIDForLithologyInLayer( const char * layerName, const std
       mbapi::StratigraphyManager & smgr = sa.baseCase().stratigraphyManager();
       mbapi::StratigraphyManager::LayerID lyd = smgr.layerID( layerName );
 
-      if ( IsValueUndefined( lyd ) )
+      if ( Utilities::isValueUndefined( lyd ) )
       {
          throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "No such layer: " << layerName << " in stratigraphy table";
       }
@@ -129,7 +129,7 @@ ErrorHandler::ReturnCode VaryTopCrustHeatProductionGrid( ScenarioAnalysis       
          for ( size_t k = 0; k < 2; ++k )
          {
             mbapi::MapsManager::MapID mid = mm.findID( mapRng[k] );
-            if ( IsValueUndefined( mid ) )
+            if ( Utilities::isValueUndefined( mid ) )
             {
                throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "Base case project has no map " << mapRng[k] << " defined";
             }
@@ -202,11 +202,11 @@ ErrorHandler::ReturnCode VarySourceRockTOC( ScenarioAnalysis               & sa
 
          // check are other 2 maps exist in maps list
          mbapi::MapsManager & mm = mdl.mapsManager();
-         if ( IsValueUndefined( mm.findID( mapRng[0] ) ) )
+         if ( Utilities::isValueUndefined( mm.findID( mapRng[0] ) ) )
          {
             throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "Base case project has no map " << mapRng[0] << " defined";
          }
-         if ( IsValueUndefined( mm.findID( mapRng[1] ) ) )
+         if ( Utilities::isValueUndefined( mm.findID( mapRng[1] ) ) )
          {
             throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "Base case project has no map " << mapRng[1] << " defined";
          }
@@ -666,7 +666,7 @@ ErrorHandler::ReturnCode VarySourceRockType( ScenarioAnalysis               & sa
       {
          mbapi::SourceRockManager::SourceRockID sid = srMgr.findID( layerName, stVariation[i] );
 
-         if ( IsValueUndefined( sid ) )
+         if ( Utilities::isValueUndefined( sid ) )
          {
             throw ErrorHandler::Exception( ErrorHandler::UndefinedValue ) << "Source rock lithology variation " <<
                                                                              layerName << "->" << stVariation[i] <<  " does not exist in source rock lithology table";
@@ -758,7 +758,7 @@ ErrorHandler::ReturnCode VaryOneCrustThinningEvent( casa::ScenarioAnalysis & sa,
           for others - we will use avarage from min/max
          */
       {
-         if ( IsValueUndefined( baseValues[i] ) )
+         if ( Utilities::isValueUndefined( baseValues[i] ) )
          {
             switch ( i )
             {
@@ -863,19 +863,19 @@ ErrorHandler::ReturnCode VaryCrustThinning( casa::ScenarioAnalysis & sa
       std::vector<double> minValues( 3 * minT0.size() + 1, Utilities::Numerical::IbsNoDataValue );
       std::vector<double> maxValues( 3 * minT0.size() + 1, Utilities::Numerical::IbsNoDataValue );
 
-      if ( IsValueUndefined( minThickIni ) ||
-           IsValueUndefined( maxThickIni ) ) { throw ErrorHandler::Exception( ErrorHandler::UndefinedValue ) << "Initial crust thickness is undefined"; }
+      if ( Utilities::isValueUndefined( minThickIni ) ||
+           Utilities::isValueUndefined( maxThickIni ) ) { throw ErrorHandler::Exception( ErrorHandler::UndefinedValue ) << "Initial crust thickness is undefined"; }
 
       minValues[0] = minThickIni;
       maxValues[0] = maxThickIni;
 
-      if ( IsValueUndefined( baseValues[0] ) ) { baseValues[0] = 0.5 * ( minThickIni + maxThickIni );  }
+      if ( Utilities::isValueUndefined( baseValues[0] ) ) { baseValues[0] = 0.5 * ( minThickIni + maxThickIni );  }
 
       for ( size_t i = 0, pos = 1; i < minT0.size(); ++i ) // replace undefined base value with middle of value range
       {
          // process one event
          // Event start time
-         if ( IsValueUndefined( minT0[i] ) || IsValueUndefined( maxT0[i] ) )
+         if ( Utilities::isValueUndefined( minT0[i] ) || Utilities::isValueUndefined( maxT0[i] ) )
          {
             throw ErrorHandler::Exception( ErrorHandler::UndefinedValue ) <<
                                                                              "Crust thinning event: " << i+1 << ", has undefined range for start time";
@@ -883,29 +883,29 @@ ErrorHandler::ReturnCode VaryCrustThinning( casa::ScenarioAnalysis & sa
          minValues[pos] = minT0[i];
          maxValues[pos] = maxT0[i];
 
-         if ( IsValueUndefined( baseValues[pos] ) ) { baseValues[pos] = 0.5 * ( minT0[i] + maxT0[i] ); }
+         if ( Utilities::isValueUndefined( baseValues[pos] ) ) { baseValues[pos] = 0.5 * ( minT0[i] + maxT0[i] ); }
          ++pos;
 
          // Event duration
-         if ( IsValueUndefined( minDeltaT[i] ) || IsValueUndefined( maxDeltaT[i] ) )
+         if ( Utilities::isValueUndefined( minDeltaT[i] ) || Utilities::isValueUndefined( maxDeltaT[i] ) )
          {
             throw ErrorHandler::Exception( ErrorHandler::UndefinedValue ) << "Crust thinning event: " << i+1 << ", has undefined range for event duration";
          }
          minValues[pos] = minDeltaT[i];
          maxValues[pos] = maxDeltaT[i];
 
-         if ( IsValueUndefined( baseValues[pos] ) ) { baseValues[pos] = 0.5 * ( minDeltaT[i] + maxDeltaT[i] ); }
+         if ( Utilities::isValueUndefined( baseValues[pos] ) ) { baseValues[pos] = 0.5 * ( minDeltaT[i] + maxDeltaT[i] ); }
          ++pos;
 
          // Thinning factor
-         if ( IsValueUndefined( minThinningFct[i] ) || IsValueUndefined( maxThinningFct[i] ) )
+         if ( Utilities::isValueUndefined( minThinningFct[i] ) || Utilities::isValueUndefined( maxThinningFct[i] ) )
          {
             throw ErrorHandler::Exception( ErrorHandler::UndefinedValue ) << "Crust thinning event: " << i+1 << ", has undefined range for event thinning factor";
          }
          minValues[pos] = minThinningFct[i];
          maxValues[pos] = maxThinningFct[i];
 
-         if ( IsValueUndefined( baseValues[pos] ) ) { baseValues[pos] = 0.5 * ( minThinningFct[i] + maxThinningFct[i] ); }
+         if ( Utilities::isValueUndefined( baseValues[pos] ) ) { baseValues[pos] = 0.5 * ( minThinningFct[i] + maxThinningFct[i] ); }
          ++pos;
       }
       if ( ErrorHandler::NoError != varPrmsSet.addParameter( new VarPrmCrustThinning( baseValues, minValues, maxValues, mapsList, pdfType, name ) ) )
@@ -953,7 +953,7 @@ ErrorHandler::ReturnCode VarySurfacePorosity( ScenarioAnalysis & sa
       mbapi::LithologyManager & mgr = mdl.lithologyManager();
 
       mbapi::LithologyManager::LithologyID lid = mgr.findID( litName );
-      if ( IsValueUndefined( lid ) ) { throw ErrorHandler::Exception( mgr.errorCode() ) << mgr.errorMessage(); }
+      if ( Utilities::isValueUndefined( lid ) ) { throw ErrorHandler::Exception( mgr.errorCode() ) << mgr.errorMessage(); }
 
       mbapi::LithologyManager::PorosityModel porModel = mbapi::LithologyManager::PorUnknown;
       std::vector<double> porModelPrms;
@@ -1038,7 +1038,7 @@ ErrorHandler::ReturnCode VaryCompactionCoefficient( ScenarioAnalysis            
       // Check if the parameter space has a layer where the surface porosity was defined for a soil mechanics model.
       // In this case display an error message and exit.
       mbapi::LithologyManager::LithologyID lid = mgr.findID( litName );
-      if ( IsValueUndefined( lid ) )
+      if ( Utilities::isValueUndefined( lid ) )
       {
          throw ErrorHandler::Exception( mgr.errorCode() ) << mgr.errorMessage();
       }
@@ -1237,8 +1237,8 @@ ErrorHandler::ReturnCode VaryPorosityModelParameters( ScenarioAnalysis    & sa
 
       if ( PrmPorosityModel::SoilMechanics == mdlType )
       {
-         bool surfPorIsDef = IsValueUndefined( minSurfPor  ) || IsValueUndefined( maxSurfPor  ) ? false : true;
-         bool compCofIsDef = IsValueUndefined( minCompCoef ) || IsValueUndefined( maxCompCoef ) ? false : true;
+         bool surfPorIsDef = Utilities::isValueUndefined( minSurfPor  ) || Utilities::isValueUndefined( maxSurfPor  ) ? false : true;
+         bool compCofIsDef = Utilities::isValueUndefined( minCompCoef ) || Utilities::isValueUndefined( maxCompCoef ) ? false : true;
 
          if ( ! surfPorIsDef && ! compCofIsDef ) throw ErrorHandler::Exception( ErrorHandler::UndefinedValue ) <<
                                                                                                                   "For soil mechanics porosity model the surface porosity or compaction coefficient value range must be specified";
@@ -1304,8 +1304,8 @@ ErrorHandler::ReturnCode VaryPorosityModelParameters( ScenarioAnalysis    & sa
 
       case PrmPorosityModel::SoilMechanics:
       {
-         bool surfPorIsDef = IsValueUndefined( minSurfPor  ) || IsValueUndefined( maxSurfPor  ) ? false : true;
-         bool compCofIsDef = IsValueUndefined( minCompCoef ) || IsValueUndefined( maxCompCoef ) ? false : true;
+         bool surfPorIsDef = Utilities::isValueUndefined( minSurfPor  ) || Utilities::isValueUndefined( maxSurfPor  ) ? false : true;
+         bool compCofIsDef = Utilities::isValueUndefined( minCompCoef ) || Utilities::isValueUndefined( maxCompCoef ) ? false : true;
 
          if ( surfPorIsDef && ( baseSurfPor < minSurfPor || baseSurfPor > maxSurfPor ) ) { throw ex << "Surface porosity in the base case is outside of the given range"; }
          if ( compCofIsDef && ( baseCompCoef < minCompCoef || baseCompCoef > maxCompCoef ) ) { throw ex << "Compaction coeff. in the base case is outside of the given range"; }
@@ -1398,7 +1398,7 @@ ErrorHandler::ReturnCode VaryPermeabilityModelParameters( ScenarioAnalysis      
       // get base value
       mbapi::LithologyManager & lmgr = sa.baseCase().lithologyManager();
       mbapi::LithologyManager::LithologyID ltid = lmgr.findID( lithoName );
-      if ( IsValueUndefined( ltid ) )
+      if ( Utilities::isValueUndefined( ltid ) )
       {
          throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "No lithology with name: " << lithoName << " in lithologies type table";
       }
@@ -1421,7 +1421,7 @@ ErrorHandler::ReturnCode VaryPermeabilityModelParameters( ScenarioAnalysis      
       // check parameters for undefined values and replace them with base value
       for ( size_t i = 0; i < minModelPrms.size(); ++i )
       {
-         if ( IsValueUndefined( minModelPrms[i] ) || IsValueUndefined( maxModelPrms[i] ) )
+         if ( Utilities::isValueUndefined( minModelPrms[i] ) || Utilities::isValueUndefined( maxModelPrms[i] ) )
          {
             if ( static_cast<int>(litMdl) == static_cast<int>(mdlType) ) // if one of the range value is undefined assign min/max to the base value
             {
@@ -1430,8 +1430,8 @@ ErrorHandler::ReturnCode VaryPermeabilityModelParameters( ScenarioAnalysis      
             else // if in the project file the model is different - we can't get base value from it and replace undefined values with it
             {
                // if one of the value is defined - assign it to another one and base value
-               if (      !IsValueUndefined( minModelPrms[i] ) ) maxModelPrms[i] = basModelPrms[i] = minModelPrms[i];
-               else if ( !IsValueUndefined( maxModelPrms[i] ) ) minModelPrms[i] = basModelPrms[i] = maxModelPrms[i];
+               if (      !Utilities::isValueUndefined( minModelPrms[i] ) ) maxModelPrms[i] = basModelPrms[i] = minModelPrms[i];
+               else if ( !Utilities::isValueUndefined( maxModelPrms[i] ) ) minModelPrms[i] = basModelPrms[i] = maxModelPrms[i];
                else
                {
                   throw ErrorHandler::Exception( ErrorHandler::UndefinedValue ) << "Type of permeability model is changed for lithology: "

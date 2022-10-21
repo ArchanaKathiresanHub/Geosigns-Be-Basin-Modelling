@@ -23,6 +23,7 @@
 
 // Utilities lib
 #include "ConstantsMathematics.h"
+#include "Utilities.h"
 using Utilities::Maths::CelciusToKelvin;
 using Utilities::Maths::MegaPaToPa;
 #include "ConstantsPhysics.h"
@@ -94,7 +95,7 @@ ObsValue * ObsTrapDerivedProp::transform( const ObsValue * val ) const
    std::vector<double> values     = arrVal->asDoubleArray();
    bool                allDefined = true;
 
-   for ( auto it : values ) { if ( IsValueUndefined( it ) ) { allDefined = false; break; } }
+   for ( auto it : values ) { if ( Utilities::isValueUndefined( it ) ) { allDefined = false; break; } }
 
    double ret = Utilities::Numerical::IbsNoDataValue;
    if ( allDefined && values.size() == ComponentManager::NUMBER_OF_SPECIES + 4 )
@@ -178,7 +179,7 @@ ObsValue * ObsTrapDerivedProp::getFromModel( mbapi::Model & caldModel )
       else if ( i == ComponentManager::NUMBER_OF_SPECIES + 2 ) { propName = "Pressure";    }
       else if ( i == ComponentManager::NUMBER_OF_SPECIES + 3 ) { propName = "Temperature"; }
 
-      if ( IsValueUndefined( posDataMiningTbl()[i] ) )
+      if ( Utilities::isValueUndefined( posDataMiningTbl()[i] ) )
       {
          std::vector<int> posVec = posDataMiningTbl();
          for ( size_t j = 0; j < tblSize; ++j )

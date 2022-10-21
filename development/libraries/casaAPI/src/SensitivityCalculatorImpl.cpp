@@ -151,7 +151,7 @@ namespace casa
                else if ( categoricalPrm ) { allPrmVals[c] = css[c].parameter( prmID )->asInteger(); }
                else                       { throw ErrorHandler::Exception( ErrorHandler::NotImplementedAPI ) << "Unsupported influential parameter type"; }
 
-               if ( IsValueUndefined( csVal ) ) { hasUndefValue = true; continue; }
+               if ( Utilities::isValueUndefined( csVal ) ) { hasUndefValue = true; continue; }
                else
                {
                   if ( minValPos == css.size() || allObsVals[minValPos] > csVal ) { minValPos = c; }
@@ -197,10 +197,10 @@ namespace casa
             std::for_each( css.begin(), css.end(), [o, oo, &minProxy, &maxProxy] ( RunCaseImpl & cs )
                                                    {
                                                       double csVal = cs.obsValue( o )->asDoubleArray()[oo];
-                                                      if ( !IsValueUndefined( csVal ) )
+                                                      if ( !Utilities::isValueUndefined( csVal ) )
                                                       {
-                                                         minProxy = IsValueUndefined( minProxy ) ? csVal : std::min( csVal, minProxy );
-                                                         maxProxy = IsValueUndefined( maxProxy ) ? csVal : std::max( csVal, maxProxy );
+                                                         minProxy = Utilities::isValueUndefined( minProxy ) ? csVal : std::min( csVal, minProxy );
+                                                         maxProxy = Utilities::isValueUndefined( maxProxy ) ? csVal : std::max( csVal, maxProxy );
                                                       }
                                                    } );
             double dProxy = maxProxy - minProxy;

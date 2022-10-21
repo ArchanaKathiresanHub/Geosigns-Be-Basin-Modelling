@@ -13,6 +13,7 @@
 #include "FDCProjectManager.h"
 
 #include "LogHandler.h"
+#include "Utilities.h"
 
 #include "propinterface.h"
 
@@ -71,7 +72,7 @@ void FinalCaseManager::updateIsoPackMapsInStratIoTbl(const mbapi::StratigraphyMa
   mbapi::MapsManager & mapsMgrFinal = m_fdcProjectManager.getMapsManager();
 
   size_t mapsSequenceNbr = Utilities::Numerical::NoDataIDValue;
-  if (IsValueUndefined(mapsMgrFinal.generateMap("StratIoTbl", mapName, m_fdcMapFieldProperties.isoPacks()[s], mapsSequenceNbr, m_caseStorageManager.resultsMapFileName())))
+  if (Utilities::isValueUndefined(mapsMgrFinal.generateMap("StratIoTbl", mapName, m_fdcMapFieldProperties.isoPacks()[s], mapsSequenceNbr, m_caseStorageManager.resultsMapFileName())))
   { throw T2Zexception() << " Cannot generate the map for the iso surface " << s; }
   m_fdcMapFieldProperties.setCorrectedMapsSequenceNbr(s, mapsSequenceNbr);
 }

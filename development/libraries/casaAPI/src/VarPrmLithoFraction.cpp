@@ -178,7 +178,7 @@ namespace casa
       assert(depths.size() == lf2CorrInt.size());
       for ( unsigned int i = 0; i < depths.size(); ++i )
       {
-        if ( IsValueUndefined(depths[i]) )
+        if ( Utilities::isValueUndefined(depths[i]) )
         {
           lf1CorrInt[i] = Utilities::Numerical::CauldronNoDataValue;
           lf2CorrInt[i] = Utilities::Numerical::CauldronNoDataValue;
@@ -198,13 +198,13 @@ namespace casa
       size_t mapSeqNbr = Utilities::Numerical::NoDataIDValue;
 
       mbapi::MapsManager::MapID id = mapsMgr.generateMap( "StratIoTbl", mapNameFirstLithoPercentage, lf1CorrInt, mapSeqNbr,"" ); // use the default filename for the file storing the maps
-      if ( IsValueUndefined( id ) )
+      if ( Utilities::isValueUndefined( id ) )
       {
          throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Generation of the " << mapNameFirstLithoPercentage
                                                                         << " lithofraction map failed";
       }
       id = mapsMgr.generateMap( "StratIoTbl", mapNameSecondLithoPercentage, lf2CorrInt, mapSeqNbr,"" );
-      if ( IsValueUndefined( id ) )
+      if ( Utilities::isValueUndefined( id ) )
       {
          throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Generation of the " << mapNameSecondLithoPercentage
                                                                         << " lithofraction map failed";

@@ -29,11 +29,11 @@ TEST( LithoMapsInfoGenerator, testInfoGenerator )
    scenario.calibrationTargetManager().addToMapping("Density", "BulkDensity");
    scenario.calibrationTargetManager().addToMapping("Velocity", "Velocity");
 
-   casaWizard::sac::MapsManagerLithology& mapsManager = scenario.mapsManager();
-   mapsManager.setPIDW(3);
-   mapsManager.setSmoothingOption(1);
-   mapsManager.setRadiusSmoothing(5000);
-   mapsManager.setSmartGridding(false);
+  casaWizard::sac::MapsManagerLithology& mapsManager = scenario.mapsManager();
+  mapsManager.setPIDW(3);
+  mapsManager.setSmoothingOption(1);
+  mapsManager.setRadiusSmoothing(5000);
+  mapsManager.setSmartGridding(false);
 
    // Set Wells
    scenario.calibrationTargetManager().addWell("10_AML2_AV", 184550.00, 608300.00);

@@ -209,7 +209,7 @@ LithologyManager::LithologyID LithologyManagerImpl::copyLithology( LithologyID i
    try
    {
       // first check if given name already exist
-      if ( !IsValueUndefined( findID( newLithoName ) ) )
+      if ( !Utilities::isValueUndefined( findID( newLithoName ) ) )
       {
          throw Exception( AlreadyDefined ) << "Create copy: " << newLithoName << ", already exist in the lithology table";
       }
