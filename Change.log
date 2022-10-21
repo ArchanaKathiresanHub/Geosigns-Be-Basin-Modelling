@@ -13,7 +13,7 @@
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Version				Date of update
 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-Cauldron-v2.9.13		2022-10-18 09:06:30 +0000
+Cauldron-v2.9.14		2022-10-21 13:00:43 +0000
 =============================================================
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Third-party Software 		version
@@ -36,6 +36,18 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2022-10-21  Marnix.vandenBerg  <Marnix.vandenBerg@shell.com>
+
+	chg: usr: fix: Bug fix for extracting values from maps.
+	 * Refactor of isValueUndefined function(s).
+	 * Bug fix preventing interpolation between defined and undefined values.
+
+	Related work items: #475902
+
+	================== COMMIT-END ========================
+	Commit-ID:<ef7d6843c744242572674e3780443471d2c11710>	  (tag: refs/tags/v2.9.14, refs/heads/master, refs/heads/changeLog)
+
+++
 2022-10-18  Marnix.vandenBerg  <Marnix.vandenBerg@shell.com>
 
 	chg: usr: fix: Fix for failing simulations when base lithology value is outside of valid range.
