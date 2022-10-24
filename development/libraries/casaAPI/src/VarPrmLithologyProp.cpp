@@ -70,7 +70,7 @@ SharedParameterPtr VarPrmLithologyProp::makeThreeDFromOneD( mbapi::Model        
                                                           , const std::vector<double>             & // yin
                                                           , const std::vector<SharedParameterPtr> & prmVec
                                                           , const InterpolationParams             & // interpolationParams
-                                                          ) const
+                                                          , const MapInterpolator& interpolator) const
 {
    // make the average of the property
    double sum = 0.0;

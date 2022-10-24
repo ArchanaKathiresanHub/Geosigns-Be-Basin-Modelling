@@ -114,6 +114,8 @@ add_casa_gtest( NAME PrmTopCrustHeatProduction            SOURCES test/PrmTopCru
 add_casa_gtest( NAME PrmTopCrustHeatProductionGrid        SOURCES test/PrmTopCrustHeatProductionGridTest.cpp )
 add_casa_gtest( NAME PrmTopCrustHeatProductionGridScaling SOURCES test/PrmTopCrustHeatProductionGridScalingTest.cpp )
 
+add_casa_gtest( NAME inverseDistanceWeightingTest SOURCES test/TestInverseDistanceWeighting.cpp )
+
 if (MSVC)
    generate_version_by_git_last_checkin(src API_FILE_GIT_DATE_AS_VER)
    MESSAGE(STATUS "Version extracted for CasaAPI as: ${API_FILE_GIT_DATE_AS_VER}")

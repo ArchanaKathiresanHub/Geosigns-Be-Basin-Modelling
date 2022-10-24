@@ -153,7 +153,7 @@ SharedParameterPtr VarPrmCrustThinning::makeThreeDFromOneD( mbapi::Model        
                                                           , const std::vector<double>             & // yin
                                                           , const std::vector<SharedParameterPtr> & // prmVec
                                                           , const InterpolationParams             & // interpolationParams
-                                                          ) const
+                                                          , const MapInterpolator& interpolator) const
 {
    // Not yet implemented
    throw ErrorHandler::Exception( ErrorHandler::NotImplementedAPI ) << "makeThreeDFromOneD method not yet implemented for VarPrmCrustThinning";

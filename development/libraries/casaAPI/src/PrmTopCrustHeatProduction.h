@@ -84,6 +84,10 @@ namespace casa
      /// @return Actual version of serialized object representation
      virtual unsigned int version() const { return 2; }
 
+     TableInfo tableInfo() const override;
+
+     SharedParameterPtr createNewPrmFromModel(mbapi::Model& mdl) override {return SharedParameterPtr(new PrmTopCrustHeatProduction( mdl,{}));}
+
      /// @brief Read obsolete old varparameter specific information
      static void loadVarPrm( CasaDeserializer& dz, const unsigned int objVer );
 

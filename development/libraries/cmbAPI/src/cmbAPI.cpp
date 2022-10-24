@@ -98,19 +98,19 @@ public:
 
    // compare tables in project file
    std::string compareProject( Model::ModelImpl            * mdl
-                             , const std::set<std::string> & procesList
-                             , const std::set<std::string> & ignoreList
-                             , double                        relTol
-                             );
+                               , const std::set<std::string> & procesList
+                               , const std::set<std::string> & ignoreList
+                               , double                        relTol
+                               );
 
    // Copy matched given filter records from the given project to the current, all similar records in
    // the currenct projects will be deleted and replaced
    std::string mergeProject( Model::ModelImpl                             * mdl
-                           , const std::set<std::string>                  & tblsList
-                           , const std::vector<std::vector<std::string> > & fltList
-                           , size_t                                       & dlRecNum
-                           , size_t                                       & cpRecNum
-                           );
+                             , const std::set<std::string>                  & tblsList
+                             , const std::vector<std::vector<std::string> > & fltList
+                             , size_t                                       & dlRecNum
+                             , size_t                                       & cpRecNum
+                             );
 
    // Set of universal access interfaces. Project file level
    std::vector<std::string> tablesList();
@@ -139,10 +139,10 @@ public:
    // Create the unique copies of lithology for each given layer, alochtonous lithology and fault cut from the given lists
    // returns array of newly created lithologies name in order of layers->alochtonous lithologies->fault cuts
    std::vector<std::string> copyLithology( const std::string                                       & litName
-                                         , const std::vector< std::pair<std::string, size_t> >     & layersName
-                                         , const std::vector<std::string>                          & alochtLitName
-                                         , const std::vector<std::pair<std::string, std::string> > & faultsName
-                                         );
+                                           , const std::vector< std::pair<std::string, size_t> >     & layersName
+                                           , const std::vector<std::string>                          & alochtLitName
+                                           , const std::vector<std::pair<std::string, std::string> > & faultsName
+                                           );
    // model origin
    void origin( double & x, double & y );
 
@@ -168,7 +168,7 @@ public:
    void windowSize( double x, double y, int & xMin, int & xMax, int & yMin, int & yMax, double & xc, double & yc );
 
    // high resolution number of nodes
-   void hiresGridArealSize( long & sizeI, long & sizeJ );
+   void highResGridArealSize( long & sizeI, long & sizeJ );
 
    // high resolution model origin
    void highResOrigin( double & x, double & y );
@@ -176,44 +176,23 @@ public:
    // high resolution area size
    void highResAreaSize( double & sizeI, double & sizeJ );
 
-   void interpolateLithoFractionsNN( const std::vector<double> & xin
-                                   , const std::vector<double> & yin
-                                   , const std::vector<double> & lf1
-                                   , const std::vector<double> & lf2
-                                   , const std::vector<double> & lf3
-                                   , std::vector<double>       & xInt
-                                   , std::vector<double>       & yInt
-                                   , std::vector<double>       & rpInt
-                                   , std::vector<double>       & r13Int
-                                   );
-
-   void interpolateLithoFractionsIDW( const double              & IDWpower
-                                    , const std::vector<double> & xin
-                                    , const std::vector<double> & yin
-                                    , const std::vector<double> & lf1
-                                    , const std::vector<double> & lf2
-                                    , const std::vector<double> & lf3
-                                    , std::vector<double>       & xInt
-                                    , std::vector<double>       & yInt
-                                    , std::vector<double>       & rpInt
-                                    , std::vector<double>       & r13Int
-                                    );
+   void highResCellSize(double &deltaX, double &deltaY);
 
    void smoothenVector( std::vector<double>& vec
-                      , const int method
-                      , const double smoothingRadius
-                      , const int nrOfThreads
-                      ) const;
+                        , const int method
+                        , const double smoothingRadius
+                        , const int nrOfThreads
+                        ) const;
 
    void backTransformLithoFractions( const std::vector<double> & rpInt
-                                   , const std::vector<double> & r13Int
-                                   , std::vector<double>       & lf1CorrInt
-                                   , std::vector<double>       & lf2CorrInt
-                                   , std::vector<double>       & lf3CorrInt
-                                   , const bool                  emptyMap1
-                                   , const bool                  emptyMap2
-                                   , const bool                  emptyMap3
-                                   );
+                                     , const std::vector<double> & r13Int
+                                     , std::vector<double>       & lf1CorrInt
+                                     , std::vector<double>       & lf2CorrInt
+                                     , std::vector<double>       & lf3CorrInt
+                                     , const bool                  emptyMap1
+                                     , const bool                  emptyMap2
+                                     , const bool                  emptyMap3
+                                     );
 
    // determine if a particular point lies within the formation top and bottom
    bool checkPoint( const double x, const double y, const double z, const std::string & layerName );
@@ -374,10 +353,10 @@ ErrorHandler::ReturnCode Model::setTableValue(const std::string & tableName, siz
 
 // Set value in the table
 ErrorHandler::ReturnCode Model::setTableValue( const std::string & tableName
-                                             , size_t              rowNumber
-                                             , const std::string & propName
-                                             , const std::string & propValue
-                                             )
+                                               , size_t              rowNumber
+                                               , const std::string & propName
+                                               , const std::string & propValue
+                                               )
 {
    if ( errorCode() != NoError ) resetError(); // clean any previous error
 
@@ -389,16 +368,16 @@ ErrorHandler::ReturnCode Model::setTableValue( const std::string & tableName
 }
 
 std::string Model::compareProject( Model                       & mdl1
-                                 , const std::set<std::string> & compareTblsList
-                                 , const std::set<std::string> & ignoreTblsList
-                                 , double                        relTol
-                                 )
+                                   , const std::set<std::string> & compareTblsList
+                                   , const std::set<std::string> & ignoreTblsList
+                                   , double                        relTol
+                                   )
 {
    if ( errorCode() != NoError ) resetError(); // clean any previous error
 
    try { return m_pimpl->compareProject( mdl1.m_pimpl.get(), compareTblsList, ignoreTblsList, relTol ); }
    catch ( const Exception & ex ) { return std::string( "Exception during project comparison. Error code: " +
-                                                         ibs::to_string( ex.errorCode() ) + ", error message " + ex.what() ); }
+                                                        ibs::to_string( ex.errorCode() ) + ", error message " + ex.what() ); }
    catch ( ... ) { return "Unknown error"; }
 
    return "Can not perform comparison for unknown reason";
@@ -406,11 +385,11 @@ std::string Model::compareProject( Model                       & mdl1
 
 
 std::string Model::mergeProject( Model                                   & mdl1
-                          , const std::set<std::string>                  & tblsList
-                          , const std::vector<std::vector<std::string> > & fltList
-                          , size_t                                       & dlRecNum
-                          , size_t                                       & cpRecNum
-                       )
+                                 , const std::set<std::string>                  & tblsList
+                                 , const std::vector<std::vector<std::string> > & fltList
+                                 , size_t                                       & dlRecNum
+                                 , size_t                                       & cpRecNum
+                                 )
 {
    if ( errorCode() != NoError ) resetError(); // clean any previous error
 
@@ -547,6 +526,17 @@ Model::ReturnCode Model::highResAreaSize( double & x, double & y )
    return NoError;
 }
 
+Model::ReturnCode Model::highResCellSize( double & deltaX, double & deltaY )
+{
+   if ( errorCode() != NoError ) resetError(); // clean any previous error
+
+   try { m_pimpl->highResCellSize( deltaX, deltaY ); }
+   catch ( const Exception & ex ) { return reportError( ex.errorCode(), ex.what() ); }
+   catch ( ... )                  { return reportError( UnknownError, "Unknown error" ); }
+
+   return NoError;
+}
+
 Model::ReturnCode Model::window( long & minWinI, long & maxWinI, long & minWinJ, long & maxWinJ )
 {
    if ( errorCode() != NoError ) resetError(); // clean any previous error
@@ -626,58 +616,16 @@ Model::ReturnCode Model::windowSize( double x, double y, int & xMin, int & xMax,
    return NoError;
 }
 
-Model::ReturnCode Model::hiresGridArealSize( long & sizeI, long & sizeJ )
+Model::ReturnCode Model::highResGridArealSize( long & sizeI, long & sizeJ )
 {
    if ( errorCode() != NoError ) resetError(); // clean any previous error
 
-   try { m_pimpl->hiresGridArealSize( sizeI, sizeJ ); }
+   try { m_pimpl->highResGridArealSize( sizeI, sizeJ ); }
    catch ( const Exception & ex ) { return reportError( ex.errorCode(), ex.what() ); }
    catch ( ...                  ) { return reportError( UnknownError, "Unknown error" ); }
 
    return NoError;
 }
-
-Model::ReturnCode Model::interpolateLithoFractionsNN( const std::vector<double> & xin
-                                                    , const std::vector<double> & yin
-                                                    , const std::vector<double> & lf1
-                                                    , const std::vector<double> & lf2
-                                                    , const std::vector<double> & lf3
-                                                    ,       std::vector<double> & xInt
-                                                    ,       std::vector<double> & yInt
-                                                    ,       std::vector<double> & rpInt
-                                                    ,       std::vector<double> & r13Int
-                                                    )
-{
-   if ( errorCode() != NoError ) resetError();
-
-   try { m_pimpl->interpolateLithoFractionsNN( xin, yin, lf1, lf2, lf3, xInt, yInt, rpInt, r13Int ); }
-   catch ( const Exception & ex ) { return reportError( ex.errorCode(), ex.what() ); }
-   catch ( ... ) { return reportError( UnknownError, "Unknown error" ); }
-
-   return NoError;
-}
-
-Model::ReturnCode Model::interpolateLithoFractionsIDW( const double              & IDWpower
-                                                     , const std::vector<double> & xin
-                                                     , const std::vector<double> & yin
-                                                     , const std::vector<double> & lf1
-                                                     , const std::vector<double> & lf2
-                                                     , const std::vector<double> & lf3
-                                                     ,       std::vector<double> & xInt
-                                                     ,       std::vector<double> & yInt
-                                                     ,       std::vector<double> & rpInt
-                                                     ,       std::vector<double> & r13Int
-                                                     )
-{
-   if ( errorCode() != NoError ) resetError();
-
-   try { m_pimpl->interpolateLithoFractionsIDW( IDWpower, xin, yin, lf1, lf2, lf3, xInt, yInt, rpInt, r13Int ); }
-   catch ( const Exception & ex ) { return reportError( ex.errorCode(), ex.what() ); }
-   catch ( ... ) { return reportError( UnknownError, "Unknown error" ); }
-
-   return NoError;
-}
-
 
 Model::ReturnCode Model::smoothenVector( std::vector<double>& vec,
                                          const int method,
@@ -694,14 +642,14 @@ Model::ReturnCode Model::smoothenVector( std::vector<double>& vec,
 }
 
 Model::ReturnCode Model::backTransformLithoFractions( const std::vector<double> & rpInt
-                                                    , const std::vector<double> & r13Int
-                                                    ,       std::vector<double> & lf1CorrInt
-                                                    ,       std::vector<double> & lf2CorrInt
-                                                    ,       std::vector<double> & lf3CorrInt
-                                                    , const bool emptyMap1
-                                                    , const bool emptyMap2
-                                                    , const bool emptyMap3
-                                                    )
+                                                      , const std::vector<double> & r13Int
+                                                      ,       std::vector<double> & lf1CorrInt
+                                                      ,       std::vector<double> & lf2CorrInt
+                                                      ,       std::vector<double> & lf3CorrInt
+                                                      , const bool emptyMap1
+                                                      , const bool emptyMap2
+                                                      , const bool emptyMap3
+                                                      )
 {
    if ( errorCode() != NoError ) resetError();
 
@@ -713,10 +661,10 @@ Model::ReturnCode Model::backTransformLithoFractions( const std::vector<double> 
 }
 
 std::vector<std::string> Model::copyLithology( const std::string                                       & litName
-                                             , const std::vector< std::pair<std::string, size_t> >     & layersName
-                                             , const std::vector<std::string>                          & alochtLitName
-                                             , const std::vector<std::pair<std::string, std::string> > & faultsName
-                                             )
+                                               , const std::vector< std::pair<std::string, size_t> >     & layersName
+                                               , const std::vector<std::string>                          & alochtLitName
+                                               , const std::vector<std::pair<std::string, std::string> > & faultsName
+                                               )
 {
    if ( errorCode() != NoError ) resetError(); // clean any previous error
 
@@ -759,15 +707,15 @@ bool Model::getGridMapDepthValues( const mbapi::StratigraphyManager::SurfaceID s
 
 Model::ReturnCode Model::getUnit(const string& propertyName, string& unit)
 {
-  {
-     if ( errorCode() != NoError ) resetError();
+   {
+      if ( errorCode() != NoError ) resetError();
 
-     try { m_pimpl->getUnit(propertyName, unit); }
-     catch ( const Exception & ex ) { return reportError( ex.errorCode(), ex.what() ); }
-     catch ( ... ) { return reportError( UnknownError, "Unknown error" ); }
+      try { m_pimpl->getUnit(propertyName, unit); }
+      catch ( const Exception & ex ) { return reportError( ex.errorCode(), ex.what() ); }
+      catch ( ... ) { return reportError( UnknownError, "Unknown error" ); }
 
-     return NoError;
-  }
+      return NoError;
+   }
 }
 
 
@@ -807,24 +755,24 @@ struct RecordSorter
       // For all other tables sort first by string-type records and then everything else
       else
       {
-      // cache fields index and data type
-      for ( size_t i = 0; i < tblDef.size(); ++i )
-      {
-         if ( tblDef.getFieldDefinition( i )->dataType() == datatype::String )
+         // cache fields index and data type
+         for ( size_t i = 0; i < tblDef.size(); ++i )
          {
-            m_fldIDs.push_back( i );
-            m_fldTypes.push_back( tblDef.getFieldDefinition( i )->dataType() );
+            if ( tblDef.getFieldDefinition( i )->dataType() == datatype::String )
+            {
+               m_fldIDs.push_back( i );
+               m_fldTypes.push_back( tblDef.getFieldDefinition( i )->dataType() );
+            }
+         }
+         for ( size_t i = 0; i < tblDef.size(); ++i )
+         {
+            if ( tblDef.getFieldDefinition( static_cast<int>( i ) )->dataType() != datatype::String )
+            {
+               m_fldIDs.push_back( i );
+               m_fldTypes.push_back( tblDef.getFieldDefinition( i )->dataType() );
+            }
          }
       }
-      for ( size_t i = 0; i < tblDef.size(); ++i )
-      {
-         if ( tblDef.getFieldDefinition( static_cast<int>( i ) )->dataType() != datatype::String )
-         {
-            m_fldIDs.push_back( i );
-            m_fldTypes.push_back( tblDef.getFieldDefinition( i )->dataType() );
-         }
-      }
-   }
 
 
    }
@@ -838,17 +786,17 @@ struct RecordSorter
       {  size_t id = m_fldIDs[i];
          switch ( m_fldTypes[i] )
          {
-            case datatype::Bool:   { bool v = r1->getValue<bool>( id ); bool w = r2->getValue<bool>( id ); if ( v != w ) return v < w; } break;
-            case datatype::Int:    { int  v = r1->getValue<int >( id ); int  w = r2->getValue<int >( id ); if ( v != w ) return v < w; } break;
-            case datatype::Long:   { long v = r1->getValue<long>( id ); int  w = r2->getValue<long>( id ); if ( v != w ) return v < w; } break;
-            case datatype::Float:
-               { double v = r1->getValue<float>(id); double w = r2->getValue<float>(id); if ( !NumericFunctions::isEqual( v, w, m_eps ) ) return v < w; }
-               break;
-            case datatype::Double:
-               { double v = r1->getValue<double>(id); double w = r2->getValue<double>(id); if ( !NumericFunctions::isEqual( v, w, m_eps ) ) return v < w; }
-               break;
-            case datatype::String: { string v = r1->getValue<string>( id ); string w = r2->getValue<string>( id ); if ( v != w ) return v < w; } break;
-            default: ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Unknown data type for TableIO database record: " << m_fldTypes[i];
+         case datatype::Bool:   { bool v = r1->getValue<bool>( id ); bool w = r2->getValue<bool>( id ); if ( v != w ) return v < w; } break;
+         case datatype::Int:    { int  v = r1->getValue<int >( id ); int  w = r2->getValue<int >( id ); if ( v != w ) return v < w; } break;
+         case datatype::Long:   { long v = r1->getValue<long>( id ); int  w = r2->getValue<long>( id ); if ( v != w ) return v < w; } break;
+         case datatype::Float:
+         { double v = r1->getValue<float>(id); double w = r2->getValue<float>(id); if ( !NumericFunctions::isEqual( v, w, m_eps ) ) return v < w; }
+            break;
+         case datatype::Double:
+         { double v = r1->getValue<double>(id); double w = r2->getValue<double>(id); if ( !NumericFunctions::isEqual( v, w, m_eps ) ) return v < w; }
+            break;
+         case datatype::String: { string v = r1->getValue<string>( id ); string w = r2->getValue<string>( id ); if ( v != w ) return v < w; } break;
+         default: ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Unknown data type for TableIO database record: " << m_fldTypes[i];
          }
       }
       return false;
@@ -862,10 +810,10 @@ struct RecordSorter
 
 // compare tables in project file
 std::string Model::ModelImpl::compareProject( Model::ModelImpl * mdl
-                                            , const std::set<std::string> & procesList
-                                            , const std::set<std::string> & ignoreList
-                                            , double relTol
-                                            )
+                                              , const std::set<std::string> & procesList
+                                              , const std::set<std::string> & ignoreList
+                                              , double relTol
+                                              )
 {
    if ( m_projHandle.get() == nullptr || m_projHandle->getProjectFileHandler () == nullptr )
    {
@@ -890,7 +838,7 @@ std::string Model::ModelImpl::compareProject( Model::ModelImpl * mdl
    {
       if ( (ignoreList.size() > 0 && ignoreList.count( *it )  > 0 ) ||
            (procesList.size() > 0 && procesList.count( *it ) == 0 )
-         ) { continue; }
+           ) { continue; }
 
       if ( m_projHandle->getTable ( *it )->size () > 0 ) {
          lst1.push_back( *it );
@@ -904,7 +852,7 @@ std::string Model::ModelImpl::compareProject( Model::ModelImpl * mdl
    {
       if ( (ignoreList.size() > 0 && ignoreList.count( *it )  > 0 ) ||
            (procesList.size() > 0 && procesList.count( *it ) == 0 )
-         ) { continue; }
+           ) { continue; }
 
 
       if ( mdl->m_projHandle->getTable ( *it )->size () > 0 ) {
@@ -941,7 +889,7 @@ std::string Model::ModelImpl::compareProject( Model::ModelImpl * mdl
       if ( tbl1->size() != tbl2->size() )
       {
          oss << "Table " << tblName << " has " << tbl1->size() << " records in project " << m_projFileName <<
-         " but " << tbl2->size() << " records in project " << mdl->m_projFileName << "\n";
+                " but " << tbl2->size() << " records in project " << mdl->m_projFileName << "\n";
          continue; // can't compare !!!
       }
 
@@ -960,12 +908,12 @@ std::string Model::ModelImpl::compareProject( Model::ModelImpl * mdl
 
       std::vector<database::Record *> diffRecs( tbl1Recs.size() + tbl2Recs.size() );
       std::vector<database::Record *>::iterator dit = std::set_symmetric_difference( tbl1Recs.begin()
-                                                                                   , tbl1Recs.end()
-                                                                                   , tbl2Recs.begin()
-                                                                                   , tbl2Recs.end()
-                                                                                   , diffRecs.begin()
-                                                                                   , recCmp
-                                                                                   );
+                                                                                     , tbl1Recs.end()
+                                                                                     , tbl2Recs.begin()
+                                                                                     , tbl2Recs.end()
+                                                                                     , diffRecs.begin()
+                                                                                     , recCmp
+                                                                                     );
       diffRecs.resize( dit - diffRecs.begin() );
 
       tbl1Recs.clear();
@@ -983,9 +931,9 @@ std::string Model::ModelImpl::compareProject( Model::ModelImpl * mdl
 
       // compare field in records
       for ( std::vector<database::Record*>::iterator it1  = tbl1Recs.begin(), it2  = tbl2Recs.begin();
-                                                     it1 != tbl1Recs.end() && it2 != tbl2Recs.end();
-                                                     ++it1, ++it2
-          )
+            it1 != tbl1Recs.end() && it2 != tbl2Recs.end();
+            ++it1, ++it2
+            )
       {
          database::Record * r1 = *it1;
          database::Record * r2 = *it2;
@@ -1000,60 +948,60 @@ std::string Model::ModelImpl::compareProject( Model::ModelImpl * mdl
 
             switch ( dt )
             {
-               case datatype::Bool:
-                  {
-                     bool v1 = r1->getValue<bool>( static_cast<int>( k ) );
-                     bool v2 = r2->getValue<bool>( static_cast<int>( k ) );
-                     if ( v1 != v2 ) { oss << tblName << "("<< pos1 << "," << pos2 << ")." << colName << ": " << v1 << " != " << v2 << "\n"; }
-                  }
-                  break;
+            case datatype::Bool:
+            {
+               bool v1 = r1->getValue<bool>( static_cast<int>( k ) );
+               bool v2 = r2->getValue<bool>( static_cast<int>( k ) );
+               if ( v1 != v2 ) { oss << tblName << "("<< pos1 << "," << pos2 << ")." << colName << ": " << v1 << " != " << v2 << "\n"; }
+            }
+               break;
 
-               case datatype::Int:
-                  {
-                     int v1 = r1->getValue<int>( static_cast<int>( k ) );
-                     int v2 = r2->getValue<int>( static_cast<int>( k ) );
-                     if ( v1 != v2 ) { oss << tblName << "("<< pos1 << "," << pos2 << ")." << colName << ": " << v1 << " != " << v2 << "\n"; }
-                  }
-                  break;
+            case datatype::Int:
+            {
+               int v1 = r1->getValue<int>( static_cast<int>( k ) );
+               int v2 = r2->getValue<int>( static_cast<int>( k ) );
+               if ( v1 != v2 ) { oss << tblName << "("<< pos1 << "," << pos2 << ")." << colName << ": " << v1 << " != " << v2 << "\n"; }
+            }
+               break;
 
-               case datatype::Long:
-                  {
-                     long v1 = r1->getValue<long>( static_cast<int>( k ) );
-                     long v2 = r2->getValue<long>( static_cast<int>( k ) );
-                     if ( v1 != v2 ) { oss << tblName << "("<< pos1 << "," << pos2 << ")." << colName << ": " << v1 << " != " << v2 << "\n"; }
-                  }
-                  break;
+            case datatype::Long:
+            {
+               long v1 = r1->getValue<long>( static_cast<int>( k ) );
+               long v2 = r2->getValue<long>( static_cast<int>( k ) );
+               if ( v1 != v2 ) { oss << tblName << "("<< pos1 << "," << pos2 << ")." << colName << ": " << v1 << " != " << v2 << "\n"; }
+            }
+               break;
 
-               case datatype::Float:
-                  {
-                     float v1 = r1->getValue<float>( static_cast<int>( k ) );
-                     float v2 = r2->getValue<float>( static_cast<int>( k ) );
-                     if ( std::fabs(v1-v2) > 1e-6 && !NumericFunctions::isEqual( v1, v2, static_cast<float>(relTol) ) )
-                     {
-                        oss << tblName << "("<< pos1 << "," << pos2 << ")." << colName << ": " << v1 << " != " << v2 << "\n";
-                     }
-                  }
-              break;
-               case datatype::Double:
-                  {
-                     double v1 = r1->getValue<double>( static_cast<int>( k ) );
-                     double v2 = r2->getValue<double>( static_cast<int>( k ) );
-                     if ( std::fabs(v1-v2) > 1e-14 && !NumericFunctions::isEqual( v1, v2, relTol ) )
-                     {
-                        oss << tblName << "("<< pos1 << "," << pos2 << ")." << colName << ": " << v1 << " != " << v2 << "\n";
-                     }
-                  }
-                  break;
+            case datatype::Float:
+            {
+               float v1 = r1->getValue<float>( static_cast<int>( k ) );
+               float v2 = r2->getValue<float>( static_cast<int>( k ) );
+               if ( std::fabs(v1-v2) > 1e-6 && !NumericFunctions::isEqual( v1, v2, static_cast<float>(relTol) ) )
+               {
+                  oss << tblName << "("<< pos1 << "," << pos2 << ")." << colName << ": " << v1 << " != " << v2 << "\n";
+               }
+            }
+               break;
+            case datatype::Double:
+            {
+               double v1 = r1->getValue<double>( static_cast<int>( k ) );
+               double v2 = r2->getValue<double>( static_cast<int>( k ) );
+               if ( std::fabs(v1-v2) > 1e-14 && !NumericFunctions::isEqual( v1, v2, relTol ) )
+               {
+                  oss << tblName << "("<< pos1 << "," << pos2 << ")." << colName << ": " << v1 << " != " << v2 << "\n";
+               }
+            }
+               break;
 
-               case datatype::String:
-                  {
-                     string v1 = r1->getValue<string>( static_cast<int>( k ) );
-                     string v2 = r2->getValue<string>( static_cast<int>( k ) );
-                     if ( v1 != v2 ) { oss << tblName << "("<< pos1 << "," << pos2 << ")." << colName << ": " << v1 << " != " << v2 << "\n"; }
-                  }
-                  break;
+            case datatype::String:
+            {
+               string v1 = r1->getValue<string>( static_cast<int>( k ) );
+               string v2 = r2->getValue<string>( static_cast<int>( k ) );
+               if ( v1 != v2 ) { oss << tblName << "("<< pos1 << "," << pos2 << ")." << colName << ": " << v1 << " != " << v2 << "\n"; }
+            }
+               break;
 
-               default: break;
+            default: break;
             }
          }
       }
@@ -1062,11 +1010,11 @@ std::string Model::ModelImpl::compareProject( Model::ModelImpl * mdl
 }
 
 std::string Model::ModelImpl::mergeProject( Model::ModelImpl                             * mdl
-                                          , const std::set<std::string>                  & tblsList
-                                          , const std::vector<std::vector<std::string> > & fltList
-                                          , size_t                                       & dlRecNum
-                                          , size_t                                       & cpRecNum
-                                          )
+                                            , const std::set<std::string>                  & tblsList
+                                            , const std::vector<std::vector<std::string> > & fltList
+                                            , size_t                                       & dlRecNum
+                                            , size_t                                       & cpRecNum
+                                            )
 {
    dlRecNum = 0;
    cpRecNum = 0;
@@ -1107,7 +1055,7 @@ std::string Model::ModelImpl::mergeProject( Model::ModelImpl                    
             if ( index < 0 )
             {
                throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Wrong column name: " << fltList[f][1]  <<
-                  " for the table: " << fltList[f][0];
+                                                                                 " for the table: " << fltList[f][0];
             }
             // clean the current table records which matched filter
             database::Table::iterator tit = tblTo->begin();
@@ -1337,11 +1285,11 @@ void Model::ModelImpl::setTableIntegerValue( const std::string & tableName, size
    datatype::DataType dt = tblDef.getFieldDefinition( ind )->dataType();
    switch ( dt )
    {
-      case datatype::Bool: record->setValue<bool>( ind, (propValue ? true : false)  ); break;
-      case datatype::Int:  record->setValue<int>(  ind, static_cast<int>(propValue) ); break;
-      case datatype::Long: record->setValue<long>( ind,                  propValue  ); break;
-      default:
-         throw ErrorHandler::Exception( UndefinedValue ) << tableName << "(" << propName << ") - data type can't be cast to integer value";
+   case datatype::Bool: record->setValue<bool>( ind, (propValue ? true : false)  ); break;
+   case datatype::Int:  record->setValue<int>(  ind, static_cast<int>(propValue) ); break;
+   case datatype::Long: record->setValue<long>( ind,                  propValue  ); break;
+   default:
+      throw ErrorHandler::Exception( UndefinedValue ) << tableName << "(" << propName << ") - data type can't be cast to integer value";
    }
 }
 
@@ -1413,8 +1361,8 @@ void Model::ModelImpl::tableSort( const std::string & tblName, const std::vector
 
 void Model::ModelImpl::loadModelFromProjectFile( const std::string& projectFileName )
 {
-	m_factory.reset(new DataAccess::Interface::ObjectFactory);
-	m_projHandle.reset( DataAccess::Interface::OpenCauldronProject( projectFileName, m_factory.get() ) );
+   m_factory.reset(new DataAccess::Interface::ObjectFactory);
+   m_projHandle.reset( DataAccess::Interface::OpenCauldronProject( projectFileName, m_factory.get() ) );
 
    if ( !m_projHandle.get() )
    {
@@ -1453,7 +1401,7 @@ void Model::ModelImpl::saveModelToProjectFile( const std::string& projectFileNam
    if ( !m_projHandle->saveToFile( projectFileName ) )
    {
       throw ErrorHandler::Exception( ErrorHandler::IoError ) << "Model::saveModelToProjectFile() failed to save to " <<
-                                                                   projectFileName << " project file";
+                                                                projectFileName << " project file";
    }
 
    // copying maps
@@ -1509,17 +1457,17 @@ void Model::ModelImpl::window( long & minWinI, long & maxWinI, long & minWinJ, l
 
 void Model::ModelImpl::windowObservableOrigin( double & x, double & y )
 {
-  ibs::FilePath windowObsFilePath( m_projFileName );
-  windowObsFilePath.cutLast();  // cut filename
-  windowObsFilePath << "windowObservable.txt";
+   ibs::FilePath windowObsFilePath( m_projFileName );
+   windowObsFilePath.cutLast();  // cut filename
+   windowObsFilePath << "windowObservable.txt";
 
-  std::ifstream ifs( windowObsFilePath.path().c_str(), std::ifstream::in );
-  if( ifs.fail() )
-  {
-    throw ErrorHandler::Exception( ErrorHandler::IoError ) << "Could not open file:" << windowObsFilePath.path();
-  }
+   std::ifstream ifs( windowObsFilePath.path().c_str(), std::ifstream::in );
+   if( ifs.fail() )
+   {
+      throw ErrorHandler::Exception( ErrorHandler::IoError ) << "Could not open file:" << windowObsFilePath.path();
+   }
 
-  ifs >> x >> y;
+   ifs >> x >> y;
 }
 
 void Model::ModelImpl::setWindow( long minWinI, long maxWinI, long minWinJ, long maxWinJ )
@@ -1564,7 +1512,7 @@ void Model::ModelImpl::setSubsampling( long di, long dj )
 // model dimensions along X/Y
 void Model::ModelImpl::arealSize( double & dimX, double & dimY )
 {
-   if ( !m_projHandle.get() ) { throw ErrorHandler::Exception( ErrorHandler::IoError ) << "Model::origin(): no project was loaded"; }
+   if ( !m_projHandle.get() ) { throw ErrorHandler::Exception( ErrorHandler::IoError ) << "Model::arealSize(): no project was loaded"; }
 
    const DataAccess::Interface::ProjectData * pd = m_projHandle->getProjectData();
 
@@ -1575,7 +1523,7 @@ void Model::ModelImpl::arealSize( double & dimX, double & dimY )
 // calculate the window size for multi 1d projects
 void Model::ModelImpl::windowSize( double x, double y, int & xMin, int & xMax, int & yMin, int & yMax, double & xc, double & yc)
 {
-   if ( !m_projHandle.get() ) { throw ErrorHandler::Exception( ErrorHandler::IoError ) << "Model::origin(): no project was loaded"; }
+   if ( !m_projHandle.get() ) { throw ErrorHandler::Exception( ErrorHandler::IoError ) << "Model::windowSize(): no project was loaded"; }
 
    const DataAccess::Interface::ProjectData * pd = m_projHandle->getProjectData();
 
@@ -1590,9 +1538,9 @@ void Model::ModelImpl::windowSize( double x, double y, int & xMin, int & xMax, i
    yc = pd->getYOrigin() + ( yMin + yMax ) * 0.5 * pd->getDeltaY( );
 }
 
-void Model::ModelImpl::hiresGridArealSize( long & sizeI, long & sizeJ )
+void Model::ModelImpl::highResGridArealSize( long & sizeI, long & sizeJ )
 {
-   if ( !m_projHandle.get() ) { throw ErrorHandler::Exception( ErrorHandler::IoError ) << "Model::origin(): no project was loaded"; }
+   if ( !m_projHandle.get() ) { throw ErrorHandler::Exception( ErrorHandler::IoError ) << "Model::highResGridArealSize(): no project was loaded"; }
 
    const DataAccess::Interface::ProjectData * pd = m_projHandle->getProjectData();
 
@@ -1610,290 +1558,49 @@ void Model::ModelImpl::highResAreaSize( double & sizeI, double & sizeJ )
    sizeJ = (pd->getNumberOfYNodes() - 1) * pd->getDeltaY();
 }
 
-// transform the lithofractions and interpolate the results
-void Model::ModelImpl::interpolateLithoFractionsNN( const std::vector<double> & xin
-                                                  , const std::vector<double> & yin
-                                                  , const std::vector<double> & lf1
-                                                  , const std::vector<double> & lf2
-                                                  , const std::vector<double> & lf3
-                                                  ,       std::vector<double> & xInt
-                                                  ,       std::vector<double> & yInt
-                                                  ,       std::vector<double> & rpInt
-                                                  ,       std::vector<double> & r13Int
-                                                  )
+void Model::ModelImpl::highResCellSize( double& deltaX, double& deltaY )
 {
-  const double shift                = 100.0;
-  const int    convexHullEdgePoints = 25;
-  const int    nrOfWellsToAverageEdgePoints = 5;
+   if ( !m_projHandle.get() ) { throw ErrorHandler::Exception( ErrorHandler::IoError ) << "Model::highResCellSize(): no project was loaded"; }
 
-  const size_t nin                  = lf1.size();  
+   const DataAccess::Interface::ProjectData * pd = m_projHandle->getProjectData();
 
-  // for all wells calculate rp, r12
-  std::vector<double> rp;
-  std::vector<double> r13;
-  std::vector<double> x;
-  std::vector<double> y;
-
-  // the vertices of the domain must be included as interpolation points
-  if ( !m_projHandle ) { throw ErrorHandler::Exception( ErrorHandler::IoError ) << "Model::interpolateLithoFractions(): no project was loaded"; }
-  const DataAccess::Interface::ProjectData * pd = m_projHandle->getProjectData();
-
-  const double xmin   = pd->getXOrigin();
-  const double ymin   = pd->getYOrigin();
-
-  const double deltaX = pd->getDeltaX();
-  const double deltaY = pd->getDeltaY();
-
-  const int    numI   = pd->getNumberOfXNodes();
-  const int    numJ   = pd->getNumberOfYNodes();
-
-  const double xmax   = xmin + (numI - 1) * deltaX;
-  const double ymax   = ymin + (numJ - 1) * deltaY;
-
-  const double deltaXConvexHull = ( xmax - xmin ) / convexHullEdgePoints;
-  const double deltaYConvexHull = ( ymax - ymin ) / convexHullEdgePoints;
-
-  for ( size_t i = 0; i < nin; ++i )
-  {
-    const double lf1hat = lf1[i] + shift;
-    const double lf2hat = lf2[i] + shift;
-    const double lf3hat = lf3[i] + shift;
-    x.push_back( xin[i] );
-    y.push_back( yin[i] );
-    rp.push_back( ( lf1hat + lf3hat ) / lf2hat );
-    r13.push_back(  lf1hat / lf3hat );
-  }
-
-  for ( int i = 0; i <= convexHullEdgePoints; ++i )
-  {
-    x.push_back( xmin + deltaXConvexHull * i );
-    y.push_back( ymin );
-  }
-  for ( int i = 1; i < convexHullEdgePoints; ++i )
-  {
-    x.push_back( xmax );
-    y.push_back( ymin + i * deltaYConvexHull );
-  }
-  for ( int i = convexHullEdgePoints; i >= 0; --i )
-  {
-    x.push_back( xmin + deltaXConvexHull * i );
-    y.push_back( ymax );
-  }
-  for ( int i = convexHullEdgePoints - 1; i >= 1; --i )
-  {
-    x.push_back( xmin );
-    y.push_back( ymin + i * deltaYConvexHull );
-  }
-
-  auto getClosestWells = [=](double x, double y)
-  {
-    std::vector<int> closestWells;
-    std::vector<double> closestDistances;
-    for (int i = 0; i<nin; ++i)
-    {
-      const double dx = x - xin[i];
-      const double dy = y - yin[i];
-      const double distance2 = dx*dx + dy*dy;
-
-      if (closestWells.size()<nrOfWellsToAverageEdgePoints)
-      {
-        closestWells.push_back(i);
-        closestDistances.push_back(distance2);
-      }
-      else
-      {
-        int largest = -1;
-        double largestDistance = distance2;
-        for (int j = 0; j<nrOfWellsToAverageEdgePoints; ++j)
-        {
-          if (closestDistances[j] > largestDistance)
-          {
-            largestDistance = closestDistances[j];
-            largest = j;
-          }
-        }
-        if (largest > -1)
-        {
-          closestWells[largest] = i;
-          closestDistances[largest] = distance2;
-        }
-      }
-    }
-
-    return closestWells;
-  };
-
-  for ( size_t i = nin; i<x.size(); ++i )
-  {
-    double rpmean = 0.0;
-    double r13mean = 0.0;
-    const std::vector<int> closestWells = getClosestWells(x[i],y[i]);
-    for (int j : closestWells)
-    {
-      rpmean += rp[j];
-      r13mean += r13[j];
-    }
-
-    rp.push_back( rpmean / closestWells.size() );
-    r13.push_back( r13mean / closestWells.size() );
-  }
-
-  // interpolate
-  if ( ErrorHandler::NoError != m_mapMgr.interpolateMap( x, y, rp
-                                                         , xmin
-                                                         , xmax
-                                                         , ymin
-                                                         , ymax
-                                                         , numI, numJ, xInt, yInt, rpInt
-                                                         ) )
-  {
-    throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "NNlib interpolation failed for rp ";
-  }
-
-  if ( ErrorHandler::NoError != m_mapMgr.interpolateMap( x, y, r13
-                                                         , xmin
-                                                         , xmax
-                                                         , ymin
-                                                         , ymax
-                                                         , numI, numJ, xInt, yInt, r13Int
-                                                         ) )
-  {
-    throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "NNlib interpolation failed for r13 ";
-  }
-
-}
-
-// transform the lithofractions and interpolate the results
-void Model::ModelImpl::interpolateLithoFractionsIDW( const double              & IDWpower
-                                                   , const std::vector<double> & xin
-                                                   , const std::vector<double> & yin
-                                                   , const std::vector<double> & lf1
-                                                   , const std::vector<double> & lf2
-                                                   , const std::vector<double> & lf3
-                                                   ,       std::vector<double> & xInt
-                                                   ,       std::vector<double> & yInt
-                                                   ,       std::vector<double> & rpInt
-                                                   ,       std::vector<double> & r13Int
-                                                   )
-{
-  const double shift                = 100.0;
-  const double tol                  = 1.0; // 1 meter tolerance
-
-  const size_t nin                  = lf1.size();
-
-  // for all wells calculate rp, r12
-  std::vector<double> rp;
-  std::vector<double> r13;
-  std::vector<double> x;
-  std::vector<double> y;
-
-  // the vertices of the domain must be included as interpolation points
-  if ( !m_projHandle ) { throw ErrorHandler::Exception( ErrorHandler::IoError ) << "Model::interpolateLithoFractionsIDW(): no project was loaded"; }
-  const DataAccess::Interface::ProjectData * pd = m_projHandle->getProjectData();
-
-  const double xmin   = pd->getXOrigin();
-  const double ymin   = pd->getYOrigin();
-
-  const double deltaX = pd->getDeltaX();
-  const double deltaY = pd->getDeltaY();
-
-  const int    numI   = pd->getNumberOfXNodes();
-  const int    numJ   = pd->getNumberOfYNodes();
-
-  for ( size_t i = 0; i < nin; ++i )
-  {
-     double lf1hat = lf1[i] + shift;
-     double lf2hat = lf2[i] + shift;
-     double lf3hat = lf3[i] + shift;
-     x.push_back( xin[i] );
-     y.push_back( yin[i] );
-     rp.push_back( ( lf1hat + lf3hat ) / lf2hat );
-     r13.push_back(  lf1hat / lf3hat );
-  }
-
-  int nout = numI*numJ;
-  xInt.resize(nout);
-  yInt.resize(nout);
-  rpInt.resize(nout);
-  r13Int.resize(nout);
-
-  double yval = ymin + 0.5*deltaY;
-  int k = 0;
-  for ( int j = 0; j<numJ; ++j )
-  {
-    double xval = xmin + 0.5*deltaX;
-    for ( int i = 0; i<numI; ++i )
-    {
-      xInt[k] = xval;
-      yInt[k] = yval;
-
-      double v1 = 0.0;
-      double v2 = 0.0;
-      double s1 = 0.0;
-      double s2 = 0.0;
-      for ( size_t n = 0; n < nin; ++n )
-      {
-        const double dx = xval - x[n];
-        const double dy = yval - y[n];
-        const double dis = std::sqrt( dx*dx + dy*dy );
-        if (dis < tol)
-        {
-          v1 = rp[n]; s1 = 1.0;
-          v2 = r13[n]; s2 = 1.0;
-          continue;
-        }
-        else
-        {
-          const double weight = std::pow( 1.0/dis, IDWpower );
-          v1 += rp[n] * weight;
-          v2 += r13[n]* weight;
-          s1 += weight;
-          s2 += weight;
-        }
-      }
-      rpInt[k] = v1/s1;
-      r13Int[k] = v2/s2;
-      ++k;
-
-      xval += deltaX;
-    }
-    yval += deltaY;
-  }
+   deltaX = pd->getDeltaX();
+   deltaY = pd->getDeltaY();
 }
 
 // Do smoothing of a maps
 void Model::ModelImpl::smoothenVector( std::vector<double>& vec
-                                     , const int method
-                                     , const double smoothingRadius
-                                     , const int nrOfThreads
-                                     ) const
+                                       , const int method
+                                       , const double smoothingRadius
+                                       , const int nrOfThreads
+                                       ) const
 {
-  if ( !m_projHandle ) { throw ErrorHandler::Exception( ErrorHandler::IoError ) << "Model::interpolateLithoFractions(): no project was loaded"; }
-  const DataAccess::Interface::ProjectData * pd = m_projHandle->getProjectData();
+   if ( !m_projHandle ) { throw ErrorHandler::Exception( ErrorHandler::IoError ) << "Model::smoothenVector(): no project was loaded"; }
+   const DataAccess::Interface::ProjectData * pd = m_projHandle->getProjectData();
 
-  const double deltaX = pd->getDeltaX();
-  const double deltaY = pd->getDeltaY();
+   const double deltaX = pd->getDeltaX();
+   const double deltaY = pd->getDeltaY();
 
-  const int numI      = pd->getNumberOfXNodes();
-  const int numJ      = pd->getNumberOfYNodes();
+   const int numI      = pd->getNumberOfXNodes();
+   const int numJ      = pd->getNumberOfYNodes();
 
-  if ( ErrorHandler::NoError != m_mapMgr.smoothenVectorizedMap( vec, method, numI, numJ, deltaX, deltaY, smoothingRadius,
-                                                                DataAccess::Interface::DefaultUndefinedMapValue, nrOfThreads ) )
-  {
-    throw ErrorHandler::Exception( ErrorHandler::UnknownError ) << "Unknown error while smoothing Rp map";
-  }
+   if ( ErrorHandler::NoError != m_mapMgr.smoothenVectorizedMap( vec, method, numI, numJ, deltaX, deltaY, smoothingRadius,
+                                                                 DataAccess::Interface::DefaultUndefinedMapValue, nrOfThreads ) )
+   {
+      throw ErrorHandler::Exception( ErrorHandler::UnknownError ) << "Unknown error while smoothing Rp map";
+   }
 }
 
 // correct and back transform the interpolated values
 void Model::ModelImpl::backTransformLithoFractions( const std::vector<double> & rpInt
-                                                  , const std::vector<double> & r13Int
-                                                  , std::vector<double>       & lf1CorrInt
-                                                  , std::vector<double>       & lf2CorrInt
-                                                  , std::vector<double>       & lf3CorrInt
-                                                  , const bool emptyMap1
-                                                  , const bool emptyMap2
-                                                  , const bool emptyMap3
-   )
+                                                    , const std::vector<double> & r13Int
+                                                    , std::vector<double>       & lf1CorrInt
+                                                    , std::vector<double>       & lf2CorrInt
+                                                    , std::vector<double>       & lf3CorrInt
+                                                    , const bool emptyMap1
+                                                    , const bool emptyMap2
+                                                    , const bool emptyMap3
+                                                    )
 {      
    const double eps = 1e-10;
    const double shift    = 100.0;
@@ -1909,7 +1616,7 @@ void Model::ModelImpl::backTransformLithoFractions( const std::vector<double> & 
       double lf2Int =   sumLfInt            / ( rpInt[i]  + 1.0 );
       double lf3Int = ( sumLfInt - lf2Int ) / ( r13Int[i] + 1.0 );
       lf2Int -= shift;
-      lf3Int -= shift;     
+      lf3Int -= shift;
 
       if (lf2Int<0.0) lf2Int = 0.0;
       if (lf3Int<0.0) lf3Int = 0.0;
@@ -1920,21 +1627,21 @@ void Model::ModelImpl::backTransformLithoFractions( const std::vector<double> & 
 
       if (emptyMap1)
       {
-        lf2Int += lf1Int * 0.5;
-        lf3Int = 100.0 - lf2Int;
-        lf1Int = 0.0;
+         lf2Int += lf1Int * 0.5;
+         lf3Int = 100.0 - lf2Int;
+         lf1Int = 0.0;
       }
       if (emptyMap2)
       {
-        lf1Int += lf2Int * 0.5;
-        lf3Int = 100.0 - lf1Int;
-        lf2Int = 0.0;
+         lf1Int += lf2Int * 0.5;
+         lf3Int = 100.0 - lf1Int;
+         lf2Int = 0.0;
       }
       if (emptyMap3)
       {
-        lf1Int += lf3Int * 0.5;
-        lf2Int = 100.0 - lf1Int;
-        lf3Int = 0.0;
+         lf1Int += lf3Int * 0.5;
+         lf2Int = 100.0 - lf1Int;
+         lf3Int = 0.0;
       }
 
       // correct lithofractions if something got wrong
@@ -1949,11 +1656,11 @@ void Model::ModelImpl::backTransformLithoFractions( const std::vector<double> & 
       {
          if ( lf2Int > std::fabs( lf1Int ) )
          {
-           lf2Int -= lf1Int;
+            lf2Int -= lf1Int;
          }
          else
          {
-           lf3Int -= lf1Int;
+            lf3Int -= lf1Int;
          }
          lf1Int = 0.0;
       }
@@ -1961,11 +1668,11 @@ void Model::ModelImpl::backTransformLithoFractions( const std::vector<double> & 
       {
          if ( lf1Int > std::fabs( lf2Int ) )
          {
-           lf1Int -= lf2Int;
+            lf1Int -= lf2Int;
          }
          else
          {
-           lf3Int -= lf2Int;
+            lf3Int -= lf2Int;
          }
          lf2Int = 0.0;
       }
@@ -1973,18 +1680,18 @@ void Model::ModelImpl::backTransformLithoFractions( const std::vector<double> & 
       {
          if ( lf1Int > std::fabs( lf3Int ) )
          {
-           lf1Int -= lf3Int;
+            lf1Int -= lf3Int;
          }
          else
          {
-           lf2Int -= lf3Int;
+            lf2Int -= lf3Int;
          }
          lf3Int = 0.0;
       }
       if ( lf1Int + lf2Int + lf3Int > 100.0 + eps )
       {
          throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) <<
-                                      "The sum of the interpolated lithofractions is greater than 100: " << lf1Int + lf2Int + lf3Int;
+                                                                           "The sum of the interpolated lithofractions is greater than 100: " << lf1Int + lf2Int + lf3Int;
       }
 
       lf1CorrInt[i] = lf1Int;
@@ -1996,10 +1703,10 @@ void Model::ModelImpl::backTransformLithoFractions( const std::vector<double> & 
 // Create the unique copies of lithology for each given layer, alochtonous lithology and fault cut from the given lists
 // returns array of newly created lithologies name in order of layers->alochtonous lithologies->fault cuts
 std::vector<std::string> Model::ModelImpl::copyLithology( const std::string                                       & litName
-                                                        , const std::vector< std::pair<std::string, size_t> >     & layersName
-                                                        , const std::vector<std::string>                          & allochtLitName
-                                                        , const std::vector<std::pair<std::string, std::string> > & faultsName
-                                                        )
+                                                          , const std::vector< std::pair<std::string, size_t> >     & layersName
+                                                          , const std::vector<std::string>                          & allochtLitName
+                                                          , const std::vector<std::pair<std::string, std::string> > & faultsName
+                                                          )
 {
    const size_t randStringSize = 3; // how long should be random part in copied lithology
    std::vector<std::string> copiedLithologiesName;
@@ -2036,7 +1743,7 @@ std::vector<std::string> Model::ModelImpl::copyLithology( const std::string     
       if ( mixList.size() - 1 >= layersName[i].second &&
            mixList[layersName[i].second].rfind( "_CASA" ) != std::string::npos &&
            mixList[layersName[i].second].find( litName ) == 0
-         )
+           )
       {
          copiedLithologiesName.push_back( mixList[layersName[i].second] );
          continue; // go to the next layer in the list
@@ -2091,7 +1798,7 @@ std::vector<std::string> Model::ModelImpl::copyLithology( const std::string     
       if ( alLitNm != litName )
       {
          throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Layer " << allochtLitName[i] << " has no allochtonous lithology "
-            << litName;
+                                                                        << litName;
       }
 
       // create new lithology name, copy it and assign the new lithology name for the corresponded layer
@@ -2116,7 +1823,7 @@ std::vector<std::string> Model::ModelImpl::copyLithology( const std::string     
       if ( Utilities::isValueUndefined( flID ) )
       {
          throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "No lithology for the fault cut: " <<  faultsName[i].first <<
-            ":" << faultsName[i].second;
+                                                                         ":" << faultsName[i].second;
       }
 
       const std::string & flLitNm = m_stratMgr.faultCutLithology( flID );
@@ -2132,7 +1839,7 @@ std::vector<std::string> Model::ModelImpl::copyLithology( const std::string     
       if ( flLitNm != litName )
       {
          throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Fault cut " << faultsName[i].first << ":" << faultsName[i].second
-            << " has different lithology: " << flLitNm << " than excpected: " <<  litName;
+                                                                        << " has different lithology: " << flLitNm << " than excpected: " <<  litName;
       }
 
       // create new lithology name, copy it and assign the new lithology name for the corresponded fault cut
@@ -2187,8 +1894,8 @@ bool Model::ModelImpl::checkPoint( const double x, const double y, const double 
    window( minWinI, maxWinI, minWinJ, maxWinJ );
 
    if ( z >= topDepth  && z < bottomDepth &&
-      xind >= minWinI  && xind < maxWinI  &&
-      yind >= minWinJ  && yind < maxWinJ ) value = true;
+        xind >= minWinI  && xind < maxWinI  &&
+        yind >= minWinJ  && yind < maxWinJ ) value = true;
 
    return value;
 }
@@ -2211,14 +1918,14 @@ bool Model::ModelImpl::getGridMapDepthValues( const mbapi::StratigraphyManager::
 
 void Model::ModelImpl::getUnit(const string& propertyName, string& unit)
 {
-  const DataAccess::Interface::PropertyList* propertyList = m_projHandle->getProperties(true);
-  for (const DataAccess::Interface::Property* property : *propertyList)
-  {
-    if (property->getName() == propertyName)
-    {
-      unit = property->getUnit();
-      break;
-    }
-  }
+   const DataAccess::Interface::PropertyList* propertyList = m_projHandle->getProperties(true);
+   for (const DataAccess::Interface::Property* property : *propertyList)
+   {
+      if (property->getName() == propertyName)
+      {
+         unit = property->getUnit();
+         break;
+      }
+   }
 }
 }

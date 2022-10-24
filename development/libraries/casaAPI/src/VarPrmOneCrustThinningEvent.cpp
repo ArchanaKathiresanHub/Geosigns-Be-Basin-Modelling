@@ -99,12 +99,12 @@ SharedParameterPtr VarPrmOneCrustThinningEvent::newParameterFromModel( mbapi::Mo
    return prm;
 }
 
-SharedParameterPtr VarPrmOneCrustThinningEvent::makeThreeDFromOneD( mbapi::Model                          & // mdl
+SharedParameterPtr VarPrmOneCrustThinningEvent::makeThreeDFromOneD(mbapi::Model                          & // mdl
                                                                   , const std::vector<double>             & // xin
                                                                   , const std::vector<double>             & // yin
                                                                   , const std::vector<SharedParameterPtr> & // prmVec
                                                                   , const InterpolationParams             & // interpolationParams
-                                                                  ) const
+                                                                  , const MapInterpolator& interpolator) const
 {
    // Not yet implemented
    throw ErrorHandler::Exception( ErrorHandler::NotImplementedAPI ) << "makeThreeDFromOneD method not yet implemented for VarPrmOneCrustThinningEvent";

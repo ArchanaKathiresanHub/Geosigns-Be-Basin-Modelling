@@ -19,6 +19,8 @@
 
 namespace casa
 {
+   class MapInterpolator;
+
    /// @brief Variation for casa::PrmLithologyProp parameter
    class VarPrmLithologyProp: public VarPrmContinuous
    {
@@ -52,12 +54,12 @@ namespace casa
       /// @param[in] yin vector with y coordinates of each 1D project
       /// @param[in] prmVec vector with the optimal parameter value of each 1D project
       /// @return new parameter for given set of values
-      virtual SharedParameterPtr makeThreeDFromOneD( mbapi::Model                          & mdl
+      virtual SharedParameterPtr makeThreeDFromOneD(mbapi::Model                          & mdl
                                                    , const std::vector<double>             & xin
                                                    , const std::vector<double>             & yin
                                                    , const std::vector<SharedParameterPtr> & prmVec
                                                    , const InterpolationParams             & interpolationParams
-                                                   ) const;
+                                                   , const MapInterpolator& interpolator) const;
 
       /// @brief Convert Cauldron parameter values to SUMlib values for some influential parameters
       /// @param prm cauldron parameter with to this influential parameter corresponded type

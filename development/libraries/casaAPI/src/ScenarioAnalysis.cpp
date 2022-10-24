@@ -37,6 +37,8 @@
 #include "VarSpaceImpl.h"
 #include "PrmWindow.h"
 #include "PrmLithoFraction.h"
+#include "MapInterpolatorFactory.h"
+
 // Utilities lib
 #include <NumericFunctions.h>
 
@@ -1004,8 +1006,10 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::generateThreeDFromOneD( const std::
             {
                // make the averages
                SharedParameterPtr prm;
-               VarPrmContinuous::InterpolationParams interpolationParams{ interpolationMethod, IDWpower, smoothingMethod, smoothingRadius, nrOfThreads };
-               prm = vprmc->makeThreeDFromOneD( bc, xcoordOneD, ycoordOneD, prmVec, interpolationParams );
+               InterpolationParams interpolationParams{ interpolationMethod, IDWpower, smoothingMethod, smoothingRadius, nrOfThreads };
+               std::unique_ptr<MapInterpolator> interpolator = std::move(MapInterpolatorFactory::createMapInterpolator(interpolationMethod, IDWpower));
+
+               prm = vprmc->makeThreeDFromOneD( bc, xcoordOneD, ycoordOneD, prmVec, interpolationParams, *interpolator );
                brc->addParameter( prm );
             }
          }

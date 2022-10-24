@@ -19,6 +19,7 @@
 namespace casa
 {
    class PrmSourceRockProp;
+   class MapInterpolator;
 
    /// @brief Base class for source rock lithology parameters such as TOC, H/C, HI and so on
    class VarPrmSourceRockProp : public VarPrmContinuous
@@ -51,7 +52,7 @@ namespace casa
                                                    , const std::vector<double>             & yin    ///< y coordinates of each 1D project
                                                    , const std::vector<SharedParameterPtr> & prmVec ///< the optimal parameter values of each 1D project
                                                    , const InterpolationParams& interpolationParams ///< set of interpolation parameters
-                                                   ) const;
+                                                   , const MapInterpolator& interpolator) const;
 
       /// @brief Convert Cauldron parameter values to SUMlib values for some influential parameters
       /// @param prm cauldron parameter with to this influential parameter corresponded type

@@ -51,7 +51,7 @@ const char * MapsManagerImpl::s_MapNameColName     = "MapName";       // Input m
 const char * MapsManagerImpl::s_MapTypeColName     = "MapType";       // Type of the grid map, possible values are:DECASCII, DECBINARY, ZYCOR, CPS3, EPIRUS, XYZ
 const char * MapsManagerImpl::s_MapFileNameColName = "MapFileName";   // Filename of the grid map (with extension)
 const char * MapsManagerImpl::s_MapSeqNbrColName   = "MapSeqNbr";     // Sequence number of the grid map, within the grid loader (Starting with 0). This attribute
-                                                                             // is only relevant for multiple map files.
+// is only relevant for multiple map files.
 const char * MapsManagerImpl::s_StratIoTbl         = "StratIoTbl";    // Table name reffered in the GridMapIoTbl for the lithofractions
 //const char * MapsManagerImpl::s_mapResultFile      = "CasaModel_Results.HDF";
 const char * MapsManagerImpl::s_mapResultFile      = "Inputs.HDF";
@@ -101,21 +101,21 @@ MapsManager::MapID MapsManagerImpl::findID( const std::string & mName )
 // Get list of map names
 std::vector<std::string> MapsManagerImpl::mapNames() const
 {
-  return m_mapName;
+   return m_mapName;
 }
 
 // Get hash table of map names to map IDs
 std::unordered_map<std::string, MapsManager::MapID> MapsManagerImpl::mapNameIDs() const
 {
-  std::unordered_map<std::string, MapsManager::MapID> myMapNameIDs;
-  const std::vector<MapsManager::MapID> myMapsIDs = mapsIDs();
+   std::unordered_map<std::string, MapsManager::MapID> myMapNameIDs;
+   const std::vector<MapsManager::MapID> myMapsIDs = mapsIDs();
 
-  for (const MapsManager::MapID & id : myMapsIDs)
-  {
-    myMapNameIDs[m_mapName[id]] = id;
-  }
+   for (const MapsManager::MapID & id : myMapsIDs)
+   {
+      myMapNameIDs[m_mapName[id]] = id;
+   }
 
-  return myMapNameIDs;
+   return myMapNameIDs;
 }
 
 // Make a copy of the given map. Map must be saved in the separate call of MapManager::saveMapToHDF
@@ -157,79 +157,79 @@ MapsManager::MapID MapsManagerImpl::copyMap( MapID id, const std::string& newMap
 }
 
 void MapsManagerImpl::createMap(const std::string& referredTable, const std::string& mapName, size_t& mapSequenceNbr, const std::string& filePathName,
-      MapID& id, DataAccess::Interface::GridMap * gridMap)
+                                MapID& id, DataAccess::Interface::GridMap * gridMap)
+{
+
+   ibs::FilePath mapFullPath( ibs::FilePath( m_projectFileName ).filePath() );
+
+   // if filename is empty
+   mapFullPath << ( filePathName.empty() ? s_mapResultFile : filePathName );
+
+   const MapID pos = find( m_mapName.begin(), m_mapName.end(), mapName ) - m_mapName.begin();
+
+   if ( pos == m_mapName.size() )
    {
+      // create a new Map
+      id = m_mapName.size();
+      m_mapObj.push_back( gridMap );
+      m_mapName.push_back( mapName );
+      m_mapRefTable.push_back( referredTable );
 
-      ibs::FilePath mapFullPath( ibs::FilePath( m_projectFileName ).filePath() );
+      // get pointer to the GridMapIo table
+      database::Table * table = m_proj->getTable( s_mapsTableName );
+      if ( !table ) { throw Exception( NonexistingID ) << s_mapsTableName << " table could not be found in project " << m_projectFileName; }
 
-      // if filename is empty
-      mapFullPath << ( filePathName.empty() ? s_mapResultFile : filePathName );
+      // create a new record in s_mapsTableName
+      database::Record * newRec = table->createRecord();
 
-      const MapID pos = find( m_mapName.begin(), m_mapName.end(), mapName ) - m_mapName.begin();
-
-      if ( pos == m_mapName.size() )
+      // determine the map sequence number (in this case the map is always a new one)
+      const std::string mapFile = mapFullPath.path();
+      if ( !m_fileMaps.count( mapFile ) )
       {
-         // create a new Map
-         id = m_mapName.size();
-         m_mapObj.push_back( gridMap );
-         m_mapName.push_back( mapName );
-         m_mapRefTable.push_back( referredTable );
-
-         // get pointer to the GridMapIo table
-         database::Table * table = m_proj->getTable( s_mapsTableName );
-         if ( !table ) { throw Exception( NonexistingID ) << s_mapsTableName << " table could not be found in project " << m_projectFileName; }
-
-         // create a new record in s_mapsTableName
-         database::Record * newRec = table->createRecord();
-
-         // determine the map sequence number (in this case the map is always a new one)
-         const std::string mapFile = mapFullPath.path();
-         if ( !m_fileMaps.count( mapFile ) )
-         {
-            // the first map of the file
-            mapSequenceNbr = 0;
-            m_fileMaps.insert( std::pair<std::string, std::vector<std::string>>( mapFile, std::vector<std::string>( 1, m_mapName[id] ) ) );
-         }
-         else
-         {
-            mapSequenceNbr = 0;
-            for ( const std::string& name : m_fileMaps[mapFile] )
-            {
-               mapSequenceNbr = std::max( mapSequenceNbr, m_seqNrMap[name] );
-            }
-            ++mapSequenceNbr;
-
-            m_fileMaps[mapFile].push_back( mapName ); //add the new name to m_fileMaps
-         }
-
-         m_seqNrMap[mapName] = mapSequenceNbr;
-
-         // change names
-         newRec->setValue<std::string>( s_ReferredByColName,  referredTable.c_str() );
-         newRec->setValue(              s_MapNameColName,     mapName );
-         newRec->setValue<std::string>( s_MapTypeColName,     "HDF5" );
-         newRec->setValue<std::string>( s_MapFileNameColName, mapFullPath.fileName() );
-         newRec->setValue<int>(         s_MapSeqNbrColName,   static_cast<int>( mapSequenceNbr ) );
+         // the first map of the file
+         mapSequenceNbr = 0;
+         m_fileMaps.insert( std::pair<std::string, std::vector<std::string>>( mapFile, std::vector<std::string>( 1, m_mapName[id] ) ) );
       }
       else
       {
-         m_mapObj[pos] = gridMap;
-         m_mapRefTable[pos] = referredTable;
-         id = pos;
+         mapSequenceNbr = 0;
+         for ( const std::string& name : m_fileMaps[mapFile] )
+         {
+            mapSequenceNbr = std::max( mapSequenceNbr, m_seqNrMap[name] );
+         }
+         ++mapSequenceNbr;
 
-         // map already exists
-         std::vector<std::string>  maps = m_fileMaps[mapFullPath.path()];
-         const auto position = std::find( maps.begin(), maps.end(), m_mapName[id] );
-         mapSequenceNbr = position - maps.begin();
+         m_fileMaps[mapFile].push_back( mapName ); //add the new name to m_fileMaps
       }
+
+      m_seqNrMap[mapName] = mapSequenceNbr;
+
+      // change names
+      newRec->setValue<std::string>( s_ReferredByColName,  referredTable.c_str() );
+      newRec->setValue(              s_MapNameColName,     mapName );
+      newRec->setValue<std::string>( s_MapTypeColName,     "HDF5" );
+      newRec->setValue<std::string>( s_MapFileNameColName, mapFullPath.fileName() );
+      newRec->setValue<int>(         s_MapSeqNbrColName,   static_cast<int>( mapSequenceNbr ) );
    }
+   else
+   {
+      m_mapObj[pos] = gridMap;
+      m_mapRefTable[pos] = referredTable;
+      id = pos;
+
+      // map already exists
+      std::vector<std::string>  maps = m_fileMaps[mapFullPath.path()];
+      const auto position = std::find( maps.begin(), maps.end(), m_mapName[id] );
+      mapSequenceNbr = position - maps.begin();
+   }
+}
 
 MapsManager::MapID MapsManagerImpl::generateMap( const std::string         & referredTable
-                                               , const std::string         & mapName
-                                               , const std::vector<double> & values
-                                               , size_t                    & mapSequenceNbr
-                                               , const std::string         & filePathName
-                                               , const bool                  saveToHDF)
+                                                 , const std::string         & mapName
+                                                 , const std::vector<double> & values
+                                                 , size_t                    & mapSequenceNbr
+                                                 , const std::string         & filePathName
+                                                 , const bool                  saveToHDF)
 {
    if ( errorCode() != NoError ) resetError();
 
@@ -238,7 +238,7 @@ MapsManager::MapID MapsManagerImpl::generateMap( const std::string         & ref
    try
    {
       DataAccess::Interface::GridMap * gridMap = m_proj->getFactory()->produceGridMap( nullptr, 0, m_proj->getInputGrid(),
-         Utilities::Numerical::CauldronNoDataValue, 1 );
+                                                                                       Utilities::Numerical::CauldronNoDataValue, 1 );
       createMap(referredTable, mapName, mapSequenceNbr, filePathName, ret, gridMap);
 
       // set the values in the map
@@ -256,11 +256,11 @@ MapsManager::MapID MapsManagerImpl::generateMap( const std::string         & ref
 }
 
 MapsManager::MapID MapsManagerImpl::generateMap( const std::string              & referredTable
-                                               , const std::string              & mapName
-                                               , DataAccess::Interface::GridMap * gridMap
-                                               , size_t                         & mapSequenceNbr
-                                               , const std::string              & filePathName
-                                               )
+                                                 , const std::string              & mapName
+                                                 , DataAccess::Interface::GridMap * gridMap
+                                                 , size_t                         & mapSequenceNbr
+                                                 , const std::string              & filePathName
+                                                 )
 {
    if ( errorCode() != NoError ) resetError();
 
@@ -320,21 +320,21 @@ ErrorHandler::ReturnCode MapsManagerImpl::finalizeMapWriter()
 
 ErrorHandler::ReturnCode MapsManagerImpl::removeMapReferenceFromGridMapIOTbl(const string& mapName, const string& referredBy)
 {
-  // Delete Reference in GridMapIOTbl
-  database::Table * table = m_proj->getTable( s_mapsTableName );
-  if ( !table ) { throw Exception( NonexistingID ) << s_mapsTableName << " table could not be found in project " << m_projectFileName; }
+   // Delete Reference in GridMapIOTbl
+   database::Table * table = m_proj->getTable( s_mapsTableName );
+   if ( !table ) { throw Exception( NonexistingID ) << s_mapsTableName << " table could not be found in project " << m_projectFileName; }
 
-  database::Record* record = table->findRecord("ReferredBy", referredBy, "MapName", mapName);
-  table->removeRecord(record);
+   database::Record* record = table->findRecord("ReferredBy", referredBy, "MapName", mapName);
+   table->removeRecord(record);
 
-  // Delete reference in member containing all the used map names
-  const auto pos = std::find( m_mapName.begin(), m_mapName.end(), mapName );
-  if (pos != m_mapName.end())
-  {
-    m_mapName.erase(pos);
-  }
+   // Delete reference in member containing all the used map names
+   const auto pos = std::find( m_mapName.begin(), m_mapName.end(), mapName );
+   if (pos != m_mapName.end())
+   {
+      m_mapName.erase(pos);
+   }
 
-  return NoError;
+   return NoError;
 }
 
 ErrorHandler::ReturnCode MapsManagerImpl::mapSetValues( MapID id, const std::vector<double>& vin )
@@ -348,10 +348,22 @@ ErrorHandler::ReturnCode MapsManagerImpl::mapSetValues( MapID id, const std::vec
 
       const double nulVal = gridMap->getUndefinedValue();
 
-      int k = 0;
-      for ( unsigned int j = gridMap->firstJ(); j <= gridMap->lastJ(); ++j )
+      unsigned int idxFirstj = gridMap->firstJ();
+      unsigned int idxLastj = gridMap->lastJ();
+      unsigned int idxFirsti = gridMap->firstI();
+      unsigned int idxLasti = gridMap->lastI();
+
+      unsigned int numGridPoints = (idxLastj-idxFirstj + 1)*(idxLasti-idxFirsti + 1);
+
+      if (vin.size() != numGridPoints)
       {
-         for ( unsigned int i = gridMap->firstI(); i <= gridMap->lastI(); ++i )
+         throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "MapManager::mapSetValues(): Input data size mismatch.";
+      }
+
+      size_t k = 0;
+      for ( unsigned int j = idxFirstj; j <= idxLastj; ++j )
+      {
+         for ( unsigned int i = idxFirsti; i <= idxLasti; ++i )
          {
             const double v = vin[k++];
             gridMap->setValue( i, j, NumericFunctions::isEqual( v, nulVal, 1e-5 ) ? nulVal : v );
@@ -399,10 +411,10 @@ double MapsManagerImpl::mapGetValue( MapID id, unsigned int i, unsigned int j )
    double value = 0.0;
    try
    {
-     loadGridMap( id ); // check if map is loaded and load it if not loaded before
-     m_mapObj[id]->retrieveData();
-     value = m_mapObj[id]->getValue( static_cast<unsigned int>( i ), static_cast<unsigned int>( j ) );
-     m_mapObj[id]->restoreData();
+      loadGridMap( id ); // check if map is loaded and load it if not loaded before
+      m_mapObj[id]->retrieveData();
+      value = m_mapObj[id]->getValue( static_cast<unsigned int>( i ), static_cast<unsigned int>( j ) );
+      m_mapObj[id]->restoreData();
    }
    catch ( const Exception & ex ) { reportError( ex.errorCode(), ex.what() ); }
 
@@ -416,13 +428,13 @@ double MapsManagerImpl::mapGetValue( MapID id, double x, double y )
    double value = 0.0;
    try
    {
-     loadGridMap( id ); // check if map is loaded and load it if not loaded before
-     const GridMap* map = m_mapObj[id];
-     map->retrieveData();
-     const double i = (x - map->minI()) / map->deltaI();
-     const double j = (y - map->minJ()) / map->deltaJ();
-     value = map->getValue(  i, j );
-     map->restoreData();
+      loadGridMap( id ); // check if map is loaded and load it if not loaded before
+      const GridMap* map = m_mapObj[id];
+      map->retrieveData();
+      const double i = (x - map->minI()) / map->deltaI();
+      const double j = (y - map->minJ()) / map->deltaJ();
+      value = map->getValue(  i, j );
+      map->restoreData();
    }
    catch ( const Exception & ex ) { reportError( ex.errorCode(), ex.what() ); }
 
@@ -466,7 +478,7 @@ ErrorHandler::ReturnCode MapsManagerImpl::saveMapToHDF( MapID id, const std::str
       if ( !givenPath.empty() && givenPath != ibs::FilePath( m_projectFileName ).filePath() )
       {
          throw Exception( OutOfRangeValue ) << "Given path to save map " << m_mapName[id] << ": " << givenPath <<
-            ", is different from the path where project is located: " << ibs::FilePath( m_projectFileName ).filePath();
+                                               ", is different from the path where project is located: " << ibs::FilePath( m_projectFileName ).filePath();
       }
       ibs::FilePath mapFullPath( givenPath.empty() ? ibs::FilePath( m_projectFileName ).filePath() : givenPath );
       mapFullPath << mfName;
@@ -571,26 +583,26 @@ ErrorHandler::ReturnCode MapsManagerImpl::scaleMap( MapID id, double coeff )
 ErrorHandler::ReturnCode MapsManagerImpl::smoothenGridMap( MapsManager::MapID id, const int method,
                                                            const double smoothingRadius, const unsigned int nrOfThreads )
 {
-  if ( errorCode() != NoError ) resetError();
-  try
-  {
-    double oldMin;
-    double oldMax;
-    if ( NoError != mapValuesRange( id, oldMin, oldMax ) )
-    {
-      throw ErrorHandler::Exception( errorCode() ) << errorMessage();
-    }
+   if ( errorCode() != NoError ) resetError();
+   try
+   {
+      double oldMin;
+      double oldMax;
+      if ( NoError != mapValuesRange( id, oldMin, oldMax ) )
+      {
+         throw ErrorHandler::Exception( errorCode() ) << errorMessage();
+      }
 
-    std::unique_ptr<MapSmoothing::MapSmoother> mapSmoother( new MapSmoothing::MapSmootherGridMap( m_mapObj[id], smoothingRadius, nrOfThreads) );
-    if ( method == 0 ) mapSmoother->doSmoothing( MapSmoothing::FilterType::Gaussian );
-    if ( method == 1 ) mapSmoother->doSmoothing( MapSmoothing::FilterType::MovingAverage );
-  }
-  catch( const Exception & ex )
-  {
-    return reportError( ex.errorCode(), ex.what() );
-  }
+      std::unique_ptr<MapSmoothing::MapSmoother> mapSmoother( new MapSmoothing::MapSmootherGridMap( m_mapObj[id], smoothingRadius, nrOfThreads) );
+      if ( method == 0 ) mapSmoother->doSmoothing( MapSmoothing::FilterType::Gaussian );
+      if ( method == 1 ) mapSmoother->doSmoothing( MapSmoothing::FilterType::MovingAverage );
+   }
+   catch( const Exception & ex )
+   {
+      return reportError( ex.errorCode(), ex.what() );
+   }
 
-  return NoError;
+   return NoError;
 }
 
 ErrorHandler::ReturnCode MapsManagerImpl::smoothenVectorizedMap( std::vector<double>& vec, const int method,
@@ -599,82 +611,82 @@ ErrorHandler::ReturnCode MapsManagerImpl::smoothenVectorizedMap( std::vector<dou
                                                                  const double smoothingRadius, const double undefinedValue,
                                                                  const unsigned int nrOfThreads) const
 {
-  std::unique_ptr<MapSmoothing::MapSmoother> mapSmoother(
-        new MapSmoothing::MapSmootherVectorized( vec, undefinedValue, smoothingRadius,dx , dy, numI, numJ, nrOfThreads ) );
-  if ( method == 0 ) mapSmoother->doSmoothing( MapSmoothing::FilterType::Gaussian );
-  if ( method == 1 ) mapSmoother->doSmoothing( MapSmoothing::FilterType::MovingAverage );
-  return ErrorHandler::NoError;
+   std::unique_ptr<MapSmoothing::MapSmoother> mapSmoother(
+            new MapSmoothing::MapSmootherVectorized( vec, undefinedValue, smoothingRadius,dx , dy, numI, numJ, nrOfThreads ) );
+   if ( method == 0 ) mapSmoother->doSmoothing( MapSmoothing::FilterType::Gaussian );
+   if ( method == 1 ) mapSmoother->doSmoothing( MapSmoothing::FilterType::MovingAverage );
+   return ErrorHandler::NoError;
 }
 
 // Shift the input map by a constant value
 ErrorHandler::ReturnCode MapsManagerImpl::scaleAndShiftMapCorrectedForWells( MapID id, double scale, double shift, double radiusOfInfluence,
                                                                              const std::vector<double>& xWells, const std::vector<double>& yWells)
 {
-  if ( errorCode() != NoError ) resetError();
-  try
-  {
-    if ( xWells.size() != yWells.size() )
-    {
-      throw Exception( IoError ) << "Number of x and y locations should be equal";
-    }
-
-    double oldMin;
-    double oldMax;
-    if ( NoError != mapValuesRange( id, oldMin, oldMax ) )
-    {
-      throw ErrorHandler::Exception( errorCode() ) << errorMessage();
-    }
-
-    DataAccess::Interface::GridMap* gridmap = m_mapObj[id];
-    const double nulVal = gridmap->getUndefinedValue();
-
-    const double minI = gridmap->minI();
-    const double minJ = gridmap->minJ();
-    const double deltaI = gridmap->deltaI();
-    const double deltaJ = gridmap->deltaJ();
-    const double maxI = minI + deltaI * gridmap->numI();
-    const double maxJ = minJ + deltaJ * gridmap->numJ();
-
-    for ( unsigned int w = 0; w<xWells.size(); ++w)
-    {
-      const double x = xWells[w];
-      const double y = yWells[w];
-
-      if ( x < minI || x > maxI || y < minJ || y > maxJ )
+   if ( errorCode() != NoError ) resetError();
+   try
+   {
+      if ( xWells.size() != yWells.size() )
       {
-        throw Exception( IoError ) << "Well location " << x << ", " << y << " out of map range";
+         throw Exception( IoError ) << "Number of x and y locations should be equal";
       }
-    }
 
-    const double radiusOfInfluenceSquared = radiusOfInfluence*radiusOfInfluence;
-    const double maxDistanceSquared = (maxI-minI)*(maxI-minI) + (maxJ-minJ)*(maxJ-minJ);
-    for ( unsigned int i = gridmap->firstI(); i <= gridmap->lastI(); ++i )
-    {
-      for ( unsigned int j = gridmap->firstJ(); j <= gridmap->lastJ(); ++j )
+      double oldMin;
+      double oldMax;
+      if ( NoError != mapValuesRange( id, oldMin, oldMax ) )
       {
-        double wellCorrection = 1.0;
-        if (xWells.size() > 0 && radiusOfInfluence > 0.0)
-        {
-          double distanceSquaredClosestWell = maxDistanceSquared;
-          for ( unsigned int w = 0; w<xWells.size(); ++w)
-          {
-            const double dx = xWells[w] - (minI + deltaI * i);
-            const double dy = yWells[w] - (minJ + deltaJ * j);
-            const double distanceSquared = dx*dx + dy*dy;
-            distanceSquaredClosestWell = (distanceSquared<distanceSquaredClosestWell) ? distanceSquared : distanceSquaredClosestWell;
-          }
-
-          wellCorrection -= std::exp(-5.0*distanceSquaredClosestWell/radiusOfInfluenceSquared);
-        }
-        const double v = gridmap->getValue( i, j );
-        gridmap->setValue( i, j, NumericFunctions::isEqual( v, nulVal, 1e-5 ) ?
-                           nulVal : (1.0-wellCorrection) * v  +  wellCorrection*(v*scale + shift) );
+         throw ErrorHandler::Exception( errorCode() ) << errorMessage();
       }
-    }
-  }
-  catch( const Exception & ex ) { return reportError( ex.errorCode(), ex.what() ); }
 
-  return NoError;
+      DataAccess::Interface::GridMap* gridmap = m_mapObj[id];
+      const double nulVal = gridmap->getUndefinedValue();
+
+      const double minI = gridmap->minI();
+      const double minJ = gridmap->minJ();
+      const double deltaI = gridmap->deltaI();
+      const double deltaJ = gridmap->deltaJ();
+      const double maxI = minI + deltaI * gridmap->numI();
+      const double maxJ = minJ + deltaJ * gridmap->numJ();
+
+      for ( unsigned int w = 0; w<xWells.size(); ++w)
+      {
+         const double x = xWells[w];
+         const double y = yWells[w];
+
+         if ( x < minI || x > maxI || y < minJ || y > maxJ )
+         {
+            throw Exception( IoError ) << "Well location " << x << ", " << y << " out of map range";
+         }
+      }
+
+      const double radiusOfInfluenceSquared = radiusOfInfluence*radiusOfInfluence;
+      const double maxDistanceSquared = (maxI-minI)*(maxI-minI) + (maxJ-minJ)*(maxJ-minJ);
+      for ( unsigned int i = gridmap->firstI(); i <= gridmap->lastI(); ++i )
+      {
+         for ( unsigned int j = gridmap->firstJ(); j <= gridmap->lastJ(); ++j )
+         {
+            double wellCorrection = 1.0;
+            if (xWells.size() > 0 && radiusOfInfluence > 0.0)
+            {
+               double distanceSquaredClosestWell = maxDistanceSquared;
+               for ( unsigned int w = 0; w<xWells.size(); ++w)
+               {
+                  const double dx = xWells[w] - (minI + deltaI * i);
+                  const double dy = yWells[w] - (minJ + deltaJ * j);
+                  const double distanceSquared = dx*dx + dy*dy;
+                  distanceSquaredClosestWell = (distanceSquared<distanceSquaredClosestWell) ? distanceSquared : distanceSquaredClosestWell;
+               }
+
+               wellCorrection -= std::exp(-5.0*distanceSquaredClosestWell/radiusOfInfluenceSquared);
+            }
+            const double v = gridmap->getValue( i, j );
+            gridmap->setValue( i, j, NumericFunctions::isEqual( v, nulVal, 1e-5 ) ?
+                                  nulVal : (1.0-wellCorrection) * v  +  wellCorrection*(v*scale + shift) );
+         }
+      }
+   }
+   catch( const Exception & ex ) { return reportError( ex.errorCode(), ex.what() ); }
+
+   return NoError;
 }
 
 ErrorHandler::ReturnCode MapsManagerImpl::interpolateMap( MapID id, MapID minId, MapID maxId, double coeff )
@@ -709,90 +721,19 @@ ErrorHandler::ReturnCode MapsManagerImpl::interpolateMap( MapID id, MapID minId,
    return NoError;
 }
 
-ErrorHandler::ReturnCode MapsManagerImpl::interpolateMap( const std::vector<double> & xin
-                                                        , const std::vector<double> & yin
-                                                        , const std::vector<double> & vin
-                                                        , double                      xmin
-                                                        , double                      xmax
-                                                        , double                      ymin
-                                                        , double                      ymax
-                                                        , int                         numI
-                                                        , int                         numJ
-                                                        , std::vector<double>       & xout
-                                                        , std::vector<double>       & yout
-                                                        , std::vector<double>       & vout
-                                                        )
-{
-   if ( errorCode() != NoError ) resetError();
-   try
-   {      
-      std::vector<point> pin;
-      point * pout = nullptr;
-      int     nout;
-      const double wmin = -1.e-3;
-      const double tolerance = 1.e-10;
-
-      size_t j = 0;
-      for ( size_t i = 0; i < xin.size(); ++i )
-      {
-         bool noDuplicate = true;
-         for ( size_t k = 0; k < j; ++k)
-         {
-            if (std::fabs(xin[i] - pin[k].x) < tolerance && std::fabs(yin[i] - pin[k].y) < tolerance)
-            {
-               pin[k].z = (pin[k].z + vin[i]) * 0.5;
-               noDuplicate = false;
-               break;
-            }
-         }
-         if (noDuplicate)
-         {
-             point p;
-             p.x = xin[i];
-             p.y = yin[i];
-             p.z = vin[i];
-             pin.push_back(p);
-             j++;
-         }
-      }
-      const int nin = pin.size();
-
-      // generate the points, interpolate with NNlib
-      points_getrange( nin, pin.data(), 1, &xmin, &xmax, &ymin, &ymax );
-      points_generate( xmin, xmax, ymin, ymax, numI, numJ, &nout, &pout );
-      nnpi_interpolate_points( nin, pin.data(), wmin, nout, pout );
-
-      xout.resize( nout );
-      yout.resize( nout );
-      vout.resize( nout );
-
-      for ( int i = 0; i != nout; ++i )
-      {
-         xout[i] = pout[i].x;
-         yout[i] = pout[i].y;
-         vout[i] = pout[i].z;
-      }
-
-      free( pout );
-   }
-   catch ( const Exception & ex ) { return reportError( ex.errorCode(), ex.what() ); }
-
-   return NoError;
-}
-
 void MapsManagerImpl::clearMaps()
 {
-  // clear arrays
-  m_mapName.clear();
-  m_mapRefTable.clear();
-  m_mapObj.clear();
+   // clear arrays
+   m_mapName.clear();
+   m_mapRefTable.clear();
+   m_mapObj.clear();
 
-  m_fileMaps.clear();
-  m_seqNrMap.clear();
+   m_fileMaps.clear();
+   m_seqNrMap.clear();
 
-  // clear list of input maps files
+   // clear list of input maps files
 
-  m_mapsFileList.clear();
+   m_mapsFileList.clear();
 }
 
 // Set project database. Reset all
@@ -867,7 +808,7 @@ void MapsManagerImpl::copyMapFiles( const std::string & newLocation )
 
       if ( !newMapFile.exists() && !origMapFile.copyFile( newMapFile ) )
       {
-        throw ErrorHandler::Exception( ErrorHandler::IoError ) << "Model::saveModelToProjectFile(): can not copy map file: " << origMapFile.path();
+         throw ErrorHandler::Exception( ErrorHandler::IoError ) << "Model::saveModelToProjectFile(): can not copy map file: " << origMapFile.path();
       }
    }
 }
@@ -896,19 +837,19 @@ void MapsManagerImpl::loadGridMap( MapID id )
 
 ErrorHandler::ReturnCode mbapi::MapsManagerImpl::mapGetDimensions(mbapi::MapsManager::MapID id, int& i, int& j)
 {
-  try
-  {
-    loadGridMap( id ); // check if map is loaded and load it if not loaded before
+   try
+   {
+      loadGridMap( id ); // check if map is loaded and load it if not loaded before
 
-    DataAccess::Interface::GridMap* gridMap = m_mapObj[id];
-    i = gridMap->lastI() - gridMap->firstI() + 1;
-    j = gridMap->lastJ() - gridMap->firstJ() + 1;
-  }
-  catch (Exception& ex)
-  {
-    return reportError( ex.errorCode(), ex.what());
-  }
-  return NoError;
+      DataAccess::Interface::GridMap* gridMap = m_mapObj[id];
+      i = gridMap->lastI() - gridMap->firstI() + 1;
+      j = gridMap->lastJ() - gridMap->firstJ() + 1;
+   }
+   catch (Exception& ex)
+   {
+      return reportError( ex.errorCode(), ex.what());
+   }
+   return NoError;
 }
 
 }

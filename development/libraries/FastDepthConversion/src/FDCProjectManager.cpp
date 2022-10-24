@@ -37,7 +37,7 @@ void FDCProjectManager::setSubSamplingWindow()
 
   long dimI, dimJ, winMinI, winMinJ, winMaxI, winMaxJ;
 
-  m_mdl->hiresGridArealSize(dimI, dimJ);
+  m_mdl->highResGridArealSize(dimI, dimJ);
   m_mdl->window(winMinI, winMaxI, winMinJ, winMaxJ);
 
   if (winMinI != 0 || winMinJ != 0 || winMaxI != dimI - 1 || winMaxJ != dimJ - 1)

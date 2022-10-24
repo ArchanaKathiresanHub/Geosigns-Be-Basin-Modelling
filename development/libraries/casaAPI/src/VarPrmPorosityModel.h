@@ -19,6 +19,8 @@
 
 namespace casa
 {
+   class MapInterpolator;
+
    /// @brief Variation for casa::PrmPorosityModel parameter
    class VarPrmPorosityModel: public VarPrmContinuous
    {
@@ -81,7 +83,7 @@ namespace casa
                                                    , const std::vector<double> & yin ///< the y coordinates of each 1D project
                                                    , const std::vector<SharedParameterPtr> & prmVec /// the optimal parameter value of each 1D project
                                                    , const InterpolationParams& interpolationParams ///< set of interpolation parameters
-                                                   ) const;
+                                                   , const MapInterpolator& interpolator) const;
       /// @{
       /// @brief Defines version of serialized object representation. Must be updated on each change in save()
       /// @return Actual version of serialized object representation

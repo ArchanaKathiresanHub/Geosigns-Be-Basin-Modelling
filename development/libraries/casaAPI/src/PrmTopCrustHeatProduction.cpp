@@ -145,6 +145,16 @@ PrmTopCrustHeatProduction::PrmTopCrustHeatProduction( CasaDeserializer & dz, uns
    }
 }
 
+TableInfo PrmTopCrustHeatProduction::tableInfo() const
+{
+   TableInfo result;
+   result.tableName = s_basementTblName;
+   result.variableGridName = s_topCrustHeatProdGrid;
+   result.tableRow = 0;
+
+   return result;
+}
+
 void PrmTopCrustHeatProduction::loadVarPrm(CasaDeserializer& dz, const unsigned int objVer)
 {
 }

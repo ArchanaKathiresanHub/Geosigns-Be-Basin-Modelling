@@ -108,7 +108,7 @@ VectorVectorMap CMBMapReader::createConstantMap(const double value) const
 {
   long numI = 0;
   long numJ = 0;
-  cmbModel_->hiresGridArealSize(numI, numJ);
+  cmbModel_->highResGridArealSize(numI, numJ);
 
   std::vector<std::vector<double>> constantData;
   for (int j = 0; j < numJ; j++)
@@ -192,6 +192,6 @@ void CMBMapReader::getMapDimensions(double& xMin, double& xMax, double& yMin, do
   xMax = xMin + dimX;
   yMax = yMin + dimY;
 
-  cmbModel_->hiresGridArealSize(numI, numJ);
+  cmbModel_->highResGridArealSize(numI, numJ);
 }
 }

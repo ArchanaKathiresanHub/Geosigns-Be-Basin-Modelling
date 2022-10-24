@@ -72,5 +72,5 @@ configure_file(../casaAPI/test/Ottoland.project3d Ottoland.project3d COPYONLY )
 
 add_gtest( NAME mbapiModelTest
    SOURCES test/mbapiModelTest.cpp
-   LIBRARIES ${LIB_NAME} TableIO DataAccess SerialDataAccess
+   LIBRARIES ${LIB_NAME} TableIO casalib DataAccess SerialDataAccess
    FOLDER "${BASE_FOLDER}/${LIB_NAME}" )

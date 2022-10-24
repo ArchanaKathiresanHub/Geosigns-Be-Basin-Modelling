@@ -70,12 +70,12 @@ namespace casa
 
       /// @brief Average the values, interpolate for lithofractions and set the appropriate entries in the project3d file
       /// @return new parameter for given set of values
-      virtual SharedParameterPtr makeThreeDFromOneD( mbapi::Model              & mdl ///< [in,out] mdl the model where to set the new averaged parameter
+      virtual SharedParameterPtr makeThreeDFromOneD(mbapi::Model              & mdl ///< [in,out] mdl the model where to set the new averaged parameter
                                                    , const std::vector<double> & xin ///< the x coordinates of each 1D project
                                                    , const std::vector<double> & yin ///< the y coordinates of each 1D project
                                                    , const std::vector<SharedParameterPtr> & prmVec ///< the optimal parameter value of each 1D project
                                                    , const InterpolationParams& interpolationParams ///< set of smoothing parameters
-                                                   ) const;
+                                                   , const MapInterpolator& interpolator) const;
 
       /// @{
       /// @brief Defines version of serialized object representation. Must be updated on each change in save()

@@ -23,6 +23,9 @@
 #include <cmath>
 #include <numeric>
 
+#include "MapInterpolator.h"
+#include "LithologyMapManipulator.h"
+
 namespace casa
 {
    VarPrmLithoFraction::VarPrmLithoFraction( const std::string                 & layerName
@@ -96,7 +99,7 @@ namespace casa
                                                              , const std::vector<double>             & yin
                                                              , const std::vector<SharedParameterPtr> & prmVec
                                                              , const InterpolationParams             & interpolationParams
-                                                             ) const
+                                                             , const MapInterpolator& interpolator) const
    {
       // get the lithofractions calculate the lithopercentages
       std::vector<double> lf1;
@@ -116,54 +119,11 @@ namespace casa
          lf3.push_back( lithoPercentages[2] );
       }
 
-      // interpolate
-      std::vector<double> xout;
-      std::vector<double> yout;
-      std::vector<double> rpInt;
-      std::vector<double> r13Int;
-
-      ErrorHandler::ReturnCode returnCode = ErrorHandler::UnknownError;
-      if ( interpolationParams.interpolationMethod == 1 )
-      {
-         returnCode = mdl.interpolateLithoFractionsNN( xin, yin, lf1, lf2, lf3, xout, yout, rpInt, r13Int );
-      }
-      else
-      {
-         returnCode = mdl.interpolateLithoFractionsIDW( interpolationParams.IDWpower, xin, yin, lf1, lf2, lf3, xout, yout, rpInt, r13Int );
-      }
-
-      if ( ErrorHandler::NoError != returnCode )
-      {
-         throw ErrorHandler::Exception( ErrorHandler::UnknownError ) << "The interpolation of the lithopercentages failed for the layer : " << m_layerName;
-      }
-
-      if ( ErrorHandler::NoError != mdl.smoothenVector( rpInt, interpolationParams.smoothingMethod, interpolationParams.radius, interpolationParams.nrOfThreads ) )
-      {
-         throw ErrorHandler::Exception( ErrorHandler::UnknownError ) << "The smoothing of the rp intermediate state failed for the layer : " << m_layerName;
-      }
-
-      if ( ErrorHandler::NoError != mdl.smoothenVector( r13Int, interpolationParams.smoothingMethod, interpolationParams.radius, interpolationParams.nrOfThreads ) )
-      {
-         throw ErrorHandler::Exception( ErrorHandler::UnknownError ) << "The smoothing of the r13 intermediate state failed for the layer : " << m_layerName;
-      }
-
-      // back transform the rpInt and r13Int
       std::vector<double> lf1CorrInt;
       std::vector<double> lf2CorrInt;
-      std::vector<double> lf3CorrInt;
 
-      const double sum1 = std::accumulate( lf1.begin(), lf1.end(), 0.0 );
-      const double sum2 = std::accumulate( lf2.begin(), lf2.end(), 0.0 );
-      const double sum3 = std::accumulate( lf3.begin(), lf3.end(), 0.0 );
-
-      if ( ErrorHandler::NoError != mdl.backTransformLithoFractions( rpInt, r13Int, lf1CorrInt, lf2CorrInt, lf3CorrInt,
-                                                                     sum1 < 1.e-5,
-                                                                     sum2 < 1.e-5,
-                                                                     sum3 < 1.e-5) )
-      {
-         throw ErrorHandler::Exception( ErrorHandler::UnknownError ) << "The back transformation of the lithopercentages failed for the layer : "
-                                                                     << m_layerName;
-      }
+      LithologyMapManipulator manipulator(mdl, interpolator);
+      manipulator.interpolateLithoMaps(xin, yin, lf1, lf2, lf3, interpolationParams, m_layerName, lf1CorrInt, lf2CorrInt);
 
       // get the maps manager
       mbapi::MapsManager & mapsMgr = mdl.mapsManager();

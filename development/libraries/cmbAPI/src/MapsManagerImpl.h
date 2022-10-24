@@ -106,21 +106,6 @@ namespace mbapi
       // Interpolate between 2 maps, coefficient in range [0:1]
       ErrorHandler::ReturnCode interpolateMap( MapID id, MapID minId, MapID maxId, double coeff ) final;
 
-      // Interpolate input values using the natural neighbour algorithm
-      ErrorHandler::ReturnCode interpolateMap( const std::vector<double> & xin
-                                             , const std::vector<double> & yin
-                                             , const std::vector<double> & vin
-                                             , double                      xmin
-                                             , double                      xmax
-                                             , double                      ymin
-                                             , double                      ymax
-                                             , int                         numI
-                                             , int                         numJ
-                                             , std::vector<double>       & xout
-                                             , std::vector<double>       & yout
-                                             , std::vector<double>       & vout
-                                             ) final;
-
       // Generate a new map in the GridMapIoTbl
       MapID generateMap(const std::string         & refferedTable
                        , const std::string         & mapName

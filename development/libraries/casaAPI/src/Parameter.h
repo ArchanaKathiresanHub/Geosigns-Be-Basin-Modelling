@@ -24,6 +24,8 @@
 #include <memory>
 #include <vector>
 
+#include "ConstantsNumerical.h"
+
 /// @page CASA_ParameterPage Cauldron project parameter
 /// Parameter is some value (or possibly set of values) in project file which has an influence on simulation.
 /// Any change of the parameter value, will change in some way the simulation results.
@@ -36,7 +38,21 @@ namespace mbapi
 
 namespace casa
 {
+   class Parameter;
+}
+
+typedef std::shared_ptr<casa::Parameter> SharedParameterPtr;
+
+namespace casa
+{
    class VarParameter;
+
+   struct TableInfo
+   {
+      std::string tableName;
+      std::string variableGridName;
+      int tableRow = Utilities::Numerical::IbsNoDataValueInt;
+   };
 
    /// @brief Base class for all types of Cauldron model parameters used in CASA
    class Parameter : public CasaSerializable
@@ -106,6 +122,9 @@ namespace casa
       /// @return new observable instance on susccess, or throw and exception in case of any error
       static Parameter * load( CasaDeserializer & dz, const char * objName );
 
+      virtual TableInfo tableInfo() const { throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "TableInfo is not available for this parameter"; }
+
+      virtual SharedParameterPtr createNewPrmFromModel(mbapi::Model& mdl) { throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "the function produceParameter is not available for this parameter"; }
 
    protected:
       explicit Parameter(const VarParameter * parent = 0);
@@ -120,6 +139,5 @@ namespace casa
    };
 }
 
-typedef std::shared_ptr<casa::Parameter> SharedParameterPtr;
 
 #endif // CASA_API_PARAMETER_H
