@@ -46,7 +46,7 @@ namespace casa
 
       virtual std::string name() { return "Levenberg Marquardt"; }
 
-      void updateParametersAndRunCase( const Eigen::VectorXd & x );
+      void updateParametersAndRunCase(Eigen::VectorXd & x );
       void updateBestMatchCase( std::shared_ptr<RunCase> newBestMatchedCase);
       void calculateFunctionValue( Eigen::VectorXd & fvec );
       void removeInvalidObservations(size_t & nValues);

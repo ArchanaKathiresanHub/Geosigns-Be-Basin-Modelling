@@ -1108,7 +1108,7 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::calibrateProjectUsingOptimizationAl
 {
    std::unique_ptr<OptimizationAlgorithm> optAlgo;
 
-   if ( optimAlg == "LM" ) { optAlgo.reset( new LMOptAlgorithm( cbProjectName, transformation, relativeReduction ) ); }
+   if ( optimAlg == "LM" ) { optAlgo.reset( new LMOptAlgorithm( cbProjectName, transformation, relativeReduction) ); }
    else { throw Exception( OutOfRangeValue ) << "Unsupported optimization algorithm name: " << optimAlg; }
 
    optAlgo->runOptimization( sa );

@@ -437,7 +437,7 @@ namespace casa
                     , m_xMax( xMax )
                     { }
 
-      int operator() ( const Eigen::VectorXd & x, Eigen::VectorXd & fvec ) const
+      int operator() (Eigen::VectorXd & x, Eigen::VectorXd & fvec ) const
       {
          LMOptAlgorithm & lm = const_cast<LMOptAlgorithm&>( m_lm );
          lm.updateParametersAndRunCase( x );
@@ -445,7 +445,7 @@ namespace casa
          return 0;
       }
 
-		int initialRun(const Eigen::VectorXd & x, Eigen::VectorXd & fvec, size_t & nvalues) const
+      int initialRun(Eigen::VectorXd & x, Eigen::VectorXd & fvec, size_t & nvalues) const
 		{
 			LMOptAlgorithm & lm = const_cast<LMOptAlgorithm&>(m_lm);
 			lm.updateParametersAndRunCase(x);
@@ -529,8 +529,6 @@ size_t LMOptAlgorithm::prepareParameters( std::vector<double> & initGuess, std::
 
       for ( size_t k = 0; k < minVals.size(); ++k )
       {
-         if ( !NumericFunctions::isEqual( minVals[k], maxVals[k], 1.e-6 ) )
-         {
             m_optimPrms.push_back( std::pair<const VarPrmContinuous*, size_t>( vprm, k ) );
             m_permPrms.push_back( globNum + k );
             if ( m_parameterTransformation == "log10" )
@@ -548,7 +546,6 @@ size_t LMOptAlgorithm::prepareParameters( std::vector<double> & initGuess, std::
                minPrm.push_back( minVals[k] );
                maxPrm.push_back( maxVals[k] );
             }
-         }
       }
       globNum += basVals.size();
    }
@@ -605,7 +602,7 @@ size_t LMOptAlgorithm::prepareObservables()
    return obsSpDim;
 }
 
-void LMOptAlgorithm::updateParametersAndRunCase( const Eigen::VectorXd & x )
+void LMOptAlgorithm::updateParametersAndRunCase( Eigen::VectorXd & x )
 {
    // create base case parameters value
    std::vector<double>       cntPrms;
@@ -654,11 +651,13 @@ void LMOptAlgorithm::updateParametersAndRunCase( const Eigen::VectorXd & x )
       if ( minPrms[m_permPrms[i]] > prmVal  )
       {
          cntPrms[m_permPrms[i]] = minPrms[m_permPrms[i]];
+         x(i) = cntPrms[m_permPrms[i]];
          LogHandler( LogHandler::DEBUG_SEVERITY ) << " parameter " << i << " = " << prmVal << " < min range value: " << minPrms[m_permPrms[i]];
       }
       else if ( maxPrms[m_permPrms[i]] < prmVal  )
       {
          cntPrms[m_permPrms[i]] = maxPrms[m_permPrms[i]];
+         x(i) = cntPrms[m_permPrms[i]];
          LogHandler( LogHandler::DEBUG_SEVERITY ) << " parameter " << i << " = " << prmVal << " > max range value: " << maxPrms[m_permPrms[i]];
       }
       else
@@ -891,7 +890,7 @@ void LMOptAlgorithm::calculateFunctionValue(Eigen::VectorXd & fvec)
 
          case VarPrmContinuous::Normal:
             {
-               double sigma = ( maxV - minV ) / 6.0; // 3 sigma - half interval
+               double sigma = ( maxV - minV ) / 6.0 + std::numeric_limits< double >::epsilon(); // 3 sigma - half interval
                fval = abs( pval - basV ) / sigma;
             }
             break;
