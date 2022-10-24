@@ -13,7 +13,7 @@
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Version				Date of update
 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-Cauldron-v2.9.14		2022-10-21 13:00:43 +0000
+Cauldron-v2.9.15		2022-10-24 09:01:36 +0000
 =============================================================
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Third-party Software 		version
@@ -36,6 +36,18 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2022-10-24  Marnix.vandenBerg  <Marnix.vandenBerg@shell.com>
+
+	usr: fix: Fix such that lithology optimization also works with equal min and max values.
+	 * Removed another check, such that lithology optimization works with equal min/max values.
+	 * Fixed bug that caused incorrect log message.
+
+	Related work items: #480400
+
+	================== COMMIT-END ========================
+	Commit-ID:<45f2881826b357856af9514eb9255a42520e516d>	  (tag: refs/tags/v2.9.15, refs/heads/master)
+
+++
 2022-10-21  Marnix.vandenBerg  <Marnix.vandenBerg@shell.com>
 
 	chg: usr: fix: Bug fix for extracting values from maps.
