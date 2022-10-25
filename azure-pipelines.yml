@@ -1,0 +1,89 @@
+
+pool:
+  name: BPA2
+  demands:
+  - msbuild
+  - Cmd
+  - Agent.ComputerName -equals gs-bpa2-build
+
+resources:
+  repositories:
+  - repository : Basin-Modelling-Windows-3rdparty
+    name: Basin-Modelling-Windows-3rdparty
+    type: git
+    branch: master
+
+
+jobs: 
+- job: Build
+  variables:
+    system.debug: false
+  workspace:
+    clean: all
+  
+  steps:
+  - checkout: self
+    path: "s/"
+  - checkout: Basin-Modelling-Windows-3rdparty
+    path: "s/opt"
+
+  - task: ExtractFiles@1
+    displayName: 'Extract files '
+    inputs:
+      archiveFilePatterns: 'opt/**/*.zip'
+      destinationFolder: 'opt/3rdparty'
+      cleanDestinationFolder: false
+
+  - powershell: |
+      $(Build.SourcesDirectory)/opt/3rdparty/cmake-3.24.2/bin/cmake.exe -S development -B build -G "Visual Studio 17 2022" -DBM_THIRD_PARTY_LOCATION="$(Build.SourcesDirectory)/opt"
+    displayName: CMake
+
+  - task: MSBuild@1
+    displayName: 'Build Project3dAPI : Debug'
+    inputs:
+      solution: build/BasinModeling.sln
+      platform: x64
+      configuration: Debug
+      msbuildArguments: '/T:"Project3dAPI"'
+
+  - task: MSBuild@1
+    displayName: 'Build Project3dAPI : Release'
+    inputs:
+      solution: build/BasinModeling.sln
+      platform: x64
+      configuration: Release
+      msbuildArguments: '/T:"Project3dAPI"'
+
+  - task: MSBuild@1
+    displayName: 'Build BPA2.Basin Debug'
+    inputs:
+      solution: build/BasinModeling.sln
+      platform: x64
+      configuration: Debug
+      msbuildArguments: '/T:"Bpa2_Basin_Project3d_Project3dAPI"'
+
+  - task: MSBuild@1
+    displayName: 'Build BPA2.Basin Release'
+    inputs:
+      solution: build/BasinModeling.sln
+      platform: x64
+      configuration: Release
+      msbuildArguments: '/T:"Bpa2_Basin_Project3d_Project3dAPI"'
+
+  - task: NuGetToolInstaller@1
+    displayName: 'Use NuGet '
+
+  - task: BatchScript@1
+    displayName: 'Nuget batch script'
+    inputs:
+      filename: 'Create_Project3dAPI_NuGet.bat'
+      workingFolder: 'build\libraries\Project3dAPI'
+
+  - task: NuGetCommand@2
+    displayName: 'NuGet push'
+    inputs:
+      command: push
+      packagesToPush: 'build\libraries\Project3dAPI\Project3dAPINuGetPackage\*.nupkg'
+      publishVstsFeed: 'a616a71d-5cb7-4f5b-8112-894cde1b7c58'
+      allowPackageConflicts: true
+    condition: and(succeeded(), eq(variables['Build.Reason'], 'Manual'))
