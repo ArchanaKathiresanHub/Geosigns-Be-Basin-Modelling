@@ -13,7 +13,7 @@
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Version				Date of update
 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-Cauldron-v2.9.15		2022-10-24 09:01:36 +0000
+Cauldron-v2.9.16		2022-10-24 16:16:46 +0000
 =============================================================
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Third-party Software 		version
@@ -36,6 +36,16 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2022-10-24  Richard Faasse  <Richard.Faasse@shell.com>
+
+	new: Implement A0 interpolation in casa library.
+	 * This PR contains:
+	 * A0 interpolation implementation in the casa library
+	 * Refactored some functionality out of the cmbAPI, which moved to the casaAPI, since it does not include any references to the project3d file.
+	================== COMMIT-END ========================
+	Commit-ID:<205c239fa38e8f81d98c99499403e461b6c4785c>	  (refs/heads/master, refs/heads/Developers/Richard.Faasse/UpdateChangeLog)
+
+++
 2022-10-24  Marnix.vandenBerg  <Marnix.vandenBerg@shell.com>
 
 	usr: fix: Fix such that lithology optimization also works with equal min and max values.
