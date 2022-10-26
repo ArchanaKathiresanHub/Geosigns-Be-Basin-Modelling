@@ -13,7 +13,7 @@
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Version				Date of update
 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-Cauldron-v2.9.16		2022-10-24 16:16:46 +0000
+Cauldron-v2.9.17		2022-10-26 11:04:29 +0000
 =============================================================
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Third-party Software 		version
@@ -36,6 +36,16 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2022-10-26  Richard Faasse  <Richard.Faasse@shell.com>
+
+	fix: Bugfix and clean-up for the A0 interpolation functionality.
+	 * The changes include:
+	 * Producing a grid version of the parameter for which the makeThreeDFromOneD function is done, such that later validation uses the right validation steps.
+	 * Cleaning up references to the old A0 map if necessary
+	================== COMMIT-END ========================
+	Commit-ID:<ea1563a4307302a159ac345265685d05cdb396c6>	  (tag: refs/tags/v2.9.17, refs/heads/master)
+
+++
 2022-10-24  Richard Faasse  <Richard.Faasse@shell.com>
 
 	new: Implement A0 interpolation in casa library.
