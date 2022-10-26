@@ -10,5 +10,6 @@ TEST(PrmTopCrustHeatProductionTest, testConstructionFromBaseModel)
   mbapi::Model& baseModel = scenario.baseCase();
 
   casa::PrmTopCrustHeatProduction prm( baseModel, {});
+
   ASSERT_EQ(ErrorHandler::NoError, baseModel.errorCode());
 }

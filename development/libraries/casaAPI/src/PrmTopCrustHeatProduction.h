@@ -16,6 +16,7 @@
 
 // CMB API
 #include <UndefinedValues.h>
+#include "PrmTopCrustHeatProductionGrid.h"
 
 #include <cassert>
 
@@ -86,7 +87,7 @@ namespace casa
 
      TableInfo tableInfo() const override;
 
-     SharedParameterPtr createNewPrmFromModel(mbapi::Model& mdl) override {return SharedParameterPtr(new PrmTopCrustHeatProduction( mdl,{}));}
+     SharedParameterPtr createNewGridVersionOfParameterFromModel(mbapi::Model& mdl) override {return SharedParameterPtr(new PrmTopCrustHeatProductionGrid( mdl,{}));}
 
      /// @brief Read obsolete old varparameter specific information
      static void loadVarPrm( CasaDeserializer& dz, const unsigned int objVer );

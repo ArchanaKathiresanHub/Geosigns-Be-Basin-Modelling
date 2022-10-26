@@ -105,15 +105,17 @@ SharedParameterPtr VarPrmContinuous::makeThreeDFromOneD( mbapi::Model& mdl,
    // get the maps manager
    mbapi::MapsManager & mapsMgr = mdl.mapsManager();
 
-   // Correct for the region with valid data
+   // Correct for the region with valid data if there are grid maps
    std::vector<double> depths;
    mdl.getGridMapDepthValues(0, depths);
-   assert(depths.size() == vOut.size());
-   for ( unsigned int i = 0; i < depths.size(); ++i )
+   if (depths.size() == vOut.size())
    {
-      if ( Utilities::isValueUndefined(depths[i]) )
+      for ( unsigned int i = 0; i < depths.size(); ++i )
       {
-         vOut[i] = Utilities::Numerical::CauldronNoDataValue;
+         if ( Utilities::isValueUndefined(depths[i]) )
+         {
+            vOut[i] = Utilities::Numerical::CauldronNoDataValue;
+         }
       }
    }
 
@@ -128,10 +130,18 @@ SharedParameterPtr VarPrmContinuous::makeThreeDFromOneD( mbapi::Model& mdl,
                                                                      << " map failed";
    }
 
+   // Remove the map that is going to be replaced
+   const std::string replacedMap = mdl.tableValueAsString(tableInfo.tableName, tableInfo.tableRow, tableInfo.variableGridName);
+   if (replacedMap != "")
+   {
+      mdl.mapsManager().removeMapReferenceFromGridMapIOTbl(replacedMap, tableInfo.tableName);
+   }
+
+   // Set the new map into the table
    mdl.setTableValue(tableInfo.tableName, tableInfo.tableRow, tableInfo.variableGridName, mapName);
 
-   // both maps are provided, no scalar values is needed
-   return prmVec[0]->createNewPrmFromModel(mdl);
+   // Since we create a 3d version of the parameter (makeThreeDFromOneD) we produce the grid version of the parameter
+   return prmVec[0]->createNewGridVersionOfParameterFromModel(mdl);
 }
 
 std::vector<bool> VarPrmContinuous::selected() const

@@ -124,7 +124,7 @@ namespace casa
 
       virtual TableInfo tableInfo() const { throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "TableInfo is not available for this parameter"; }
 
-      virtual SharedParameterPtr createNewPrmFromModel(mbapi::Model& mdl) { throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "the function produceParameter is not available for this parameter"; }
+      virtual SharedParameterPtr createNewGridVersionOfParameterFromModel(mbapi::Model& mdl) { throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "the function produceParameter is not available for this parameter"; }
 
    protected:
       explicit Parameter(const VarParameter * parent = 0);

@@ -67,6 +67,8 @@ copy_test_file(NVG_Project.project3d)
 copy_test_file(MAP-72981789-4.FLT)
 copy_test_file(Inputs.HDF)
 
+copy_test_file(VarPrmContinuousTest.project3d)
+
 # Files for Ameland case
 configure_file(test/Ameland/Ameland.project3d ${CMAKE_CURRENT_BINARY_DIR}/Ameland/Ameland.project3d COPYONLY)
 
@@ -107,6 +109,8 @@ add_casa_gtest( NAME RunCaseSetTest SOURCES test/RunCaseSetTest.cpp)
 add_casa_gtest( NAME ObservableTest SOURCES test/ObservableTest.cpp )
 
 add_casa_gtest( NAME RunManagerTest SOURCES test/RunManagerTest.cpp )
+
+add_casa_gtest( NAME VarPrmContinuousTest SOURCES test/VarPrmContinuousTest.cpp )
 
 add_casa_gtest( NAME PrmEquilibriumOceanicLithosphereThickness   SOURCES test/PrmEquilibriumOceanicLithosphereThickness.cpp )
 add_casa_gtest( NAME PrmSurfaceTemperatureTest            SOURCES test/PrmSurfaceTemperatureTest.cpp )
