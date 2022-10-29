@@ -1,0 +1,31 @@
+pool:
+  name: BPA2
+  demands:
+  - msbuild
+  - Cmd
+  - Agent.ComputerName -equals gs-bpa2-build
+jobs: 
+- job: Phase_1
+  variables:
+    system.debug: false
+    WS_APIKEY: c989e474dfe047f8b40d02cf3f05f00a914a3436843448cea0a5dd3c2af30a69
+    WS_PRODUCTNAME: GeoSigns/BPA2
+    WS_PROJECTNAME: GeoSigns-BPA2_Basin-Modelling
+    WS_WSS_URL: https://shell.whitesourcesoftware.com/agent
+  workspace:
+    clean: all 
+  steps:
+  - checkout: self
+  - task: JavaToolInstaller@0
+    displayName: 'Use Java 17'
+    inputs:
+        versionSpec: 17
+        jdkArchitectureOption: x64
+        jdkSourceOption: LocalDirectory
+        jdkFile: 'E:\Data\Software\jdk-17_windows-x64_bin.zip'
+        jdkDestinationDirectory: '$(Build.Repository.LocalPath)/jdk'
+  - powershell: |
+        $ErrorActionPreference="Stop";$agentZip="$(Build.Repository.LocalPath)\wss-unified-agent.jar";$DefaultProxy=[System.Net.WebRequest]::DefaultWebProxy;$securityProtocol=@();$securityProtocol+=[Net.ServicePointManager]::SecurityProtocol;$securityProtocol+=[Net.SecurityProtocolType]::Tls12;[Net.ServicePointManager]::SecurityProtocol=$securityProtocol;$WebClient=New-Object Net.WebClient; $Uri='https://unified-agent.s3.amazonaws.com/wss-unified-agent.jar';if($DefaultProxy -and (-not $DefaultProxy.IsBypassed($Uri))){$WebClient.Proxy= New-Object Net.WebProxy($DefaultProxy.GetProxy($Uri).OriginalString, $True);}; $WebClient.DownloadFile($Uri, $agentZip);  
+    displayName: 'WhiteSource Agent Download'
+  - script: '$(Build.Repository.LocalPath)/jdk/JAVA_HOME_17_x64_jdk-17_windows-x64_bin_zip/jdk-17.0.2/bin/java -jar $(Build.Repository.LocalPath)\wss-unified-agent.jar -c whitesource.properties'
+    displayName: 'WhiteSource Scan'
