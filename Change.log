@@ -13,7 +13,7 @@
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Version				Date of update
 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-Cauldron-v2.9.17		2022-10-26 11:04:29 +0000
+Cauldron-v2.9.18		2022-10-31 09:59:04 +0000
 =============================================================
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Third-party Software 		version
@@ -36,6 +36,18 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2022-10-31  Marnix.vandenBerg  <Marnix.vandenBerg@shell.com>
+
+	fix: Fix for divide by zero in LMOptimization and IDW.
+	 * Fix for divide by zero bug in IDW.
+	 * Fix for divide by zero bug in LMOptimization.
+
+	Related work items: #445632
+
+	================== COMMIT-END ========================
+	Commit-ID:<a7dbd0d425ac5979a3c5d132436719aeb960dc87>	  (tag: refs/tags/v2.9.18, refs/heads/master)
+
+++
 2022-10-26  Richard Faasse  <Richard.Faasse@shell.com>
 
 	fix: Bugfix and clean-up for the A0 interpolation functionality.
