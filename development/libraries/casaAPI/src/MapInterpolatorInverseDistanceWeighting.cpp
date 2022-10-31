@@ -12,6 +12,7 @@
 
 #include "assert.h"
 #include <cmath>
+#include <limits>
 
 namespace casa {
 
@@ -23,12 +24,12 @@ MapInterpolatorInverseDistanceWeighting::MapInterpolatorInverseDistanceWeighting
 }
 
 void MapInterpolatorInverseDistanceWeighting::generateInterpolatedMap(const DomainData &domainData,
-                                                                  const std::vector<double> &xin,
-                                                                  const std::vector<double> &yin,
-                                                                  const std::vector<double> &vin,
-                                                                  std::vector<double> &xInt,
-                                                                  std::vector<double> &yInt,
-                                                                  std::vector<double> &vInt) const
+                                                                      const std::vector<double> &xin,
+                                                                      const std::vector<double> &yin,
+                                                                      const std::vector<double> &vin,
+                                                                      std::vector<double> &xInt,
+                                                                      std::vector<double> &yInt,
+                                                                      std::vector<double> &vInt) const
 {
    if (xin.size() != yin.size() || xin.size() != vin.size())
    {
@@ -62,12 +63,14 @@ void MapInterpolatorInverseDistanceWeighting::generateInterpolatedMap(const Doma
 
          double v1 = 0.0;
          double s1 = 0.0;
+         double closestDist(HUGE_VAL);
+         double closestVal(0.0);
          for ( size_t n = 0; n < nin; ++n )
          {
             const double dx = xval - xin[n];
             const double dy = yval - yin[n];
             const double dis = std::sqrt( dx*dx + dy*dy );
-            if (dis < toleranceInMeter)
+                  if (dis < toleranceInMeter)
             {
                v1 = vin[n];
                s1 = 1.0;
@@ -79,8 +82,22 @@ void MapInterpolatorInverseDistanceWeighting::generateInterpolatedMap(const Doma
                v1 += vin[n] * weight;
                s1 += weight;
             }
+            if (dis < closestDist)
+            {
+               closestDist = dis;
+               closestVal = vin[n];
+            }
          }
-         vInt[k] = v1/s1;
+
+         if (s1 > std::numeric_limits<double>::epsilon())
+         {
+            vInt[k] = v1/s1;
+         }
+         else
+         {
+            vInt[k] = closestVal;
+         }
+
          ++k;
 
          xval += deltaX;

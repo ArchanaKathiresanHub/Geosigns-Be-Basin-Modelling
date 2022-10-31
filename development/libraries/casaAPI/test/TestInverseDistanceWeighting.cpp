@@ -76,6 +76,53 @@ TEST(inverseDistanceWeightingTest, testIdw2D)
    EXPECT_EQ(domainData.numI*domainData.numJ,yInt.size());
 }
 
+TEST(inverseDistanceWeightingTest, testTooHighPower)
+{
+   using namespace casa;
+
+   //Given:
+   DomainData domainData;
+   domainData.numI = 10;
+   domainData.numJ = 1;
+   domainData.xmin = -10;
+   domainData.ymin = 0;
+   domainData.deltaX = 2;
+   domainData.deltaY = 2;
+
+   double power = 10000;
+   MapInterpolatorInverseDistanceWeighting interpolator(power);
+
+   std::vector<double> xin;
+   std::vector<double> vin;
+   for (int i = 0; i < 3; i++)
+   {
+      xin.push_back(-9+double(i)*9);
+      vin.push_back(double(i));
+   }
+
+   std::vector<double> yin(xin.size(),1);
+
+   //output:
+   std::vector<double> xInt;
+   std::vector<double> yInt;
+   std::vector<double> vInt;
+
+   //when:
+   interpolator.generateInterpolatedMap(domainData,xin,yin,vin,xInt,yInt,vInt);
+
+   //Then the interpolated values are equal to their closest input data point:
+   EXPECT_DOUBLE_EQ(vInt[0],0.0);
+   EXPECT_DOUBLE_EQ(vInt[1],0.0);
+   EXPECT_DOUBLE_EQ(vInt[2],0.0);
+   EXPECT_DOUBLE_EQ(vInt[3],1.0);
+   EXPECT_DOUBLE_EQ(vInt[4],1.0);
+   EXPECT_DOUBLE_EQ(vInt[5],1.0);
+   EXPECT_DOUBLE_EQ(vInt[6],1.0);
+   EXPECT_DOUBLE_EQ(vInt[7],2.0);
+   EXPECT_DOUBLE_EQ(vInt[8],2.0);
+   EXPECT_DOUBLE_EQ(vInt[9],2.0);
+}
+
 TEST(inverseDistanceWeightingTest, testException)
 {
    using namespace casa;

@@ -494,9 +494,11 @@ namespace casa
             // backtransform in log10 for the function evaluation
             if ( isLogTransf ) { x[j] = log10( x[j] ); }
 
+            double difX = x[j] - backupVal;
+
             // calculate the jacobian
             ProjectFunctor::operator()( x, val2 );
-            jac.col( j ) = ( val2 - val1 ) / ( x[j] - backupVal );
+            jac.col( j ) = ( val2 - val1 ) / difX;
 
             //restore the original value
             x[j] = backupVal;
