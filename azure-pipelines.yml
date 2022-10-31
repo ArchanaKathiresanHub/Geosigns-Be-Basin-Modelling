@@ -69,6 +69,43 @@ jobs:
       platform: x64
       configuration: Release
       msbuildArguments: '/T:"Bpa2_Basin_Project3d_Project3dAPI"'
+  
+  - task: MSBuild@1
+    displayName: 'Build Test Debug'
+    inputs:
+      solution: 'build/BasinModeling.sln'
+      platform: 'x64'
+      configuration: 'Debug'
+      msbuildArguments: '/T:"Bpa2_Basin_Project3d_Project3dAPI_Test"'
+    
+  - task: MSBuild@1
+    displayName: 'Build Test Release'
+    inputs:
+      solution: 'build/BasinModeling.sln'
+      platform: 'x64'
+      configuration: 'Release'
+      msbuildArguments: '/T:"Bpa2_Basin_Project3d_Project3dAPI_Test"'
+
+  - task: VisualStudioTestPlatformInstaller@1
+    inputs:
+       packageFeedSelector: 'nugetOrg'
+       versionSelector: 'specificVersion'
+       testPlatformVersion: '17.3.2'
+    
+  - task: VSTest@2
+    displayName: 'Test Assemblies'
+    inputs:
+      testSelector: 'testAssemblies'
+      testAssemblyVer2: |
+        **\*test*.dll
+        !**\*TestAdapter.dll
+        !**\obj\**
+        !**\*UnitTestFramework.dll
+      searchFolder: '$(Build.SourcesDirectory)\build\libraries\Project3dAPI\csharp-test\bin\'
+      vsTestVersion: 'toolsInstaller'
+      runInParallel: false
+      codeCoverageEnabled: true
+      testRunTitle: 'GeoSigns-BPA2_Project3dAPI'
 
   - task: NuGetToolInstaller@1
     displayName: 'Use NuGet '
