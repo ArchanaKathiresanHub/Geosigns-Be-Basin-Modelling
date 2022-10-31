@@ -1,12 +1,13 @@
 #include "LithologyWindow.h"
 
 #include "view/menuBar.h"
-#include "view/LithoTabIDs.h"
 #include "view/wellPrepTab.h"
-#include "view/LithologyInputTab.h"
-#include "view/LithologyResultsTab.h"
-#include "view/mapsTabLithology.h"
-#include "view/t2zTab.h"
+#include "LithologyInputTab.h"
+#include "LithologyResultsTab.h"
+#include "LithologyMapsTab.h"
+#include "t2zTab.h"
+
+#include "assets/LithoTabIDs.h"
 
 #include <cassert>
 
@@ -24,7 +25,7 @@ LithologyWindow::LithologyWindow(QWidget* parent) :
    m_wellPrepTab{new WellPrepTab{this}},
    m_inputTab{new LithologyInputTab{this}},
    m_resultsTab{new LithologyResultsTab{this}},
-   m_mapsTab{new MapsTabLithology{this}},
+   m_mapsTab{new LithologyMapsTab{this}},
    m_t2zTab{new T2Ztab{this}}
 {
    setWindowTitle("SAC Lithology Wizard");
@@ -51,7 +52,7 @@ LithologyResultsTab* LithologyWindow::resultsTab() const
    return m_resultsTab;
 }
 
-MapsTabLithology* LithologyWindow::mapsTab() const
+LithologyMapsTab* LithologyWindow::mapsTab() const
 {
    return m_mapsTab;
 }

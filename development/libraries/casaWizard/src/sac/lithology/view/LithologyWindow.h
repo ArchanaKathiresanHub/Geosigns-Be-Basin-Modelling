@@ -11,7 +11,7 @@ class WellPrepTab;
 namespace sac
 {
 
-class MapsTabLithology;
+class LithologyMapsTab;
 class T2Ztab;
 
 namespace lithology
@@ -31,13 +31,13 @@ public:
    LithologyInputTab* inputTab() const;
    T2Ztab* t2zTab() const;
    LithologyResultsTab* resultsTab() const;
-   MapsTabLithology* mapsTab() const;
+   LithologyMapsTab* mapsTab() const;
 
 private:
    WellPrepTab* m_wellPrepTab;
    LithologyInputTab* m_inputTab;
    LithologyResultsTab* m_resultsTab;
-   MapsTabLithology* m_mapsTab;
+   LithologyMapsTab* m_mapsTab;
    T2Ztab* m_t2zTab;
 };
 

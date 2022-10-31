@@ -23,14 +23,14 @@ namespace sac
 
 class LithofractionManager;
 class LithofractionTable;
-class SacLithologyScenario;
+class LithologyScenario;
 
 class LithofractionController : public QObject
 {
   Q_OBJECT
 
 public:
-  explicit LithofractionController(LithofractionTable* table, SacLithologyScenario& scenario, QObject* parent);
+  explicit LithofractionController(LithofractionTable* table, LithologyScenario& scenario, QObject* parent);
 
   void loadLayersFromProject();
   void updateLithofractionTable();

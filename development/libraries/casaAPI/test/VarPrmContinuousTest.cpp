@@ -55,7 +55,7 @@ TEST_F( VarPrmContinuousTest, TestGenerateThreeDFromOneD_TopCrustHeatProduction 
 
    int tableSizeAfterReplacingMap = m_model.tableSize("BasementIoTbl");
    EXPECT_EQ(tableSizeBeforeReplacingMap, tableSizeAfterReplacingMap); // Number of maps should stay the same since the old is replaced with the new
-   EXPECT_EQ(m_model.tableValueAsString("GridMapIoTbl", 0, "MapName"), "Interpolated_TopCrustHeatProdGrid_Map");
+   EXPECT_EQ(m_model.tableValueAsString("GridMapIoTbl", 0, "MapName"), "Interpolated_TopCrustHeatProdGrid_Map"); //if this map name changes, Don't forget to change the mapname in cbmProjectWriter
    EXPECT_EQ(m_model.tableValueAsString(tableInfo.tableName, tableInfo.tableRow, tableInfo.variableGridName), "Interpolated_TopCrustHeatProdGrid_Map");
 }
 

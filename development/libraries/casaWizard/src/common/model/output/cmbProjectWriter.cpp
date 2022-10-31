@@ -89,7 +89,7 @@ void CMBProjectWriter::appendTimeStampToT2ZMaps(const QString &timeStamp)
         if (referredTable == t2zReferTable.first &&
             cmbModel_->tableSize(t2zReferTable.first) != Utilities::Numerical::NoDataIntValue)
         {
-          for ( unsigned int i = 0; i<cmbModel_->tableSize(t2zReferTable.first); ++i)
+          for ( unsigned int i = 0; i < cmbModel_->tableSize(t2zReferTable.first); ++i)
           {
             if (cmbModel_->tableValueAsString(t2zReferTable.first, i, t2zReferTable.second) == mapName)
             {
@@ -109,6 +109,19 @@ void CMBProjectWriter::appendTimeStampToT2ZMaps(const QString &timeStamp)
   }
 }
 
+void CMBProjectWriter::appendTimeStampToCalibratedTCHPMap(const QString &timeStamp)
+{
+   mbapi::MapsManager& mapsManager = cmbModel_->mapsManager();
+   for (mbapi::MapsManager::MapID mapId : mapsManager.mapsIDs())
+   {
+      if (cmbModel_->tableValueAsString("GridMapIoTbl", mapId, "MapName") == "Interpolated_TopCrustHeatProdGrid_Map")
+      {
+         cmbModel_->setTableValue("GridMapIoTbl", mapId, "MapName", "Interpolated_TopCrustHeatProdGrid_Map_" + timeStamp.toStdString());
+         cmbModel_->setTableValue("BasementIoTbl", 0, "TopCrustHeatProdGrid", "Interpolated_TopCrustHeatProdGrid_Map_" + timeStamp.toStdString());
+      }
+   }
+}
+
 void CMBProjectWriter::deleteOutputTables()
 {
   // Delete Output tables
@@ -125,6 +138,7 @@ void CMBProjectWriter::generateOutputProject(const QString& timeStamp, const QSt
 {
   appendTimeStampToCalibratedLithoMaps(timeStamp);
   appendTimeStampToT2ZMaps(timeStamp);
+  appendTimeStampToCalibratedTCHPMap(timeStamp);
   deleteOutputTables();
   copyFilterTimeIoTbl(originalProject);
 

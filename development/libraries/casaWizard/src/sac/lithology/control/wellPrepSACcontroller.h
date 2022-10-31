@@ -23,7 +23,7 @@ class WellPrepTab;
 namespace sac
 {
 
-class SacLithologyScenario;
+class LithologyScenario;
 
 class WellPrepSACcontroller : public WellPrepController
 {
@@ -31,7 +31,7 @@ class WellPrepSACcontroller : public WellPrepController
 
 public:
   explicit WellPrepSACcontroller(WellPrepTab* wellPrepTab,
-                                 SacLithologyScenario& scenario,
+                                 LithologyScenario& scenario,
                                  ScriptRunController& scriptRunController,
                                  QObject* parent);
 
@@ -45,7 +45,7 @@ signals:
   void switchToTab(int);
 
 private:
-  SacLithologyScenario& scenario_;
+  LithologyScenario& scenario_;
 };
 
 } // namespace sac

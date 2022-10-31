@@ -210,7 +210,10 @@ bool SacInputController::prepareRun1D() const
 
 void SacInputController::slotPushButton1DOptimalizationClicked()
 {
-   prepareOptimizationRun();
+   if (!prepareOptimizationRun())
+   {
+      return;
+   }
 
    const QString calibrationDir = scenario().calibrationDirectory();
    std::unique_ptr<SACScript> sac = optimizationScript(calibrationDir);
@@ -241,7 +244,7 @@ void SacInputController::slotPushButton1DOptimalizationClicked()
    scenarioBackup::backup(scenario());
 }
 
-void SacInputController::prepareOptimizationRun() const
+bool SacInputController::prepareOptimizationRun() const
 {
    try
    {
@@ -250,7 +253,7 @@ void SacInputController::prepareOptimizationRun() const
    catch(const std::exception& e)
    {
       Logger::log() << e.what() << Logger::endl();
-      return;
+      return false;
    }
 
    const QString workingDir = scenario().workingDirectory();
@@ -258,7 +261,7 @@ void SacInputController::prepareOptimizationRun() const
 
    if (workingDir.isEmpty())
    {
-      return;
+      return false;
    }
 
    QDir calDir(calibrationDir);
@@ -268,16 +271,13 @@ void SacInputController::prepareOptimizationRun() const
                                "Destination folder exists",
                                "Do you want to empty the destination folder? This removes previous data, but prevents possible conflicts.",
                                QMessageBox::Yes | QMessageBox::No );
-      if (removeFolder.exec() == QMessageBox::Yes)
+      if (!(removeFolder.exec() == QMessageBox::Yes))
       {
-         QDir(calibrationDir).removeRecursively();
-         calDir.mkpath(".");
+         return false;
       }
+      QDir(calibrationDir).removeRecursively();
    }
-   else
-   {
-      calDir.mkpath(".");
-   }
+   calDir.mkpath(".");
 
    const bool filesCopied = functions::copyCaseFolder(QDir(workingDir), QDir(calibrationDir));
 
@@ -288,6 +288,7 @@ void SacInputController::prepareOptimizationRun() const
    scenario().updateRelevantProperties(projectWriter);
 
    scenarioBackup::backup(scenario());
+   return true;
 }
 
 void SacInputController::renameCaseFolders(const QString& pathName)

@@ -9,7 +9,7 @@
 #pragma once
 
 #include "control/SacInputController.h"
-#include "model/sacLithologyScenario.h"
+#include "model/LithologyScenario.h"
 #include "view/LithologyInputTab.h"
 
 #include <QObject>
@@ -32,7 +32,7 @@ class LithologyInputController : public SacInputController
 
 public:
    LithologyInputController(LithologyInputTab* inputTab,
-                            SacLithologyScenario& casaScenario,
+                            LithologyScenario& casaScenario,
                             ScriptRunController& scriptRunController,
                             QObject* parent);
 
@@ -41,8 +41,8 @@ private slots:
    void slotUpdateTabGUI(int tabID) final;
 
 private:
-   SacLithologyScenario& scenario() final;
-   SacLithologyScenario& scenario() const final;
+   LithologyScenario& scenario() final;
+   LithologyScenario& scenario() const final;
 
    LithologyInputTab* inputTab();
    const LithologyInputTab* inputTab() const;
@@ -52,7 +52,7 @@ private:
                                                  bool doOptimization = true) final;
    void readOptimizedResults() final;
 
-   SacLithologyScenario& m_scenario;
+   LithologyScenario& m_scenario;
    LithologyInputTab* m_inputTab;
    LithofractionController* m_lithofractionController;
 };

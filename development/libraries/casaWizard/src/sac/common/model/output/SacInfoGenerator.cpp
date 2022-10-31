@@ -12,7 +12,7 @@
 #include "model/input/cmbMapReader.h"
 #include "model/objectiveFunctionValue.h"
 #include "model/SacScenario.h"
-#include "model/MapsManager.h"
+#include "model/SacMapsManager.h"
 
 #include <iomanip>
 #include <sstream>
@@ -56,34 +56,8 @@ void SacInfoGenerator::addInputTabSection()
 {
   addSectionSeparator();
   addHeader("Input Tab");
-  addFormationInfo();
+  addOptimizationOptionsInfo();
   addObjectiveFunction();
-}
-
-void SacInfoGenerator::addFormationInfo()
-{
-  const QStringList layerNames = m_projectReader.layerNames();
-  const QStringList mapNames = m_projectReader.mapNames();
-
-  int layerID = 0;
-  for (const QString& layerName: layerNames)
-  {
-    bool includedInMapOptimization = false;
-    for (const QString& mapName : mapNames)
-    {
-
-      QString test = QString::fromStdString(std::to_string(layerID)) + "_percent";
-      if (mapName.startsWith(test))
-      {
-        includedInMapOptimization = true;
-        break;
-      }
-    }
-
-    addOption("Formation " + layerName.toStdString(), includedInMapOptimization ? "INCLUDED" : "EXCLUDED");
-
-    layerID++;
-  }
 }
 
 void SacInfoGenerator::addObjectiveFunction()
@@ -155,6 +129,16 @@ void SacInfoGenerator::addWellsSection()
   {
     addWellInfo(well);
   }
+}
+
+void SacInfoGenerator::generateInfoTextFile()
+{
+   addGeneralSettingsSection();
+   addInputTabSection();
+   addMapsGenerationSection();
+   addWellsSection();
+   addSectionSeparator();
+   writeTextToFile();
 }
 
 void SacInfoGenerator::addWellInfo(const casaWizard::Well* well)

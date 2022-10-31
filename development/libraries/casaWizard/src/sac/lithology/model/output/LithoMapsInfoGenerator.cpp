@@ -8,7 +8,7 @@
 
 #include "LithoMapsInfoGenerator.h"
 
-#include "model/sacLithologyScenario.h"
+#include "model/LithologyScenario.h"
 #include "model/input/cmbProjectReader.h"
 
 namespace casaWizard
@@ -17,22 +17,10 @@ namespace casaWizard
 namespace sac
 {
 
-LithoMapsInfoGenerator::LithoMapsInfoGenerator(const SacLithologyScenario& scenario, std::unique_ptr<ProjectReader> projectReader) :
-   SacInfoGeneratorLithology(scenario, *projectReader),
+LithoMapsInfoGenerator::LithoMapsInfoGenerator(const LithologyScenario& scenario, std::unique_ptr<ProjectReader> projectReader) :
+   LithologyInfoGenerator(scenario, *projectReader),
    m_projectReader(std::move(projectReader))
 {}
-
-LithoMapsInfoGenerator::~LithoMapsInfoGenerator() = default;
-
-void LithoMapsInfoGenerator::generateInfoTextFile()
-{
-   addGeneralSettingsSection();
-   addInputTabSection();
-   addMapsGenerationSection();
-   addWellsSection();
-   addSectionSeparator();
-   writeTextToFile();
-}
 
 } // namespace sac
 

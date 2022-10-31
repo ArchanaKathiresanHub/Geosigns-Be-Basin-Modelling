@@ -1,6 +1,6 @@
 #include "model/script/optimizedLithofractionScript.h"
 
-#include "model/sacLithologyScenario.h"
+#include "model/LithologyScenario.h"
 #include "stubProjectReader.h"
 
 #include <QString>
@@ -10,7 +10,7 @@
 TEST(OptimizedLithofractionScriptTest, testGenerateCommands)
 {
   // Given
-  casaWizard::sac::SacLithologyScenario scenario{new casaWizard::StubProjectReader()};
+  casaWizard::sac::LithologyScenario scenario{new casaWizard::StubProjectReader()};
   scenario.setWorkingDirectory(".");
   casaWizard::sac::OptimizedLithofractionScript script("baseDirectory");
 

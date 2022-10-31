@@ -17,12 +17,12 @@ namespace casaWizard
 namespace sac
 {
 
-class SacLithologyScenario;
+class LithologyScenario;
 
 class DepthConversionScript : public RunScript
 {
 public:
-  explicit DepthConversionScript(const SacLithologyScenario& scenario, const QString& baseDirectory, const workloadmanagers::WorkLoadManagerType& workloadManagerType);
+  explicit DepthConversionScript(const LithologyScenario& scenario, const QString& baseDirectory, const workloadmanagers::WorkLoadManagerType& workloadManagerType);
   ~DepthConversionScript() override;
 
 private:
@@ -31,7 +31,7 @@ private:
   void writeScriptContents(QFile& file) const;
   bool runLocally() const;
 
-  const SacLithologyScenario& scenario_;
+  const LithologyScenario& scenario_;
   QString scriptFilename_;
   std::unique_ptr<workloadmanagers::WorkLoadManager> workloadManager_;
 };

@@ -1,11 +1,13 @@
 file(GLOB CASAWIZARD_SACLITHO_H_HEADERS
    view/*.h
-   view/plot/*.h
+   view/plots/*.h
+   view/assets/*.h
    control/*.h )
 
 file(GLOB CASAWIZARD_SACLITHO_CPP_SOURCES
    view/*.cpp
-   view/plot/*.cpp
+   view/plots/*.cpp
+   view/assets/*.cpp
    control/*.cpp )
 
 file(GLOB CASAWIZARD_SACLITHO_MODEL_H_HEADERS

@@ -24,8 +24,8 @@ namespace thermal
 {
 
 TCHPManager::TCHPManager() :
-   m_minHeatProduction{0},
-   m_maxHeatProduction{5},
+   m_minHeatProduction{0.0},
+   m_maxHeatProduction{5.0},
    m_optimizedTCHPs{}
 {
 }
@@ -88,7 +88,6 @@ void TCHPManager::writeToFile(ScenarioWriter& writer) const
 
 void TCHPManager::readFromFile(const ScenarioReader& reader)
 {
-   //version = reader.readInt("TCHPManagerVersion");
    m_minHeatProduction = reader.readDouble("minimalProduction");
    m_maxHeatProduction = reader.readDouble("maximumProduction");
    m_optimizedTCHPs = reader.readVector<OptimizedTCHP>("optimizedTopCrustHeatProduction");

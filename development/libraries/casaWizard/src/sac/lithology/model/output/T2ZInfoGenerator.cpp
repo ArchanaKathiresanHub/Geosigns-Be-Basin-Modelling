@@ -8,7 +8,7 @@
 
 #include "T2ZInfoGenerator.h"
 
-#include "model/sacLithologyScenario.h"
+#include "model/LithologyScenario.h"
 
 namespace casaWizard
 {
@@ -16,8 +16,8 @@ namespace casaWizard
 namespace sac
 {
 
-T2ZInfoGenerator::T2ZInfoGenerator(const SacLithologyScenario& scenario, ProjectReader& t2zProjectReader) :
-  SacInfoGeneratorLithology(scenario, t2zProjectReader)
+T2ZInfoGenerator::T2ZInfoGenerator(const LithologyScenario& scenario, ProjectReader& t2zProjectReader) :
+  LithologyInfoGenerator(scenario, t2zProjectReader)
 {}
 
 void T2ZInfoGenerator::generateInfoTextFile()

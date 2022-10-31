@@ -1,4 +1,4 @@
-add_casawizard_sac_gtest( NAME SACLithologyScript   SOURCES testSACLithologyScript.cpp )
+add_casawizard_sac_gtest( NAME LithologyScript   SOURCES testLithologyScript.cpp )
 configure_file(SACLithologyScriptExpected.casa SACLithologyScriptExpected.casa COPYONLY)
 
 add_casawizard_sac_gtest( NAME OptimizedLithofractionScript      SOURCES testOptimizedLithofractionScript.cpp )

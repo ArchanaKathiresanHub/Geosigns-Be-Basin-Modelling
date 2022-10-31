@@ -11,10 +11,10 @@
 #include "control/assets/DataExtractionController.h"
 #include "control/lithofractionController.h"
 #include "control/ScriptRunController.h"
-#include "model/script/SacLithologyScript.h"
-#include "model/sacLithologyScenario.h"
+#include "model/script/LithologyScript.h"
+#include "model/LithologyScenario.h"
 #include "view/LithologyInputTab.h"
-#include "view/LithoTabIDs.h"
+#include "view/assets/LithoTabIDs.h"
 
 #include "model/extractor/optimizedLithofractionExtractor.h"
 
@@ -31,7 +31,7 @@ namespace lithology
 {
 
 LithologyInputController::LithologyInputController(LithologyInputTab* inputTab,
-                                                   SacLithologyScenario& casaScenario,
+                                                   LithologyScenario& casaScenario,
                                                    ScriptRunController& scriptRunController,
                                                    QObject* parent) :
    SacInputController(inputTab,
@@ -54,7 +54,7 @@ void LithologyInputController::refreshGUI()
 
 std::unique_ptr<SACScript> LithologyInputController::optimizationScript(const QString& baseDirectory, bool doOptimization)
 {
-   return std::unique_ptr<SACScript>(new SACLithologyScript(m_scenario, baseDirectory, doOptimization));
+   return std::unique_ptr<SACScript>(new LithologyScript(m_scenario, baseDirectory, doOptimization));
 }
 
 void LithologyInputController::readOptimizedResults()
@@ -82,12 +82,12 @@ void LithologyInputController::slotPushButtonSelectProject3dClicked()
    }
 }
 
-SacLithologyScenario& LithologyInputController::scenario()
+LithologyScenario& LithologyInputController::scenario()
 {
    return m_scenario;
 }
 
-SacLithologyScenario& LithologyInputController::scenario() const
+LithologyScenario& LithologyInputController::scenario() const
 {
    return m_scenario;
 }

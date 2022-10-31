@@ -22,7 +22,7 @@ namespace thermal
 
 class ThermalInputTab;
 class ThermalResultsTab;
-class ThermalMapsTab;
+class ThermalMapTab;
 
 class ThermalWindow : public sac::Window
 {
@@ -33,12 +33,12 @@ public:
 
   ThermalInputTab* inputTab() const;
   ThermalResultsTab* resultsTab() const;
-  ThermalMapsTab* mapsTab() const;
+  ThermalMapTab* mapsTab() const;
 
 private:
   ThermalInputTab* m_inputTab;
   ThermalResultsTab* m_resultsTab;
-  ThermalMapsTab* m_mapsTab;
+  ThermalMapTab* m_mapsTab;
 };
 
 } // namespace lithology

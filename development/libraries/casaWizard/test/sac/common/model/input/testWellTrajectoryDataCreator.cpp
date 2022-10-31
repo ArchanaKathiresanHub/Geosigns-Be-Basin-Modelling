@@ -1,6 +1,6 @@
 #include "model/input/wellTrajectoryDataCreator.h"
 
-#include "model/sacLithologyScenario.h"
+#include "model/LithologyScenario.h"
 #include "model/wellTrajectory.h"
 #include "stubProjectReader.h"
 
@@ -8,7 +8,7 @@
 
 TEST( WellTrajectoryDataCreatorTest, testReadTrack1DFile )
 {
-  casaWizard::sac::SacLithologyScenario scenario{new casaWizard::StubProjectReader()};
+  casaWizard::sac::LithologyScenario scenario{new casaWizard::StubProjectReader()};
   scenario.setProject3dFileNameAndLoadFile("bestMatchedCase.project3d");
 
   casaWizard::CalibrationTargetManager& ctManager = scenario.calibrationTargetManager();

@@ -8,8 +8,8 @@
 
 #include "correlationWidget.h"
 #include "model/influentialParameter.h"
-#include "view/plot/correlationPlot.h"
-#include "view/plot/histogram.h"
+#include "view/plots/correlationPlot.h"
+#include "view/plots/histogram.h"
 #include <QGridLayout>
 #include <QWheelEvent>
 

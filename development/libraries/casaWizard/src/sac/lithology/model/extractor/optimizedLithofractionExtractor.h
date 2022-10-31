@@ -11,12 +11,12 @@ namespace casaWizard
 namespace sac
 {
 
-class SacLithologyScenario;
+class LithologyScenario;
 
 class OptimizedLithofractionExtractor : public CaseExtractor
 {
 public:
-  explicit OptimizedLithofractionExtractor(SacLithologyScenario& scenario);
+  explicit OptimizedLithofractionExtractor(LithologyScenario& scenario);
   ~OptimizedLithofractionExtractor() override;
   RunScript& script() override;
   CaseDataCreator& dataCreator() override;

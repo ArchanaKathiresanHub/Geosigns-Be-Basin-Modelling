@@ -27,6 +27,21 @@ QColor ColorMap::getBackgroundColor() const
   return Qt::lightGray;
 }
 
+QColor ColorMap::getContrastingColor() const
+{
+   switch(m_colorMapType)
+   {
+      case ColorMapType::GRAYSCALES:
+         return Qt::red;
+      case ColorMapType::RAINBOW:
+         return Qt::lightGray;
+      case ColorMapType::VIRIDIS:
+         return Qt::red;
+      default:
+         return Qt::lightGray;
+   }
+}
+
 void ColorMap::setColorMapType(const std::string& colorMapType)
 {
   if (colorMapType == "Gray scale")
@@ -49,12 +64,12 @@ void ColorMap::setColorMapType(const ColorMapType& colorMapType){
 
 QColor ColorMap::getColor(const double value, const double minValue, const double maxValue) const
 {
-  if (minValue == maxValue)
+  if (minValue == maxValue || value < minValue || value > maxValue)
   {
     return QColor(0,0,0);
   }
-  const double relativeValue = (value - minValue) / (maxValue - minValue);
 
+  const double relativeValue = (value - minValue) / (maxValue - minValue);
   switch (m_colorMapType)
   {
     case ColorMapType::GRAYSCALES :
@@ -110,17 +125,17 @@ QColor ColorMap::interpolateColorMap(const std::vector<QColor>& colorsInMap, con
   {
     return colorsInMap[colorsInMap.size()-1];
   }
-  if (relativeValue == 0.0)
+  if (relativeValue <= 0.0)
   {
     return colorsInMap[0];
   }
-  const int colorRegion = relativeValue*(colorsInMap.size() - 1);
+  const int colorRegion = relativeValue * (colorsInMap.size() - 1);
   const double relativeSegmentValue = (colorsInMap.size() - 1) * (relativeValue - colorRegion/(colorsInMap.size() - 1.0));
 
   const QColor startColor = colorsInMap[colorRegion];
   const QColor endColor = colorsInMap[colorRegion+1];
 
-  return interPolateColor(startColor, endColor,relativeSegmentValue);
+  return interPolateColor(startColor, endColor, relativeSegmentValue);
 }
 
 QColor ColorMap::interPolateColor(const QColor& startColor, const QColor& endColor, const double relativeSegmentValue) const

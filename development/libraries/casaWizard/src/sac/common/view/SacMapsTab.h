@@ -23,7 +23,7 @@ namespace casaWizard
 namespace sac
 {
 
-class MapsVisualisation;
+class SacMapsVisualisation;
 class ActiveWellsTable;
 
 class SacMapsTab : public QWidget
@@ -34,7 +34,7 @@ public:
    SacMapsTab(QWidget* parent = nullptr);
    virtual ~SacMapsTab() = default;
 
-   virtual MapsVisualisation* mapsVisualisation() const = 0;
+   virtual SacMapsVisualisation* mapsVisualisation() const = 0;
 
    QPushButton* createGridsButton() const;
    QSpinBox* pValue() const;

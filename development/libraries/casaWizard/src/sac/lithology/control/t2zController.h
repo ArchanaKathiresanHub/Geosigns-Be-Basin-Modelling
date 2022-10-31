@@ -21,7 +21,7 @@ class ScriptRunController;
 namespace sac
 {
 
-class SacLithologyScenario;
+class LithologyScenario;
 class T2Ztab;
 
 class T2Zcontroller : public QObject
@@ -30,7 +30,7 @@ class T2Zcontroller : public QObject
 
 public:
   T2Zcontroller(T2Ztab* t2zTab,
-                SacLithologyScenario& casaScenario,
+                LithologyScenario& casaScenario,
                 ScriptRunController& scriptRunController,
                 QObject* parent);
 
@@ -59,7 +59,7 @@ private:
   void updateProjectSelectionOptions();
 
   T2Ztab* t2zTab_;
-  SacLithologyScenario& casaScenario_;
+  LithologyScenario& casaScenario_;
   ScriptRunController& scriptRunController_;
   QString t2zDir_;
   QString sourceDir_;

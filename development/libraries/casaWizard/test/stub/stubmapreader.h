@@ -26,6 +26,8 @@ public:
     return {VectorVectorMap({{1.0, 2.0}, {3.0, 4.0}}), VectorVectorMap({{5.0, 6.0}, {7.0, 8.0}})};
   }
   std::vector<VectorVectorMap> getInputLithoMapsInLayer(const int /*layerIndex*/) const override {return {};}
+  VectorVectorMap getTopCrustHeatProductionMap() const override { return VectorVectorMap({{1.0, 2.0}, {3.0, 4.0}}); }
+  std::string getTopCrustHeatProductionMapName() const override { return ""; }
   bool checkIfPointIsInLayer(const double /*x*/, const double /*y*/, const double /*z*/, const std::string& /*layerName*/) const override {return false;}
   void getMapDimensions(double& xMin, double& xMax, double& yMin, double& yMax, long& numI, long& numJ) override
   {
@@ -37,6 +39,5 @@ public:
     numJ = 2;
   }
 };
-
 
 } // namespace casaWizard

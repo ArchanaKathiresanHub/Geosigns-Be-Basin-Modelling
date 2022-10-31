@@ -9,7 +9,7 @@
 #pragma once
 
 #include "control/SacResultsController.h"
-#include "model/sacLithologyScenario.h"
+#include "model/LithologyScenario.h"
 #include "model/wellTrajectoryManager.h"
 #include "view/LithologyResultsTab.h"
 
@@ -34,7 +34,7 @@ class LithologyResultsController : public SacResultsController
 
 public:
    explicit LithologyResultsController(LithologyResultsTab* resultsTab,
-                                       SacLithologyScenario& scenario,
+                                       LithologyScenario& scenario,
                                        ScriptRunController& scriptRunController,
                                        QObject* parent);
 private slots:
@@ -43,8 +43,8 @@ private slots:
    void slotWellPrepOrSAC(int buttonId);
 
 private:
-   SacLithologyScenario& scenario() final;
-   SacLithologyScenario& scenario() const final;
+   LithologyScenario& scenario() final;
+   LithologyScenario& scenario() const final;
 
    LithologyResultsTab* resultsTab() final;
    const LithologyResultsTab* resultsTab() const final;
@@ -52,7 +52,7 @@ private:
    void updateOptimizedTable() final;
 
    LithologyResultsTab* m_resultsTab;
-   SacLithologyScenario& m_scenario;
+   LithologyScenario& m_scenario;
 };
 
 } // namespace lithology

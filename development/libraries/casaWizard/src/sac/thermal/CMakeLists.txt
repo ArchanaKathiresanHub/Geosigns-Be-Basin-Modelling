@@ -1,12 +1,16 @@
 file(GLOB CASAWIZARD_SACTHERMAL_H_HEADERS
    view/*.h
-   view/plot/*.h
-   control/*.h )
+   view/plots/*.h
+   view/assets/*.h
+   control/*.h
+   control/assets/*.h)
 
 file(GLOB CASAWIZARD_SACTHERMAL_CPP_SOURCES
    view/*.cpp
-   view/plot/*.cpp
-   control/*.cpp )
+   view/plots/*.cpp
+   view/assets/*.cpp
+   control/*.cpp
+   control/assets/*.cpp )
 
 file(GLOB CASAWIZARD_SACTHERMAL_MODEL_H_HEADERS
    model/*.h

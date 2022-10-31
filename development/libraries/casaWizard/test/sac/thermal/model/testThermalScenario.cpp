@@ -40,3 +40,27 @@ TEST(ThermalScenarioTest, testWriteRead)
   writerLoaded.close();
   expectFileEq("scenario.dat", "scenarioAgain.dat");
 }
+
+TEST(ThermalScenarioTest, testGetTCHPOfClosestWell)
+{
+   // Given
+   casaWizard::sac::thermal::ThermalScenario scenario{new casaWizard::StubProjectReader()};
+   scenario.calibrationTargetManager().addWell("ActiveWell1", 1000, 1000);
+   scenario.calibrationTargetManager().addWell("ActiveWell2", 3000, 3000);
+   scenario.calibrationTargetManager().addWell("Non-ActiveWell", 2000, 2000);
+   scenario.calibrationTargetManager().setWellIsActive(false, 2);
+
+   scenario.TCHPmanager().addOptimizedTCHP(casaWizard::sac::thermal::OptimizedTCHP(0, 1.1));
+   scenario.TCHPmanager().addOptimizedTCHP(casaWizard::sac::thermal::OptimizedTCHP(1, 2.2));
+   scenario.TCHPmanager().addOptimizedTCHP(casaWizard::sac::thermal::OptimizedTCHP(2, 3.3));
+
+   // When
+   int closestWellID = -1;
+   const double TCHPOfClosestWell = scenario.getTCHPOfClosestWell(2.2, 2.2, closestWellID);
+
+   // Then
+   EXPECT_EQ(closestWellID, 1);
+   EXPECT_DOUBLE_EQ(TCHPOfClosestWell, 2.2);
+}
+
+

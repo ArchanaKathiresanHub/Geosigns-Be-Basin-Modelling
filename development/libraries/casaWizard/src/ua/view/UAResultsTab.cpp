@@ -17,8 +17,8 @@
 #include "model/UAResultsTargetsData.h"
 
 #include "view/sharedComponents/helpLabel.h"
-#include "view/plot/histogram.h"
-#include "view/plot/quartilePlot.h"
+#include "view/plots/histogram.h"
+#include "view/plots/quartilePlot.h"
 
 #include <QCheckBox>
 #include <QLineEdit>

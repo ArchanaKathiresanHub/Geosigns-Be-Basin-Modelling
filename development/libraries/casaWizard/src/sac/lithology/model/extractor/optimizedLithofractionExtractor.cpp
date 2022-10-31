@@ -1,5 +1,5 @@
 #include "optimizedLithofractionExtractor.h"
-#include "model/sacLithologyScenario.h"
+#include "model/LithologyScenario.h"
 
 namespace casaWizard
 {
@@ -7,7 +7,7 @@ namespace casaWizard
 namespace sac
 {
 
-OptimizedLithofractionExtractor::OptimizedLithofractionExtractor(SacLithologyScenario& scenario) :
+OptimizedLithofractionExtractor::OptimizedLithofractionExtractor(LithologyScenario& scenario) :
   CaseExtractor(scenario),
   script_{iterationPath()},
   dataCreator_{scenario, iterationPath()}

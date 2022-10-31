@@ -1,9 +1,9 @@
 #include "model/script/Generate3DScenarioScriptLithology.h"
-#include "model/MapsManagerLithology.h"
+#include "model/LithologyMapsManager.h"
 
 #include "model/calibrationTargetManager.h"
 #include "expectFileEq.h"
-#include "model/sacLithologyScenario.h"
+#include "model/LithologyScenario.h"
 #include "stubProjectReader.h"
 
 #include <QString>
@@ -16,7 +16,7 @@ using namespace casaWizard;
 TEST(Generate3DScenarioScriptTest, testWriteScript)
 {
   // Given
-  SacLithologyScenario scenario{new casaWizard::StubProjectReader()};
+  LithologyScenario scenario{new casaWizard::StubProjectReader()};
   scenario.setWorkingDirectory(".");
   scenario.setProject3dFileNameAndLoadFile("projStub.project3d");
 
@@ -50,11 +50,11 @@ TEST(Generate3DScenarioScriptTest, testWriteScript)
 
 TEST(Generate3DScenarioScriptTest, testWriteScriptIDWGaussian)
 {
-  SacLithologyScenario scenario{new casaWizard::StubProjectReader()};
+  LithologyScenario scenario{new casaWizard::StubProjectReader()};
   scenario.setWorkingDirectory(".");
   scenario.setProject3dFileNameAndLoadFile("projStub.project3d");
 
-  MapsManagerLithology& mapsManager = scenario.mapsManager();
+  LithologyMapsManager& mapsManager = scenario.mapsManager();
   mapsManager.setSmoothingOption(1);
   mapsManager.setPIDW(3);
   mapsManager.setSmartGridding(false);
@@ -70,11 +70,11 @@ TEST(Generate3DScenarioScriptTest, testWriteScriptIDWGaussian)
 
 TEST(Generate3DScenarioScriptTest, testWriteScriptNNMovingAverage)
 {
-  SacLithologyScenario scenario{new casaWizard::StubProjectReader()};
+  LithologyScenario scenario{new casaWizard::StubProjectReader()};
   scenario.setWorkingDirectory(".");
   scenario.setProject3dFileNameAndLoadFile("projStub.project3d");
 
-  MapsManager& mapsManager = scenario.mapsManager();
+  SacMapsManager& mapsManager = scenario.mapsManager();
   mapsManager.setSmoothingOption(2);
   mapsManager.setRadiusSmoothing(3500);
   mapsManager.setInterpolationMethod(1);

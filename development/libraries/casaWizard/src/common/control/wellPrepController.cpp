@@ -339,7 +339,7 @@ void WellPrepController::slotExportToCSVClicked()
    }
 
    QString fileName = QFileDialog::getSaveFileName(wellPrepTab_, "Save as", QDir::currentPath(), "comma seperated value file (*.csv)");
-   if (fileName == "")
+   if (fileName.isEmpty())
    {
       return;
    }

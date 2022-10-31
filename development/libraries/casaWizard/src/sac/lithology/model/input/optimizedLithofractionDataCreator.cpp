@@ -1,7 +1,7 @@
 #include "optimizedLithofractionDataCreator.h"
 
 #include "model/logger.h"
-#include "model/sacLithologyScenario.h"
+#include "model/LithologyScenario.h"
 #include "model/input/dataFileParser.h"
 
 namespace casaWizard
@@ -10,7 +10,7 @@ namespace casaWizard
 namespace sac
 {
 
-OptimizedLithofractionDataCreator::OptimizedLithofractionDataCreator(SacLithologyScenario& scenario, const QString& iterationPath) :
+OptimizedLithofractionDataCreator::OptimizedLithofractionDataCreator(LithologyScenario& scenario, const QString& iterationPath) :
   CaseDataCreator(scenario.calibrationTargetManager(), iterationPath),
   lithofractionManager_{scenario.lithofractionManager()}
 {

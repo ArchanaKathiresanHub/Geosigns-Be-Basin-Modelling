@@ -20,7 +20,7 @@ class Well;
 namespace sac
 {
 
-class MapsManager;
+class SacMapsManager;
 class SacScenario;
 
 class SacInfoGenerator : public InfoGenerator
@@ -30,27 +30,26 @@ public:
    virtual ~SacInfoGenerator() override = default;
 
    void loadProjectReader(const std::string& projectFileLocation) override;
+   void generateInfoTextFile() override;
 
 protected:
    virtual void addMapsGenerationSection();
-   virtual const MapsManager& mapsManager() const = 0;
+   virtual const SacMapsManager& mapsManager() const = 0;
    virtual const SacScenario& scenario() const = 0;
 
    void addGeneralSettingsSection();
    void addInputTabSection();
    void addWellsSection();
-
    const ProjectReader& projectReader() const;
 
+   std::string doubleToFormattedString(const double inputDouble);
 private:
-   void addFormationInfo();
+   virtual void addOptimizationOptionsInfo() = 0;
    void addInterpolation();
    void addObjectiveFunction();
    void addRunMode();
    void addSmoothing();
    void addWellInfo(const casaWizard::Well* well);
-
-   std::string doubleToFormattedString(const double inputDouble);
 
    ProjectReader& m_projectReader;
 };

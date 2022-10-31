@@ -10,6 +10,7 @@
 
 #include "model/VectorVectorMap.h"
 
+#include <QString>
 #include <string>
 #include <vector>
 
@@ -33,6 +34,8 @@ public:
   virtual double getValue(const double x, const double y, const std::string& mapName) const = 0;
   virtual std::vector<VectorVectorMap> getInputLithoMapsInLayer(const int layerIndex) const = 0;
   virtual std::vector<VectorVectorMap> getOptimizedLithoMapsInLayer(const int layerIndex) const = 0;
+  virtual VectorVectorMap getTopCrustHeatProductionMap() const = 0;
+  virtual std::string getTopCrustHeatProductionMapName() const = 0;
   virtual bool checkIfPointIsInLayer(const double x, const double y, const double z, const std::string& layerName) const = 0;
   virtual void getMapDimensions(double& xMin, double& xMax, double& yMin, double& yMax, long& numI, long& numJ) = 0;
 };

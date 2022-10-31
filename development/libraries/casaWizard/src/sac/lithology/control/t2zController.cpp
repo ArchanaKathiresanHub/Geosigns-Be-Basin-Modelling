@@ -20,12 +20,12 @@
 #include "model/output/T2ZInfoGenerator.h"
 #include "model/output/workspaceGenerator.h"
 #include "model/output/zycorWriter.h"
-#include "model/sacLithologyScenario.h"
+#include "model/LithologyScenario.h"
 #include "model/scenarioBackup.h"
 #include "model/script/depthConversionScript.h"
 #include "model/script/sacScript.h"
 
-#include "view/LithoTabIDs.h"
+#include "view/assets/LithoTabIDs.h"
 #include "view/t2zTab.h"
 
 #include "SDUWorkLoadManager.h"
@@ -49,7 +49,7 @@ namespace sac
 {
 
 T2Zcontroller::T2Zcontroller(T2Ztab* t2zTab,
-                             SacLithologyScenario& casaScenario,
+                             LithologyScenario& casaScenario,
                              ScriptRunController& scriptRunController,
                              QObject* parent) :
     QObject(parent),

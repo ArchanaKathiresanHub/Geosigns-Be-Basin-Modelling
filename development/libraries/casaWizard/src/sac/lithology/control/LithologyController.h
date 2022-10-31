@@ -10,7 +10,7 @@
 #pragma once
 
 #include "control/mainController.h"
-#include "model/sacLithologyScenario.h"
+#include "model/LithologyScenario.h"
 #include "view/LithologyWindow.h"
 
 namespace casaWizard
@@ -19,7 +19,7 @@ namespace casaWizard
 namespace sac
 {
 
-class MapsControllerLithology;
+class LithologyMapsController;
 class ResultsController;
 class T2Zcontroller;
 class WellPrepSACcontroller;
@@ -39,14 +39,14 @@ public:
   virtual ~LithologyController() override = default;
 
   MainWindow& mainWindow() final;
-  SacLithologyScenario& scenario() final;
+  LithologyScenario& scenario() final;
 
 private:
   LithologyWindow m_ui;
-  SacLithologyScenario m_scenario;
+  LithologyScenario m_scenario;
   WellPrepSACcontroller* m_wellPrepSACcontroller;
   LithologyInputController* m_inputController;
-  MapsControllerLithology* m_mapsController;
+  LithologyMapsController* m_mapsController;
   T2Zcontroller* m_t2zController;
   LithologyResultsController* m_resultsController;
 };

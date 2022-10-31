@@ -19,7 +19,7 @@ class ScriptRunController;
 namespace sac
 {
 
-class MapsManager;
+class SacMapsManager;
 class SacScenario;
 class SacMapsTab;
 class SacVisualisationController;
@@ -52,13 +52,12 @@ private slots:
    void slotSelectAllWells() ;
    void slotDeselectAllWells();
 
-
 signals:
    void signalRefreshChildWidgets();
 
 protected:
    void init();
-   virtual MapsManager& mapsManager() = 0;
+   virtual SacMapsManager& mapsManager() = 0;
    virtual SacMapsTab* mapsTab() = 0;
    virtual SacScenario& scenario() = 0;
 

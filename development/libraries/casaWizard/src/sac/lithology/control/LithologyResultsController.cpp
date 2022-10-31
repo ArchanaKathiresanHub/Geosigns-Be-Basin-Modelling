@@ -8,7 +8,7 @@
 
 #include "LithologyResultsController.h"
 
-#include "view/LithoTabIDs.h"
+#include "view/assets/LithoTabIDs.h"
 
 #include <QButtonGroup>
 
@@ -22,7 +22,7 @@ namespace lithology
 {
 
 LithologyResultsController::LithologyResultsController(LithologyResultsTab* resultsTab,
-                                                       SacLithologyScenario& scenario,
+                                                       LithologyScenario& scenario,
                                                        ScriptRunController& scriptRunController,
                                                        QObject* parent) :
    SacResultsController(resultsTab, scriptRunController, parent),
@@ -117,12 +117,12 @@ void LithologyResultsController::updateOptimizedTable()
 }
 
 
-SacLithologyScenario& LithologyResultsController::scenario()
+LithologyScenario& LithologyResultsController::scenario()
 {
    return m_scenario;
 }
 
-SacLithologyScenario& LithologyResultsController::scenario() const
+LithologyScenario& LithologyResultsController::scenario() const
 {
    return m_scenario;
 }

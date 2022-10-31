@@ -31,6 +31,7 @@ public:
   QColor getColor(const double value, const double minValue, const double maxValue) const;
 
   QColor getBackgroundColor() const;
+  QColor getContrastingColor() const;
 private:
   ColorMapType m_colorMapType;
   QColor getGrayScaleColor(const double relativeValue) const;

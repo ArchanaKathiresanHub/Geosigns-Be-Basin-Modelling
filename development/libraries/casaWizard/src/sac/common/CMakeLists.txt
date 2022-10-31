@@ -1,14 +1,14 @@
 file(GLOB CASAWIZARD_SAC_H_HEADERS
    view/*.h
    view/assets/*.h
-   view/plot/*.h
+   view/plots/*.h
    control/*.h
    control/assets/*.h)
 
 file(GLOB CASAWIZARD_SAC_CPP_SOURCES
    view/*.cpp
    view/assets/*.cpp
-   view/plot/*.cpp
+   view/plots/*.cpp
    control/*.cpp
    control/assets/*.cpp)
 

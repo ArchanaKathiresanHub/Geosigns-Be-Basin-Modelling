@@ -7,7 +7,7 @@
 //
 
 #pragma once
-#include "model/sacLithologyScenario.h"
+#include "model/LithologyScenario.h"
 #include "model/ThermalScenario.h"
 #include "stubProjectReader.h"
 
@@ -18,11 +18,11 @@ namespace casaWizard
 namespace sac
 {
 
-class StubSacLithologyScenario : public SacLithologyScenario
+class StubSacLithologyScenario : public LithologyScenario
 {
 public:
   explicit StubSacLithologyScenario() :
-    SacLithologyScenario(new StubProjectReader())
+    LithologyScenario(new StubProjectReader())
   {
   }
 };

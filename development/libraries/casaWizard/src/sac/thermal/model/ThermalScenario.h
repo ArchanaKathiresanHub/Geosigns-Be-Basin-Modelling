@@ -11,10 +11,13 @@
 
 #include "model/SacScenario.h"
 #include "model/TCHPManager.h"
-#include "model/MapsManagerThermal.h"
+#include "model/ThermalMapManager.h"
 
 namespace casaWizard
 {
+
+class VectorVectorMap;
+class CMBMapReader;
 
 namespace sac
 {
@@ -27,8 +30,8 @@ class ThermalScenario : public SacScenario
 public:
    ThermalScenario(ProjectReader* projectReader);
 
-   virtual MapsManager& mapsManager() final;
-   virtual const MapsManager& mapsManager() const final;
+   virtual ThermalMapManager& mapsManager() final;
+   virtual const ThermalMapManager& mapsManager() const final;
 
    TCHPManager& TCHPmanager();
    const TCHPManager& TCHPmanager() const;
@@ -37,9 +40,15 @@ public:
    void readFromFile(const ScenarioReader& reader) override;
    void clear() override;
 
+   void getVisualisationData(QVector<OptimizedTCHP>& optimizedTCHPs,
+                             QVector<const Well*>& activeAndIncludedWells) const;
+   bool openThermalMap(CMBMapReader& mapReader, bool& optimized);
+   bool getThermalMap(VectorVectorMap& ThermalMaps);
+   double getTCHPOfClosestWell(const double xInKm, const double yInKm, int& closestWellID) const;
+
 private:
    TCHPManager m_TCHPManager;
-   MapsManagerThermal m_mapsManager;
+   ThermalMapManager m_mapManager;
 };
 
 } // namespace thermal

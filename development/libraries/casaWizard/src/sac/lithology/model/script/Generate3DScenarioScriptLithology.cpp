@@ -8,7 +8,7 @@
 
 #include "Generate3DScenarioScriptLithology.h"
 
-#include "model/sacLithologyScenario.h"
+#include "model/LithologyScenario.h"
 
 namespace casaWizard
 {
@@ -16,12 +16,12 @@ namespace casaWizard
 namespace sac
 {
 
-Generate3DScenarioScriptLithology::Generate3DScenarioScriptLithology(const SacLithologyScenario& scenario):
+Generate3DScenarioScriptLithology::Generate3DScenarioScriptLithology(const LithologyScenario& scenario):
    Generate3DScenarioScript(scenario),
    m_mapsManager(scenario.mapsManager())
 {}
 
-const MapsManagerLithology& Generate3DScenarioScriptLithology::mapsManager() const
+const LithologyMapsManager& Generate3DScenarioScriptLithology::mapsManager() const
 {
    return m_mapsManager;
 }

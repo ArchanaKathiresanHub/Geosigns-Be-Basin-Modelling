@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2020 Shell International Exploration & Production.
+// Copyright (C) 2012-2022 Shell International Exploration & Production.
 // All rights reserved.
 //
 // Confidential and proprietary source code of Shell.
@@ -32,6 +32,8 @@ public:
   double getValue(const double x, const double y, const std::string& mapName) const override;
   std::vector<VectorVectorMap> getInputLithoMapsInLayer(const int layerIndex) const override;
   std::vector<VectorVectorMap> getOptimizedLithoMapsInLayer(const int layerIndex) const override;
+  VectorVectorMap getTopCrustHeatProductionMap() const final;
+  std::string getTopCrustHeatProductionMapName() const final;
   bool checkIfPointIsInLayer(const double x, const double y, const double z, const std::string& layerName) const override;
   void getMapDimensions(double& xMin, double& xMax, double& yMin, double& yMax, long& numI, long& numJ) override;
 
@@ -43,4 +45,4 @@ private:
   bool loaded_;
 };
 
-}
+} // namespace casaWizard

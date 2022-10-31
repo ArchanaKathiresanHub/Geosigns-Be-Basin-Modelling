@@ -9,8 +9,8 @@
 #include "SacResultsTab.h"
 
 #include "assets/multiWellPlot.h"
-#include "plot/wellBirdsView.h"
-#include "plot/wellCorrelationPlot.h"
+#include "plots/wellBirdsView.h"
+#include "plots/wellCorrelationPlot.h"
 #include "assets/PlotOptions.h"
 #include "assets/wellCorrelationPlotLayout.h"
 
@@ -116,9 +116,12 @@ void SacResultsTab::updateActivePropertyUserNames(const QStringList& activePrope
    m_multiWellPlot->setActivePropertyUserNames(activePropertyUserNames);
 }
 
-void SacResultsTab::updateWellPlot(const QVector<QVector<const CalibrationTarget*> > targets, const QStringList units,
-                                   const QVector<QVector<WellTrajectory> > allTrajectories, const QVector<bool>& activePlots,
-                                   const QMap<QString, double>& surfaceLines, const bool fitRangeToData)
+void SacResultsTab::updateWellPlot(const QVector<QVector<const CalibrationTarget*> > targets,
+                                   const QStringList units,
+                                   const QVector<QVector<WellTrajectory> > allTrajectories,
+                                   const QVector<bool>& activePlots,
+                                   const QMap<QString, double>& surfaceLines,
+                                   const bool fitRangeToData)
 {
    assert(targets.size() ==  units.size());
    m_multiWellPlot->updatePlots(targets,

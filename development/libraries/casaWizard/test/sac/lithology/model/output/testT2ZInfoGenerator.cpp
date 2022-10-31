@@ -9,7 +9,7 @@
 #include "expectFileEq.h"
 #include "model/input/cmbProjectReader.h"
 #include "model/output/T2ZInfoGenerator.h"
-#include "model/sacLithologyScenario.h"
+#include "model/LithologyScenario.h"
 
 #include <gtest/gtest.h>
 
@@ -21,7 +21,7 @@ TEST( T2ZInfoGenerator, testGenerateOnOriginalProject )
   std::remove("infoT2ZOnOriginalActual.txt");
   casaWizard::ProjectReader* t2zProjectReader = new casaWizard::CMBProjectReader();
   t2zProjectReader->load("T2ZProject.project3d");
-  SacLithologyScenario scenario(t2zProjectReader);
+  LithologyScenario scenario(t2zProjectReader);
   scenario.setT2zSubSampling(4);
   scenario.setT2zReferenceSurface(0);
   scenario.setT2zRunOnOriginalProject(true);
@@ -41,7 +41,7 @@ TEST( T2ZInfoGenerator, testOnOptimizedProject )
   std::remove("infoT2ZOnOptimizedActual.txt");
   casaWizard::ProjectReader* t2zProjectReader = new casaWizard::CMBProjectReader();
   t2zProjectReader->load("T2ZProject.project3d");
-  SacLithologyScenario scenario(t2zProjectReader);
+  LithologyScenario scenario(t2zProjectReader);
   scenario.setT2zSubSampling(4);
   scenario.setT2zReferenceSurface(0);
   scenario.setT2zRunOnOriginalProject(false);

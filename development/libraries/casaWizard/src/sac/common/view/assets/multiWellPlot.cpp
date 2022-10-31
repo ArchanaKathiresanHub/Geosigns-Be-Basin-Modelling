@@ -12,9 +12,9 @@
 #include "model/trajectoryType.h"
 #include "model/wellTrajectory.h"
 
-#include "view/plot/wellPlot.h"
+#include "view/plots/wellPlot.h"
 #include "view/sharedComponents/customcheckbox.h"
-#include "view/plot/legend.h"
+#include "view/plots/legend.h"
 
 #include <QGridLayout>
 #include <QLabel>

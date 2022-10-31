@@ -1,6 +1,6 @@
 #include "model/script/depthConversionScript.h"
 
-#include "model/sacLithologyScenario.h"
+#include "model/LithologyScenario.h"
 #include "stubProjectReader.h"
 #include "expectFileEq.h"
 
@@ -11,7 +11,7 @@
 TEST(DepthConversionScriptTest, testGenerateCommandsLocal)
 {
   // Given
-  casaWizard::sac::SacLithologyScenario scenario{new casaWizard::StubProjectReader()};
+  casaWizard::sac::LithologyScenario scenario{new casaWizard::StubProjectReader()};
   scenario.setWorkingDirectory(".");
   scenario.setClusterName("LOCAL");
   scenario.setProject3dFileNameAndLoadFile("./Project.project3d");
@@ -35,7 +35,7 @@ TEST(DepthConversionScriptTest, testGenerateCommandsLocal)
 TEST(DepthConversionScriptTest, testGenerateCommandsClusterSLURM)
 {
   // Given
-  casaWizard::sac::SacLithologyScenario scenario{new casaWizard::StubProjectReader()};
+  casaWizard::sac::LithologyScenario scenario{new casaWizard::StubProjectReader()};
   scenario.setWorkingDirectory(".");
   scenario.setClusterName("Cluster");
   scenario.setProject3dFileNameAndLoadFile("./Project.project3d");
@@ -55,7 +55,7 @@ TEST(DepthConversionScriptTest, testGenerateCommandsClusterSLURM)
 TEST(DepthConversionScriptTest, testGenerateCommandsClusterLSF)
 {
   // Given
-  casaWizard::sac::SacLithologyScenario scenario{new casaWizard::StubProjectReader()};
+  casaWizard::sac::LithologyScenario scenario{new casaWizard::StubProjectReader()};
   scenario.setWorkingDirectory(".");
   scenario.setClusterName("Cluster");
   scenario.setProject3dFileNameAndLoadFile("./Project.project3d");
@@ -75,7 +75,7 @@ TEST(DepthConversionScriptTest, testGenerateCommandsClusterLSF)
 TEST(DepthConversionScriptTest, testGenerateCommandsInvalidScriptLocation)
 {
   // Given
-  casaWizard::sac::SacLithologyScenario scenario{new casaWizard::StubProjectReader()};
+  casaWizard::sac::LithologyScenario scenario{new casaWizard::StubProjectReader()};
   scenario.setWorkingDirectory("doesNotExist");
   scenario.setClusterName("Cluster");
   std::unique_ptr<casaWizard::RunScript> script(new casaWizard::sac::DepthConversionScript(scenario, scenario.workingDirectory() + "/T2Z_step2/", workloadmanagers::WorkLoadManagerType::SLURM));

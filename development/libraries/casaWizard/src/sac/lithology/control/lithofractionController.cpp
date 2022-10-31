@@ -8,8 +8,8 @@
 
 #include "lithofractionController.h"
 
-#include "view/lithofractionTable.h"
-#include "model/sacLithologyScenario.h"
+#include "view/assets/lithofractionTable.h"
+#include "model/LithologyScenario.h"
 
 #include "model/input/projectReader.h"
 
@@ -21,7 +21,7 @@ namespace casaWizard
 namespace sac
 {
 
-LithofractionController::LithofractionController(LithofractionTable* table, SacLithologyScenario& scenario, QObject* parent) :
+LithofractionController::LithofractionController(LithofractionTable* table, LithologyScenario& scenario, QObject* parent) :
   QObject(parent),
   lithofractionManager_{scenario.lithofractionManager()},
   projectReader_{scenario.projectReader()},

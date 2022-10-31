@@ -39,6 +39,7 @@ private:
   void copyFilterTimeIoTbl(const QString& projectFile);
   void appendTimeStampToCalibratedLithoMaps(const QString& timeStamp);
   void appendTimeStampToT2ZMaps(const QString& timeStamp);
+  void appendTimeStampToCalibratedTCHPMap(const QString& timeStamp);
   void deleteOutputTables();
 };
 

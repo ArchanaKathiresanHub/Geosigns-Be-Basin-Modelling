@@ -23,14 +23,14 @@ namespace sac
 
 class LithofractionVisualisation;
 class OptimizedLithofraction;
-class SacLithologyScenario;
+class LithologyScenario;
 
 class LithofractionVisualisationController : public SacVisualisationController
 {
   Q_OBJECT
 public:
   LithofractionVisualisationController(LithofractionVisualisation* lithofractionVisualisation,
-                                       SacLithologyScenario& scenario,
+                                       LithologyScenario& scenario,
                                        QObject* parent);
 
   void updateAvailableLayers();
@@ -45,7 +45,7 @@ private:
   QString activeLayer_;
   bool singleMapLayout_;
   LithofractionVisualisation* lithofractionVisualisation_;
-  SacLithologyScenario& scenario_;
+  LithologyScenario& scenario_;
 
   void connectToolTipSlots();  
   QString currentlyDisplayedLithotype() const;

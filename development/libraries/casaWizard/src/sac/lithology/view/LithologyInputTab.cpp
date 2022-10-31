@@ -1,6 +1,6 @@
 #include "LithologyInputTab.h"
 
-#include "view/lithofractionTable.h"
+#include "assets/lithofractionTable.h"
 
 namespace casaWizard
 {

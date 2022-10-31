@@ -11,10 +11,10 @@
 
 #include "control/ScriptRunController.h"
 #include "model/logger.h"
-#include "model/sacLithologyScenario.h"
+#include "model/LithologyScenario.h"
 #include "model/scenarioBackup.h"
 #include "view/calibrationTargetTable.h"
-#include "view/LithoTabIDs.h"
+#include "view/assets/LithoTabIDs.h"
 #include "view/wellPrepTab.h"
 
 #include <QDir>
@@ -27,7 +27,7 @@ namespace sac
 {
 
 WellPrepSACcontroller::WellPrepSACcontroller(WellPrepTab* wellPrepTab,
-                                             SacLithologyScenario& scenario,
+                                             LithologyScenario& scenario,
                                              ScriptRunController& scriptRunController,
                                              QObject* parent):
   WellPrepController(wellPrepTab, scenario, scriptRunController, parent),

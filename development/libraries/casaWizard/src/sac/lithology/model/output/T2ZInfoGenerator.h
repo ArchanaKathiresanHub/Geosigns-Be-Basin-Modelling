@@ -8,7 +8,7 @@
 
 #pragma once
 
-#include "SacInfoGeneratorLithology.h"
+#include "LithologyInfoGenerator.h"
 
 #include <QString>
 
@@ -18,12 +18,12 @@ namespace casaWizard
 namespace sac
 {
 
-class SacLithologyScenario;
+class LithologyScenario;
 
-class T2ZInfoGenerator : public SacInfoGeneratorLithology
+class T2ZInfoGenerator : public LithologyInfoGenerator
 {
 public:
-   T2ZInfoGenerator(const SacLithologyScenario& scenario, ProjectReader& t2zProjectReader);
+   T2ZInfoGenerator(const LithologyScenario& scenario, ProjectReader& t2zProjectReader);
    void generateInfoTextFile() override;
 
 private:

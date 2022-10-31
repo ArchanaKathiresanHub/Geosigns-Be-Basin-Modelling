@@ -48,12 +48,12 @@ ThermalInputController::ThermalInputController(ThermalInputTab* inputTab,
    m_scenario(scenario),
    m_inputTab(inputTab)
 {
+   inputTab->lineEditMinTCHP()->setText(defaultMinTCHP);
+   inputTab->lineEditMaxTCHP()->setText(defaultMaxTCHP);
+
    connect(inputTab->pushButtonImportTargets(), SIGNAL(clicked()), this, SLOT(slotImportTargetsClicked()));
    connect(inputTab->lineEditMinTCHP(), SIGNAL(textChanged(QString)), this, SLOT(slotMinTCHPChanged(QString)));
    connect(inputTab->lineEditMaxTCHP(), SIGNAL(textChanged(QString)), this, SLOT(slotMaxTCHPChanged(QString)));
-
-   inputTab->lineEditMinTCHP()->setText(defaultMinTCHP);
-   inputTab->lineEditMaxTCHP()->setText(defaultMaxTCHP);
 
    emit signalRefreshChildWidgets();
 }
@@ -64,7 +64,8 @@ void ThermalInputController::slotImportTargetsClicked()
                                                    "Select calibration targets",
                                                    "",
                                                    "Spreadsheet (*.xlsx)");
-   if(fileName == "")
+
+   if(fileName.isEmpty())
    {
       return;
    }

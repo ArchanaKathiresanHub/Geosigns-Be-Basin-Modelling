@@ -23,7 +23,7 @@ namespace sac
 class StubCaseExtractor : public CaseExtractor
 {
 public :
-  explicit StubCaseExtractor(SacLithologyScenario& scenario);
+  explicit StubCaseExtractor(LithologyScenario& scenario);
   RunScript& script() override { throw std::out_of_range("Does not exist in this stub extractor"); }
   CaseDataCreator& dataCreator() override { throw std::out_of_range("Does not exist in this stub extractor"); }
 
@@ -34,7 +34,7 @@ private:
   std::map<int, QString> updatedCases_;
 };
 
-StubCaseExtractor::StubCaseExtractor(SacLithologyScenario& scenario) :
+StubCaseExtractor::StubCaseExtractor(LithologyScenario& scenario) :
   CaseExtractor(scenario),
   updatedCases_{}
 {

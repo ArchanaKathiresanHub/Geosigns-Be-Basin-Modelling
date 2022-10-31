@@ -2,7 +2,7 @@
 
 #include "model/functions/sortedByXWellIndices.h"
 #include "model/SacScenario.h"
-#include "model/MapsManager.h"
+#include "model/SacMapsManager.h"
 
 #include <QFile>
 #include <QTextStream>

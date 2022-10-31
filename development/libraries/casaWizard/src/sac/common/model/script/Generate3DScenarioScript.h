@@ -9,7 +9,7 @@ namespace casaWizard
 namespace sac
 {
 
-class MapsManager;
+class SacMapsManager;
 
 class SacScenario;
 
@@ -24,7 +24,7 @@ public:
    QString workingDirectory() const override;
 
 protected:
-   virtual const MapsManager& mapsManager() const = 0;
+   virtual const SacMapsManager& mapsManager() const = 0;
    virtual QString setFilterOneDResults() const = 0;
    void addWellIndicesToFilter1DResults(QString& command) const;
 

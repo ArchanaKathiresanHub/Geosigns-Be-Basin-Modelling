@@ -11,7 +11,7 @@
 #include "model/functions/sortedByXWellIndices.h"
 #include "model/input/cmbMapReader.h"
 #include "model/input/projectReader.h"
-#include "model/MapsManager.h"
+#include "model/SacMapsManager.h"
 #include "model/scenarioReader.h"
 #include "model/scenarioWriter.h"
 
@@ -128,21 +128,16 @@ void SacScenario::exportOptimizedMapsToZycor(const QString& targetPath)
    mapsManager().exportOptimizedMapsToZycor(projectReader(), mapReader, targetPath);
 }
 
-bool SacScenario::openMaps(MapReader& mapReader, const int layerID) const
+bool SacScenario::openMaps(MapReader& mapReader, const QString& mapname) const
 {
-  QDir threeDFromOneD = optimizedProjectDirectory();
-  if (project3dFilename() == "" || !threeDFromOneD.exists())
-  {
-    return false;
-  }
+   QDir threeDFromOneD = optimizedProjectDirectory();
+   if (project3dFilename() == "" || !threeDFromOneD.exists())
+   {
+     return false;
+   }
 
-  mapReader.load((optimizedProjectDirectory() + project3dFilename()).toStdString());
-  if (!mapReader.mapExists(std::to_string(layerID) + "_percent_1"))
-  {
-    return false;
-  }
-
-  return true;
+   mapReader.load((optimizedProjectDirectory() + project3dFilename()).toStdString());
+   return mapReader.mapExists(mapname.toStdString());
 }
 
 void SacScenario::setActivePlots(const QVector<bool>& activePlots)

@@ -9,8 +9,8 @@
 #include "expectFileEq.h"
 #include "model/input/cmbProjectReader.h"
 #include "model/output/LithoMapsInfoGenerator.h"
-#include "model/sacLithologyScenario.h"
-#include "model/MapsManagerLithology.h"
+#include "model/LithologyScenario.h"
+#include "model/LithologyMapsManager.h"
 
 #include <gtest/gtest.h>
 
@@ -22,18 +22,18 @@ TEST( LithoMapsInfoGenerator, testInfoGenerator )
    std::remove("infoLithoMapsActual.txt");
    casaWizard::ProjectReader* lithoMapsProjectReader = new casaWizard::CMBProjectReader();
    lithoMapsProjectReader->load("LithoMapsProject.project3d");
-   SacLithologyScenario scenario(lithoMapsProjectReader);
+   LithologyScenario scenario(lithoMapsProjectReader);
    scenario.calibrationTargetManager().addToMapping("TWTT", "TwoWayTime");
    scenario.calibrationTargetManager().addToMapping("DT", "SonicSlowness");
    scenario.calibrationTargetManager().addToMapping("GR", "GammaRay");
    scenario.calibrationTargetManager().addToMapping("Density", "BulkDensity");
    scenario.calibrationTargetManager().addToMapping("Velocity", "Velocity");
 
-  casaWizard::sac::MapsManagerLithology& mapsManager = scenario.mapsManager();
-  mapsManager.setPIDW(3);
-  mapsManager.setSmoothingOption(1);
-  mapsManager.setRadiusSmoothing(5000);
-  mapsManager.setSmartGridding(false);
+   casaWizard::sac::LithologyMapsManager& mapsManager = scenario.mapsManager();
+   mapsManager.setPIDW(3);
+   mapsManager.setSmoothingOption(1);
+   mapsManager.setRadiusSmoothing(5000);
+   mapsManager.setSmartGridding(false);
 
    // Set Wells
    scenario.calibrationTargetManager().addWell("10_AML2_AV", 184550.00, 608300.00);

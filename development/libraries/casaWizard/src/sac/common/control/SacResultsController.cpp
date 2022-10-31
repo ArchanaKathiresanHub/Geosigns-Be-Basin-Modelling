@@ -17,8 +17,8 @@
 #include "model/logger.h"
 #include "model/SacScenario.h"
 
-#include "view/plot/wellBirdsView.h"
-#include "view/plot/wellCorrelationPlot.h"
+#include "view/plots/wellBirdsView.h"
+#include "view/plots/wellCorrelationPlot.h"
 #include "view/assets/multiWellPlot.h"
 #include "view/assets/PlotOptions.h"
 #include "view/SacResultsTab.h"

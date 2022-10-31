@@ -1,7 +1,7 @@
 #include "depthConversionScript.h"
 
 #include "model/logger.h"
-#include "model/sacLithologyScenario.h"
+#include "model/LithologyScenario.h"
 
 #include "SDUWorkLoadManager.h"
 
@@ -20,7 +20,7 @@ namespace casaWizard
 namespace sac
 {
 
-DepthConversionScript::DepthConversionScript(const SacLithologyScenario& scenario, const QString& baseDirectoryVar, const workloadmanagers::WorkLoadManagerType& workloadManagerType) :
+DepthConversionScript::DepthConversionScript(const LithologyScenario& scenario, const QString& baseDirectoryVar, const workloadmanagers::WorkLoadManagerType& workloadManagerType) :
   RunScript(baseDirectoryVar),
   scenario_{scenario},
   scriptFilename_{baseDirectoryVar + "/runt2z.sh"}

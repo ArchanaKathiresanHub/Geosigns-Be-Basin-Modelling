@@ -17,7 +17,7 @@
 #include "model/functions/folderOperations.h"
 #include "model/logger.h"
 #include "model/output/SacInfoGenerator.h"
-#include "model/MapsManager.h"
+#include "model/SacMapsManager.h"
 #include "model/SacScenario.h"
 #include "model/scenarioBackup.h"
 #include "model/script/Generate3DScenarioScript.h"
@@ -142,7 +142,7 @@ void SacMapsController::slotExportOptimizedToZycor()
 
    scenario().exportOptimizedMapsToZycor(targetPath);
 
-   Logger::log() << "Finished exporting optimized lithofraction maps to Zycor" << Logger::endl();
+   Logger::log() << "Finished exporting optimized map(s) to Zycor" << Logger::endl();
 }
 
 void SacMapsController::slotRunOptimized()
@@ -181,6 +181,7 @@ void SacMapsController::slotGenerateMaps()
    if (!casaScriptWriter::writeCasaScript(*saveOptimized) ||
        !m_scriptRunController.runScript(*saveOptimized))
    {
+      refreshGUI();
       return;
    }
    scenarioBackup::backup(scenario());

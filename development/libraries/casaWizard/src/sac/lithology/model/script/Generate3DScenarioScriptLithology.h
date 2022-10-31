@@ -10,7 +10,7 @@
 #pragma once
 
 #include "model/script/Generate3DScenarioScript.h"
-#include "model/MapsManagerLithology.h"
+#include "model/LithologyMapsManager.h"
 
 namespace casaWizard
 {
@@ -18,18 +18,18 @@ namespace casaWizard
 namespace sac
 {
 
-class SacLithologyScenario;
+class LithologyScenario;
 
 class Generate3DScenarioScriptLithology : public Generate3DScenarioScript
 {
 public:
-   explicit Generate3DScenarioScriptLithology(const SacLithologyScenario& scenario);
+   explicit Generate3DScenarioScriptLithology(const LithologyScenario& scenario);
 
 private:
-   const MapsManagerLithology& mapsManager() const override;
-   QString setFilterOneDResults() const;
+   const LithologyMapsManager& mapsManager() const final;
+   QString setFilterOneDResults() const final;
 
-   const MapsManagerLithology& m_mapsManager;
+   const LithologyMapsManager& m_mapsManager;
 };
 
 } // namespace sac

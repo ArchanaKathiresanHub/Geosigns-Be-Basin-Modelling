@@ -10,12 +10,12 @@ namespace sac
 {
 
 class LithofractionManager;
-class SacLithologyScenario;
+class LithologyScenario;
 
 class OptimizedLithofractionDataCreator : public CaseDataCreator
 {
 public:
-  explicit OptimizedLithofractionDataCreator(SacLithologyScenario& scenario, const QString& iterationPath);
+  explicit OptimizedLithofractionDataCreator(LithologyScenario& scenario, const QString& iterationPath);
 
 private:
   void readCase(const int wellIndex, const int caseIndex);

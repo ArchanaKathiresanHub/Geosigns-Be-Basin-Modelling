@@ -1,7 +1,7 @@
 #include "model/case3DTrajectoryConvertor.h"
 
 #include "model/input/case3DTrajectoryReader.h"
-#include "model/sacLithologyScenario.h"
+#include "model/LithologyScenario.h"
 
 #include "stubProjectReader.h"
 
@@ -13,7 +13,7 @@ TEST(Case3DTrajectoryConvertorTest, testConvert)
   casaWizard::sac::Case3DTrajectoryReader reader("input/wellDataCase3D.csv");
   reader.read();
 
-  casaWizard::sac::SacLithologyScenario scenario(new casaWizard::StubProjectReader());
+  casaWizard::sac::LithologyScenario scenario(new casaWizard::StubProjectReader());
   scenario.calibrationTargetManager().addToMapping("TwoWayTime", "TwoWayTime");
   scenario.calibrationTargetManager().addToMapping("BulkDensity", "BulkDensity");
   scenario.calibrationTargetManager().addToMapping("SonicSlowness", "SonicSlowness");

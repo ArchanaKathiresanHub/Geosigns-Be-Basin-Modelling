@@ -8,7 +8,7 @@
 
 #include "expectFileEq.h"
 #include "model/output/wellTrajectoryWriter.h"
-#include "model/sacLithologyScenario.h"
+#include "model/LithologyScenario.h"
 #include "stubProjectReader.h"
 
 #include <gtest/gtest.h>
@@ -16,7 +16,7 @@
 class WellTrajectoryWriterTest : public ::testing::Test
 {
 public:
-  casaWizard::sac::SacLithologyScenario scenario{new casaWizard::StubProjectReader()};
+  casaWizard::sac::LithologyScenario scenario{new casaWizard::StubProjectReader()};
   casaWizard::CalibrationTargetManager& ctManager{scenario.calibrationTargetManager()};
   const std::string wellName1{"Well1"};
   const std::string wellName2{"Well2"};

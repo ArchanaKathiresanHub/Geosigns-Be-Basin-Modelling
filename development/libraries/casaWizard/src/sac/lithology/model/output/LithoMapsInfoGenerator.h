@@ -8,7 +8,7 @@
 
 #pragma once
 
-#include "SacInfoGeneratorLithology.h"
+#include "LithologyInfoGenerator.h"
 
 namespace casaWizard
 {
@@ -18,14 +18,13 @@ class CMBProjectReader;
 namespace sac
 {
 
-class SacLithologyScenario;
+class LithologyScenario;
 
-class LithoMapsInfoGenerator : public SacInfoGeneratorLithology
+class LithoMapsInfoGenerator : public LithologyInfoGenerator
 {
 public:
-   LithoMapsInfoGenerator(const SacLithologyScenario& scenario, std::unique_ptr<ProjectReader> projectReader);
-   virtual ~LithoMapsInfoGenerator();
-   void generateInfoTextFile() override;
+   LithoMapsInfoGenerator(const LithologyScenario& scenario, std::unique_ptr<ProjectReader> projectReader);
+   virtual ~LithoMapsInfoGenerator() override = default;
 
 private:
    std::unique_ptr<ProjectReader> m_projectReader;

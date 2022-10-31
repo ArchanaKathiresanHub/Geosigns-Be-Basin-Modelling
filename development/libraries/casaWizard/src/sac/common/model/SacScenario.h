@@ -20,7 +20,7 @@ class MapReader;
 namespace sac
 {
 
-class MapsManager;
+class SacMapsManager;
 
 class SacScenario : public CasaScenario
 {
@@ -32,8 +32,8 @@ public:
    void clear() override;
    QString iterationDirName() const override;
 
-   virtual MapsManager& mapsManager() = 0;
-   virtual const MapsManager& mapsManager() const = 0;
+   virtual SacMapsManager& mapsManager() = 0;
+   virtual const SacMapsManager& mapsManager() const = 0;
 
    void exportOptimizedMapsToZycor(const QString& targetPath);
 
@@ -56,7 +56,7 @@ public:
    QVector<int> getIncludedWellIndicesFromSelectedWells(const QVector<int>& selectedWellIndices);
 
 protected:
-   bool openMaps(MapReader& mapReader, const int layerID) const;
+   bool openMaps(MapReader& mapReader, const QString& mapName) const;
 
 private:
    QString m_stateFileNameSAC;

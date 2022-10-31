@@ -38,7 +38,6 @@ TEST(TCHPManagerTest, testWriteToFile)
   expectFileEq("TCHPManager.dat", "TCHPManagerActual.dat");
 }
 
-
 TEST(TCHPManagerTest, testReadFromFile)
 {
   casaWizard::sac::thermal::TCHPManager manager;

@@ -23,6 +23,7 @@ namespace thermal
 
 class ThermalInputController;
 class ThermalResultsController;
+class ThermalMapController;
 
 class ThermalController : public MainController
 {
@@ -38,6 +39,7 @@ private:
    ThermalScenario m_scenario;
    ThermalInputController* m_inputController;
    ThermalResultsController* m_resultsController;
+   ThermalMapController* m_mapController;
 };
 
 } // namespace thermal

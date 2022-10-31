@@ -1,6 +1,6 @@
 #include "model/input/optimizedLithofractionDataCreator.h"
 
-#include "model/sacLithologyScenario.h"
+#include "model/LithologyScenario.h"
 #include "model/optimizedLithofraction.h"
 #include "stubProjectReader.h"
 
@@ -8,7 +8,7 @@
 
 TEST( OptimizedLithofractionDataCreator, testReadLithofractionFile )
 {
-  casaWizard::sac::SacLithologyScenario scenario{new casaWizard::StubProjectReader()};
+  casaWizard::sac::LithologyScenario scenario{new casaWizard::StubProjectReader()};
   casaWizard::sac::LithofractionManager& lithofractionManager{scenario.lithofractionManager()};
   casaWizard::CalibrationTargetManager& ctManager = scenario.calibrationTargetManager();
   const int wellIndex1 = ctManager.addWell("Well1", 0, 0);
