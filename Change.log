@@ -13,7 +13,7 @@
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Version				Date of update
 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-Cauldron-v2.9.19		2022-10-31 13:59:59 +0000
+Cauldron-v2.9.20		2022-11-01 10:46:23 +0000
 =============================================================
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Third-party Software 		version
@@ -36,6 +36,14 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2022-11-01  Richard Faasse  <Richard.Faasse@shell.com>
+
+	fix: Fix issue where original top crust heat production map is not correctly overwritten.
+	 * Some variables were not cleaned-up correctly yet in the mapsmanager, resulting in the map name not being correctly written in the project3d file.
+	================== COMMIT-END ========================
+	Commit-ID:<dd5640247cae08168fbed60824e79cf9b80aede2>	  (tag: refs/tags/v2.9.20, refs/heads/master)
+
+++
 2022-10-31  Sven van Leeuwen  <Sven.van-Leeuwen@shell.com>
 
 	chg: new: dev: usr: SAC Thermal: Maps tab.
