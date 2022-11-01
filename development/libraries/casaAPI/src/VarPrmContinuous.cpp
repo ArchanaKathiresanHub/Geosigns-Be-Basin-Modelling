@@ -119,6 +119,13 @@ SharedParameterPtr VarPrmContinuous::makeThreeDFromOneD( mbapi::Model& mdl,
       }
    }
 
+   // Remove the map that is going to be replaced
+   const std::string replacedMap = mdl.tableValueAsString(tableInfo.tableName, tableInfo.tableRow, tableInfo.variableGridName);
+   if (replacedMap != "")
+   {
+      mdl.mapsManager().removeMapReferenceFromGridMapIOTbl(replacedMap, tableInfo.tableName);
+   }
+
    // generate the maps
    const std::string mapName = "Interpolated_" + tableInfo.variableGridName + "_Map";
    size_t mapSeqNbr = Utilities::Numerical::NoDataIDValue;
@@ -128,13 +135,6 @@ SharedParameterPtr VarPrmContinuous::makeThreeDFromOneD( mbapi::Model& mdl,
    {
       throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Generation of the " << mapName
                                                                      << " map failed";
-   }
-
-   // Remove the map that is going to be replaced
-   const std::string replacedMap = mdl.tableValueAsString(tableInfo.tableName, tableInfo.tableRow, tableInfo.variableGridName);
-   if (replacedMap != "")
-   {
-      mdl.mapsManager().removeMapReferenceFromGridMapIOTbl(replacedMap, tableInfo.tableName);
    }
 
    // Set the new map into the table

@@ -327,11 +327,15 @@ ErrorHandler::ReturnCode MapsManagerImpl::removeMapReferenceFromGridMapIOTbl(con
    database::Record* record = table->findRecord("ReferredBy", referredBy, "MapName", mapName);
    table->removeRecord(record);
 
-   // Delete reference in member containing all the used map names
+   // Delete reference in members containing all the used map names, objects and references
    const auto pos = std::find( m_mapName.begin(), m_mapName.end(), mapName );
    if (pos != m_mapName.end())
    {
-      m_mapName.erase(pos);
+      const int posIndex = pos - m_mapName.begin();
+
+      m_mapName.erase(m_mapName.begin() + posIndex);
+      m_mapObj.erase(m_mapObj.begin() + posIndex);
+      m_mapRefTable.erase(m_mapRefTable.begin() + posIndex);
    }
 
    return NoError;
