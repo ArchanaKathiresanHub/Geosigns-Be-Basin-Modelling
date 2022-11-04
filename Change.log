@@ -13,7 +13,7 @@
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Version				Date of update
 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-Cauldron-v2.9.21		2022-11-04 01:29:56 +0000
+Cauldron-v2.9.22		2022-11-04 15:39:51 +0000
 =============================================================
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Third-party Software 		version
@@ -36,6 +36,18 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2022-11-04  Marnix.vandenBerg  <Marnix.vandenBerg@shell.com>
+
+	fix: usr: Fix for failing optimization for cases with two lithologies.
+	 * Added check for undefined lithology percentage in project3D file.
+	 * In that case, the lithology percentage is now calculated based in the percentage of the other lithology(s).
+
+	Related work items: #445632
+
+	================== COMMIT-END ========================
+	Commit-ID:<edf9a851be2d84ab497260c90af58013cc5a0c30>	  (tag: refs/tags/v2.9.22, refs/heads/master)
+
+++
 2022-11-04  Sumant.Kalra  <Sumant.Kalra@shell.com>
 
 	chg: dev: Update the Lithology Name in Prograde.
