@@ -28,8 +28,8 @@ std::map<std::string, std::string> Prograde::LithologyConverter::createMapForLit
 	m.insert(std::pair<std::string, std::string>("Gabbro/Dry basalt", "Dry Gabbro/Basalt (SI)"));
 	m.insert(std::pair<std::string, std::string>("Gabbro/Wet basalt", "Granite/Rhyolite (SI)"));
 	m.insert(std::pair<std::string, std::string>("Granite/Rhyolite", "Wet Gabbro/Basalt (SI)"));
-	m.insert(std::pair<std::string, std::string>("HEAT Chalk", "Chalk, white"));
-	m.insert(std::pair<std::string, std::string>("Std. Chalk", "Chalk, white"));
+	m.insert(std::pair<std::string, std::string>("HEAT Chalk", "Chalk, white, reservoir"));
+	m.insert(std::pair<std::string, std::string>("Std. Chalk", "Chalk, white, reservoir"));
 	m.insert(std::pair<std::string, std::string>("HEAT Dolostone", "Grainstone, dolomitic, typical"));
 	m.insert(std::pair<std::string, std::string>("HEAT Limestone", "Grainstone, calcitic, typical"));
 	m.insert(std::pair<std::string, std::string>("HEAT Sandstone", "Sandstone, typical"));
@@ -716,7 +716,7 @@ void Prograde::LithologyConverter::upgradePermModelForSysDefLitho(const std::str
 		mpPerm[0] = -4;
 		mpPerm[1] = -4;
 	}
-	else if (bpa2LithoName.compare("Chalk, white") == 0)
+	else if (bpa2LithoName.compare("Chalk, white, reservoir") == 0)
 	{
 		mpPor[0] = 5;
 		mpPor[1] = 60;
