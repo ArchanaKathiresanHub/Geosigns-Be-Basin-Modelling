@@ -17,8 +17,8 @@
 // CASA API
 #include "Parameter.h"
 
-// CMB API
-#include <UndefinedValues.h>
+// Utilities
+#include "UndefinedValues.h"
 
 #include <cassert>
 

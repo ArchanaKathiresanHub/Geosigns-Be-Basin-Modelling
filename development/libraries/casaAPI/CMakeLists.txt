@@ -112,6 +112,8 @@ add_casa_gtest( NAME RunManagerTest SOURCES test/RunManagerTest.cpp )
 
 add_casa_gtest( NAME VarPrmContinuousTest SOURCES test/VarPrmContinuousTest.cpp )
 
+add_casa_gtest( NAME PrmLithoFractionTest SOURCES test/PrmLithoFractionTest.cpp )
+
 add_casa_gtest( NAME PrmEquilibriumOceanicLithosphereThickness   SOURCES test/PrmEquilibriumOceanicLithosphereThickness.cpp )
 add_casa_gtest( NAME PrmSurfaceTemperatureTest            SOURCES test/PrmSurfaceTemperatureTest.cpp )
 add_casa_gtest( NAME PrmTopCrustHeatProduction            SOURCES test/PrmTopCrustHeatProductionTest.cpp )
