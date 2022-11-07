@@ -13,7 +13,7 @@
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Version				Date of update
 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-Cauldron-v2.9.22		2022-11-04 15:39:51 +0000
+Cauldron-v2.9.23		2022-11-07 07:56:41 +0000
 =============================================================
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Third-party Software 		version
@@ -36,6 +36,16 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2022-11-07  Sven van Leeuwen  <Sven.van-Leeuwen@shell.com>
+
+	fix: usr: Bug fix 481884: wrong wells are displayed in the maps tab when some wells do not have enabled data fields for optimization
+	* Fixed a bug and made some changes to the workings of the LiT Wells.
+	* Edited the tooltips in the SAC maps tab
+	Link-https: https://sede-pt-ssw.visualstudio.com/Basin-Evaluation/_sprints/taskboard/Team%20Oscar/Basin-Evaluation/(R2022)/PI%202022.4/2022.4.5?workitem=481884
+	================== COMMIT-END ========================
+	Commit-ID:<d79a74a283be384e535c74a10c71189e8ada8289>	  (tag: refs/tags/v2.9.23, refs/heads/master, refs/heads/Changelog)
+
+++
 2022-11-04  Marnix.vandenBerg  <Marnix.vandenBerg@shell.com>
 
 	fix: usr: Fix for failing optimization for cases with two lithologies.
