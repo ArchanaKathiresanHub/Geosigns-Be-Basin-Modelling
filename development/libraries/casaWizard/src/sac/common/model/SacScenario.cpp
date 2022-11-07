@@ -14,6 +14,7 @@
 #include "model/SacMapsManager.h"
 #include "model/scenarioReader.h"
 #include "model/scenarioWriter.h"
+#include "model/logger.h"
 
 #include "ConstantsMathematics.h"
 
@@ -110,7 +111,36 @@ void SacScenario::updateWellsForProject3D()
 
 QVector<int> SacScenario::getIncludedWellIndicesFromSelectedWells(const QVector<int>& selectedWellIndices)
 {
-  return mapsManager().transformToActiveAndIncluded(selectedWellIndices, calibrationTargetManager().getExcludedWellsFromActiveWells());
+   return mapsManager().transformToActiveAndIncluded(selectedWellIndices, calibrationTargetManager().getExcludedWellsFromActiveWells());
+}
+
+void SacScenario::setCalibrationTargetsBasedOnObjectiveFunctions()
+{
+   const QStringList userNames = objectiveFunctionManager().enabledVariablesUserNames();
+   for (const Well* well : calibrationTargetManager().wells() )
+   {
+      if ( !well->isInvalid() )
+      {
+         for (const QString& property : calibrationTargetManager().getPropertyUserNamesForWell(well->id()) )
+         {
+            if (userNames.indexOf(property) != -1)
+            {
+               if (!well->hasActiveProperties()) //only switch state if its currently doesn't have active properties
+               {
+                  calibrationTargetManager().setWellHasActiveProperties(true, well->id());
+               }
+               goto nextWell;
+            }
+         }
+
+         if (well->hasActiveProperties()) //only switch state if its currently does have active properties
+         {
+            calibrationTargetManager().setWellHasActiveProperties(false, well->id());
+            Logger::log() << "Warning: " << well->name() << " has currently no active data series to match the current selection and is disabled" << Logger::endl();
+         }
+      }
+      nextWell:;
+   }
 }
 
 bool SacScenario::hasOptimizedSuccessfully(const int caseIndex)

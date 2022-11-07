@@ -9,7 +9,7 @@
 #include "objectiveFunctionControllerSAC.h"
 
 #include "model/calibrationTargetManager.h"
-#include "model/casaScenario.h"
+#include "model/SacScenario.h"
 #include "model/objectiveFunctionManager.h"
 #include "view/assets/objectiveFunctionTableSAC.h"
 
@@ -18,25 +18,31 @@
 namespace casaWizard
 {
 
+namespace sac
+{
+
 ObjectiveFunctionControllerSAC::ObjectiveFunctionControllerSAC(ObjectiveFunctionTableSAC* objectiveFunctionTableSAC,
-                                                               casaWizard::CasaScenario& scenario,
+                                                               SacScenario& scenario,
                                                                QObject* parent) :
   ObjectiveFunctionController{objectiveFunctionTableSAC, scenario, parent},
-  objectiveFunctionTableSAC_{objectiveFunctionTableSAC},  
-  scenario_{scenario}
+  m_objectiveFunctionTable{objectiveFunctionTableSAC},
+  m_scenario{scenario}
 {
-  connect(objectiveFunctionTableSAC_, SIGNAL(enabledStateChanged(int, int)),
-          this,                       SLOT(slotEnabledStateChanged(int, int)));
+   connect(m_objectiveFunctionTable, SIGNAL(enabledStateChanged(int, int)), this, SLOT(slotEnabledStateChanged(int, int)));
 }
 
 void ObjectiveFunctionControllerSAC::slotEnabledStateChanged(int state, int row)
 {
-  scenario_.objectiveFunctionManager().setEnabledState(state == Qt::CheckState::Checked, row);
+  m_scenario.objectiveFunctionManager().setEnabledState(state == Qt::CheckState::Checked, row);
+  m_scenario.setCalibrationTargetsBasedOnObjectiveFunctions();
+  emit refresh();
 }
 
 int ObjectiveFunctionControllerSAC::offsetColumnToObjectiveFunctionManagerValue() const
 {
   return 1;
 }
+
+}  // namespace sac
 
 }  // namespace casaWizard

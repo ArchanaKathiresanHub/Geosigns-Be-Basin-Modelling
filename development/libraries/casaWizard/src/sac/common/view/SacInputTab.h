@@ -22,10 +22,10 @@ namespace casaWizard
 {
 
 class CalibrationTargetTable;
-class ObjectiveFunctionTableSAC;
 
 namespace sac
 {
+class ObjectiveFunctionTableSAC;
 
 class SacInputTab : public QWidget
 {

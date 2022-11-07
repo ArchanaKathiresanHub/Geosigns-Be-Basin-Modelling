@@ -30,7 +30,7 @@ ModelDataPropertyMap OneDModelDataExtractor::extract(const std::string& property
 
   for (const Well* well : ctManager_.wells())
   {
-    if (well->isActive())
+    if ( well->isIncludedInOptimization() )
     {
       DataExtraction::Track1d track1d(iterationFolder_ + well->name().toStdString() + "/" + project3dFilename_);
       if (!track1d.isCorrect())

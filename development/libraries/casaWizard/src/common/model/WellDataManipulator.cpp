@@ -48,7 +48,7 @@ void WellDataManipulator::applyManipulatedWellData(const QStringList& selectedPr
 {
    for (Well& well : wells)
    {
-      if (!well.isActive()) continue;
+      if (!well.isIncludedInOptimization()) continue;
 
       for ( const QString& property : selectedProperties )
       {

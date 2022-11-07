@@ -32,9 +32,11 @@ public:
 signals:
   void dataChanged();
 
+protected slots:
+   void slotRefresh();
+
 private slots:
   void slotTableObjectiveFunctionChanged(QTableWidgetItem* item);
-  void slotRefresh();
 
 private:
   virtual int offsetColumnToObjectiveFunctionManagerValue() const;

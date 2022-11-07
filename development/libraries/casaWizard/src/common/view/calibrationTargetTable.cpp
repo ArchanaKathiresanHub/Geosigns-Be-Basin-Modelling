@@ -70,9 +70,8 @@ void CalibrationTargetTable::updateTableBase(const QVector<const Well*> wells, c
 
          connect(itemCheckBox, &CustomCheckbox::stateChanged, [=](int state){emit checkBoxChanged(state, well->id());});
 
-
          setCellWidget(row, 0, checkBoxWidget);
-         if (well->isInvalid())
+         if ( well->isInvalid() || !well->hasActiveProperties() )
          {
            itemCheckBox->enable(false);
            for (int column = 1; column < 4; column++)

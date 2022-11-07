@@ -14,7 +14,9 @@
 namespace casaWizard
 {
 
-Well::Well(const int id, const QString& name, const double x, const double y, const bool isActive, const bool isExcluded, const QVector<CalibrationTarget> calibrationTargets) :
+Well::Well(const int id, const QString& name, const double x, const double y,
+           const bool isActive, const bool isExcluded,
+           const QVector<CalibrationTarget> calibrationTargets) :
   id_{id},
   name_{name},
   x_{x},
@@ -22,6 +24,7 @@ Well::Well(const int id, const QString& name, const double x, const double y, co
   isActive_{isActive},
   isExcluded_{isExcluded},
   isInvalid_{false},
+  hasActiveProperties_{true},
   calibrationTargets_{calibrationTargets},
   hasDataInLayer_{},
   metaData_{},
@@ -64,6 +67,7 @@ void Well::readFromFile(const ScenarioReader& reader)
   y_ = reader.readDouble(wellName + "y");
   isActive_ = reader.readBool(wellName + "isActive");
   isExcluded_ = reader.readBool(wellName+ "isExcluded");
+  hasActiveProperties_ = true;
   calibrationTargets_ = reader.readVector<CalibrationTarget>(wellName + "targets");
 
   const int version = reader.readInt(wellName + "version");
@@ -154,24 +158,39 @@ bool Well::isExcluded() const
   return isExcluded_;
 }
 
-void Well::setIsInvalid(const bool isInvalid)
-{
-  isInvalid_ = isInvalid;
-}
-
-QVector<bool> Well::hasDataInLayer() const
-{
-  return hasDataInLayer_;
-}
-
 void Well::setIsExcluded(const bool isExcluded)
 {
   isExcluded_ = isExcluded;
 }
 
+bool Well::hasActiveProperties() const
+{
+  return hasActiveProperties_;
+}
+
+void Well::setHasActiveProperties(const bool hasActiveProperties)
+{
+  hasActiveProperties_ = hasActiveProperties;
+}
+
 bool Well::isInvalid() const
 {
   return isInvalid_;
+}
+
+void Well::setIsInvalid(const bool isInvalid)
+{
+   isInvalid_ = isInvalid;
+}
+
+bool Well::isIncludedInOptimization() const
+{
+   return isActive_ && hasActiveProperties_;
+}
+
+QVector<bool> Well::hasDataInLayer() const
+{
+  return hasDataInLayer_;
 }
 
 void Well::setHasDataInLayer(QVector<bool> hasDataInLayer)

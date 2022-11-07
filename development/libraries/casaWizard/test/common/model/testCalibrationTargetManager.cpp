@@ -33,6 +33,7 @@ TEST(CalibrationTargetManagerTest, testWriteToFile)
   manager.setWellIsExcluded(false, 0);
   manager.setWellActiveProperty("Temperature", false, 0);
   manager.setWellActiveProperty("VRe", true, 0);
+
   manager.setWellIsActive(true, 1);
   manager.setWellIsExcluded(true, 1);
 

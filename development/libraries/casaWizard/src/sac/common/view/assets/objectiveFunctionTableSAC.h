@@ -15,20 +15,25 @@ namespace casaWizard
 
 class ObjectiveFunctionManager;
 
+namespace sac
+{
+
 class ObjectiveFunctionTableSAC : public ObjectiveFunctionTable
 {
-  Q_OBJECT
+   Q_OBJECT
 
 public:
-  explicit ObjectiveFunctionTableSAC(QWidget* parent = nullptr);
+   explicit ObjectiveFunctionTableSAC(QWidget* parent = nullptr);
 
-  void updateTable(const ObjectiveFunctionManager& objectiveFunction) final;
+   void updateTable(const ObjectiveFunctionManager& objectiveFunction) final;
 
 private:
-  QWidget* createEnabledCheckBox(const bool enabled);
+   QWidget* createEnabledCheckBox(const bool enabled);
 
 signals:
-  void enabledStateChanged(int, int);
+   void enabledStateChanged(int, int);
 };
+
+}  // namespace sac
 
 }  // namespace casaWizard

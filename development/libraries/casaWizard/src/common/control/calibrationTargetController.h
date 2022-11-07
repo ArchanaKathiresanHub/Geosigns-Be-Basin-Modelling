@@ -36,7 +36,6 @@ public slots:
 
 private slots:
   void slotCalibrationTargetCheckBoxStateChanged(int state, int wellIndex);
-
   void slotCalibrationTargetCheckBoxStateChanged(int state, int wellIndex, QString property);
 signals:
   void wellSelectionChanged();

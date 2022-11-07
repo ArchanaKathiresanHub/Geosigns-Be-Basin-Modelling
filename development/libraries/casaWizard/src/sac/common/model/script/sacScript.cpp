@@ -100,7 +100,7 @@ void SACScript::writeScriptContents(QFile &file) const
    const QVector<const Well*>& wells = ctManager.wells();
    for (const Well* well : wells)
    {
-      if ( well->isActive())
+      if ( well->isIncludedInOptimization() )
       {
          for (const QString& propertyUserName : ctManager.getPropertyUserNamesForWell(well->id()))
          {

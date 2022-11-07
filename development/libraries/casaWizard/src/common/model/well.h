@@ -28,7 +28,8 @@ class Well : public Writable
 {
 public:
   Well() = default;
-  explicit Well(const int id, const QString& name, const double x, const double y, const bool isActive = true, const bool isExcluded = false,
+  explicit Well(const int id, const QString& name, const double x, const double y,
+                const bool isActive = true, const bool isExcluded = false,
                 const QVector<CalibrationTarget> calibrationTargets = {});
 
   int version() const;
@@ -58,6 +59,11 @@ public:
   bool isInvalid() const;
   void setIsInvalid(const bool isInvalid);
 
+  bool isIncludedInOptimization() const;
+
+  bool hasActiveProperties() const;
+  void setHasActiveProperties(const bool noProperyActive);
+
   QVector<bool> hasDataInLayer() const;
   void setHasDataInLayer(QVector<bool> hasDataInLayer);
 
@@ -86,6 +92,7 @@ private:
   bool isActive_;
   bool isExcluded_;
   bool isInvalid_;
+  bool hasActiveProperties_;
   QVector<CalibrationTarget> calibrationTargets_;
   QVector<bool> hasDataInLayer_;
   QString metaData_;

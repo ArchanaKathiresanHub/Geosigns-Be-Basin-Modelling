@@ -95,8 +95,8 @@ void WellPrepController::slotConvertDTtoTWT()
    CalibrationTargetManager& calibrationManager = calibrationTargetController_->calibrationTargetManager();
 
    const std::string iterationFolder = casaScenario_.original1dDirectory().toStdString() + "/"
-         + casaScenario_.runLocation().toStdString()
-         + "/Iteration_1/";
+                                       + casaScenario_.runLocation().toStdString()
+                                       + "/Iteration_1/";
    const std::string project3dFilename = casaScenario_.project3dFilename().toStdString();
 
    calibrationManager.convertDTtoTWT(iterationFolder, project3dFilename);
@@ -412,11 +412,8 @@ void WellPrepController::slotRemoveDataBelowBasementAndAboveMudline()
 
    for (const Well* well : calibrationManager.activeWells())
    {
-      if (well->isActive())
-      {
-         basementDepthsAtActiveWellLocations.push_back(mapReader.getValue(well->x(), well->y(), basementGridName.toStdString()));
-         mudlineDepthsAtActiveWellLocations.push_back(mapReader.getValue(well->x(), well->y(), mudlineGridName.toStdString()));
-      }
+      basementDepthsAtActiveWellLocations.push_back(mapReader.getValue(well->x(), well->y(), basementGridName.toStdString()));
+      mudlineDepthsAtActiveWellLocations.push_back(mapReader.getValue(well->x(), well->y(), mudlineGridName.toStdString()));
    }
 
    calibrationManager.removeDataOutsideModelDepths(basementDepthsAtActiveWellLocations, mudlineDepthsAtActiveWellLocations);

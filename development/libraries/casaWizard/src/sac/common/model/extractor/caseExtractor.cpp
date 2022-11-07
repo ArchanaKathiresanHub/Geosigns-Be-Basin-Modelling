@@ -44,7 +44,7 @@ void CaseExtractor::extract()
 
   for (const int wellIndex : sortedIndices)
   {
-    if (wells[wellIndex]->isActive() )
+    if ( wells[wellIndex]->isIncludedInOptimization() )
     {
       extractCase(wells[wellIndex], ++caseIndex);
     }

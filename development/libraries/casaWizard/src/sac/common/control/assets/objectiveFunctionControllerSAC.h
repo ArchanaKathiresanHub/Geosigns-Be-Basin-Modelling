@@ -14,24 +14,32 @@
 namespace casaWizard
 {
 
+namespace sac
+{
+
 class ObjectiveFunctionTableSAC;
-class CasaScenario;
+class SacScenario;
 
 class ObjectiveFunctionControllerSAC : public ObjectiveFunctionController
 {
-  Q_OBJECT
+   Q_OBJECT
 
 public:
-  ObjectiveFunctionControllerSAC(ObjectiveFunctionTableSAC* objectiveFunctionTableSAC,
-                                 casaWizard::CasaScenario& scenario, QObject* parent);
+   ObjectiveFunctionControllerSAC(ObjectiveFunctionTableSAC* objectiveFunctionTableSAC,
+                                  SacScenario& scenario, QObject* parent);
 private slots:  
-  void slotEnabledStateChanged(int state, int row);
+   void slotEnabledStateChanged(int state, int row);
 
 private:
-  int offsetColumnToObjectiveFunctionManagerValue() const override;
+   int offsetColumnToObjectiveFunctionManagerValue() const override;
 
-  ObjectiveFunctionTableSAC* objectiveFunctionTableSAC_;  
-  casaWizard::CasaScenario& scenario_;
+   ObjectiveFunctionTableSAC* m_objectiveFunctionTable;
+   SacScenario& m_scenario;
+
+signals:
+   void refresh();
 };
+
+}  // namespace sac
 
 }  // namespace casaWizard

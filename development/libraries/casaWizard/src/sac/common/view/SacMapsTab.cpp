@@ -110,8 +110,8 @@ QVBoxLayout* SacMapsTab::setWellsAndOptionsLayout()
    label2->setFixedHeight(15);
    QHBoxLayout* griddingOptions = new QHBoxLayout();
    griddingOptions->addWidget(label2);
-   HelpLabel* helpGriddingOptions = new HelpLabel(this, "The gridding options determine how the optimized lithofractions at the well locations "
-                                                        "are interpolated to result in complete lithology maps. <br><br>The maps can be tweaked by adjusting: <br>"
+   HelpLabel* helpGriddingOptions = new HelpLabel(this, "The gridding options determine how the optimized values at the well locations "
+                                                        "are interpolated to result in complete maps. <br><br>The maps can be tweaked by adjusting: <br>"
                                                         " - The interpolation algorithm <br>"
                                                         " - The smoothing options <br>");
    griddingOptions->addWidget(helpGriddingOptions);
@@ -139,7 +139,7 @@ QVBoxLayout* SacMapsTab::setWellsAndOptionsLayout()
    wellsAndOptions->addLayout(exportOptimized);
    QHBoxLayout* exportOptimizedToZycor = new QHBoxLayout();
    exportOptimizedToZycor->addWidget(buttonExportOptimizedToZycor());
-   HelpLabel* helpLabelExportToZycor = new HelpLabel(this, "Export the optimized lithofraction maps to the zycor format");
+   HelpLabel* helpLabelExportToZycor = new HelpLabel(this, "Export the optimized map(s) to the zycor format");
    exportOptimizedToZycor->addWidget(helpLabelExportToZycor);
    wellsAndOptions->addLayout(exportOptimizedToZycor);
 

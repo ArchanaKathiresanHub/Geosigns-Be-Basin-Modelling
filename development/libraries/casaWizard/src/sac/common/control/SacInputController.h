@@ -20,12 +20,12 @@ namespace casaWizard
 
 class CalibrationTargetController;
 class ScriptRunController;
-class ObjectiveFunctionControllerSAC;
 class CasaScenario;
 
 namespace sac
 {
 
+class ObjectiveFunctionControllerSAC;
 class DataExtractionController;
 class SacInputTab;
 class SacScenario;

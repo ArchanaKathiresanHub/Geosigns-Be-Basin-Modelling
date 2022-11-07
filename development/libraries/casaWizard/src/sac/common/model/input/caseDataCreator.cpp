@@ -31,7 +31,7 @@ void CaseDataCreator::read()
   const QVector<int> sortedIndices = casaWizard::functions::sortedByXYWellIndices(m_calibrationTargetManager.wells());
   for (const int wellIndex : sortedIndices)
   {
-    if (m_calibrationTargetManager.well(wellIndex).isActive())
+    if ( m_calibrationTargetManager.well(wellIndex).isIncludedInOptimization() )
     {
       readCase(wellIndex, ++caseIndex);
     }

@@ -55,6 +55,7 @@ public:
    QVector<bool> activePlots() const;
    QVector<int> getIncludedWellIndicesFromSelectedWells(const QVector<int>& selectedWellIndices);
 
+   void setCalibrationTargetsBasedOnObjectiveFunctions();
 protected:
    bool openMaps(MapReader& mapReader, const QString& mapName) const;
 

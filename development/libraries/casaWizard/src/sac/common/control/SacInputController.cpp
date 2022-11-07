@@ -31,6 +31,7 @@
 #include "model/script/sacScript.h"
 #include "model/functions/sortedByXWellIndices.h"
 #include "view/SacInputTab.h"
+#include "view/assets/objectiveFunctionTableSAC.h"
 
 #include <QComboBox>
 #include <QFile>
@@ -53,29 +54,28 @@ namespace sac
 {
 
 SacInputController::SacInputController(SacInputTab* sacInputTab,
-                                       SacScenario& casaScenario,
+                                       SacScenario& scenario,
                                        ScriptRunController& scriptRunController,
                                        QObject* parent) :
    QObject(parent),
    m_scriptRunController{scriptRunController},
-   m_calibrationTargetController{new CalibrationTargetController(sacInputTab->calibrationTargetTable(), casaScenario, this)},
-   m_objectiveFunctionController{new ObjectiveFunctionControllerSAC(sacInputTab->objectiveFunctionTable(), casaScenario, this)},
-   m_dataExtractionController{new DataExtractionController(casaScenario, m_scriptRunController, this)}
+   m_calibrationTargetController{new CalibrationTargetController(sacInputTab->calibrationTargetTable(), scenario, this)},
+   m_objectiveFunctionController{new ObjectiveFunctionControllerSAC(sacInputTab->objectiveFunctionTable(), scenario, this)},
+   m_dataExtractionController{new DataExtractionController(scenario, m_scriptRunController, this)}
 {
    sacInputTab->lineEditProject3D()->setText("");
-   sacInputTab->comboBoxCluster()->setCurrentText(casaScenario.clusterName());
+   sacInputTab->comboBoxCluster()->setCurrentText(scenario.clusterName());
 
-   connect( parent, SIGNAL(signalReload1Ddata()), this, SLOT(slotExtractData()));
-   connect(sacInputTab->pushRun1DOptimalization(),  SIGNAL(clicked()),    this, SLOT(slotPushButton1DOptimalizationClicked()));
-   connect(sacInputTab->pushSelectProject3D(),   SIGNAL(clicked()),    this, SLOT(slotPushButtonSelectProject3dClicked()));
-   connect(sacInputTab->pushSelectAllWells(), SIGNAL(clicked()),       m_calibrationTargetController, SLOT(slotSelectAllWells()));
-   connect(sacInputTab->pushClearSelection(), SIGNAL(clicked()),       m_calibrationTargetController, SLOT(slotClearWellSelection()));
-
-   connect(sacInputTab->buttonRunOriginal1D(),     SIGNAL(clicked()), this, SLOT(slotRunOriginal1D()));
-   connect(sacInputTab->buttonRunOriginal3D(),     SIGNAL(clicked()), this, SLOT(slotRunOriginal3D()));
-
-   connect(sacInputTab->comboBoxCluster(),       SIGNAL(currentTextChanged(QString)), this, SLOT(slotComboBoxClusterCurrentTextChanged(QString)));
-   connect(sacInputTab->comboBoxApplication(),   SIGNAL(currentTextChanged(QString)), this, SLOT(slotComboBoxApplicationChanged(QString)));
+   connect(parent,                                 SIGNAL(signalReload1Ddata()),          this,                          SLOT(slotExtractData()));
+   connect(sacInputTab->pushRun1DOptimalization(), SIGNAL(clicked()),                     this,                          SLOT(slotPushButton1DOptimalizationClicked()));
+   connect(sacInputTab->pushSelectProject3D(),     SIGNAL(clicked()),                     this,                          SLOT(slotPushButtonSelectProject3dClicked()));
+   connect(sacInputTab->pushSelectAllWells(),      SIGNAL(clicked()),                     m_calibrationTargetController, SLOT(slotSelectAllWells()));
+   connect(sacInputTab->pushClearSelection(),      SIGNAL(clicked()),                     m_calibrationTargetController, SLOT(slotClearWellSelection()));
+   connect(sacInputTab->buttonRunOriginal1D(),     SIGNAL(clicked()),                     this,                          SLOT(slotRunOriginal1D()));
+   connect(sacInputTab->buttonRunOriginal3D(),     SIGNAL(clicked()),                     this,                          SLOT(slotRunOriginal3D()));
+   connect(sacInputTab->comboBoxCluster(),         SIGNAL(currentTextChanged(QString)),   this,                          SLOT(slotComboBoxClusterCurrentTextChanged(QString)));
+   connect(sacInputTab->comboBoxApplication(),     SIGNAL(currentTextChanged(QString)),   this,                          SLOT(slotComboBoxApplicationChanged(QString)));
+   connect(m_objectiveFunctionController,          SIGNAL(refresh()),                     m_calibrationTargetController, SLOT(slotRefresh()));
 }
 
 void SacInputController::refreshGUI()
@@ -93,6 +93,8 @@ void SacInputController::refreshGUI()
    }
 
    inputTab()->setContentsActive(!(scenario().workingDirectory().isEmpty()));
+
+   scenario().setCalibrationTargetsBasedOnObjectiveFunctions();
 }
 
 ScriptRunController& SacInputController::scriptRunController()
@@ -300,7 +302,7 @@ void SacInputController::renameCaseFolders(const QString& pathName)
    int caseIndex = 0;
    for (const int wellIndex : sortedIndices)
    {
-      if (wells[wellIndex]->isActive())
+      if ( wells[wellIndex]->isIncludedInOptimization() )
       {
          QString oldFolderName = pathName + "Case_" + QString::number(++caseIndex);
          QString newFolderName = pathName + wells[wellIndex]->name();
@@ -340,7 +342,7 @@ bool SacInputController::selectWorkspace()
       if (!workspaceGenerationController::generateWorkSpace(originalWorkspaceLocation, scenario()))
       {
          return false;
-      }  
+      }
    }
    else
    {

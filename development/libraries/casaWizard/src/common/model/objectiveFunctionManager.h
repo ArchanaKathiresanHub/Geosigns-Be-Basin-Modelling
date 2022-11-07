@@ -29,6 +29,7 @@ public:
   int indexOfCauldronName(const QString& variable) const;
   QStringList variablesCauldronNames() const;
   QStringList variablesUserNames() const;
+  QStringList enabledVariablesUserNames() const;
 
   void writeToFile(ScenarioWriter& writer) const override;
   void readFromFile(const ScenarioReader& reader) override;

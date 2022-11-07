@@ -146,7 +146,9 @@ void createScenarioWithOptimizedLithofractions(casaWizard::sac::LithologyScenari
   scenario.calibrationTargetManager().addWell("ActiveWell1", 1000, 1000);
   scenario.calibrationTargetManager().addWell("ActiveWell2", 3000, 3000);
   scenario.calibrationTargetManager().addWell("Non-ActiveWell", 2000, 2000);
+  scenario.calibrationTargetManager().addWell("Disabled-Well", 2001, 2000);
   scenario.calibrationTargetManager().setWellIsActive(false, 2);
+  scenario.calibrationTargetManager().setWellHasActiveProperties(false, 3);
 
   casaWizard::sac::OptimizedLithofraction optimizedLithofractionWell1(0, 0, 60, 0.5);
   casaWizard::sac::OptimizedLithofraction optimizedLithofractionWell2(1, 0, 50, 0.2);
@@ -188,4 +190,35 @@ TEST(LithologyScenarioTest, testGetLithopercentagesOfClosestWellNoLithoFractionI
   // Then
   EXPECT_EQ(closestWellID, -1);
   EXPECT_TRUE(lithoPercentagesOfClosestWell.empty());
+}
+
+TEST(LithologyScenarioTest, testSetCalibrationTargetsBasedOnObjectiveFunctions)
+{
+   // Given
+   casaWizard::sac::LithologyScenario scenario{new casaWizard::StubProjectReader()};
+
+   const int activeWellID = scenario.calibrationTargetManager().addWell("ActiveWell", 1000, 1000);
+   const int multiWellID = scenario.calibrationTargetManager().addWell("MultiWell", 20000, 2000);
+   const int deactivatedWellID = scenario.calibrationTargetManager().addWell("DeactivatedWell", 3000, 3000);
+
+   scenario.calibrationTargetManager().addCalibrationTarget("Target 1", "Enable",  activeWellID,      1.0, 2.0);
+   scenario.calibrationTargetManager().addCalibrationTarget("Target 2", "Enable",  multiWellID,       3.0, 4.0);
+   scenario.calibrationTargetManager().addCalibrationTarget("Target 2", "Disable", multiWellID,       5.0, 6.0);
+   scenario.calibrationTargetManager().addCalibrationTarget("Target 3", "Disable", deactivatedWellID, 7.0, 8.0);
+
+   const QStringList vars{"Enable", "Disable"};
+   QMap<QString, QString> mapping;
+   mapping["Enable"] = "enable";
+   mapping["Disable"] = "disable";
+
+   scenario.objectiveFunctionManager().setVariables(vars, mapping);
+
+    // When
+   scenario.objectiveFunctionManager().setEnabledState(false, 1);
+   scenario.setCalibrationTargetsBasedOnObjectiveFunctions();
+
+   // Then
+   EXPECT_TRUE(scenario.calibrationTargetManager().well(activeWellID).hasActiveProperties());
+   EXPECT_TRUE(scenario.calibrationTargetManager().well(multiWellID).hasActiveProperties());
+   EXPECT_FALSE(scenario.calibrationTargetManager().well(deactivatedWellID).hasActiveProperties());
 }

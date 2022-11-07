@@ -90,7 +90,7 @@ void CalibrationTargetManager::appendFrom(const CalibrationTargetManager& calibr
 
    for (const Well& well : calibrationTargetManager.m_wells)
    {
-      if (well.isActive())
+      if (well.isIncludedInOptimization() )
       {
          addWell(well);
       }
@@ -233,7 +233,7 @@ const QVector<const Well*> CalibrationTargetManager::activeWells() const
    QVector<const Well*> activeWells;
    for (const Well& well : m_wells)
    {
-      if (well.isActive())
+      if ( well.isIncludedInOptimization() )
       {
          activeWells.push_back(&well);
       }
@@ -258,6 +258,18 @@ const Well& CalibrationTargetManager::well(const int wellIndex) const
 {
    assert(wellIndex>=0 && wellIndex<m_wells.size());
    return m_wells[wellIndex];
+}
+
+void CalibrationTargetManager::setWellHasActiveProperties(bool hasActiveProperties, int wellIndex)
+{
+   assert(wellIndex>=0 && wellIndex<m_wells.size());
+   m_wells[wellIndex].setHasActiveProperties(hasActiveProperties);
+}
+
+void CalibrationTargetManager::setWellIsInvalid(bool invalid, int wellIndex)
+{
+   assert(wellIndex>=0 && wellIndex<m_wells.size());
+   m_wells[wellIndex].setIsInvalid(invalid);
 }
 
 void CalibrationTargetManager::setWellIsActive(bool active, int wellIndex)
@@ -415,16 +427,19 @@ void CalibrationTargetManager::disableInvalidWells(const std::string& projectFil
       case WellState::invalidData:
          well.setIsActive(false);
          well.setIsInvalid(true);
+         well.setHasActiveProperties(true);
          Logger::log() << "Well " << well.name() << " does not have calibration data and is therefore disabled. Check if the input file is valid." << Logger::endl();
          break;
       case WellState::invalidLocation:
          well.setIsActive(false);
          well.setIsInvalid(true);
+         well.setHasActiveProperties(true);
          Logger::log() << "Well " << well.name() << " is outside of the basin model and is therefore disabled." << Logger::endl();
          break;
       case WellState::invalidDuplicateName:
          well.setIsActive(false);
          well.setIsInvalid(true);
+         well.setHasActiveProperties(true);
          Logger::log() << "Well " << well.name() << " has a duplicate name and is therefore disabled." << Logger::endl();
          break;
       case WellState::valid:
@@ -526,7 +541,7 @@ void CalibrationTargetManager::convertVPtoDT()
 
    for (Well& well : m_wells)
    {
-      if (well.isActive())
+      if ( well.isIncludedInOptimization() )
       {
          if (well.removeCalibrationTargetsWithPropertyUserName(convertedDTName))
          {
@@ -648,7 +663,7 @@ void CalibrationTargetManager::removeDataOutsideModelDepths(const std::vector<do
    int counter = 0;
    for (Well& well : m_wells)
    {
-      if (well.isActive())
+      if ( well.isIncludedInOptimization() )
       {
          if (well.removeDataBelowDepth(basementDepthsAtActiveWellLocations[counter]))
          {
@@ -676,7 +691,7 @@ void CalibrationTargetManager::removeWellsOutsideBasinOutline(const std::string&
    int wellId = 0;
    for (const Well& well : m_wells)
    {
-      if (well.isActive())
+      if ( well.isIncludedInOptimization() )
       {
          const WellState wellState = validator.wellState(well, depthGridName, usedWellNames);
 
@@ -702,7 +717,7 @@ void CalibrationTargetManager::convertDTtoTWT(const std::string& iterationFolder
 
    for (Well& well : m_wells)
    {
-      if (well.isActive())
+      if ( well.isIncludedInOptimization() )
       {
          if (well.removeCalibrationTargetsWithPropertyUserName(convertedTWTName))
          {

@@ -35,6 +35,8 @@ public:
    const QVector<const Well*> activeWells() const;
    const QVector<const Well*> activeAndIncludedWells() const;
    const Well& well(const int wellIndex) const;
+   void setWellHasActiveProperties(bool disabled, int wellIndex);
+   void setWellIsInvalid(bool invalid, int wellIndex);
    void setWellIsActive(bool active, int wellIndex);
    void setWellIsExcluded(bool excluded, int wellIndex);
    void renamePropertiesAfterImport();
