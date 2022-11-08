@@ -114,6 +114,32 @@ QVector<int> SacScenario::getIncludedWellIndicesFromSelectedWells(const QVector<
    return mapsManager().transformToActiveAndIncluded(selectedWellIndices, calibrationTargetManager().getExcludedWellsFromActiveWells());
 }
 
+QMap<QString, double> SacScenario::getSurfaceValuesForWell(const Well& selectedWell, MapReader& mapReader) const
+{
+   QMap<QString, double> surfaceValues;
+   if (showSurfaceLines())
+   {
+      mapReader.load(project3dPath().toStdString());
+      QStringList surfaceNames = projectReader().surfaceNames();
+      for (int i = 0; i < surfaceNames.size(); i++)
+      {
+         const QString depthGridName = projectReader().getDepthGridName(i);
+         // If one value can not be calculated (at the moment), we return an empty map, since the
+         // Indexing with surface names belonging to the surface values would be wrong.
+         if (depthGridName == "")
+         {
+            Logger::log() << "Since one or more layers do not have a depth map, the surface layers can not be displayed" << Logger::endl();
+            return {};
+         }
+
+         const double depth = -1.0*mapReader.getValue(selectedWell.x(), selectedWell.y(), depthGridName.toStdString());
+         surfaceValues.insert(surfaceNames[i], depth);
+      }
+   }
+
+   return surfaceValues;
+}
+
 void SacScenario::setCalibrationTargetsBasedOnObjectiveFunctions()
 {
    const QStringList userNames = objectiveFunctionManager().enabledVariablesUserNames();

@@ -111,7 +111,7 @@ public:
 
   QString getDepthGridName(int surfaceID) const override
   {
-    return "";
+    return surfaceID != 1 ? "TestGrid" : "";
   }
 
   double getThickness(int surfaceID) const override

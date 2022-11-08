@@ -4,6 +4,7 @@
 #include "stubProjectReader.h"
 #include "model/scenarioReader.h"
 #include "model/scenarioWriter.h"
+#include "stubmapreader.h"
 
 #include <gtest/gtest.h>
 
@@ -190,6 +191,23 @@ TEST(LithologyScenarioTest, testGetLithopercentagesOfClosestWellNoLithoFractionI
   // Then
   EXPECT_EQ(closestWellID, -1);
   EXPECT_TRUE(lithoPercentagesOfClosestWell.empty());
+}
+
+TEST(LithologyScenarioTest, getSurfaceValuesForWell)
+{
+   casaWizard::sac::LithologyScenario scenario(new casaWizard::StubProjectReader());
+
+   casaWizard::Well well;
+   well.setX(100);
+   well.setY(200);
+   casaWizard::StubMapReader mapReader;
+
+   // In the stub projectreader, the second depthgrid will return an empty string
+   // meaning there is no depth map available. Still we would like to continue
+   // Without the getSurfaceValuesForWell function throwing. It should just
+   // not return any surface values.
+   EXPECT_NO_THROW(scenario.getSurfaceValuesForWell(well, mapReader));
+   EXPECT_EQ(scenario.getSurfaceValuesForWell(well, mapReader).size(), 0);
 }
 
 TEST(LithologyScenarioTest, testSetCalibrationTargetsBasedOnObjectiveFunctions)

@@ -267,22 +267,10 @@ void SacResultsController::updateWellPlot()
 
 QMap<QString, double> SacResultsController::getSurfaceValues()
 {
-   QMap<QString, double> surfaceValues;
-   if (scenario().showSurfaceLines())
-   {
-      const casaWizard::Well& well = calibrationTargetManager().well(m_selectedWellsIDs[0]);
-      CMBMapReader mapReader;
-      mapReader.load(scenario().project3dPath().toStdString());
-      QStringList surfaceNames = scenario().projectReader().surfaceNames();
-      for (int i = 0; i < surfaceNames.size(); i++)
-      {
-         QString depthGridName = scenario().projectReader().getDepthGridName(i);
-         const double depth = -1.0*mapReader.getValue(well.x(), well.y(), depthGridName.toStdString());
-         surfaceValues.insert(surfaceNames[i], depth);
-      }
-   }
+   const casaWizard::Well& selectedWell = calibrationTargetManager().well(m_selectedWellsIDs[0]);
+   CMBMapReader mapReader;
 
-   return surfaceValues;
+   return scenario().getSurfaceValuesForWell(selectedWell, mapReader);
 }
 
 QStringList SacResultsController::getUnitsForProperties(const QVector<QVector<const CalibrationTarget*>> targets)

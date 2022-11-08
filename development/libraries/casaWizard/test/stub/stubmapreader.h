@@ -20,7 +20,11 @@ public:
   VectorVectorMap getMapData(const std::string& /*mapName*/) const override {return VectorVectorMap({});}
   void load(const std::string& /*projectFile*/) override {}
   bool mapExists(const std::string& /*mapName*/) const override {return true;}
-  double getValue(const double /*x*/, const double /*y*/, const std::string& /*mapName*/) const override {return 5.0;}
+  double getValue(const double /*x*/, const double /*y*/, const std::string& mapName) const override
+  {
+     if (mapName == "") throw std::exception(); // mimics what the CMBMapReader does
+     return 5.0;
+  }
   std::vector<VectorVectorMap> getOptimizedLithoMapsInLayer(const int /*layerIndex*/) const override
   {
     return {VectorVectorMap({{1.0, 2.0}, {3.0, 4.0}}), VectorVectorMap({{5.0, 6.0}, {7.0, 8.0}})};
