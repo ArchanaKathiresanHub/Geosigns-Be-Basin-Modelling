@@ -13,7 +13,7 @@
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Version				Date of update
 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-Cauldron-v2.9.23		2022-11-07 07:56:41 +0000
+Cauldron-v2.9.24		2022-11-08 12:33:25 +0000
 =============================================================
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Third-party Software 		version
@@ -36,6 +36,16 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2022-11-08  Richard Faasse  <Richard.Faasse@shell.com>
+
+	fix: Fixed the crash which happened when one layer does not have depth maps
+	 * UT added to check for the no-throw
+	 * Added a check, such that an empty depthgrid name will yield an early return.
+	 * This does not fix the entire bug, it is just a quick remedy to make sure the workflow can still continue when a layer does not have a depth grid
+	================== COMMIT-END ========================
+	Commit-ID:<3fe349fc230711096d5836dff39599353755a897>	  (tag: refs/tags/v2.9.24, refs/heads/master)
+
+++
 2022-11-07  Sven van Leeuwen  <Sven.van-Leeuwen@shell.com>
 
 	fix: usr: Bug fix 481884: wrong wells are displayed in the maps tab when some wells do not have enabled data fields for optimization
