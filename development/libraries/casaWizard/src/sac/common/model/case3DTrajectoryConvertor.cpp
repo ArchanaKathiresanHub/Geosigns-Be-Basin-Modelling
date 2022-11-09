@@ -24,10 +24,9 @@ namespace sac
 namespace case3DTrajectoryConvertor
 {
 
-void convertToScenario(const Case3DTrajectoryReader& reader, SacScenario& scenario, bool optimized)
+void convertToScenario(const Case3DTrajectoryReader& reader, SacScenario& scenario, const bool optimized)
 {
   const double epsilon{1}; // Track 1d accuracy
-
   WellTrajectoryManager& manager = scenario.wellTrajectoryManager();
   const QVector<const Well*> wells = scenario.calibrationTargetManager().wells();
   QVector<double> x = reader.x();
@@ -39,14 +38,12 @@ void convertToScenario(const Case3DTrajectoryReader& reader, SacScenario& scenar
   assert(size == depth.size());
 
   const QVector<WellTrajectory> trajectories = manager.trajectories()[optimized? TrajectoryType::Optimized3D: TrajectoryType::Original3D];
-  double currentX{0};
-  double currentY{0};
 
   for (const WellTrajectory& traj : trajectories)
   {
     const int wellId = traj.wellIndex();
-    currentX = wells[wellId]->x();
-    currentY = wells[wellId]->y();
+    double currentX = wells[wellId]->x();
+    double currentY = wells[wellId]->y();
 
     int iStart = 0;
     int iEnd = 0;
@@ -54,18 +51,18 @@ void convertToScenario(const Case3DTrajectoryReader& reader, SacScenario& scenar
     bool foundEnd = false;
 
     // Find first and last index of the coordinates belonging to this well
-    for( int i=0; i<size && !foundEnd; ++i)
+    for( int i=0; i < size && !foundEnd; ++i)
     {
       if (!foundStart)
       {
-        foundStart = std::fabs(currentX-x[i])<epsilon &&
-                     std::fabs(currentY-y[i])<epsilon;
+        foundStart = std::fabs(currentX-x[i]) < epsilon &&
+                     std::fabs(currentY-y[i]) < epsilon;
         iStart = i;
       }
       else
       {
-        foundEnd = std::fabs(currentX-x[i])>epsilon ||
-                   std::fabs(currentY-y[i])>epsilon;
+        foundEnd = std::fabs(currentX-x[i]) > epsilon ||
+                   std::fabs(currentY-y[i]) > epsilon;
         iEnd = i-1;
       }
     }
@@ -89,6 +86,7 @@ void convertToScenario(const Case3DTrajectoryReader& reader, SacScenario& scenar
       d[j - iStart] = depth[j];
       v[j - iStart] = propValue[j];
     }
+
     if (optimized)
     {
       manager.setTrajectoryData(TrajectoryType::Optimized3D, traj.trajectoryIndex(), d, v);

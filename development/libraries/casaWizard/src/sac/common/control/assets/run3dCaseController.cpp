@@ -40,13 +40,16 @@ Run3dCaseController::Run3dCaseController(SacScenario& scenario,
 
 bool Run3dCaseController::run3dCase(const QString& directory, const bool isOptimized)
 {
-   bool getCores = false;
+   bool getCores = false, getSubSampling = false;
+
    const int cores = QInputDialog::getInt(nullptr, "Number of cores", "Cores", scenario_.numberCPUs(), 1, 1024, 1, &getCores);
+   if (!getCores)
+   {
+      return false;
+   }
 
-   bool getSubSampling = false;
    const int subSampling = QInputDialog::getInt(nullptr, "Subsampling", "", 1, 1, 1024, 1, &getSubSampling);
-
-   if (!getCores || !getSubSampling)
+   if (!getSubSampling)
    {
       return false;
    }

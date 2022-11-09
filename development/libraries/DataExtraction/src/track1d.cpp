@@ -739,8 +739,9 @@ void Track1d::outputSnapshotFormationData( std::ostream& outputStream, double x,
                                            OutputPropertyValueMap& allOutputPropertyValues,
                                            unsigned int k )
 {
-  outputStream << x << "," << y << "," << i << "," << j << ",";
   std::streamsize oldPrecision = outputStream.precision();
+  outputStream << std::setprecision( 12 ) << x << "," << y << std::setprecision( oldPrecision );
+  outputStream << "," << i << "," << j << ",";
   outputStream << std::setprecision( 9 ) << snapshot->getTime() << std::setprecision( oldPrecision );
   outputStream << "," << formationName;
   outputStream << "," << formationSurfaceName;
