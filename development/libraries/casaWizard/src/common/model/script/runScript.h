@@ -27,7 +27,7 @@ public:
   virtual bool killAsync() const;
   virtual bool scriptShouldCancelWhenFailureIsEncountered() const;
 
-  void addCommand(const QString& command, const QString& relativeDirectory = "");
+  void addCommand(const QString& command, const QStringList& commandArguments = {}, const QString& relativeDirectory = "");
   QVector<RunCommand> commands() const;
   QString baseDirectory() const;
 

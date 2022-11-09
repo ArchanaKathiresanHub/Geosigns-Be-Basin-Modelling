@@ -35,6 +35,7 @@ CasaScenario::CasaScenario(ProjectReader* projectReader) :
   runLocation_(defaultRunLocation),
   workingDirectory_("")
 {
+   setClusterName(defaultClusterName);
 }
 
 QString CasaScenario::clusterName() const
@@ -45,6 +46,15 @@ QString CasaScenario::clusterName() const
 void CasaScenario::setClusterName(const QString& clusterName)
 {
   clusterName_ = clusterName;
+
+  if (clusterName.compare("LOCAL") == 0)
+  {
+     setenv("LOCAL", "true", 1);
+  }
+  else
+  {
+     unsetenv("LOCAL");
+  }
 }
 
 QString CasaScenario::applicationName() const
@@ -99,7 +109,7 @@ void CasaScenario::updateObjectiveFunctionFromTargets()
   {
     targetVariableUserNames.insert(target->propertyUserName());
   }
-  objectiveFunctionManager_.setVariables(targetVariableUserNames.toList(), calibrationTargetManager_.userNameToCauldronNameMapping());
+  objectiveFunctionManager_.setVariables(targetVariableUserNames.values(), calibrationTargetManager_.userNameToCauldronNameMapping());
   applyObjectiveFunctionOnCalibrationTargets();
 }
 

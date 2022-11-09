@@ -370,27 +370,27 @@ namespace ctcWizard
 				QString prefix_ = "CTCv2-";
 				if (!strList[0].compare("Scenario", Qt::CaseSensitive)) {
 
-					newStream << "Scenario: " << strList[1] << '-' << qtutils::getTimeStamp(prefix_) << endl;
+					newStream << "Scenario: " << strList[1] << '-' << qtutils::getTimeStamp(prefix_) << "\r\n";
 				}
 				//Project
 				else if (!strList[0].compare("Project", Qt::CaseSensitive)) {
-					newStream << "Project: " << strList[1] << '-' << qtutils::getTimeStamp(prefix_) << endl;
+					newStream << "Project: " << strList[1] << '-' << qtutils::getTimeStamp(prefix_) << "\r\n";
 				}
 				//Top Boundary Conditions
 				else if (strList[0].contains("Top Boundary Conditions", Qt::CaseSensitive)) {
-					newStream << "Top Boundary Conditions: Updated by CTC Outputs " << endl;
+					newStream << "Top Boundary Conditions: Updated by CTC Outputs " << "\r\n";
 				}
 
 				//Bottom Boundary Conditions
 				else if (strList[0].contains("Bottom Boundary Conditions", Qt::CaseSensitive)) {
-					newStream << "Bottom Boundary Conditions: Updated by CTC Outputs " << endl;
+					newStream << "Bottom Boundary Conditions: Updated by CTC Outputs " << "\r\n";
 				}
 				//Description
 				else if (strList[0].contains("Description", Qt::CaseSensitive)) {
-					newStream << "Description: " << strList[1] << " " << qtutils::getTimeStamp(prefix_) << endl;
+					newStream << "Description: " << strList[1] << " " << qtutils::getTimeStamp(prefix_) << "\r\n";
 				}
 				else
-					newStream << line << endl;
+					newStream << line << "\r\n";
 				line = oldStream.readLine();
 			}
 

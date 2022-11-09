@@ -1,6 +1,8 @@
 #include <gtest/gtest.h>
 #include "model/ManualDesignPoint.h"
 
+#include <QStringList>
+
 using namespace casaWizard;
 using namespace ua;
 

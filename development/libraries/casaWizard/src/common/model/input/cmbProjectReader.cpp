@@ -342,7 +342,8 @@ QVector<double> CMBProjectReader::agesFromMajorSnapshots() const
   }
 
   const mbapi::SnapshotManager & snapshotManager = cmbModel_->snapshotManager();
-  return QVector<double>::fromStdVector(snapshotManager.agesFromMajorSnapshots());
+  const std::vector<double> ages = snapshotManager.agesFromMajorSnapshots();
+  return QVector<double>(ages.begin(), ages.end());
 }
 
 QString CMBProjectReader::getLayerUnderSurface(const QString& surfaceName) const

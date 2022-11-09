@@ -99,12 +99,12 @@ void zipFolderContent(const QDir& sourceDir, const QString& targetDestination, c
 {
   QProcess process;
   process.setWorkingDirectory(targetDestination);
-  processCommand(process, QString("zip -r -j " + zipName + ".zip " + sourceDir.absolutePath()));
+  processCommand(process, QString("zip"), QStringList() << "-r" << "-j" << zipName + ".zip" << sourceDir.absolutePath());
 }
 
-void processCommand(QProcess& process, const QString& command)
+void processCommand(QProcess& process, const QString& command, const QStringList& arguments)
 {
-  process.start(command);
+  process.start(command, arguments);
   if (!process.waitForStarted())
   {
     process.kill();

@@ -28,10 +28,14 @@ endif()
 set(BM_EXTERNAL_COMPONENTS_DIR "${CBM_HOME}/hpc-library" CACHE PATH "The path to the directory of prebuilt libraries")
 set(BM_SSSDEV_INSTALL_DIR "/apps/sssdev/ibs" CACHE PATH "sssdev installation path")
 
-set(INTEL_CXX_VERSION "2019a" CACHE STRING "The version number of intel compiler. Used in module load command")
-set(INTEL_CXX_ROOT "/glb/data/hpcrnd/easybuild/PRODUCTION/software/rhel/7/icc/2019.1.144-GCC-8.2.0-2.31.1/compilers_and_libraries_2019.1.144/linux/" CACHE PATH "Path to Intel's compiler collection")
-set(INTEL_MPI_ROOT "/glb/data/hpcrnd/easybuild/PRODUCTION/software/rhel/7/impi/2018.4.274-iccifort-2019.1.144-GCC-8.2.0-2.31.1" CACHE PATH "Path to Intel MPI library" )
-set(INTEL_MKL_ROOT "/glb/data/hpcrnd/easybuild/PRODUCTION/software/rhel/7/imkl/2019.1.144-iimpi-2019a/mkl" CACHE PATH "Path to Intel MKL" )
+set(INTEL_CXX_VERSION "2021a" CACHE STRING "The version number of intel compiler. Used in module load command")
+set(INTEL_CXX_ROOT "$ENV{EBROOTINTELMINCOMPILERS}/" CACHE PATH "Path to Intel's compiler collection")
+set(INTEL_MPI_ROOT "$ENV{I_MPI_ROOT}" CACHE PATH "Path to Intel MPI library" )
+set(INTEL_MKL_ROOT "$ENV{MKLROOT}" CACHE PATH "Path to Intel MathKernelLibrary for using BLAS." )
+
+message(STATUS "This is the CXX ${INTEL_CXX_ROOT}")
+message(STATUS "This is the MPI ${INTEL_MPI_ROOT}")
+message(STATUS "This is the MKL ${INTEL_MKL_ROOT}")
 
 option(BM_USE_INTEL_COMPILER "Whether to use the Intel compiler" ON)
 option(BM_USE_INTEL_MPI "Whether to use the Intel MPI" ON)

@@ -48,7 +48,7 @@ void ObjectiveFunctionTableSAC::updateTable(const ObjectiveFunctionManager& obje
 
    horizontalHeader()->setSectionResizeMode(3, QHeaderView::Fixed);
    QFontMetrics a(font());
-   setColumnWidth(3, a.width("Cauldron property name") + 22);
+   setColumnWidth(3, a.horizontalAdvance("Cauldron property name") + 22);
 
    for (int row = 0; row < rowCount; ++row)
    {

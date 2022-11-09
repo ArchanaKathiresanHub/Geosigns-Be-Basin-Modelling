@@ -43,7 +43,7 @@ QString OptimalCaseScript::optimalCaseDirectory() const
 
 bool OptimalCaseScript::generateCommands()
 {
-  addCommand("rm -rf " + optimalCaseDirectory_);
+  addCommand("rm", QStringList() << "-rf " << optimalCaseDirectory_);
   return CasaScript::generateCommands();
 }
 

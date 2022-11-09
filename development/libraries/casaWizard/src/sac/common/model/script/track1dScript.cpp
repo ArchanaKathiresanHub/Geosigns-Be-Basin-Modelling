@@ -30,13 +30,13 @@ void Track1DScript::addWell(const double x, const double y, const QString& prope
 
 void Track1DScript::addCommandProject(const int call, const QString& projectName)
 {
-  addCommand("track1d -coordinates " + QString::number(xCoordinate_[call], 'f') +
-             "," + QString::number(yCoordinate_[call],'f') +
-             " -properties " + wizardDataToCasaScriptMapper::mapName(propertiesCauldronName_[call]) +
-             " -age 0" +
-             " -project " + projectName + ".project3d" +
-             " -save wellTrajectory-" + projectName + "-" + propertiesUserName_[call] + ".csv" +
-             " -lean",
+  addCommand("track1d",
+             QStringList() << "-coordinates" << QString::number(xCoordinate_[call], 'f') + "," + QString::number(yCoordinate_[call],'f')
+             << "-properties" << wizardDataToCasaScriptMapper::mapName(propertiesCauldronName_[call])
+             << "-age" << "0"
+             << "-project" << projectName + ".project3d"
+             << "-save" << "wellTrajectory-" + projectName + "-" + propertiesUserName_[call] + ".csv"
+             << "-lean",
              runFolders_[call]);
 }
 

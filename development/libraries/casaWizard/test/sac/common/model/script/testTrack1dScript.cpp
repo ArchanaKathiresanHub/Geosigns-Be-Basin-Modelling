@@ -5,23 +5,33 @@
 
 TEST(Track1dScriptTest, testGenerateCommands)
 {
-  // Given
-  casaWizard::sac::Track1DScript script("baseDirectory", "Project");
+   // Given
+   casaWizard::sac::Track1DScript script("baseDirectory", "Project");
 
-  // When
-  script.addWell(0.0, 1.1, "Density", "Density", "CaseSet");
-  script.addWell(2.2, 3.3, "SonicSlowness", "SonicSlowness", "RunLocation");
+   // When
+   script.addWell(0.0, 1.1, "Density", "Density", "CaseSet");
+   script.addWell(2.2, 3.3, "SonicSlowness", "SonicSlowness", "RunLocation");
 
-  script.generateCommands();
-  QStringList expectedCommands;
-  expectedCommands.push_back("track1d -coordinates 0.000000,1.100000 -properties Density -age 0 -project Project.project3d -save wellTrajectory-Project-Density.csv -lean");
-  expectedCommands.push_back("track1d -coordinates 2.200000,3.300000 -properties SonicSlowness -age 0 -project Project.project3d -save wellTrajectory-Project-SonicSlowness.csv -lean");
+   script.generateCommands();
+   QStringList expectedCommands = {"track1d", "track1d"};
+   QVector<QStringList> expectedCommandArguments;
+   expectedCommandArguments.push_back({"-coordinates", "0.000000,1.100000", "-properties", "Density", "-age", "0", "-project", "Project.project3d", "-save", "wellTrajectory-Project-Density.csv", "-lean"});
+   expectedCommandArguments.push_back({"-coordinates", "2.200000,3.300000", "-properties", "SonicSlowness", "-age", "0", "-project", "Project.project3d", "-save", "wellTrajectory-Project-SonicSlowness.csv", "-lean"});
 
-  // Then
-  EXPECT_EQ(script.commands()[0].relativeDirectory, "CaseSet");
-  EXPECT_EQ(script.commands()[0].command, expectedCommands[0]) << "Wrong at command 0";
-  EXPECT_EQ(script.commands()[1].relativeDirectory, "RunLocation");
-  EXPECT_EQ(script.commands()[1].command, expectedCommands[1]) << "Wrong at command 1";
+   // Then
+   EXPECT_EQ(script.commands()[0].relativeDirectory, "CaseSet");
+   EXPECT_EQ(script.commands()[1].relativeDirectory, "RunLocation");
+
+
+   for (int iCommand = 0; iCommand < 2; iCommand++)
+   {
+      EXPECT_EQ(script.commands()[iCommand].command, expectedCommands[iCommand]) << "Wrong at command 0";
+      EXPECT_EQ(script.commands()[iCommand].commandArguments.size(), expectedCommandArguments[iCommand].size()) << "Wrong at command 0";
+      for (int i = 0; i < expectedCommandArguments[iCommand].size(); i++)
+      {
+         EXPECT_EQ(expectedCommandArguments[iCommand][i], script.commands()[iCommand].commandArguments[i]);
+      }
+   }
 }
 
 

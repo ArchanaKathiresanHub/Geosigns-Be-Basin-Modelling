@@ -29,11 +29,11 @@ TEST(OptimalCaseExporter, testExportCase )
    //Unzip to check the content of the zipped folder:
    QProcess process;
    process.setWorkingDirectory(QDir::currentPath());
-   functions::processCommand(process, QString("unzip -o " + tmpTestDir.path() + "/optimal.zip -d " + tmpTestDir.path() + "/zippedFolderConents"));
+   functions::processCommand(process, "unzip", QStringList() << "-o" << tmpTestDir.path() + "/optimal.zip" << "-d" << tmpTestDir.path() + "/zippedFolderContents");
 
-   EXPECT_TRUE(QFile::exists(tmpTestDir.path() + "/zippedFolderConents/Project.project3d"));
-   EXPECT_TRUE(QFile::exists(tmpTestDir.path() + "/zippedFolderConents/Project.txt"));
-   EXPECT_TRUE(QFile::exists(tmpTestDir.path() + "/zippedFolderConents/Inputs.HDF"));
+   EXPECT_TRUE(QFile::exists(tmpTestDir.path() + "/zippedFolderContents/Project.project3d"));
+   EXPECT_TRUE(QFile::exists(tmpTestDir.path() + "/zippedFolderContents/Project.txt"));
+   EXPECT_TRUE(QFile::exists(tmpTestDir.path() + "/zippedFolderContents/Inputs.HDF"));
 
    //cleanup
    tmpTestDir.removeRecursively();
@@ -83,7 +83,7 @@ TEST(OptimalCaseExporter, testScenarioName )
 
    QProcess process;
    process.setWorkingDirectory(tmpTestDir.path());
-   functions::processCommand(process, QString("unzip -o " + tmpOptimalDir.path() + "/optimal.zip -d " + tmpTestDir.path() + "/zippedFolderContents"));
+   functions::processCommand(process, "unzip", QStringList() << "-o" << tmpOptimalDir.path() + "/optimal.zip" << "-d" << tmpTestDir.path() + "/zippedFolderContents");
 
    QFile project(tmpTestDir.path() + "/zippedFolderContents/Project.txt");
    QString text;

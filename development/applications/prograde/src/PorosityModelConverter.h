@@ -14,6 +14,8 @@
 //cmbAPI
 #include "LithologyManager.h"
 
+#include <cmath>
+
 namespace Prograde
 {
    /// @class PorosityModelConverter converts porosity models
@@ -82,7 +84,7 @@ namespace Prograde
 
                if (i == j)
                {
-                  matL[i][j] = sqrt(std::max((matA[i][j] - sum), 0.0));
+                  matL[i][j] = std::sqrt(std::max((matA[i][j] - sum), 0.0));
                }
                else
                {

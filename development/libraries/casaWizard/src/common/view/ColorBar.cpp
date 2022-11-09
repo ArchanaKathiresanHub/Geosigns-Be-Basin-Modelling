@@ -104,7 +104,7 @@ void ColorBar::drawTicksAndLabelsLeftSide ( QPainter* painter ) const
 
    //Title
    painter->save();
-   painter->translate(m_Xoffset + m_width + m_textSpacing, m_Yoffset + (m_heigth/2) + fm.width(m_title)/2);
+   painter->translate(m_Xoffset + m_width + m_textSpacing, m_Yoffset + (m_heigth/2) + fm.horizontalAdvance(m_title)/2);
    painter->rotate(-90);
    painter->drawText(QRect(), 0, m_title, &box); //defines boundingBox size
    painter->drawText(box, Qt::AlignCenter, m_title);
@@ -120,7 +120,7 @@ void ColorBar::drawTicksAndLabelsLeftSide ( QPainter* painter ) const
       painter->translate(m_Xoffset, m_Yoffset + (m_heigth - (m_heigth / double(m_intervals) * tick)));
       painter->fillRect(QRectF(0, 0, 10, 1), QBrush("black"));
 
-      painter->translate(-fm.width(label) - m_textSpacing, -fm.height()/2);
+      painter->translate(-fm.horizontalAdvance(label) - m_textSpacing, -fm.height()/2);
       painter->drawText(QRect(), 0, label, &box); //defines boundingBox size
       painter->drawText(box, Qt::AlignRight, label);
 
@@ -136,7 +136,7 @@ void ColorBar::drawTicksAndLabelsRightSide(QPainter *painter) const
 
    //Title
    painter->save();
-   painter->translate(m_Xoffset - fm.height() - m_textSpacing, m_Yoffset + (m_heigth/2) + fm.width(m_title)/2);
+   painter->translate(m_Xoffset - fm.height() - m_textSpacing, m_Yoffset + (m_heigth/2) + fm.horizontalAdvance(m_title)/2);
    painter->rotate(-90);
    painter->drawText(QRect(), 0, m_title, &box); //defines boundingBox size
    painter->drawText(box, Qt::AlignCenter, m_title);

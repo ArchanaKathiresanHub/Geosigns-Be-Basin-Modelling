@@ -8,7 +8,6 @@ add_casawizard_common_gtest( NAME PercentileGenerator      SOURCES testPercentil
 add_casawizard_common_gtest( NAME ObjectiveFunctionManager SOURCES testObjectiveFunctionManager.cpp )
 add_casawizard_common_gtest( NAME ScenarioReader           SOURCES testScenarioReader.cpp )
 add_casawizard_common_gtest( NAME ScenarioWriter           SOURCES testScenarioWriter.cpp )
-add_casawizard_common_gtest( NAME TargetMapCreator         SOURCES testTargetMapCreator.cpp )
 add_casawizard_common_gtest( NAME VectorVectorMap          SOURCES testVectorVectorMap.cpp )
 add_casawizard_common_gtest( NAME ScenarioBackup           SOURCES testScenarioBackup.cpp )
 add_casawizard_common_gtest( NAME WellValidator            SOURCES testWellValidator.cpp )

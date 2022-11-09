@@ -111,7 +111,7 @@ void LithologyResultsTab::addLithofractionRow(int& row, QVector<QTableWidgetItem
       }
       if (i==4 && std::fabs(diff) > 10)
       {
-         items[i]->setBackgroundColor(QColor(Qt::red));
+         items[i]->setBackground(QColor(Qt::red));
       }
    }
    row++;

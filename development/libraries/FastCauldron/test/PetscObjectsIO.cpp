@@ -4,6 +4,7 @@
 #include <string>
 
 #include <gtest/gtest.h>
+#include "gtest/gtest-death-test.h"
 #include "petsc.h"
 #include "petscmat.h"
 #include "FilePath.h"
@@ -56,6 +57,8 @@ TEST( PetscObjectsIO, MissingFileOnRead )
 
 TEST( PetscObjectsIO, MissingFolderOnWrite )
 {
+   (void)(::testing::GTEST_FLAG(death_test_style) = "threadsafe");
+
    Mat A = 0;
    ibs::FilePath fpath( std::string("MissingFolder") );
    ASSERT_DEATH( PetscObjectsIO::writeMatrixToFile( A, fpath.filePath(), fpath.fileName(), true ), "" );
@@ -69,6 +72,8 @@ TEST( PetscObjectsIO, MissingFolderOnWrite )
 
 TEST( PetscObjectsIO, UninitialisedObjectOnWrite )
 {
+   (void)(::testing::GTEST_FLAG(death_test_style) = "threadsafe");
+
    Mat A = 0;
    ibs::FilePath fpath( std::string("") );
    ASSERT_DEATH( PetscObjectsIO::writeMatrixToFile( A, fpath.filePath(), fpath.fileName(), true ), "" );

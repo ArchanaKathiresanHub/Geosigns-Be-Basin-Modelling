@@ -76,7 +76,7 @@ void ManualDesignPointTable::updateTable(const QVector<QVector<double>> paramete
       if (completed[row])
       {
         item->setFlags(item->flags() ^ Qt::ItemIsEditable);
-        item->setTextColor(Qt::gray);
+        item->setForeground(Qt::gray);
       }
       tableDesignPoints_->setItem(row, col, item);
     }

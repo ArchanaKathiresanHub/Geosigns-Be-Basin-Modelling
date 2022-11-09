@@ -125,10 +125,10 @@ tar xzf $tar || { echo "tar : error : Could not uncompress tarfile"; exit 1 ; }
 # preloading modules before bootstrap call
 
 [[ -r /glb/apps/hpc/EasyBuild/Public/Lmod/etc/profile.d/z01_lmod-hpcti.sh ]] && . /glb/apps/hpc/EasyBuild/Public/Lmod/etc/profile.d/z01_lmod-hpcti.sh
-module load HpcSoftwareStack/PRODUCTION
+module load HpctiSoftwareStack/PRODUCTION
 module purge
-module load intel/2019a
-module load CMake/3.9.6
+module load intel/2021a
+module load CMake/3.18.4
 
 echo "Configuring the package"
 ${srcdir}/development/bootstrap.sh \

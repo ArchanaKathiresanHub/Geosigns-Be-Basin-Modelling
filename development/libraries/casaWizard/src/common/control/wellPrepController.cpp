@@ -52,7 +52,9 @@ WellPrepController::WellPrepController(WellPrepTab* wellPrepTab,
    waitingDialog_{}
 {
    waitingDialog_.setIcon(QMessageBox::Icon::Information);
-   waitingDialog_.setStandardButtons(nullptr);
+   waitingDialog_.setStandardButtons(QMessageBox::Cancel);
+   waitingDialog_.button(QMessageBox::Cancel)->hide();
+   waitingDialog_.setWindowFlags(Qt::Window | Qt::WindowTitleHint | Qt::CustomizeWindowHint);
 
    connect(wellPrepTab->buttonSelectAll(), SIGNAL(clicked()), calibrationTargetController_, SLOT(slotSelectAllWells()));
    connect(wellPrepTab->buttonDeselectAll(), SIGNAL(clicked()), calibrationTargetController_, SLOT(slotClearWellSelection()));

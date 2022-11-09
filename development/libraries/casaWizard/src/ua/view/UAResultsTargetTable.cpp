@@ -50,7 +50,7 @@ UAResultsTargetTable::UAResultsTargetTable(QWidget *parent):
    QFontMetrics fm(font());
 
    //Increase width of location name column, according to user feedback
-   setColumnWidth(0,fm.width("Location name")+64);
+   setColumnWidth(0,fm.horizontalAdvance("Location name")+64);
    horizontalHeader()->setSectionResizeMode(0,QHeaderView::Fixed);
 
    for (int i = 1; i < m_numDefaultCols; ++i)
@@ -71,7 +71,7 @@ UAResultsTargetTable::UAResultsTargetTable(QWidget *parent):
       {
          optionNamesTable.push_back(optionName);
       }
-      int itemTextWidth = fm.width(optionNamesTable.back());
+      int itemTextWidth = fm.horizontalAdvance(optionNamesTable.back());
       if (itemTextWidth > maxHeaderTextWidthOptions)
       {
          maxHeaderTextWidthOptions = itemTextWidth;
@@ -136,7 +136,7 @@ void UAResultsTargetTable::fillTable(const UAResultsTargetsData& targetsData)
          int colWidth = columnWidth(j);
 
          QString itemtxt= it->text();
-         int itemTextWidth = fm.width(it->text());
+         int itemTextWidth = fm.horizontalAdvance(it->text());
          if (itemTextWidth > colWidth-6)
          {
             it->setToolTip(it->text());

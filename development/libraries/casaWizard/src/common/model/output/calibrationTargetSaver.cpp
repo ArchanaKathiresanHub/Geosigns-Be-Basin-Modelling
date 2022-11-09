@@ -96,7 +96,7 @@ bool CalibrationTargetSaver::saveRawLocationsToCSV(const QString& filename) cons
   QByteArray data;
   for ( const Well* well : calibrationTargetManager_.activeWells())
   {
-    data += QString::number(well->x()) + "," + QString::number(well->y()) + "," + well->name() + "\n";
+    data += (QString::number(well->x()) + QString(",") + QString::number(well->y()) + QString(",") + well->name() + QString("\n")).toUtf8();
   }
   file.write(data);
   file.close();

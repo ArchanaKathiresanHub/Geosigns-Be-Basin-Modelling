@@ -20,11 +20,11 @@ OptimalValueExtractionScript::OptimalValueExtractionScript(const QString& baseDi
 bool OptimalValueExtractionScript::generateCommands()
 {
    const int nCalls = runFolders_.size();
-   addCommand("which casa.exe");
+   addCommand("which", QStringList() << "casa.exe");
    for (int iCall = 0; iCall < nCalls; ++iCall)
    {
       createScriptInFolder(runFolders_[iCall]);
-      addCommand("casa.exe " + scriptFilename_, runFolders_[iCall]);
+      addCommand("casa.exe", QStringList() << scriptFilename_, runFolders_[iCall]);
    }
    return true;
 }

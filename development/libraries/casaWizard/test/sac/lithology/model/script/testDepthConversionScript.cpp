@@ -20,16 +20,11 @@ TEST(DepthConversionScriptTest, testGenerateCommandsLocal)
   std::unique_ptr<casaWizard::RunScript> script(new casaWizard::sac::DepthConversionScript(scenario, scenario.workingDirectory() + "/T2Z_step2", workloadmanagers::WorkLoadManagerType::AUTO));
 
   script->generateCommands();
-  std::string expectedCommand = "mpirun_wrap.sh -n 10 fastdepthconversion -project Project.project3d -temperature -onlyat 0 -referenceSurface 0 -endSurface 10 -preserveErosion -noCalculatedTWToutput";
-
-  EXPECT_EQ(script->commands()[0].command.toStdString(), expectedCommand);
-
-  scenario.setApplicationName("fastcauldron \"-itcoupled\"");
-  script->generateCommands();
-
-  expectedCommand = "mpirun_wrap.sh -n 10 fastdepthconversion -project Project.project3d -itcoupled -onlyat 0 -referenceSurface 0 -endSurface 10 -preserveErosion -noCalculatedTWToutput";
-  EXPECT_EQ(script->commands()[1].command.toStdString(), expectedCommand);
-
+  EXPECT_EQ(script->commands().size(), 1); // When running locally now, still a script is created
+  EXPECT_EQ(script->commands()[0].command, "sh"); // It's running sh
+  EXPECT_EQ(script->commands()[0].commandArguments.size(), 2);
+  EXPECT_EQ(script->commands()[0].commandArguments[0], "-c");
+  EXPECT_EQ(script->commands()[0].commandArguments[1], "./T2Z_step2/runt2z.sh"); // The generated script
 }
 
 TEST(DepthConversionScriptTest, testGenerateCommandsClusterSLURM)
@@ -44,8 +39,11 @@ TEST(DepthConversionScriptTest, testGenerateCommandsClusterSLURM)
 
   script->generateCommands();
 
-  QString expectedCommand = scenario.workingDirectory() + "/T2Z_step2/runt2z.sh";
-  EXPECT_EQ(script->commands()[0].command, expectedCommand);
+  EXPECT_EQ(script->commands().size(), 1);
+  EXPECT_EQ(script->commands()[0].command, "sh"); // It's running sh
+  EXPECT_EQ(script->commands()[0].commandArguments.size(), 2);
+  EXPECT_EQ(script->commands()[0].commandArguments[0], "-c");
+  EXPECT_EQ(script->commands()[0].commandArguments[1], "./T2Z_step2/runt2z.sh"); // The generated script
 #ifndef _WIN32
   system("sed -i '9d' ./T2Z_step2/runt2z.sh");
   expectFileEq("./T2Z_step2/runt2z.sh", "./T2Z_step2/runt2zExpectedSLURM.sh");
@@ -64,8 +62,11 @@ TEST(DepthConversionScriptTest, testGenerateCommandsClusterLSF)
 
   script->generateCommands();
 
-  QString expectedCommand = scenario.workingDirectory() + "/T2Z_step2/runt2z.sh";
-  EXPECT_EQ(script->commands()[0].command, expectedCommand);
+  EXPECT_EQ(script->commands().size(), 1);
+  EXPECT_EQ(script->commands()[0].command, "sh"); // It's running sh
+  EXPECT_EQ(script->commands()[0].commandArguments.size(), 2);
+  EXPECT_EQ(script->commands()[0].commandArguments[0], "-c");
+  EXPECT_EQ(script->commands()[0].commandArguments[1], "./T2Z_step2/runt2z.sh"); // The generated script
 #ifndef _WIN32
   system("sed -i '9d' ./T2Z_step2/runt2z.sh");
   expectFileEq("./T2Z_step2/runt2z.sh", "./T2Z_step2/runt2zExpectedLSF.sh");

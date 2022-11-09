@@ -349,7 +349,7 @@ void Plot::drawLegend(QPainter& painter)
   double maxLegendWidth = 0;
   for( int i = 0; i<nEntries; ++i)
   {
-    const double w = fm.width(legend_[i]);
+    const double w = fm.horizontalAdvance(legend_[i]);
     maxLegendWidth = (w>maxLegendWidth)?w:maxLegendWidth;
   }
 

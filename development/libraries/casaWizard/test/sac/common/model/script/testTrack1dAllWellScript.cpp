@@ -17,11 +17,19 @@ TEST(Track1dAllWellScriptTest, testGenerateCommands)
   script.generateCommands();
 
   QString actualCommand = script.commands()[1].command;
+  QStringList actualCommandArguments = script.commands()[1].commandArguments;
+  QStringList expectedCommandArguments = {"-coordinates", "0.000000,0.000000,1.100000,1.100000,2.200000,2.200000", "-properties", "Depth,SonicSlowness,Density", "-age", "0", "-project", "Project.project3d", "-save", "welldata.csv"};
 
   // Then
   EXPECT_EQ(script.commands().size(), 2);
-  EXPECT_EQ(script.commands()[0].command, "which track1d");
-  EXPECT_EQ(actualCommand, "track1d -coordinates 0.000000,0.000000,1.100000,1.100000,2.200000,2.200000 -properties Depth,SonicSlowness,Density -age 0 -project Project.project3d -save welldata.csv");
+  EXPECT_EQ(script.commands()[0].command, "which");
+  EXPECT_EQ(script.commands()[0].commandArguments[0], "track1d");
+  EXPECT_EQ(actualCommand, "track1d");
+  EXPECT_EQ(actualCommandArguments.size(), expectedCommandArguments.size());
+  for (int i = 0; i < actualCommandArguments.size(); i++ )
+  {
+     EXPECT_EQ(actualCommandArguments[i], expectedCommandArguments[i]);
+  }
 }
 
 TEST(Track1dAllWellScriptTest, testGenerateCommandsNoProperties)
