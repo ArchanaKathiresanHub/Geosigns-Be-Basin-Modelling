@@ -13,7 +13,7 @@
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Version				Date of update
 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-Cauldron-v2.9.25		2022-11-09 08:06:31 +0000
+Cauldron-v2.9.26		2022-11-09 10:04:32 +0000
 =============================================================
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Third-party Software 		version
@@ -36,6 +36,14 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2022-11-09  Sven van Leeuwen  <Sven.van-Leeuwen@shell.com>
+
+	fix: Bugfix 482098: original 3D is not shown correctly.
+	link: https://sede-pt-ssw.visualstudio.com/Basin-Evaluation/_workitems/edit/482098/
+	================== COMMIT-END ========================
+	Commit-ID:<c6b87ccbe6c5ccd1b6a74de92e2580a2a21e8524>	  (tag: refs/tags/v2.9.26, refs/heads/master, refs/heads/changelog)
+
+++
 2022-11-09  Marnix.vandenBerg  <Marnix.vandenBerg@shell.com>
 
 	fix: usr: SAC maps tab: Fix for disabled wells being selectable by select all
