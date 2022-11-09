@@ -157,7 +157,8 @@ ProjectHandle* DataAccess::Interface::OpenCauldronProject( const string & name,
 {
    if ( !boost::filesystem::exists( name ) )
    {
-      throw formattingexception::GeneralException() << "Project file " << name << " does not exist";
+       //no point in continuing with rest of the code
+       throw formattingexception::GeneralException() << "Project file " << name << " does not exist in path "<< boost::filesystem::current_path();
    }
    database::ProjectFileHandlerPtr pfh = CreateDatabaseFromCauldronProject( name, outputTableNames );
 

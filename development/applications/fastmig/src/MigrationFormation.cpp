@@ -57,6 +57,9 @@ using Utilities::Maths::MegaPaToPa;
 using Utilities::Numerical::DefaultNumericalTolerance;
 #include "NumericFunctions.h"
 
+//Utilities
+#include "UndefinedValues.h"
+
 using namespace CBMGenerics;
 using namespace DataAccess;
 using namespace FiniteElementMethod;
@@ -446,8 +449,8 @@ namespace migration
                double temperature = m_formationPropertyPtr[TEMPERATUREPROPERTY]->get (i, j, k);
                double pressure = m_formationPropertyPtr[PRESSUREPROPERTY]->get (i, j, k);
                
-               if (NumericFunctions::isEqual(temperature, Interface::DefaultUndefinedMapValue, Utilities::Numerical::DefaultNumericalTolerance) and
-                   NumericFunctions::isEqual(pressure, Interface::DefaultUndefinedMapValue, Utilities::Numerical::DefaultNumericalTolerance)
+               if (!Utilities::isValueUndefined(temperature) and
+                   !Utilities::isValueUndefined(pressure)
                    )
                {
                   bool flashSuccess = pvtFlash::EosPack::getInstance ().computeWithLumping (temperature + CelciusToKelvin, pressure * MegaPaToPa,

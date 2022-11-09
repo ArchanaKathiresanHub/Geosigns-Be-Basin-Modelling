@@ -251,84 +251,93 @@ int main (int argc, char ** argv)
 
    StartTime ();
 
-   if (status)
-   {
-      ReportProgress ("Reading Project File: ", inputFileName);
-      migrator = new Migrator (inputFileName);
-      status = (migrator != 0);
-   }
+   try {
+       if (status)
+       {
+           ReportProgress("Reading Project File: ", inputFileName);
+           migrator = new Migrator(inputFileName);
+           status = (migrator != 0);
+       }
 
-   if (status)
-   {
-      ReportProgress ("Starting Simulation");
-      status = migrator->compute (opLeak);
-   }
-   else
-   {
-      ReportProgress ("Starting Simulation");
-   }
+       if (status)
+       {
+           ReportProgress("Starting Simulation");
+           status = migrator->compute(opLeak);
+       }
+       else
+       {
+           ReportProgress("Starting Simulation");
+       }
 
-   if (status)
-   {
-      ReportProgress ("Finished Simulation Time Steps");
-      ReportProgress ("Saved Output Maps");
-   }
-   else
-   {
-      ReportProgress ("Could not complete Simulation Time Steps");
-      ReportProgress ("Did not save Output Maps");
-   }
+       if (status)
+       {
+           ReportProgress("Finished Simulation Time Steps");
+           ReportProgress("Saved Output Maps");
+       }
+       else
+       {
+           ReportProgress("Could not complete Simulation Time Steps");
+           ReportProgress("Did not save Output Maps");
+       }
 
-   if (status and GetRank () == 0)
-   {
-      migrator->sanitizeMigrationRecords ();
-      migrator->checkMigrationRecords ();
-      migrator->sortMigrationRecords ();
-      migrator->checkMigrationRecords ();
-      migrator->uniqueMigrationRecords ();
-      migrator->checkMigrationRecords ();
-      status = migrator->saveTo (outputFileName);
-   }
+       if (status and GetRank() == 0)
+       {
+           migrator->sanitizeMigrationRecords();
+           migrator->checkMigrationRecords();
+           migrator->sortMigrationRecords();
+           migrator->checkMigrationRecords();
+           migrator->uniqueMigrationRecords();
+           migrator->checkMigrationRecords();
+           status = migrator->saveTo(outputFileName);
+       }
 
-   if (status)
-   {
-      ReportProgress ("Saved project file: ", outputFileName);
-      ReportProgress ("Finished Simulation");
-   }
-   else
-   {
-      ReportProgress ("Did not save project file: ", outputFileName);
-      ReportProgress ("Finished Simulation prematurely");
-   }
+       if (status)
+       {
+           ReportProgress("Saved project file: ", outputFileName);
+           ReportProgress("Finished Simulation");
+       }
+       else
+       {
+           ReportProgress("Did not save project file: ", outputFileName);
+           ReportProgress("Finished Simulation prematurely");
+       }
 
-   // Save the memory consumption before deleting migrator
-   Utilities::CheckMemory::StatisticsHandler::update();
-   delete migrator;
+       // Save the memory consumption before deleting migrator
+       Utilities::CheckMemory::StatisticsHandler::update();
+       if (migrator) {
+           delete migrator;
+       }
 
 #ifdef FLEXLM
-   //FlexLM license check in only for node with rank = 0
-   if( rank == 0 )
-   {
-      // FlexLm license check in, close down and enable logging
-      EPTFlexLmCheckIn( feature );
-      EPTFlexLmTerminate();
-   }
+       //FlexLM license check in only for node with rank = 0
+       if (rank == 0)
+       {
+           // FlexLm license check in, close down and enable logging
+           EPTFlexLmCheckIn(feature);
+           EPTFlexLmTerminate();
+       }
 #endif
 
-   // Print the memory consumption to standard out
-   std::string statistics = Utilities::CheckMemory::StatisticsHandler::print( rank );
+       // Print the memory consumption to standard out
+       std::string statistics = Utilities::CheckMemory::StatisticsHandler::print(rank);
 
-   PetscPrintf(PETSC_COMM_WORLD, "<statistics>\n");
-   PetscSynchronizedFlush(PETSC_COMM_WORLD, PETSC_STDOUT);
+       PetscPrintf(PETSC_COMM_WORLD, "<statistics>\n");
+       PetscSynchronizedFlush(PETSC_COMM_WORLD, PETSC_STDOUT);
 
-   PetscSynchronizedPrintf(PETSC_COMM_WORLD, statistics.c_str());
-   PetscSynchronizedFlush(PETSC_COMM_WORLD, PETSC_STDOUT);
+       PetscSynchronizedPrintf(PETSC_COMM_WORLD, statistics.c_str());
+       PetscSynchronizedFlush(PETSC_COMM_WORLD, PETSC_STDOUT);
 
-   PetscPrintf(PETSC_COMM_WORLD, "</statistics>\n");
-   PetscSynchronizedFlush(PETSC_COMM_WORLD, PETSC_STDOUT);
+       PetscPrintf(PETSC_COMM_WORLD, "</statistics>\n");
+       PetscSynchronizedFlush(PETSC_COMM_WORLD, PETSC_STDOUT);
 
-   PetscFinalize ();
-
+       PetscFinalize();
+   }
+   catch (const std::exception& e) {
+       cout << e.what();
+   }
+   catch (...) {
+       cout << "Other unhandeled exception!" << std::endl;
+   }
    return status ? 0 : -1;
 }
 

@@ -35,7 +35,7 @@ namespace migration
    class MigrationReservoir;
    class Barrier;
    class TrapPropertiesRequest;
-   class MigrationRequest;
+   struct MigrationRequest;
 #ifdef USEOTGC
    class OilToGasCracker;
 #endif
