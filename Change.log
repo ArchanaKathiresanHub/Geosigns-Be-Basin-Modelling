@@ -13,7 +13,7 @@
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Version				Date of update
 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-Cauldron-v2.9.26		2022-11-09 10:04:32 +0000
+Cauldron-v2.9.27		2022-11-09 11:37:30 +0000
 =============================================================
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Third-party Software 		version
@@ -36,6 +36,16 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2022-11-09  arijit.khan Khan  <arijit.khan@shell.com>
+
+	dev: fix: MigrationFormation::computeHCDensityMaps !minor.
+	 * fix for missing not operator in MigrationFormation::computeHCDensityMaps while comparing with undefined values
+
+	Related work items: #48021
+	================== COMMIT-END ========================
+	Commit-ID:<7d030cc47ca2d9d1d3901510fd2d58e5c09c1c1f>	  (tag: refs/tags/v2.9.27, refs/heads/master)
+
+++
 2022-11-09  Sven van Leeuwen  <Sven.van-Leeuwen@shell.com>
 
 	fix: Bugfix 482098: original 3D is not shown correctly.
