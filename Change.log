@@ -13,7 +13,7 @@
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Version				Date of update
 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-Cauldron-v2.9.24		2022-11-08 12:33:25 +0000
+Cauldron-v2.9.25		2022-11-09 08:06:31 +0000
 =============================================================
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Third-party Software 		version
@@ -36,6 +36,17 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2022-11-09  Marnix.vandenBerg  <Marnix.vandenBerg@shell.com>
+
+	fix: usr: SAC maps tab: Fix for disabled wells being selectable by select all
+	 * Select and deselect all buttons no longer select disabled wells.
+
+	Related work items: #467016
+
+	================== COMMIT-END ========================
+	Commit-ID:<43b8729f91b42204d15a16f1d41be66871d3dd10>	  (tag: refs/tags/v2.9.25, refs/heads/master)
+
+++
 2022-11-08  Richard Faasse  <Richard.Faasse@shell.com>
 
 	fix: Fixed the crash which happened when one layer does not have depth maps
