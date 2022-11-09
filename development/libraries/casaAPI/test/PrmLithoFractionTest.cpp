@@ -26,14 +26,15 @@ TEST( PrmLithoFractionTest, testPercentageExtractionUndefinedIdx1 )
 
 TEST( PrmLithoFractionTest, testPercentageExtractionUndefinedIdx2)
 {
-   const std::vector<double> lithoPercentagesIn{50.0,Utilities::Numerical::IbsNoDataValue};
+   const std::vector<double> lithoPercentagesIn{50.0,Utilities::Numerical::IbsNoDataValue,Utilities::Numerical::IbsNoDataValue };
    const std::vector<int> lithoFractionInds{0,2};
 
    const std::vector<double> lithofractions = casa::PrmLithoFraction::createLithoFractions( lithoPercentagesIn, lithoFractionInds );
    const std::vector<double> percentagesOut = casa::PrmLithoFraction::createLithoPercentages(lithofractions,lithoFractionInds);
 
    EXPECT_DOUBLE_EQ(percentagesOut[0],50);
-   EXPECT_DOUBLE_EQ(percentagesOut[1],50);
+   EXPECT_DOUBLE_EQ(percentagesOut[1],0);
+   EXPECT_DOUBLE_EQ(percentagesOut[2], 50);
 }
 
 TEST( PrmLithoFractionTest, percTestIdx1)

@@ -42,7 +42,7 @@ private slots:
   void slotRefresh();
 
 private:
-  void setAllsWellsExcludedState(bool excludedState);
+  void setAllsWellsSelectionState(bool selectionState);
 
   ActiveWellsTable* activeWellsTable_;
   CasaScenario& casaScenario_;

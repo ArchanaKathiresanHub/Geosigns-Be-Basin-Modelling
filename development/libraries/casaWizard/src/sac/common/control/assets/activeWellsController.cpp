@@ -52,23 +52,35 @@ void ActiveWellsController::slotWellCheckBoxStateChanged(int state, int wellInde
 
 void ActiveWellsController::slotSelectAllWells()
 {
-   setAllsWellsExcludedState(false);
-   slotRefresh();
+   setAllsWellsSelectionState(true);
 }
 
 void ActiveWellsController::slotDeselectAllWells()
 {
-   setAllsWellsExcludedState(true);
-   slotRefresh();
+   setAllsWellsSelectionState(false);
 }
 
-void ActiveWellsController::setAllsWellsExcludedState(bool excludedState)
+void ActiveWellsController::setAllsWellsSelectionState(bool selectionState)
 {
-   CalibrationTargetManager& calibrationTargetManager = casaScenario_.calibrationTargetManager();
-   int numWells = calibrationTargetManager.wells().size();
-   for (int i = 0; i < numWells; i++)
+   Qt::CheckState state;
+   if (selectionState)
    {
-      calibrationTargetManager.setWellIsExcluded(excludedState, i);
+      state = Qt::CheckState::Checked;
+   }
+   else
+   {
+      state = Qt::CheckState::Unchecked;
+   }
+
+   for (int i = 0; i < activeWellsTable_->rowCount(); i++)
+   {
+      QTableWidgetItem* item = activeWellsTable_->item(i, 1);
+      Qt::ItemFlags flags = item->flags();
+      if (flags & Qt::ItemIsEnabled)
+      {
+         QCheckBox* itemCheckBox = dynamic_cast<QCheckBox*>(activeWellsTable_->cellWidget(i, 0)->children()[1]);
+         itemCheckBox->setCheckState(state);
+      }
    }
 }
 
