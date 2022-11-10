@@ -129,23 +129,20 @@ void TCHPVisualisationController::updateBirdsView()
    }
    TCHPVisualisation_->setVisible(true);
 
-
    emit clearWellListHighlightSelection();
-   QVector<OptimizedTCHP> optimizedTCHPs;
+
+   QVector<OptimizedTCHP> optimizedTCHPs, sortedOptimizedTCHPs;
    QVector<const Well*> activeAndIncludedWells;
 
    scenario_.getVisualisationData(optimizedTCHPs, activeAndIncludedWells);
 
-   const QVector<int> sortedIndices = casaWizard::functions::sortedByXYWellIndices(scenario_.calibrationTargetManager().activeWells());
-   const QVector<const Well *> includedWells = scenario_.calibrationTargetManager().activeAndIncludedWells();
-   QVector<OptimizedTCHP> sortedOptimizedTCHPs;
-   for(int i = 0; i < optimizedTCHPs.size(); ++i)
+   for(const Well* well : activeAndIncludedWells)
    {
-      for (auto well : includedWells)
+      for (OptimizedTCHP optimizedTCHP : optimizedTCHPs)
       {
-         if (well->id() == optimizedTCHPs[sortedIndices[i]].wellId())
+         if (well->id() == optimizedTCHP.wellId())
          {
-            sortedOptimizedTCHPs.push_back(optimizedTCHPs[sortedIndices[i]]);
+            sortedOptimizedTCHPs.push_back(optimizedTCHP);
          }
       }
 
