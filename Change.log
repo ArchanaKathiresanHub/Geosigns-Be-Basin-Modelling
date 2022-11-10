@@ -13,7 +13,7 @@
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Version				Date of update
 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-Cauldron-v2.10.2		2022-11-10 14:39:15 +0000
+Cauldron-v2.10.3		2022-11-10 15:22:47 +0000
 =============================================================
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Third-party Software 		version
@@ -36,6 +36,14 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2022-11-10  Sven van Leeuwen  <Sven.van-Leeuwen@shell.com>
+
+	fix: minor: map visualization with a single well.
+	* Minor visual fix in the maps tab
+	================== COMMIT-END ========================
+	Commit-ID:<0a51e9920baf805dcb0a20f279aedbe245313587>	  (tag: refs/tags/v2.10.3)
+
+++
 2022-11-10  Marnix.vandenBerg  <Marnix.vandenBerg@shell.com>
 
 	fix: usr: UA thermal fixes/improvements following from release testing.
