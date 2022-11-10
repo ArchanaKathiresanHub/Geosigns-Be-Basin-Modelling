@@ -13,7 +13,7 @@
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Version				Date of update
 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-Cauldron-v2.9.27		2022-11-09 11:37:30 +0000
+Cauldron-v2.10.0		2022-11-09 16:05:49 +0000
 =============================================================
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Third-party Software 		version
@@ -38,7 +38,21 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 +
 2022-11-09  arijit.khan Khan  <arijit.khan@shell.com>
 
-	dev: fix: MigrationFormation::computeHCDensityMaps !minor.
+	dev: new: Update to use Intel Module 2021a. !major
+	 * upgrade to Intel2021a
+	 * upgrade to QT 5.15.2
+	 * upgrade to GTest 1.12.1
+	 * upgrade to Eigen 3.4.0
+	 * upgrade to Lz4 latest
+
+	Related work items: #469687
+	================== COMMIT-END ========================
+	Commit-ID:<dbc6ec1443a8cbd39b13fdf9316fed869870e748>	  (tag: refs/tags/v2.10.0, refs/heads/master)
+
+++
+2022-11-09  arijit.khan Khan  <arijit.khan@shell.com>
+
+	dev: fix: MigrationFormation::computeHCDensityMaps. !minor.
 	 * fix for missing not operator in MigrationFormation::computeHCDensityMaps while comparing with undefined values
 
 	Related work items: #48021
@@ -206,7 +220,7 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 2022-10-18  Sven van Leeuwen  <Sven.van-Leeuwen@shell.com>
 
 	fix: usr: hotfix cancel original 1D run crash.
-	fixed an issue that caused the SAC wizards to crash when canceling an original 1D run.
+	 * fixed an issue that caused the SAC wizards to crash when canceling an original 1D run.
 
 	================== COMMIT-END ========================
 	Commit-ID:<d2bb5ee7ad0787a9d84b241282f3a96a4480f376>	  (tag: refs/tags/v2.9.11, refs/heads/master, refs/heads/changelog)
@@ -237,8 +251,8 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 2022-10-17  Sven van Leeuwen  <Sven.van-Leeuwen@shell.com>
 
 	new: usr: dev:  SAC Thermal Results tab & tchp scripts.
-	New tab added to the new SAC Thermal wizard,
-	This tab is similar to the orgininal Sac results tub, however there are no more WellPrep targets and the table displays the original to optimized top crust heat production for a target.
+	 * New tab added to the new SAC Thermal wizard,
+	   This tab is similar to the orgininal Sac results tub, however there are no more WellPrep targets and the table displays the original to optimized top crust heat production for a target.
 
 	================== COMMIT-END ========================
 	Commit-ID:<f9f59abe52b0afafb0209d9ba4ed3f6f7fbbcbf7>	  (tag: refs/tags/v2.9.8, refs/heads/master, refs/heads/changelog)
@@ -284,6 +298,7 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 2022-10-05  Marnix.vandenBerg  <Marnix.vandenBerg@shell.com>
 
 	usr: fix: Fixed difference in RMSE values shown on the UAWizard Results and correlations tabs
+	
 	Related work items: #478609
 
 	================== COMMIT-END ========================
@@ -294,6 +309,7 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 
 	chg: Enable optimization of A0 (top crust heat production) in casa.
 	 * This PR fixes a few issues which prohibited the multi-1d optimization of TopCrustHeatProd (A0) values in casa, as well as a mapping issue between the wizards VRe and the cauldron name Vr
+	
 	================== COMMIT-END ========================
 	Commit-ID:<40fe466ecb12d6ccd16e9e86fe4da4d3fc2ef280>	  (tag: refs/tags/v2.9.2, refs/heads/master)
 
@@ -341,6 +357,7 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 2022-09-23  Marnix.vandenBerg  <Marnix.vandenBerg@shell.com>
 
 	fix: usr: Fix for continuing with workflow if a simulation is cancelled.
+	
 	Related work items: #476486
 
 	================== COMMIT-END ========================
@@ -436,6 +453,7 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 2022-09-19  Marnix.vandenBerg  <Marnix.vandenBerg@shell.com>
 
 	chg: test: Another fix for the CalibrationTargetSaver test.
+	
 	Related work items: #476489
 
 	================== COMMIT-END ========================
@@ -445,10 +463,10 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 2022-09-16  Sven van Leeuwen  <Sven.van-Leeuwen@shell.com>
 
 	chg: usr: Improved correlation workflow.
-	* New colorBar legend class added with multiple orientations,
-	* Colorbar legend implemented into the UA correlation tab.
-	* Bandaged the out of bounds axis name issue, when title was too long
-	* Added a new doubleToString function with set decimals to QTUtils
+	 * New colorBar legend class added with multiple orientations,
+	 * Colorbar legend implemented into the UA correlation tab.
+	 * Bandaged the out of bounds axis name issue, when title was too long
+	 * Added a new doubleToString function with set decimals to QTUtils
 
 	================== COMMIT-END ========================
 	Commit-ID:<26d21afc7d41c1f8f382e6cb0ce8cfc8099e70e8>	  (tag: refs/tags/v2.8.17, refs/heads/master)
@@ -457,8 +475,9 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 2022-09-16  Sven van Leeuwen  <Sven.van-Leeuwen@shell.com>
 
 	chg: usr: small Gui changes, CVS implemented and UA Timeseries legend fixed
-	* Various changes in the GUI and UA Timeseries legend incorrect layout fixed.
-	* QC-tab changes: Kriging local is now deprecated, Order -1 is now deprecated
+	 * Various changes in the GUI and UA Timeseries legend incorrect layout fixed.
+	 * QC-tab changes: Kriging local is now deprecated, Order -1 is now deprecated
+	
 	================== COMMIT-END ========================
 	Commit-ID:<462a3d6266a05e3ac112e438cc7a11a1606637b9>	  (tag: refs/tags/v2.8.16, refs/heads/master)
 
@@ -478,6 +497,7 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 2022-08-26  Marnix.vandenBerg  <Marnix.vandenBerg@shell.com>
 
 	fix: usr: Fix for bug in UAResults table.
+	
 	Related work items: #454387
 
 	================== COMMIT-END ========================
@@ -508,10 +528,10 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 2022-08-19  Sven van Leeuwen  <Sven.van-Leeuwen@shell.com>
 
 	chg: usr: implemented user feedback on Ascii import dialog in UA and fixed export from SAC
-	* Small changes:
-	* Added hover-over tooltip next to the name in the import prediction targets dialog.
-	* Matched the SAC and UA import/export file setup (comma seperated)
-	* Made the temp & vre on by default
+	 * Small changes:
+	 * Added hover-over tooltip next to the name in the import prediction targets dialog.
+	 * Matched the SAC and UA import/export file setup (comma seperated)
+	 * Made the temp & vre on by default
 	================== COMMIT-END ========================
 	Commit-ID:<fbcb707a83a25d45fa3bd7d6ffc844a0d0362847>	  (tag: refs/tags/v2.8.10, refs/heads/master)
 
@@ -541,7 +561,8 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 2022-08-11  Sven van Leeuwen  <Sven.van-Leeuwen@shell.com>
 
 	fix: usr: !minor Fixed a bug.
-	* fixed a bug that caused the UA application to crash when a single Y value was given to the time series plot.
+	 * fixed a bug that caused the UA application to crash when a single Y value was given to the time series plot.
+	
 	================== COMMIT-END ========================
 	Commit-ID:<53fe3a0a05cf2cf96e14714394021765f5b03036>	  (tag: refs/tags/v2.8.7, refs/heads/master)
 
@@ -549,6 +570,7 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 2022-08-11  Sumant.Kalra  <Sumant.Kalra@shell.com>
 
 	chg: dev: Reservoir Thickness Maps Retained by Prograde.
+	
 	Related work items: #473414
 	================== COMMIT-END ========================
 	Commit-ID:<5d7bef407935e3d53cb953e5382636fa642770d6>	  (tag: refs/tags/v2.8.6, refs/heads/master, refs/heads/Developers/sumant.kalra/473414/UpdateChangeLog)
@@ -570,10 +592,10 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 2022-08-09  Richard Faasse  <Richard.Faasse@shell.com>
 
 	chg: usr: Implement user requested improvements on the DoE tab of the UA wizard
-	* Includes:
-	* General renames to translate some of the developer language in the wizard to user language.
-	* Adding subsampling functionality to the wizard
-	* Disabling casa buttons when no run is possible.
+	 * Includes:
+	 * General renames to translate some of the developer language in the wizard to user language.
+	 * Adding subsampling functionality to the wizard
+	 * Disabling casa buttons when no run is possible.
 	================== COMMIT-END ========================
 	Commit-ID:<2c663aaa60d6793ac9650b65d40645f635e96c6b>	  (tag: refs/tags/v2.8.3, refs/heads/master)
 
@@ -669,7 +691,8 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 2022-01-21  Richard Faasse  <Richard.Faasse@shell.com>
 
 	fix: Small fix for UA graphs to make percentile text readable in plot & move the reading of the project3dfile !minor
-	* Related work items: #339574
+	 * Related work items: #339574
+	
 	================== COMMIT-END ========================
 	Commit-ID:<e6411e38336e9cbd957526ac615a492023af4252>	  (refs/heads/master)
 
@@ -686,11 +709,11 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 2021-12-23  Richard Faasse  <Richard.Faasse@shell.com>
 
 	chg: Improving the partitioning based on the Valid/Invalid node distribution
-	* This includes:
-	* The addition of a domainshapeReader, which determines which nodes are valid/invalid based on input maps
-	* The addition of a decompositionCalculator, which calculates the optimum partitioning based on the domainshape
-	* Added flags to fastcauldron, fastgenex6, fastmig and fastproperties for testing purposes in PBI#446810, these will be removed after that PBI is done (automatic selection is then implemented.
-	* Related work items: #446667
+	 * This includes:
+	 * The addition of a domainshapeReader, which determines which nodes are valid/invalid based on input maps
+	 * The addition of a decompositionCalculator, which calculates the optimum partitioning based on the domainshape
+	 * Added flags to fastcauldron, fastgenex6, fastmig and fastproperties for testing purposes in PBI#446810, these will be removed after that PBI is done (automatic selection is then implemented.
+	 * Related work items: #446667
 	================== COMMIT-END ========================
 	Commit-ID:<f5c29564c4039b51a53391e72d20457d2482d0e1>	  (refs/heads/master)
 
@@ -698,9 +721,9 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 2021-12-20  Erik.vandenBoogaard  <Erik.vandenBoogaard@shell.com>
 
 	chg: Removal of 1d modelling mode.
-	* 1d modelling mode is decommissioned and removed from the source code
+	 * 1d modelling mode is decommissioned and removed from the source code
 
-	* Related work items: #416961
+	Related work items: #416961
 
 	================== COMMIT-END ========================
 	Commit-ID:<1d5dda535bd6429b3c1ee7c40bcec84b19b2abf0>	  (refs/heads/master)
@@ -719,9 +742,9 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 2021-12-17  Sumant.Kalra  <Sumant.Kalra@shell.com>
 
 	fix: usr: Prograde Fixes in ReservoirOptionsIoTbl.
-	 1. TrapCapacity - Scenarios that were impacted - Least Reservoir Capacity out of all the active Reservoirs > 5e5
-	 2. OilToGasCrackingInd - Scenarios with - OTGC off for all the active reservoirs
-	 3. BlockingInd - Scenarios with - On for all the active reservoirs
+	 * TrapCapacity - Scenarios that were impacted - Least Reservoir Capacity out of all the active Reservoirs > 5e5
+	 * OilToGasCrackingInd - Scenarios with - OTGC off for all the active reservoirs
+	 * BlockingInd - Scenarios with - On for all the active reservoirs
 
 	Related work items: #427773
 	================== COMMIT-END ========================
@@ -731,6 +754,7 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 2021-11-26  Richard Faasse  <Richard.Faasse@shell.com>
 
 	fix: Fixed running unit tests in parallel and fixed the jenkins issue with one of the genex0d unit-tests
+	
 	* Related work items: #395998
 	================== COMMIT-END ========================
 	Commit-ID:<a9f6966f59a1237e4fc1a8e2f63894b4034b4a26>	  (refs/heads/master)
