@@ -221,7 +221,7 @@ void MultiWellPlot::drawPlots(const QVector<QVector<const CalibrationTarget*>>& 
             else
             {
                if (zDataRange.first < zTotalRange.first) zTotalRange.first = zDataRange.first;
-               if (zDataRange.second < zTotalRange.second) zTotalRange.second = zDataRange.second;
+               if (zDataRange.second > zTotalRange.second) zTotalRange.second = zDataRange.second;
             }
             break;
          }

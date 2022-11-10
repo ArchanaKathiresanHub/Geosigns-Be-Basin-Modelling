@@ -96,7 +96,7 @@ void WellPlot::setData(const QVector<const CalibrationTarget*>& targets,
 
       if (target->standardDeviation() > 0.0)
       {
-        xCoordsHorizontalErrorBars.push_back({value - target->standardDeviation()*2, value + target->standardDeviation()*2});
+        xCoordsHorizontalErrorBars.push_back({ value - target->standardDeviation(), value + target->standardDeviation() });
         yCoordsHorizontalErrorBars.push_back(depth);
       }
     }
