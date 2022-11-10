@@ -13,7 +13,7 @@
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Version				Date of update
 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-Cauldron-v2.10.1		2022-11-10 10:11:53 +0000
+Cauldron-v2.10.2		2022-11-10 14:39:15 +0000
 =============================================================
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Third-party Software 		version
@@ -36,6 +36,19 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2022-11-10  Marnix.vandenBerg  <Marnix.vandenBerg@shell.com>
+
+	fix: usr: UA thermal fixes/improvements following from release testing.
+	 * Fixed bug causing Surface temperature history not being written to the correct age snapshot.
+	 * Removed TCHP (A0) grid as influential parameter.
+	 * Implemented clearing of model inputs page upon selecting a different project3D file.
+
+	Related work items: #485552
+
+	================== COMMIT-END ========================
+	Commit-ID:<e485ffd0ad48a1d7bb8e6416143ca00482b48837>	  (tag: refs/tags/v2.10.2, refs/heads/master)
+
+++
 2022-11-10  Sven van Leeuwen  <Sven.van-Leeuwen@shell.com>
 
 	fix: SACThermal - Wellcolor fix.
