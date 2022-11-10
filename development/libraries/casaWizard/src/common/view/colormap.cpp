@@ -8,6 +8,7 @@
 
 #include "colormap.h"
 #include <cmath>
+#include "ConstantsNumerical.h"
 
 namespace casaWizard
 {
@@ -64,12 +65,17 @@ void ColorMap::setColorMapType(const ColorMapType& colorMapType){
 
 QColor ColorMap::getColor(const double value, const double minValue, const double maxValue) const
 {
-  if (minValue == maxValue || value < minValue || value > maxValue)
+  if (value < minValue || value > maxValue)
   {
     return QColor(0,0,0);
   }
 
-  const double relativeValue = (value - minValue) / (maxValue - minValue);
+  double relativeValue = 0.5;
+  if (!(std::fabs(maxValue - minValue) < Utilities::Numerical::DefaultNumericalTolerance))
+  {
+     relativeValue = (value - minValue) / (maxValue - minValue);
+  }
+
   switch (m_colorMapType)
   {
     case ColorMapType::GRAYSCALES :
