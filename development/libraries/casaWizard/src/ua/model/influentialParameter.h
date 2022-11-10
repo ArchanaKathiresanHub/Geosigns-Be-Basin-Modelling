@@ -27,7 +27,6 @@ public:
    enum class Type
    {
       TopCrustHeatProduction,
-      TopCrustHeatProductionGrid,
       TopCrustHeatProductionGridScaling,
       ThermalConductivity,
       EquilibriumOceanicLithosphereThickness,
@@ -64,6 +63,8 @@ public:
    void setMCMCResult(const QVector<double>& mcmcResult);
    double optimalValue() const;
 
+   static QVector<Type> types();
+
 protected:
    void addPDFArgument();
 
@@ -72,7 +73,6 @@ private:
    static Type typeFromString(const QString& typeString);
    static QString stringFromType(Type);
 
-   static QVector<Type> types();
    static InfluentialParameter* create(const Type& type);
 
    ArgumentList m_arguments;

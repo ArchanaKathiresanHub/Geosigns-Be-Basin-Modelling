@@ -1,0 +1,8 @@
+InfluentialParameterManagerVersion|int|0
+influentialParameter|vector|6
+influentialParameter|0|0|Minimum range value)(Maximum range value)(Probability density function><0)(1)(0><double)(double)(list><10.000000)(11.000000><0><Block][Normal][Triangle><
+influentialParameter|0|2|Minimum map scaling factor)(Maximum map scaling factor)(Probability density function><0)(1)(0><double)(double)(list><0.500000)(2.000000><0><Block][Normal][Triangle><
+influentialParameter|0|5|Lithology name)(Minimum value)(Maximum value)(Probability density function><0)(0)(1)(1><list)(double)(double)(list><0.000000)(0.000000><0)(0><Select project3d file)(Block][Normal][Triangle><
+influentialParameter|0|6|Minimum range value)(Maximum range value)(Probability density function><0)(1)(0><double)(double)(list><0.000000)(0.000000><0><Block][Normal][Triangle><
+influentialParameter|0|7|Minimum range value)(Maximum range value)(Probability density function><0)(1)(0><double)(double)(list><0.000000)(0.000000><0><Block][Normal][Triangle><
+influentialParameter|0|8|Age)(Minimum temperature)(Maximum temperature)(Probability density function><0)(0)(1)(1><list)(double)(double)(list><0.000000)(30.000000><0)(0><0][23][66][100][201][252][255][299)(Block][Normal][Triangle><

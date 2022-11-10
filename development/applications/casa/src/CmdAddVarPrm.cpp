@@ -1619,7 +1619,6 @@ void CmdAddVarPrm::execute( std::unique_ptr<casa::ScenarioAnalysis> & sa )
                                                               );
 
    g_prmFactory.factory( m_prms[0] )->addParameterObject( sa, m_prmName, m_prms );
-
 }
 
 void CmdAddVarPrm::printHelpPage( const char * cmdName )

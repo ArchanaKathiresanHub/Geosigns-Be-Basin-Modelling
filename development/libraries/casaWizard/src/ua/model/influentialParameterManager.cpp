@@ -55,7 +55,7 @@ QStringList InfluentialParameterManager::options() const
 
 void InfluentialParameterManager::set(const int row, const int selected)
 {
-   delete m_influentialParameters[row];
+   InfluentialParameter* oldParameter = m_influentialParameters[row];
    try
    {
       m_influentialParameters[row] = InfluentialParameter::createFromIndex(selected);
@@ -63,8 +63,11 @@ void InfluentialParameterManager::set(const int row, const int selected)
    }
    catch (std::runtime_error e)
    {
+      m_influentialParameters[row] = oldParameter;
       Logger::log() << e.what() << Logger::endl();
+      return;
    }
+   delete oldParameter;
 }
 
 void InfluentialParameterManager::setArguments(int index, const QVector<double>& valueArguments, const QStringList& listArguments)
@@ -75,6 +78,17 @@ void InfluentialParameterManager::setArguments(int index, const QVector<double>&
 
 void InfluentialParameterManager::add(const int index)
 {
+   //Used to add influential parameters in the influential parameters table.
+   //If the parameter at the required index cannot be created (for instance, because this parameter undefined in the base project),
+   //It tries to initiate the next parameter.
+
+   int nTypes = InfluentialParameter::types().size();
+   if (index >= nTypes)
+   {
+      Logger::log() << "Error creating influential parameter." << Logger::endl();
+      return;
+   }
+
    try
    {
       InfluentialParameter* newInfluentialParameter = InfluentialParameter::createFromIndex(index);
@@ -84,7 +98,7 @@ void InfluentialParameterManager::add(const int index)
    }
    catch (std::runtime_error e)
    {
-      Logger::log() << e.what() << Logger::endl();
+      add(index+1);
    }
 }
 

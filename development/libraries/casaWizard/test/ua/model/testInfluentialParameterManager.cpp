@@ -16,7 +16,6 @@
 #include "model/influentialParameter/surfaceTemperature.h"
 #include "model/influentialParameter/thermalConductivity.h"
 #include "model/influentialParameter/topCrustHeatProduction.h"
-#include "model/influentialParameter/topCrustHeatProductionGrid.h"
 #include "model/influentialParameter/topCrustHeatProductionGridScaling.h"
 
 #include "ConstantsNumerical.h"
@@ -61,25 +60,34 @@ TEST( InfluentialParameterManagerTest, testReadWrite)
    expectFileEq("influentialParameterManager.dat", "influentialParameterManagerRead.dat");
 }
 
-TEST( InfluentialParameterManagerTest, testReadFromFileV0NoCrustThinning )
+TEST( InfluentialParameterManagerTest, testReadFromFileV0Compatible )
 {
    casaWizard::StubProjectReader projectReader;
    casaWizard::ua::InfluentialParameterManager manager{projectReader};
 
-   casaWizard::ScenarioReader reader{"influentialParameterManagerV0NoCrustThinning.dat"};
+   casaWizard::ScenarioReader reader{"influentialParameterManagerV0Compatible.dat"};
    manager.readFromFile(reader);
-
    QVector<casaWizard::ua::InfluentialParameter*> params = manager.influentialParameters();
-   ASSERT_EQ(params.size(), 7);
+   ASSERT_EQ(params.size(), 6);
 
    // Check if the influential parameters are of the expected type
    ASSERT_TRUE( dynamic_cast<casaWizard::ua::TopCrustHeatProduction*>(params[0]));
-   EXPECT_TRUE( dynamic_cast<casaWizard::ua::TopCrustHeatProductionGrid*>(params[1]));
-   EXPECT_TRUE( dynamic_cast<casaWizard::ua::TopCrustHeatProductionGridScaling*>(params[2]));
-   EXPECT_TRUE( dynamic_cast<casaWizard::ua::ThermalConductivity*>(params[3]));
-   EXPECT_TRUE( dynamic_cast<casaWizard::ua::EquilibriumOceanicLithosphereThickness*>(params[4]));
-   EXPECT_TRUE( dynamic_cast<casaWizard::ua::InitialLithosphericMantleThickness*>(params[5]));
-   EXPECT_TRUE( dynamic_cast<casaWizard::ua::SurfaceTemperature*>(params[6]));
+   EXPECT_TRUE( dynamic_cast<casaWizard::ua::TopCrustHeatProductionGridScaling*>(params[1]));
+   EXPECT_TRUE( dynamic_cast<casaWizard::ua::ThermalConductivity*>(params[2]));
+   EXPECT_TRUE( dynamic_cast<casaWizard::ua::EquilibriumOceanicLithosphereThickness*>(params[3]));
+   EXPECT_TRUE( dynamic_cast<casaWizard::ua::InitialLithosphericMantleThickness*>(params[4]));
+   EXPECT_TRUE( dynamic_cast<casaWizard::ua::SurfaceTemperature*>(params[5]));
+}
+
+TEST( InfluentialParameterManagerTest, testReadFromFileV0TCHPGrid )
+{
+   casaWizard::StubProjectReader projectReader;
+   casaWizard::ua::InfluentialParameterManager manager{projectReader};
+
+   casaWizard::ScenarioReader reader{"influentialParameterManagerV0TCHPGrid.dat"};
+   EXPECT_THROW(manager.readFromFile(reader), std::runtime_error);
+   QVector<casaWizard::ua::InfluentialParameter*> params = manager.influentialParameters();
+   ASSERT_EQ(params.size(), 0);
 }
 
 TEST( InfluentialParameterManagerTest, testReadFromFileV0CrustThinning )
@@ -139,7 +147,7 @@ TEST( InfluentialParameterManagerTest, nameLists)
 
    QStringList expectedLabelNames;
    QStringList expectedNames;
-   for (int i = 0; i<7; i++)
+   for (int i = 0; i < 6; i++)
    {
       manager.add(i);
       InfluentialParameter* p = InfluentialParameter::createFromIndex(i);

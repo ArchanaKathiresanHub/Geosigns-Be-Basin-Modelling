@@ -56,7 +56,7 @@ void CmdDoE::execute( std::unique_ptr<casa::ScenarioAnalysis> & sa )
    if ( ErrorHandler::NoError != sa->setDoEAlgorithm( static_cast<casa::DoEGenerator::DoEAlgorithm>( m_doeAlg ) ) ||
         ErrorHandler::NoError != sa->doeGenerator().generateDoE( sa->varSpace(), sa->doeCaseSet(), m_numExp, m_prms[0] ) )
    {
-      throw ErrorHandler::Exception( sa->errorCode() ) << sa->errorMessage();
+      throw ErrorHandler::Exception( sa->doeGenerator().errorCode() ) << sa->doeGenerator().errorMessage();
    }
 
    LogHandler( LogHandler::INFO_SEVERITY ) << m_prms[0] << " DoE generation was finished";

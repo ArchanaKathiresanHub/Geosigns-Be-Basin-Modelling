@@ -336,7 +336,10 @@ void ModelInputsController::slotComboBoxApplicationCurrentTextChanged(const QStr
 
 void ModelInputsController::slotLineEditProject3dTextChanged(const QString& project3dPath)
 {
+   const QString workDir = m_casaScenario.workingDirectory();
+   m_casaScenario.clear();
    resetDoEStage();
+   m_casaScenario.setWorkingDirectory(workDir);
    m_casaScenario.setProject3dFileNameAndLoadFile(project3dPath);
    refreshGUI();
 }

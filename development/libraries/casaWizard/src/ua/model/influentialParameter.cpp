@@ -13,7 +13,6 @@
 #include "model/influentialParameter/surfaceTemperature.h"
 #include "model/influentialParameter/thermalConductivity.h"
 #include "model/influentialParameter/topCrustHeatProduction.h"
-#include "model/influentialParameter/topCrustHeatProductionGrid.h"
 #include "model/influentialParameter/topCrustHeatProductionGridScaling.h"
 
 #include "model/input/projectReader.h"
@@ -35,7 +34,6 @@ namespace ua
 namespace
 {
 QMap<int,InfluentialParameter::Type> s_indexToTypeMapV0{{0,InfluentialParameter::Type::TopCrustHeatProduction},
-                                                        {1,InfluentialParameter::Type::TopCrustHeatProductionGrid},
                                                         {2,InfluentialParameter::Type::TopCrustHeatProductionGridScaling},
                                                         {5,InfluentialParameter::Type::ThermalConductivity},
                                                         {6,InfluentialParameter::Type::EquilibriumOceanicLithosphereThickness},
@@ -140,8 +138,6 @@ InfluentialParameter* InfluentialParameter::create(const Type& type)
    {
    case Type::TopCrustHeatProduction:
       return new TopCrustHeatProduction();
-   case Type::TopCrustHeatProductionGrid:
-      return new TopCrustHeatProductionGrid();
    case Type::TopCrustHeatProductionGridScaling:
       return new TopCrustHeatProductionGridScaling();
    case Type::ThermalConductivity:
@@ -193,7 +189,6 @@ QVector<InfluentialParameter::Type> InfluentialParameter::types()
    return
    {
       Type::TopCrustHeatProduction,
-            Type::TopCrustHeatProductionGrid,
             Type::TopCrustHeatProductionGridScaling,
             Type::ThermalConductivity,
             Type::EquilibriumOceanicLithosphereThickness,
@@ -205,7 +200,6 @@ QVector<InfluentialParameter::Type> InfluentialParameter::types()
 InfluentialParameter::Type InfluentialParameter::typeFromString(const QString& typeString)
 {
    if (typeString == "TopCrustHeatProduction") return Type::TopCrustHeatProduction;
-   if (typeString == "TopCrustHeatProductionGrid") return Type::TopCrustHeatProductionGrid;
    if (typeString == "TopCrustHeatProductionGridScaling") return Type::TopCrustHeatProductionGridScaling;
    if (typeString == "ThermalConductivity") return Type::ThermalConductivity;
    if (typeString == "EquilibriumOceanicLithosphereThickness") return Type::EquilibriumOceanicLithosphereThickness;
@@ -219,7 +213,6 @@ QString InfluentialParameter::stringFromType(Type type)
    switch (type)
    {
    case Type::TopCrustHeatProduction: return "TopCrustHeatProduction";
-   case Type::TopCrustHeatProductionGrid: return "TopCrustHeatProductionGrid";
    case Type::TopCrustHeatProductionGridScaling: return "TopCrustHeatProductionGridScaling";
    case Type::ThermalConductivity: return "ThermalConductivity";
    case Type::EquilibriumOceanicLithosphereThickness: return "EquilibriumOceanicLithosphereThickness";
