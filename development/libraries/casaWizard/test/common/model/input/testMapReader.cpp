@@ -20,6 +20,24 @@ public:
   {
     reader_.load("MapReaderTest.project3d");
   }
+
+  void testHighResMapDimensions()
+  {
+     double xMin = 0.0;
+     double xMax = 0.0;
+     double yMin = 0.0;
+     double yMax = 0.0;
+     long numI = 0;
+     long numJ = 0;
+     reader_.getHighResolutionMapDimensions(xMin, xMax, yMin, yMax, numI, numJ);
+
+     EXPECT_DOUBLE_EQ(xMin, 179000);
+     EXPECT_DOUBLE_EQ(xMax, 205500);
+     EXPECT_DOUBLE_EQ(yMin, 603500);
+     EXPECT_DOUBLE_EQ(yMax, 618500);
+     EXPECT_EQ(numI, 107);
+     EXPECT_EQ(numJ, 61);
+  }
 };
 
 TEST_F(MapReaderTest, testgetMapData)
@@ -58,21 +76,13 @@ TEST_F(MapReaderTest, testCheckIfPointIsInLayer)
 
 TEST_F(MapReaderTest, testGetMapDimensions)
 {
-  double xMin = 0.0;
-  double xMax = 0.0;
-  double yMin = 0.0;
-  double yMax = 0.0;
-  long numI = 0;
-  long numJ = 0;
-  reader_.getMapDimensions(xMin, xMax, yMin, yMax, numI, numJ);
-
-  EXPECT_DOUBLE_EQ(xMin, 179000);
-  EXPECT_DOUBLE_EQ(xMax, 205500);
-  EXPECT_DOUBLE_EQ(yMin, 603500);
-  EXPECT_DOUBLE_EQ(yMax, 618500);
-  EXPECT_EQ(numI, 107);
-  EXPECT_EQ(numJ, 61);
+  testHighResMapDimensions();
 }
 
+TEST_F(MapReaderTest, testGetMapDimensionsWindowedModel)
+{
+   reader_.load("MapReaderTestWindowed.project3d");
+   testHighResMapDimensions(); // even with a windowed project, the same map dimensions should be returned
+}
 
 

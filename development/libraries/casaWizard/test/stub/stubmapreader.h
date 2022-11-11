@@ -33,7 +33,7 @@ public:
   VectorVectorMap getTopCrustHeatProductionMap() const override { return VectorVectorMap({{1.0, 2.0}, {3.0, 4.0}}); }
   std::string getTopCrustHeatProductionMapName() const override { return ""; }
   bool checkIfPointIsInLayer(const double /*x*/, const double /*y*/, const double /*z*/, const std::string& /*layerName*/) const override {return false;}
-  void getMapDimensions(double& xMin, double& xMax, double& yMin, double& yMax, long& numI, long& numJ) override
+  void getHighResolutionMapDimensions(double& xMin, double& xMax, double& yMin, double& yMax, long& numI, long& numJ) override
   {
     xMin = 0.0;
     xMax = 234.5;

@@ -199,12 +199,12 @@ bool CMBMapReader::checkIfPointIsInLayer(const double x, const double y, const d
    return cmbModel_->checkPoint(x, y, z, layerName);
 }
 
-void CMBMapReader::getMapDimensions(double& xMin, double& xMax, double& yMin, double& yMax, long& numI, long& numJ)
+void CMBMapReader::getHighResolutionMapDimensions(double& xMin, double& xMax, double& yMin, double& yMax, long& numI, long& numJ)
 {
    cmbModel_->highResOrigin(xMin, yMin);
    double dimX = 0.0;
    double dimY = 0.0;
-   cmbModel_->arealSize(dimX, dimY);
+   cmbModel_->highResAreaSize(dimX, dimY);
 
    xMax = xMin + dimX;
    yMax = yMin + dimY;

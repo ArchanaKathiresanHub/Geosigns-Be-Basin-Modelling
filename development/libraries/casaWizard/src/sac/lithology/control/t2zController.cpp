@@ -294,7 +294,7 @@ void T2Zcontroller::slotExportT2ZMapsToZycorClicked()
   double yMax = 0.0;
   long numI = 0;
   long numJ = 0;
-  mapReader.getMapDimensions(xMin, xMax, yMin, yMax, numI, numJ);
+  mapReader.getHighResolutionMapDimensions(xMin, xMax, yMin, yMax, numI, numJ);
   const casaWizard::MapMetaData metaData(xMin, xMax, yMin, yMax, numI, numJ);
 
   ZycorWriter writer;

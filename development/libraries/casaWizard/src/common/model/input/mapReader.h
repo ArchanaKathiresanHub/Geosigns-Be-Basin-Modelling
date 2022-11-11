@@ -37,7 +37,7 @@ public:
   virtual VectorVectorMap getTopCrustHeatProductionMap() const = 0;
   virtual std::string getTopCrustHeatProductionMapName() const = 0;
   virtual bool checkIfPointIsInLayer(const double x, const double y, const double z, const std::string& layerName) const = 0;
-  virtual void getMapDimensions(double& xMin, double& xMax, double& yMin, double& yMax, long& numI, long& numJ) = 0;
+  virtual void getHighResolutionMapDimensions(double& xMin, double& xMax, double& yMin, double& yMax, long& numI, long& numJ) = 0;
 };
 
 }

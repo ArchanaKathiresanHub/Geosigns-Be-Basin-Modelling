@@ -31,7 +31,7 @@ void ThermalMapManager::exportOptimizedMapsToZycor(const ProjectReader& projectR
    double yMax = 0.0;
    long numI = 0;
    long numJ = 0;
-   mapReader.getMapDimensions(xMin, xMax, yMin, yMax, numI, numJ);
+   mapReader.getHighResolutionMapDimensions(xMin, xMax, yMin, yMax, numI, numJ);
    const casaWizard::MapMetaData metaData(xMin, xMax, yMin, yMax, numI, numJ);
 
    if(mapReader.mapExists(mapReader.getTopCrustHeatProductionMapName()))

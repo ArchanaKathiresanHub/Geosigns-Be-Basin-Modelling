@@ -21,6 +21,7 @@ configure_file( HeatMap.hdf HeatMap.hdf COPYONLY )
 add_casawizard_common_gtest( NAME MapReader
                              SOURCES testMapReader.cpp )
 configure_file( MapReaderTest.project3d MapReaderTest.project3d COPYONLY )
+configure_file( MapReaderTestWindowed.project3d MapReaderTestWindowed.project3d COPYONLY )
 configure_file( Inputs.HDF Inputs.HDF COPYONLY )
 
 add_casawizard_common_gtest( NAME ExtractWellDataLAS

@@ -64,7 +64,7 @@ void LithologyMapsManager::exportOptimizedMapsToZycor(const ProjectReader& proje
    double yMax = 0.0;
    long numI = 0;
    long numJ = 0;
-   mapReader.getMapDimensions(xMin, xMax, yMin, yMax, numI, numJ);
+   mapReader.getHighResolutionMapDimensions(xMin, xMax, yMin, yMax, numI, numJ);
    const casaWizard::MapMetaData metaData(xMin, xMax, yMin, yMax, numI, numJ);
 
    for (int i = 0; i < projectReader.layerNames().size(); i++)
