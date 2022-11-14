@@ -13,7 +13,7 @@
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Version				Date of update
 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-Cauldron-v2.10.4		2022-11-11 14:46:02 +0000
+Cauldron-v2.10.5		2022-11-14 10:59:16 +0000
 =============================================================
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Third-party Software 		version
@@ -36,6 +36,20 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2022-11-14  Sven van Leeuwen  <Sven.van-Leeuwen@shell.com>
+
+	fix: usr: Various bugfixes for issues found in SACThermal.
+	* Loading in a project3d file without depthmap will no longer cause wells that were within bounds to be disabled
+	* Displayed A0 range now matches scenario values
+	* A0 range was set to 0 - 0 when creating a new project and shown in the GUI as 0 - 5.
+	* Optimized tchp table will no longer show nonsense for optimized values and difference when optimization fails.
+	* SACThermal will no longer crash when opening a project3D file without maps when opening the results tab
+	* SACThermal will no longer crash when opening a project3D file without maps when opening the maps tab
+
+	================== COMMIT-END ========================
+	Commit-ID:<8bf35ed5e8b8c51d5d524a2da437e65f217ca1b4>	  (tag: refs/tags/v2.10.5, refs/heads/master, refs/heads/changelog)
+
+++
 2022-11-11  Richard Faasse  <Richard.Faasse@shell.com>
 
 	fix: usr: Fixed zycor export issue for windowed models.
@@ -48,7 +62,7 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 ++
 2022-11-10  Sven van Leeuwen  <Sven.van-Leeuwen@shell.com>
 
-	fix: minor: map visualization with a single well.
+	fix: map visualization with a single well. !minor
 	* Minor visual fix in the maps tab
 	================== COMMIT-END ========================
 	Commit-ID:<0a51e9920baf805dcb0a20f279aedbe245313587>	  (tag: refs/tags/v2.10.3)
@@ -69,7 +83,7 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 ++
 2022-11-10  Sven van Leeuwen  <Sven.van-Leeuwen@shell.com>
 
-	fix: SACThermal - Wellcolor fix.
+	fix: SACThermal Wellcolor fix.
 	================== COMMIT-END ========================
 	Commit-ID:<133c02987969676b82dfd91e843de000d223dbb8>	  (tag: refs/tags/v2.10.1, refs/heads/master, refs/heads/changelog)
 
@@ -100,7 +114,7 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 ++
 2022-11-09  Sven van Leeuwen  <Sven.van-Leeuwen@shell.com>
 
-	fix: Bugfix 482098: original 3D is not shown correctly.
+	fix: Bugfix 482098 original 3D is not shown correctly.
 	link: https://sede-pt-ssw.visualstudio.com/Basin-Evaluation/_workitems/edit/482098/
 	================== COMMIT-END ========================
 	Commit-ID:<c6b87ccbe6c5ccd1b6a74de92e2580a2a21e8524>	  (tag: refs/tags/v2.9.26, refs/heads/master, refs/heads/changelog)
@@ -129,7 +143,7 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 ++
 2022-11-07  Sven van Leeuwen  <Sven.van-Leeuwen@shell.com>
 
-	fix: usr: Bug fix 481884: wrong wells are displayed in the maps tab when some wells do not have enabled data fields for optimization
+	fix: usr: Bug fix 481884 wrong wells are displayed in the maps tab when some wells do not have enabled data fields for optimization
 	* Fixed a bug and made some changes to the workings of the LiT Wells.
 	* Edited the tooltips in the SAC maps tab
 	Link-https: https://sede-pt-ssw.visualstudio.com/Basin-Evaluation/_sprints/taskboard/Team%20Oscar/Basin-Evaluation/(R2022)/PI%202022.4/2022.4.5?workitem=481884
