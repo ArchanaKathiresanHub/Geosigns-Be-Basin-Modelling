@@ -35,12 +35,16 @@ public:
   bool checkIfPointIsInLayer(const double /*x*/, const double /*y*/, const double /*z*/, const std::string& /*layerName*/) const override {return false;}
   void getHighResolutionMapDimensions(double& xMin, double& xMax, double& yMin, double& yMax, long& numI, long& numJ) override
   {
+    getHighResolutionMapDimensions(xMin, xMax, yMin, yMax);
+    numI = 2;
+    numJ = 2;
+  }
+  void getHighResolutionMapDimensions(double& xMin, double& xMax, double& yMin, double& yMax) override
+  {
     xMin = 0.0;
     xMax = 234.5;
     yMin = 4.0;
     yMax = 835.5;
-    numI = 2;
-    numJ = 2;
   }
 };
 

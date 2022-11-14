@@ -32,6 +32,29 @@ TEST(WellValidatorTest, testInvalidLocationWell)
   }
 }
 
+TEST(WellValidatorTest, testInvalidLocationWellNoMap)
+{
+  CMBMapReader mapReader;
+  mapReader.load("TestWellValidator.project3d");
+  WellValidator validator(mapReader);
+
+  //everything in the map range is valid when there is no map
+
+  std::vector<Well> validWells;
+  CalibrationTarget target;
+  validWells.push_back(Well(0, "Name", 179000, 603500, true, false, {target}));
+  validWells.push_back(Well(0, "Name", 179125, 603500, true, false, {target}));
+  validWells.push_back(Well(0, "Name", 179000, 603625, true, false, {target}));
+  validWells.push_back(Well(0, "Name", 179125, 603625, true, false, {target}));
+  Well invalidWell = Well(0, "Name", 1, 1, true, false, {target});
+
+  for (const Well& well : validWells)
+  {
+    EXPECT_EQ(validator.wellState(well, "", {}), WellState::valid);
+  }
+  EXPECT_EQ(validator.wellState(invalidWell, "", {}), WellState::invalidLocation);
+}
+
 TEST(WellValidatorTest, testInvalidDataWell)
 {
   CMBMapReader mapReader;

@@ -28,13 +28,26 @@ WellValidator::~WellValidator()
 
 WellState WellValidator::wellState(const casaWizard::Well& well, const std::string& depthGridName, const QStringList& usedWellNames) const
 {
-  const double valueAtWellLocation = mapReader_.getValue(well.x(), well.y(), depthGridName);
-
-  if (std::fabs(valueAtWellLocation - Utilities::Numerical::CauldronNoDataValue) <= 1e-5 )
+  if (mapReader_.mapExists(depthGridName))
   {
-    return invalidLocation;
+     const double valueAtWellLocation = mapReader_.getValue(well.x(), well.y(), depthGridName);
+
+     if (std::fabs(valueAtWellLocation - Utilities::Numerical::CauldronNoDataValue) <= 1e-5 )
+     {
+       return invalidLocation;
+     }
   }
-  else if (well.calibrationTargets().size() == 0)
+  else
+  {
+     double minX, minY, maxX, maxY;
+     mapReader_.getHighResolutionMapDimensions(minX, maxX, minY, maxY);
+     if (well.x() < minX || well.x() > maxX || well.y() < minY || well.y() > maxY)
+     {
+        return invalidLocation;
+     }
+  }
+
+  if (well.calibrationTargets().size() == 0)
   {
     return invalidData;
   }

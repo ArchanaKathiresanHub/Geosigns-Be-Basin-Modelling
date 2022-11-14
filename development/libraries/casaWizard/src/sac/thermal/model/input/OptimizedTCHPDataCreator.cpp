@@ -34,8 +34,8 @@ void OptimizedTCHPDataCreator::readCase(const int wellIndex, const int caseIndex
    catch( const std::exception& e )
    {
       Logger::log() << e.what()
-                    << "\nDid not read optimized Heat crust producion for well " << wellIndex << Logger::endl();
-      values.clear();
+                    << "\nCould not read optimized Heat crust producion for well " << wellIndex << Logger::endl();
+      return;
    }
 
    for (int valueIndex = 0; valueIndex < values.size(); ++valueIndex)

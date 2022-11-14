@@ -2,7 +2,7 @@
 #pragma once
 
 #include <QStringList>
-
+#include "ConstantsNumerical.h"
 namespace casaWizard
 {
 
@@ -17,7 +17,7 @@ class OptimizedTCHP
 public:
    OptimizedTCHP() = default;
    OptimizedTCHP(const int wellId,
-                 const double optimizedHeatProduction);
+                 const double optimizedHeatProduction = Utilities::Numerical::CauldronNoDataValueInt);
 
    int version() const;
    static OptimizedTCHP read(const int version, const QStringList& p);

@@ -15,6 +15,7 @@
 #include <QListWidget>
 
 #include <cmath>
+#include "ConstantsNumerical.h"
 
 namespace casaWizard
 {
@@ -56,13 +57,24 @@ void ThermalResultsTab::updateOptimizedHeatProductionTable(const QStringList& we
 
    for (int i = 0; i < wellNames.size();)
    {
-      double diff =  std::fabs(optimizedValues[i] - originalValues[i]);
-      addRow ( i,
-      {new QTableWidgetItem(wellNames[i]),
-       new QTableWidgetItem(doubleToQString(originalValues[i])),
-       new QTableWidgetItem(doubleToQString(optimizedValues[i])),
-       new QTableWidgetItem(doubleToQString(diff))}
-               );
+      if (optimizedValues[i] !=  Utilities::Numerical::CauldronNoDataValue)
+      {
+         double diff = optimizedValues[i] - originalValues[i];
+         addRow ( i,
+                  {new QTableWidgetItem(wellNames[i]),
+                   new QTableWidgetItem(doubleToQString(originalValues[i])),
+                   new QTableWidgetItem(doubleToQString(optimizedValues[i])),
+                   new QTableWidgetItem(doubleToQString(diff))}
+                  );
+      }
+      else {
+         addRow ( i,
+                  {new QTableWidgetItem(wellNames[i]),
+                   new QTableWidgetItem(doubleToQString(originalValues[i])),
+                   new QTableWidgetItem("Unk."),
+                   new QTableWidgetItem("N/a")}
+                  );
+      }
    }
 }
 

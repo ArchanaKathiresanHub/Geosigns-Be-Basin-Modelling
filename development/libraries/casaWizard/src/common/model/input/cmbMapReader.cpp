@@ -30,7 +30,7 @@ CMBMapReader::~CMBMapReader()
 
 VectorVectorMap CMBMapReader::getMapData(const std::string& mapName) const
 {
-   if (!loaded_)
+   if (!loaded_ || !mapExists(mapName))
    {
       return VectorVectorMap({});
    }
@@ -55,13 +55,13 @@ bool CMBMapReader::mapExists(const std::string& mapName) const
       return false;
    }
 
-   mbapi::MapsManager& mapsManager = cmbModel_->mapsManager();
-   const std::unordered_map<std::string, mbapi::MapsManager::MapID> mapIDs = mapsManager.mapNameIDs();
+   const std::unordered_map<std::string, mbapi::MapsManager::MapID> mapIDs = cmbModel_->mapsManager().mapNameIDs();
+
    try
    {
       mapIDs.at(mapName);
    }
-   catch (std::out_of_range)
+   catch (const std::out_of_range)
    {
       return false;
    }
@@ -71,7 +71,7 @@ bool CMBMapReader::mapExists(const std::string& mapName) const
 
 double CMBMapReader::getValue(const double x, const double y, const std::string& mapName) const
 {
-   if (!loaded_)
+   if (!loaded_ || !mapExists(mapName))
    {
       return Utilities::Numerical::CauldronNoDataValue;
    }
@@ -79,7 +79,6 @@ double CMBMapReader::getValue(const double x, const double y, const std::string&
    mbapi::MapsManager& mapsManager = cmbModel_->mapsManager();
    const std::unordered_map<std::string, mbapi::MapsManager::MapID> mapIDs = mapsManager.mapNameIDs();
    const mbapi::MapsManager::MapID mapID = mapIDs.at(mapName);
-
    return mapsManager.mapGetValue(mapID, x, y);
 }
 
@@ -201,6 +200,12 @@ bool CMBMapReader::checkIfPointIsInLayer(const double x, const double y, const d
 
 void CMBMapReader::getHighResolutionMapDimensions(double& xMin, double& xMax, double& yMin, double& yMax, long& numI, long& numJ)
 {
+   getHighResolutionMapDimensions(xMin, xMax, yMin, yMax);
+   cmbModel_->highResGridArealSize(numI, numJ);
+}
+
+void CMBMapReader::getHighResolutionMapDimensions(double& xMin, double& xMax, double& yMin, double& yMax)
+{
    cmbModel_->highResOrigin(xMin, yMin);
    double dimX = 0.0;
    double dimY = 0.0;
@@ -208,8 +213,6 @@ void CMBMapReader::getHighResolutionMapDimensions(double& xMin, double& xMax, do
 
    xMax = xMin + dimX;
    yMax = yMin + dimY;
-
-   cmbModel_->highResGridArealSize(numI, numJ);
 }
 
 } // namespace casaWizard

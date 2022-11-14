@@ -74,11 +74,15 @@ void MainController::slotNew()
 
 void MainController::slotSave()
 {
-   const QString fileName = QFileDialog::getSaveFileName(&mainWindow(), "Save scenario", scenario().workingDirectory(), ".dat (*.dat)");
+   QString fileName = QFileDialog::getSaveFileName(&mainWindow(), "Save scenario", scenario().workingDirectory(), ".dat (*.dat)");
 
    if (fileName.isEmpty())
    {
       return;
+   }
+   if (!fileName.endsWith(".dat"))
+   {
+      fileName.append(".dat");
    }
 
    QString file{fileName};

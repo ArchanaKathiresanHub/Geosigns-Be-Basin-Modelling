@@ -24,8 +24,8 @@ namespace thermal
 {
 
 TCHPManager::TCHPManager() :
-   m_minHeatProduction{0.0},
-   m_maxHeatProduction{5.0},
+   m_minHeatProduction{0},
+   m_maxHeatProduction{5},
    m_optimizedTCHPs{}
 {
 }
@@ -58,11 +58,12 @@ const QVector<OptimizedTCHP>& TCHPManager::optimizedTCHPs() const
 OptimizedTCHP TCHPManager::optimizedInWell(const int wellIndex) const
 {
    OptimizedTCHP optimizedInWell;
-   for (const OptimizedTCHP& opt : m_optimizedTCHPs)
+   for (const OptimizedTCHP& tchp : m_optimizedTCHPs)
    {
-      if (opt.wellId() == wellIndex)
+      if (tchp.wellId() == wellIndex)
       {
-         optimizedInWell = opt;
+         optimizedInWell = tchp;
+         break;
       }
    }
    return optimizedInWell;

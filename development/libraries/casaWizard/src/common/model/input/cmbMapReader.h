@@ -35,7 +35,9 @@ public:
   VectorVectorMap getTopCrustHeatProductionMap() const final;
   std::string getTopCrustHeatProductionMapName() const final;
   bool checkIfPointIsInLayer(const double x, const double y, const double z, const std::string& layerName) const override;
+
   void getHighResolutionMapDimensions(double& xMin, double& xMax, double& yMin, double& yMax, long& numI, long& numJ) override;
+  void getHighResolutionMapDimensions(double& xMin, double& xMax, double& yMin, double& yMax) override;
 
 private:
   std::vector<std::vector<double> > resizeData(const std::vector<double>& out, const int numI, const int numJ) const;
