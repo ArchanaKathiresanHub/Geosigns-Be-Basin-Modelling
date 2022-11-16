@@ -13,7 +13,7 @@
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Version				Date of update
 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-Cauldron-v2.10.5		2022-11-14 10:59:16 +0000
+Cauldron-v2.10.6		2022-11-16 15:05:46 +0000
 =============================================================
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Third-party Software 		version
@@ -36,6 +36,21 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2022-11-16  Marnix.vandenBerg  <Marnix.vandenBerg@shell.com>
+
+	fix: usr: Fixes for several bugs in UAThermal wizard found during release testing.
+	 * When going to older autosaves in UAThermal, the casa state file matching that autosave could mismatch with the file system state. This is fixed.
+	 * Interpolated maps are now added to the Inputs.hdf file upon export, to enable import in bpa2.
+	 * The optimal case is now constructed from the base case in the caseSet folder, as export would not work with surface temperature as influential parameter when the surface temperature age would not be in the base case table.
+	 * The base target value export now works correctly, considering the selected items in the response surface settings table.
+	 * Observables are now exporting when running the optimal case.
+
+	Related work items: #485552
+
+	================== COMMIT-END ========================
+	Commit-ID:<fadb2931d069dc3f7e69bfc61db6863342c16c7f>	  (tag: refs/tags/v2.10.6, refs/heads/master, refs/heads/changeLog)
+
+++
 2022-11-14  Sven van Leeuwen  <Sven.van-Leeuwen@shell.com>
 
 	fix: usr: Various bugfixes for issues found in SACThermal.
