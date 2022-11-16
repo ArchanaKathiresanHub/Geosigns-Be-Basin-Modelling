@@ -138,6 +138,8 @@ public:
    void initializeBaseSubSamplingFactor();
 
 private:
+   void selectDoEOptionBaseCase();
+
    QString m_stateFileNameDoEBase;
    QString m_stateFileNameDoE;
    QString m_stateFileNameQC;

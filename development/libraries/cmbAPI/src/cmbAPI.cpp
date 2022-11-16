@@ -1191,7 +1191,10 @@ long Model::ModelImpl::tableValueAsInteger( const std::string & tableName, size_
    if ( table->size() < rowNumber ) throw ErrorHandler::Exception( UndefinedValue ) << tableName << " size is less then requested row number";
 
    database::Record * record = table->getRecord( static_cast<int>( rowNumber ) );
-   if ( !record ) throw ErrorHandler::Exception( UndefinedValue ) << tableName << " does not have any records";
+   if ( !record )
+   {
+      throw ErrorHandler::Exception( UndefinedValue ) << tableName << " does not have any records";
+   }
 
    const database::TableDefinition & tblDef  = record->getTableDefinition();
    int ind = tblDef.getIndex( propName );
@@ -1220,7 +1223,10 @@ double Model::ModelImpl::tableValueAsDouble( const std::string & tableName, size
    if ( table->size() < rowNumber ) throw ErrorHandler::Exception( UndefinedValue ) << tableName << " size is less then requested row number";
 
    database::Record * record = table->getRecord( static_cast<int>( rowNumber ) );
-   if ( !record ) throw ErrorHandler::Exception( UndefinedValue ) << tableName << " does not have any records";
+   if ( !record )
+   {
+      throw ErrorHandler::Exception( UndefinedValue ) << tableName << " does not have any records";
+   }
 
    const database::TableDefinition & tblDef  = record->getTableDefinition();
    int ind = tblDef.getIndex( propName );
@@ -1248,7 +1254,10 @@ std::string Model::ModelImpl::tableValueAsString( const std::string & tableName,
    if ( table->size() < rowNumber ) throw ErrorHandler::Exception( UndefinedValue ) << tableName << " size is less then requested row number";
 
    database::Record * record = table->getRecord( static_cast<int>( rowNumber ) );
-   if ( !record ) throw ErrorHandler::Exception( UndefinedValue ) << tableName << " does not have any records";
+   if ( !record )
+   {
+      throw ErrorHandler::Exception( UndefinedValue ) << tableName << " does not have any records";
+   }
 
    const database::TableDefinition & tblDef = record->getTableDefinition();
    int ind = tblDef.getIndex( propName );
@@ -1275,7 +1284,10 @@ void Model::ModelImpl::setTableIntegerValue( const std::string & tableName, size
    if ( table->size() < rowNumber ) throw ErrorHandler::Exception( UndefinedValue ) << tableName << " size is less then requested row number";
 
    database::Record * record = table->getRecord( static_cast<int>( rowNumber ) );
-   if ( !record ) throw ErrorHandler::Exception( UndefinedValue ) << tableName << " does not have any records";
+   if ( !record )
+   {
+      throw ErrorHandler::Exception( UndefinedValue ) << tableName << " does not have any records";
+   }
 
    const database::TableDefinition & tblDef = record->getTableDefinition();
    int ind = tblDef.getIndex( propName );
@@ -1304,7 +1316,10 @@ void Model::ModelImpl::setTableDoubleValue(const std::string & tableName, size_t
    if ( table->size() < rowNumber ) throw ErrorHandler::Exception( UndefinedValue ) << tableName << " size is less then requested row number";
 
    database::Record * record = table->getRecord( static_cast<int>( rowNumber ) );
-   if ( !record ) throw ErrorHandler::Exception( UndefinedValue ) << tableName << " does not have any records";
+   if ( !record )
+   {
+      throw ErrorHandler::Exception( UndefinedValue ) << tableName << " does not have any records";
+   }
 
    const database::TableDefinition & tblDef = record->getTableDefinition();
    int ind = tblDef.getIndex( propName );
@@ -1331,7 +1346,10 @@ void Model::ModelImpl::setTableStringValue( const std::string & tableName, size_
    if ( table->size() < rowNumber ) throw ErrorHandler::Exception( UndefinedValue ) << tableName << " size is less then requested row number";
 
    database::Record * record = table->getRecord( static_cast<int>( rowNumber ) );
-   if ( !record ) throw ErrorHandler::Exception( UndefinedValue ) << tableName << " does not have any records";
+   if ( !record )
+   {
+      throw ErrorHandler::Exception( UndefinedValue ) << tableName << " does not have any records";
+   }
 
    const database::TableDefinition & tblDef = record->getTableDefinition();
    int ind = tblDef.getIndex( propName );

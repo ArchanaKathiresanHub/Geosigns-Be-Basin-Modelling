@@ -17,7 +17,7 @@ class UAScenario;
 class OptimalCaseScript : public CasaScript
 {
 public:
-  explicit OptimalCaseScript(const UAScenario& scenario);
+  explicit OptimalCaseScript(const UAScenario& scenario, QString optimalProjectName = "Project.project3d");
   const CasaScenario& scenario() const final;
   QString scriptFilename() const final;
   QString workingDirectory() const final;
@@ -29,8 +29,9 @@ private:
   void writeScriptContents(QFile& file) const final;
   bool validateScenario() const final;
 
-  const UAScenario& scenario_;
-  QString optimalCaseDirectory_;
+  const UAScenario& m_scenario;
+  QString m_optimalCaseDirectory;
+  QString m_optimalProjectName;
 };
 
 } // namespace ua

@@ -31,10 +31,7 @@ private:
    void collectPredictionTargetData();
    void collectCalibrationTargetData();
 
-   void readBaseCase();
    void readValuesFromTargetQcs();
-
-   QVector<double> getPredictionData(const QVector<double>& values) const;
 
    const UAScenario& m_scenario;
 

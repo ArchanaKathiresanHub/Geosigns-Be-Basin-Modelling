@@ -34,13 +34,15 @@ TargetQC::TargetQC(const int id,
    Q2_{Q2},
    y_{y},
    yProxy_{yProxy},
+   m_yBase{double(NAN)},
+   m_yBaseProxy{double(NAN)},
    m_yOptimalSim{yOptimalSim}
 {
 }
 
 int TargetQC::version() const
 {
-   return 1;
+   return 2;
 }
 
 TargetQC TargetQC::read(const int version, const QStringList& p)
@@ -83,6 +85,11 @@ TargetQC TargetQC::read(const int version, const QStringList& p)
       };
       target.setValOptimalSim(p[12].toDouble());
 
+      if (version >= 2)
+      {
+         target.setValBaseSim(p[13].toDouble());
+         target.setValBaseProxy(p[14].toDouble());
+      }
       return target;
    }
 }
@@ -102,6 +109,8 @@ QStringList TargetQC::write() const
        << scenarioIO::doubleToQString(Q2_)
        << scenarioIO::vectorToWrite(y_)
        << scenarioIO::vectorToWrite(yProxy_)
+       << scenarioIO::doubleToQString(m_yBase)
+       << scenarioIO::doubleToQString(m_yBaseProxy)
        << scenarioIO::doubleToQString(m_yOptimalSim);
    return out;
 }
@@ -109,6 +118,16 @@ QStringList TargetQC::write() const
 void TargetQC::setValOptimalSim(double vOptimalSim)
 {
    m_yOptimalSim = vOptimalSim;
+}
+
+void TargetQC::setValBaseSim(double vBaseSim)
+{
+   m_yBase = vBaseSim;
+}
+
+void TargetQC::setValBaseProxy(double vBaseProxy)
+{
+   m_yBaseProxy = vBaseProxy;
 }
 
 double TargetQC::yOptimalSim() const
@@ -169,6 +188,16 @@ QVector<double> TargetQC::y() const
 QVector<double> TargetQC::yProxy() const
 {
    return yProxy_;
+}
+
+double TargetQC::yBase() const
+{
+   return m_yBase;
+}
+
+double TargetQC::yBaseProxy() const
+{
+   return m_yBaseProxy;
 }
 
 QString TargetQC::unitSI() const

@@ -61,6 +61,23 @@ TEST( CMBProjectWriterTest, testUpdateOutputProperties)
   }
 }
 
+TEST( CMBProjectWriterTest, testaddAllMapsToInputsFile)
+{
+   // Given
+   casaWizard::CMBProjectWriter writer("mapsMergerTest/Project.project3d");
+   writer.addAllMapsToInputsFile();
+
+   //Check if all maps are in the Inputs.hdf now:
+   mbapi::Model model;
+   model.loadModelFromProjectFile("mapsMergerTest/Project.project3d");
+
+   mbapi::MapsManager& mapsManager = model.mapsManager();
+   for (mbapi::MapsManager::MapID mapId : mapsManager.mapsIDs())
+   {
+      std::string mapFileName = model.tableValueAsString("GridMapIoTbl", mapId, "MapFileName");
+      EXPECT_EQ(mapFileName,"Inputs.HDF");
+   }
+}
 
 TEST( CMBProjectWriterTest, testSetScale)
 {

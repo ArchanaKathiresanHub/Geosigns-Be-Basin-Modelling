@@ -13,7 +13,7 @@ TEST( TestTargetQCDataCreator, TestCreateFromFile )
    casaWizard::ua::UAScenario scenario{new casaWizard::StubProjectReader()};
    scenario.setWorkingDirectory("./testTargetQCDataCreatorInput/");
 
-   scenario.setIsDoeOptionSelected(1,true);
+   scenario.setIsDoeOptionSelected(0,true);
    scenario.setIsQcDoeOptionSelected(0,true);
    scenario.predictionTargetManager().addSurfaceTarget(196750,606750,"Surface1",{"Temperature"});
 

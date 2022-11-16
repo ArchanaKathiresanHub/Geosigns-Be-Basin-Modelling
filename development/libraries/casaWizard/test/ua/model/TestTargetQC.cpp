@@ -27,11 +27,15 @@ TEST( TestTargetQC, TestSaveLoad )
    const QVector<double>& y = {1,2,3};
    const QVector<double>& yProxy  = {2,3,4};
    const double yOptimalSim = 5;
+   const double yBaseSim = 5;
+   const double yBaseProxy = 5;
 
    //Writing a target to a stringlist and constructing a new target from the stringlist should lead to the same target:
    TargetQC targetQC(id,property,name,identifier,calibration,value,standardDeviation,R2,R2Adj,Q,y,yProxy,yOptimalSim);
+   targetQC.setValBaseSim(yBaseSim);
+   targetQC.setValBaseProxy(yBaseProxy);
    const QStringList writeList = targetQC.write();
-   const TargetQC readTarget = TargetQC::read(1,writeList);
+   const TargetQC readTarget = TargetQC::read(2,writeList);
    EXPECT_EQ(targetQC.write(),readTarget.write());
 }
 

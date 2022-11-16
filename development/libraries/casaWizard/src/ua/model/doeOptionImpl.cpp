@@ -28,6 +28,7 @@ QVector<DoeOption*> DoeOption::getDoeOptions()
 {
    QVector<DoeOption*> doeOptions;
 
+   doeOptions.push_back(new DoeBaseCase());
    doeOptions.push_back(new DoeTornado());
    doeOptions.push_back(new DoeBoxBehnken());
    doeOptions.push_back(new DoePlackettBurman());
@@ -37,6 +38,40 @@ QVector<DoeOption*> DoeOption::getDoeOptions()
    doeOptions.push_back(new DoeUserDefined());
 
    return doeOptions;
+}
+
+// ---------------------------------------------------------------------------
+
+DoeBaseCase::DoeBaseCase() :
+   DoeOption()
+{
+}
+
+QString DoeBaseCase::name() const
+{
+   return "BaseCase";
+}
+
+bool DoeBaseCase::hasCalculatedDesignPoints() const
+{
+   return true;
+}
+
+void DoeBaseCase::calculateNDesignPoints(const int nInfluentialParameters)
+{
+   if (nInfluentialParameters > 0)
+   {
+      setNDesignPoints(1);
+   }
+   else
+   {
+      setNDesignPoints(0);
+   }
+}
+
+void DoeBaseCase::setArbitraryNDesignPoints(const int /*nArbitraryDesignPoints*/)
+{
+   // Nothing to be done.
 }
 
 // ---------------------------------------------------------------------------

@@ -47,7 +47,7 @@ void readTargetQCs(UAScenario& scenario)
    if (!qtutils::isEqual(obsIdentifiersRunCaseObservables,obsIdentifiersEvalObservables)
        || !qtutils::isEqual(obsIdentifiersEvalObservables, obsIdentifiersProxyQuality))
    {
-      Logger::log() << "Incompatible header names in observbles, proxy observables, or proxyQuality files." << Logger::endl();
+      Logger::log() << "Incompatible header names in observables, proxy observables, or proxyQuality files." << Logger::endl();
       return;
    }
 
@@ -71,6 +71,7 @@ void readTargetQCs(UAScenario& scenario)
       }
       tmpIndicesOfRunCasesForQC.push_back(doeIndices[iDoe]);
    }
+
    std::set<int> setOfindicesOfRunCasesForQC;
    for (const QVector<int>& indRQCVec : tmpIndicesOfRunCasesForQC)
    {
@@ -119,6 +120,18 @@ void readTargetQCs(UAScenario& scenario)
    int targetIndex = 0;
    QVector<TargetQC> targetQCs;
 
+   auto tryAddBaseCase = [&](TargetQC& target, int targetIndex)
+   {
+      const int idx = scenario.qcDoeOptionSelectedNames().indexOf("BaseCase");
+      if (idx < 0)
+      {
+         return;
+      }
+      const int caseIdx = doeIndices.at(idx).at(0);
+      target.setValBaseSim(runCasesObservablesOfTargetQC[targetIndex][caseIdx]);
+      target.setValBaseProxy(proxyEvaluationObservables[targetIndex][caseIdx]);
+   };
+
    for (const CalibrationTarget* calibrationTarget : calibrationTargetManager.activeCalibrationTargets())
    {
       TargetQC targetQC(targetIndex,
@@ -129,10 +142,13 @@ void readTargetQCs(UAScenario& scenario)
                         calibrationTarget->value(),
                         calibrationTarget->standardDeviation(),
                         proxyQualityEvaluation[targetIndex][0], // R2
-            proxyQualityEvaluation[targetIndex][1], // R2Adj
-            proxyQualityEvaluation[targetIndex][2], // Q2
-            runCasesObservablesOfTargetQC[targetIndex],
-            proxyEvaluationObservables[targetIndex]);
+                        proxyQualityEvaluation[targetIndex][1], // R2Adj
+                        proxyQualityEvaluation[targetIndex][2], // Q2
+                        runCasesObservablesOfTargetQC[targetIndex],
+                        proxyEvaluationObservables[targetIndex]);
+
+      tryAddBaseCase(targetQC, targetIndex);
+
       targetQCs.push_back(targetQC);
       targetIndex++;
    }
@@ -153,10 +169,13 @@ void readTargetQCs(UAScenario& scenario)
                               0.0, // value
                               0.0, // standard deviation
                               proxyQualityEvaluation[targetIndex][0], // R2
-                  proxyQualityEvaluation[targetIndex][1], // R2Adj
-                  proxyQualityEvaluation[targetIndex][2], // Q2
-                  runCasesObservablesOfTargetQC[targetIndex],
-                  proxyEvaluationObservables[targetIndex]);
+                              proxyQualityEvaluation[targetIndex][1], // R2Adj
+                              proxyQualityEvaluation[targetIndex][2], // Q2
+                              runCasesObservablesOfTargetQC[targetIndex],
+                              proxyEvaluationObservables[targetIndex]);
+
+            tryAddBaseCase(targetQC, targetIndex);
+
             targetQCs.push_back(targetQC);
          }
          else
@@ -169,17 +188,17 @@ void readTargetQCs(UAScenario& scenario)
    }
 
    std::sort(targetQCs.begin(), targetQCs.end(), [](const TargetQC& a, const TargetQC& b)
-   {
-      if (std::fabs(a.R2()) < epsilon)
-      {
-         return false;
-      }
-      if (std::fabs(b.R2()) < epsilon)
-      {
-         return true;
-      }
-      return a.R2() < b.R2() ;
-   });
+             {
+                if (std::fabs(a.R2()) < epsilon)
+                {
+                   return false;
+                }
+                if (std::fabs(b.R2()) < epsilon)
+                {
+                   return true;
+                }
+                return a.R2() < b.R2() ;
+             });
 
    scenario.setTargetQCs(targetQCs);
 }

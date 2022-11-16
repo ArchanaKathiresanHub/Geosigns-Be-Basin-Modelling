@@ -18,8 +18,11 @@ TEST_F(DoeScriptTest, testWriteScript)
 
    scenario.updateIterationDir();
 
+   //BaseCase
+   scenario.setIsDoeOptionSelected(0, false);
+
    // user defined doe
-   scenario.setIsDoeOptionSelected(6, true);
+   scenario.setIsDoeOptionSelected(7, true);
 
    scenario.manualDesignPointManager().addInfluentialParameter(1);
    scenario.manualDesignPointManager().addDesignPoint({1.2});

@@ -11,6 +11,16 @@ namespace casaWizard
 namespace ua
 {
 
+class DoeBaseCase : public DoeOption
+{
+public:
+  DoeBaseCase();
+  QString name() const override;
+  bool hasCalculatedDesignPoints() const override;
+  void calculateNDesignPoints(const int nInfluentialParameters) override;
+  void setArbitraryNDesignPoints(const int nArbitraryDesignPoints) override;
+};
+
 class DoeTornado : public DoeOption
 {
 public:

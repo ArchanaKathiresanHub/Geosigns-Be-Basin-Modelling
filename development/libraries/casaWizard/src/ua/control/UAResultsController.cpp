@@ -28,7 +28,9 @@
 #include "model/output/runCaseSetFileManager.h"
 #include "model/output/OptimalCaseExporter.h"
 #include "model/scenarioBackup.h"
+#include "model/output/runCaseSetFileManager.h"
 #include "model/script/addCasesScript.h"
+#include "model/script/collectObservablesScript.h"
 #include "model/script/optimalCaseScript.h"
 #include "model/script/runOptimalCaseScript.h"
 #include "model/script/mcmcScript.h"
@@ -38,6 +40,7 @@
 #include "view/UAResultsTargetTable.h"
 #include "view/uaTabIDs.h"
 
+#include "model/output/workspaceGenerator.h"
 #include "model/script/qcScript.h"
 #include "model/input/targetQCdataCreator.h"
 
@@ -62,11 +65,11 @@ UAResultsController::UAResultsController(UAResultsTab* uaResultsTab,
                                          UAScenario& casaScenario,
                                          ScriptRunController& scriptRunController,
                                          QObject* parent) :
-   QObject(parent),
-   m_uaResultsTab{uaResultsTab},
-   m_casaScenario{casaScenario},
-   m_scriptRunController{scriptRunController},
-   m_targetTableController{m_uaResultsTab->targetTable()}
+    QObject(parent),
+    m_uaResultsTab{uaResultsTab},
+    m_casaScenario{casaScenario},
+    m_scriptRunController{scriptRunController},
+    m_targetTableController{m_uaResultsTab->targetTable()}
 {
    connect(parent, SIGNAL(signalUpdateTabGUI(int)), this, SLOT(slotUpdateTabGUI(int)));
 
@@ -239,16 +242,7 @@ void UAResultsController::slotPushButtonMCMCrunCasaClicked()
       return;
    }
 
-
-   if (QFile::copy(m_casaScenario.workingDirectory() + "/" + m_casaScenario.stateFileNameMCMC() ,
-                   m_casaScenario.workingDirectory() + "/" + m_casaScenario.runLocation() + "/" + m_casaScenario.iterationDirName() + "/" + m_casaScenario.stateFileNameMCMC()))
-   {
-      if (!QFile::remove( m_casaScenario.workingDirectory() + "/" + m_casaScenario.stateFileNameMCMC()))
-      {
-         Logger::log() << "There was a problem while moving " << m_casaScenario.stateFileNameMCMC() << " file to " << m_casaScenario.iterationDirName() << " Folder." << Logger::endl();
-         return;
-      }
-   }
+   m_casaScenario.copyToIterationDir(m_casaScenario.stateFileNameMCMC());
 
    m_casaScenario.setStageComplete(StageTypesUA::mcmc);
    m_casaScenario.setStageUpToDate(StageTypesUA::mcmc);
@@ -262,10 +256,16 @@ void UAResultsController::slotPushButtonExportOptimalCasesClicked()
 {
    scenarioBackup::backup(m_casaScenario);
 
-   CMBProjectWriter writer(m_casaScenario.project3dPath());
+   QString itDir = m_casaScenario.runCaseSetFileManager().iterationDirPath();
+   QString baseProjectDir = itDir + "/BaseCase/" + m_casaScenario.project3dFilename();
+
+   CMBProjectWriter writer(baseProjectDir);
    writer.setScaling(m_casaScenario.baseSubSamplingFactor(), m_casaScenario.baseSubSamplingFactor());
 
-   OptimalCaseScript optimal{m_casaScenario};
+   QString timeStamp = workspaceGenerator::getTimeStamp();
+   QString optimalProjectName = "Project_" + timeStamp + ".project3d";
+
+   OptimalCaseScript optimal{m_casaScenario, optimalProjectName};
    const QString directory{optimal.optimalCaseDirectory()};
 
    if (QDir(directory).exists())
@@ -286,7 +286,10 @@ void UAResultsController::slotPushButtonExportOptimalCasesClicked()
       return;
    }
 
-   optimalCaseExporter::exportOptimalCase(optimal.optimalCaseDirectory(), m_casaScenario.workingDirectory());
+   optimalCaseExporter::exportOptimalCase(optimal.optimalCaseDirectory(),
+                                          m_casaScenario.workingDirectory(),
+                                          optimalProjectName,
+                                          timeStamp);
 
    writer.setScaling(m_casaScenario.subSamplingFactor(), m_casaScenario.subSamplingFactor());
 
@@ -324,6 +327,13 @@ void UAResultsController::slotPushButtonRunOptimalCasesClicked()
    AddCasesScript addCasesScript{m_casaScenario};
    if (!casaScriptWriter::writeCasaScript(addCasesScript) ||
        !m_scriptRunController.runScript(addCasesScript))
+   {
+      return;
+   }
+
+   CollectObservablesScript collectObservablesScript{m_casaScenario};
+   if (!casaScriptWriter::writeCasaScript(collectObservablesScript) ||
+       !m_scriptRunController.runScript(collectObservablesScript))
    {
       return;
    }

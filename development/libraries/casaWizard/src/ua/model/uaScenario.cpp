@@ -28,35 +28,37 @@ namespace ua
 {
 
 UAScenario::UAScenario(ProjectReader* projectReader) :
-   CasaScenario(projectReader),
-   m_stateFileNameDoEBase{"casaStateDoE.txt"},
-   m_stateFileNameDoE{"casaStateDoE.txt"},
-   m_stateFileNameQC{"casaStateQC.txt"},
-   m_stateFileNameMCMC{"casaStateMCMC.txt"},
-   m_runCasesObservablesTextFileName{"runCasesObservables.txt"},
-   m_doeIndicesTextFileName{"doeIndices.txt"},
-   m_proxyEvaluationObservablesTextFileName{"proxyEvalObservables.txt"},
-   m_proxyQualityEvaluationTextFileName{"proxyEvalQuality.txt"},
-   m_doeTextFileName{"doeResults.txt"},
-   m_simStatesTextFileName{"RunCasesSimulationStates.txt"},
-   m_mcTextFileName{"mcResults.txt"},
-   m_proxy{},
-   m_cmbMapReader(new CMBMapReader()),
-   m_toDepthConverter(new SurfaceToDepthConverter(CasaScenario::projectReader(),*m_cmbMapReader)),
-   m_influentialParameterManager{CasaScenario::projectReader()},
-   m_predictionTargetManager{CasaScenario::projectReader(),*m_toDepthConverter},
-   m_monteCarloDataManager{},
-   m_manualDesignPointManager{},
-   m_runCaseSetFileManager{},
-   m_doeOptions{DoeOption::getDoeOptions()},
-   m_targetQCs{},
-   m_isDoeOptionSelected{QVector<bool>(m_doeOptions.size(), false)},
-   m_isQcDoeOptionSelected{},
-   m_isStageComplete{},
-   m_isStageUpToDate("IsStageUpToDate",true),
-   m_subSamplingFactor{1},
-   m_baseCaseSubSamplingFactor{1}
+      CasaScenario(projectReader),
+      m_stateFileNameDoEBase{"casaStateDoE.txt"},
+      m_stateFileNameDoE{"casaStateDoE.txt"},
+      m_stateFileNameQC{"casaStateQC.txt"},
+      m_stateFileNameMCMC{"casaStateMCMC.txt"},
+      m_runCasesObservablesTextFileName{"runCasesObservables.txt"},
+      m_doeIndicesTextFileName{"doeIndices.txt"},
+      m_proxyEvaluationObservablesTextFileName{"proxyEvalObservables.txt"},
+      m_proxyQualityEvaluationTextFileName{"proxyEvalQuality.txt"},
+      m_doeTextFileName{"doeResults.txt"},
+      m_simStatesTextFileName{"RunCasesSimulationStates.txt"},
+      m_mcTextFileName{"mcResults.txt"},
+      m_proxy{},
+      m_cmbMapReader(new CMBMapReader()),
+      m_toDepthConverter(new SurfaceToDepthConverter(CasaScenario::projectReader(),*m_cmbMapReader)),
+      m_influentialParameterManager{CasaScenario::projectReader()},
+      m_predictionTargetManager{CasaScenario::projectReader(),*m_toDepthConverter},
+      m_monteCarloDataManager{},
+      m_manualDesignPointManager{},
+      m_runCaseSetFileManager{},
+      m_doeOptions{DoeOption::getDoeOptions()},
+      m_targetQCs{},
+      m_isDoeOptionSelected{QVector<bool>(m_doeOptions.size(), false)},
+      m_isQcDoeOptionSelected{},
+      m_isStageComplete{},
+      m_isStageUpToDate("IsStageUpToDate",true),
+      m_subSamplingFactor{1},
+      m_baseCaseSubSamplingFactor{1}
 {
+   //Select the base case by default:
+   selectDoEOptionBaseCase();
 }
 
 UAScenario::~UAScenario()
@@ -64,6 +66,18 @@ UAScenario::~UAScenario()
    for (DoeOption* doe : m_doeOptions)
    {
       delete doe;
+   }
+}
+
+void UAScenario::selectDoEOptionBaseCase()
+{
+   for (int i = 0; i < m_doeOptions.size(); i++)
+   {
+      if (m_doeOptions[i]->name() == "BaseCase")
+      {
+         setIsDoeOptionSelected(i,true);
+         break;
+      }
    }
 }
 
@@ -337,11 +351,11 @@ QString UAScenario::updateStateFileNameDoE()
    QFileInfo fi(newStateFileName);
    newStateFileName = fi.baseName();
    newStateFileName = newStateFileName
-         + "-"
-         + workspaceGenerator::getTimeStamp()
-         + "_"
-         + QString::number(s_stateFileIncrement)
-         + ".txt";
+                      + "-"
+                      + workspaceGenerator::getTimeStamp()
+                      + "_"
+                      + QString::number(s_stateFileIncrement)
+                      + ".txt";
    s_stateFileIncrement++;
    setStateFileNameDoE(newStateFileName);
    return newStateFileName;
@@ -592,7 +606,7 @@ QVector<InfluentialParameter*> UAScenario::influentialParametersWithRunData()
 void UAScenario::writeToFile(ScenarioWriter& writer) const
 {
    CasaScenario::writeToFile(writer);
-   writer.writeValue("UAScenarioVersion", 8);
+   writer.writeValue("UAScenarioVersion", 9);
    m_influentialParameterManager.writeToFile(writer);
    m_predictionTargetManager.writeToFile(writer);
    m_monteCarloDataManager.writeToFile(writer);
@@ -633,15 +647,11 @@ void UAScenario::readFromFile(const ScenarioReader& reader)
    const QVector<int> nDesignPoints = reader.readVector<int>("nDesignPoints");
    const int iLast = (nDesignPoints.size()<m_doeOptions.size()) ? nDesignPoints.size() : m_doeOptions.size();
 
+   m_isQcDoeOptionSelected = isQcDoeOptionSelected;
+
    for (int i = 0; i < iLast; ++i)
    {
       m_doeOptions[i]->setArbitraryNDesignPoints(nDesignPoints[i]);
-   }
-
-   if (isDoeOptionSelected.size() == m_doeOptions.size())
-   {
-      m_isDoeOptionSelected = isDoeOptionSelected;
-      m_isQcDoeOptionSelected = isQcDoeOptionSelected;
    }
 
    updateDoeConstantNumberOfDesignPoints(m_influentialParameterManager.totalNumberOfInfluentialParameters());
@@ -692,6 +702,23 @@ void UAScenario::readFromFile(const ScenarioReader& reader)
    {
       m_mcmcSettings.readFromFile(reader);
    }
+
+   if (version < 9)
+   {
+      if (isDoeOptionSelected.size()+1 == m_doeOptions.size())
+      {
+         m_isDoeOptionSelected.resize(0);
+         m_isDoeOptionSelected.push_back(false);
+         m_isDoeOptionSelected.append(isDoeOptionSelected);
+      }
+   }
+   else
+   {
+      if (isDoeOptionSelected.size() == m_doeOptions.size())
+      {
+         m_isDoeOptionSelected = isDoeOptionSelected;
+      }
+   }
 }
 
 void UAScenario::clear()
@@ -717,6 +744,9 @@ void UAScenario::clear()
 
    m_isStageComplete.clear();
    m_isStageUpToDate.clear();
+
+   //By default the base case should be selected:
+   selectDoEOptionBaseCase();
 }
 
 QString UAScenario::iterationDirName() const

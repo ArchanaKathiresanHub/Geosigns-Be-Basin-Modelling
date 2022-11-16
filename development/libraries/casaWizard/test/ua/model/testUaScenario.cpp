@@ -229,6 +229,14 @@ TEST(UAScenarioTest, TestGetDataAtTimeStep)
    EXPECT_DOUBLE_EQ(0.039, data[1][1]);
 }
 
+TEST(UAScenarioTest, TestInit)
+{
+   UAScenario scenario(new casaWizard::StubProjectReader());
+   //Base case should be selected by default:
+   EXPECT_TRUE(scenario.doeOptionSelectedNames().contains("BaseCase"));
+   EXPECT_TRUE(scenario.qcDoeOptionSelectedNames().contains("BaseCase"));
+}
+
 TEST(UAScenarioTest, TestClear)
 {
    UAScenario scenario(new casaWizard::StubProjectReader());
@@ -238,6 +246,9 @@ TEST(UAScenarioTest, TestClear)
    scenario.setMcmcSettings(mcmcSettings);
 
    scenario.clear();
+
+   EXPECT_TRUE(scenario.doeOptionSelectedNames().contains("BaseCase"));
+   EXPECT_TRUE(scenario.qcDoeOptionSelectedNames().contains("BaseCase"));
    EXPECT_EQ(500, scenario.mcmcSettings().nSamples());
    EXPECT_DOUBLE_EQ(1.6, scenario.mcmcSettings().standardDeviationFactor());
 }

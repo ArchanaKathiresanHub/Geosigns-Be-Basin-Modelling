@@ -40,46 +40,8 @@ McmcTargetExportData McmcOutputDataCollector::collectMcmcOutputData(const UAScen
 
 void McmcOutputDataCollector::collectMcmcOutputDataPrivate()
 {
-   readBaseCase();
+   readValuesFromTargetQcs();
    collectPredictionTargetData();
-}
-
-void McmcOutputDataCollector::readBaseCase()
-{
-   const QVector<DoeOption*> selectedOptions = m_scenario.doeSelected();
-
-   const QStringList optionsWithBaseCasePoint = {"Tornado", "BoxBehnken", "FullFactorial"};
-
-   bool baseCaseDesignPointPresent(false);
-   for (const DoeOption* option : selectedOptions)
-   {
-      if (!option->hasCalculatedDesignPoints())
-      {
-         continue;
-      }
-
-      if (optionsWithBaseCasePoint.contains(option->name()))
-      {
-         baseCaseDesignPointPresent = true;
-         break;
-      }
-      else
-      {
-         break;
-      }
-   }
-
-   if (!baseCaseDesignPointPresent)
-   {
-      Logger::log() << "Export MCMC data: First DoE option not guaranteed to contain base case point. Base case data is not exported." << Logger::endl();
-      return;
-   }
-
-   const QVector<TargetQC>& targetQcs = m_scenario.targetQCs();
-   if (targetQcs.size() > 0)
-   {
-      readValuesFromTargetQcs();
-   }
 }
 
 void McmcOutputDataCollector::readValuesFromTargetQcs()
@@ -98,31 +60,13 @@ void McmcOutputDataCollector::readValuesFromTargetQcs()
        {
           if (qcTarget.id() == predictionTargetIdx)
           {
-             m_baseCaseSimValues.push_back(qcTarget.y().first());
-             m_baseCaseProxyValues.push_back(qcTarget.yProxy().first());
+             m_baseCaseSimValues.push_back(qcTarget.yBase());
+             m_baseCaseProxyValues.push_back(qcTarget.yBaseProxy());
              m_optimalCaseSimValues.push_back(qcTarget.yOptimalSim());
              break;
           }
        }
    }
-}
-
-QVector<double> McmcOutputDataCollector::getPredictionData(const QVector<double>& values) const
-{
-   const QVector<int> idxRange = m_scenario.predictionDataObservablesIndexRange();
-
-   if (idxRange.back()+1 != values.size())
-   {
-      Logger::log() << "Export MCMC data: Failed to read prediction data, target indices do not match data size." << Logger::endl();
-      return QVector<double>();
-   }
-
-   QVector<double> predictionTargetVec;
-   for (int i : idxRange)
-   {
-      predictionTargetVec.push_back(values[i]);
-   }
-   return predictionTargetVec;
 }
 
 void McmcOutputDataCollector::collectPredictionTargetData()

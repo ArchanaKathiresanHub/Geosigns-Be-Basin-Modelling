@@ -24,7 +24,14 @@ TEST_F(McmcScriptTest, testWriteScript)
 
   scenario.updateIterationDir();
 
+  //Disable BaseCase:
+  scenario.setIsDoeOptionSelected(0,false);
+
+  //Disable spaceFilling:
+  scenario.setIsDoeOptionSelected(6, false);
+
   casaWizard::ua::McmcScript script(scenario);
+
   script.writeScript();
 
   expectFileEq(expectedFile, actualFile);

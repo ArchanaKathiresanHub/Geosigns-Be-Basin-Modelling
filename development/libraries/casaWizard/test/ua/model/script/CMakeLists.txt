@@ -6,6 +6,10 @@ add_casawizard_ua_gtest( NAME AddedCasesScript
                          SOURCES testAddCasesScript.cpp setupTestCasaScript.h )
 configure_file( AddCasesScriptExpected.casa AddCasesScriptExpected.casa COPYONLY )
 
+add_casawizard_ua_gtest( NAME CollectObservablesScript
+                         SOURCES TestCollectObservablesScript.cpp setupTestCasaScript.h )
+configure_file( collectObservablesScriptExpected.casa collectObservablesScriptExpected.casa COPYONLY )
+
 add_casawizard_ua_gtest( NAME OptimalCaseScript
                          SOURCES testOptimalCaseScript.cpp setupTestCasaScript.h )
 configure_file( OptimalCaseScriptExpected.casa OptimalCaseScriptExpected.casa COPYONLY )

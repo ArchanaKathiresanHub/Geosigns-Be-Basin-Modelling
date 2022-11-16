@@ -17,7 +17,7 @@
 // Project writer using the Cauldron Model Building (CMB) API for reading of the project 3d file
 namespace mbapi
 {
-  class Model;
+class Model;
 }
 
 namespace casaWizard
@@ -25,22 +25,24 @@ namespace casaWizard
 
 class CMBProjectWriter : public ProjectWriter
 {
-public:
-  explicit CMBProjectWriter(const QString& projectFile);
-  ~CMBProjectWriter() override;
+   public:
+   explicit CMBProjectWriter(const QString& projectFile);
+   ~CMBProjectWriter() override;
 
-  void generateOutputProject(const QString& timeStamp, const QString& originalProject) override;
-  void setRelevantOutputParameters(const QStringList& activeProperties) override;
-  void setScaling(int scaleX, int scaleY) override;
+   void addAllMapsToInputsFile() override;
 
-private:
-  std::unique_ptr<mbapi::Model> cmbModel_;
+   void generateOutputProject(const QString& timeStamp, const QString& originalProject) override;
+   void setRelevantOutputParameters(const QStringList& activeProperties) override;
+   void setScaling(int scaleX, int scaleY) override;
 
-  void copyFilterTimeIoTbl(const QString& projectFile);
-  void appendTimeStampToCalibratedLithoMaps(const QString& timeStamp);
-  void appendTimeStampToT2ZMaps(const QString& timeStamp);
-  void appendTimeStampToCalibratedTCHPMap(const QString& timeStamp);
-  void deleteOutputTables();
+   private:
+   std::unique_ptr<mbapi::Model> cmbModel_;
+
+   void copyFilterTimeIoTbl(const QString& projectFile);
+   void appendTimeStampToCalibratedLithoMaps(const QString& timeStamp);
+   void appendTimeStampToT2ZMaps(const QString& timeStamp);
+   void appendTimeStampToCalibratedTCHPMap(const QString& timeStamp);
+   void deleteOutputTables();
 };
 
 } // namespace casaWizard

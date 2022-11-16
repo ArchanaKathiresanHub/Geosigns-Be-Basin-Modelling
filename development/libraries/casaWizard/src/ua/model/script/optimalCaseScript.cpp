@@ -14,91 +14,71 @@ namespace casaWizard
 namespace ua
 {
 
-OptimalCaseScript::OptimalCaseScript(const UAScenario& scenario) :
-  CasaScript(scenario.workingDirectory()),
-  scenario_{scenario},
-  optimalCaseDirectory_{scenario_.workingDirectory() + "/" + scenario_.runLocation() + "/Calibrated_Project"}
+OptimalCaseScript::OptimalCaseScript(const UAScenario& scenario, QString optimalProjectName) :
+    CasaScript(scenario.workingDirectory()),
+    m_scenario{scenario},
+    m_optimalProjectName(optimalProjectName)
 {
+   m_optimalCaseDirectory = m_scenario.workingDirectory() +
+                           "/" + m_scenario.runLocation() +
+                           "/Calibrated_" +
+                           m_optimalProjectName.left(m_optimalProjectName.indexOf((".")));
 }
 
 const CasaScenario& OptimalCaseScript::scenario() const
 {
-  return scenario_;
+   return m_scenario;
 }
 
 QString OptimalCaseScript::scriptFilename() const
 {
-  return QString("optimalCaseScript.casa");
+   return QString("optimalCaseScript.casa");
 }
 
 QString OptimalCaseScript::workingDirectory() const
 {
-  return QString(scenario_.workingDirectory());
+   return QString(m_scenario.workingDirectory());
 }
 
 QString OptimalCaseScript::optimalCaseDirectory() const
 {
-  return optimalCaseDirectory_;
+   return m_optimalCaseDirectory;
 }
 
 bool OptimalCaseScript::generateCommands()
 {
-  addCommand("rm", QStringList() << "-rf " << optimalCaseDirectory_);
-  return CasaScript::generateCommands();
+   addCommand("rm", QStringList() << "-rf " << m_optimalCaseDirectory);
+   return CasaScript::generateCommands();
 }
 
 bool OptimalCaseScript::validateScenario() const
 {
-  const QString runFolderStr = scenario_.workingDirectory() + "/" + scenario_.runLocation();
-  const QDir runFolderDir{runFolderStr};
+   const QString absolutePathMCMC = m_scenario.runCaseSetFileManager().iterationDirPath() + "/" + m_scenario.stateFileNameMCMC();
+   const QString stateFilename{absolutePathMCMC};
+   const QFileInfo checkFile(stateFilename);
 
-  if (!runFolderDir.exists() ||
-      !runFolderDir.isReadable())
-  {
-    return false;
-  }
+   if (!checkFile.exists())
+   {
+      Logger::log() << "State file \"" << stateFilename << "\" for MCMC run not found. Please run the calibration first" << Logger::endl();
+      return false;
+   }
 
-  const QFileInfoList entries = runFolderDir.entryInfoList();
-
-  unsigned int folderCounter = 0;
-
-  for (const QFileInfo& finfo : entries)
-  {
-    if (finfo.fileName().toStdString().find("Iteration_") != 0)
-    {
-      continue;
-    }
-
-    folderCounter++;
-  }
-
-  const QString absolutePathMCMC = runFolderStr + "/Iteration_" + QString::number(folderCounter) + "/" + scenario_.stateFileNameMCMC();
-  const QString stateFilename{absolutePathMCMC};
-  const QFileInfo checkFile(stateFilename);
-
-  if (!checkFile.exists())
-  {
-    Logger::log() << "State file \"" << stateFilename << "\" for MCMC run not found. Please run the calibration first" << Logger::endl();
-    return false;
-  }
-
-  if (!checkFile.isFile())
-  {
-    Logger::log() << "Path to state file is not a file" << Logger::endl();
-    return false;
-  }
-  return true;
+   if (!checkFile.isFile())
+   {
+      Logger::log() << "Path to state file is not a file" << Logger::endl();
+      return false;
+   }
+   return true;
 }
 
 void OptimalCaseScript::writeScriptContents(QFile& file) const
 {
-  QString filename{"Project.project3d"};
-  QTextStream out(&file);
-  out << writeBaseProject(scenario_.project3dPath());
-  out << writeLoadState(scenario_.runLocation() + "/" + scenario_.iterationDirName() + "/" + scenario_.stateFileNameMCMC());
-  out << "generateCalibratedCase \"" + filename + "\" 1\n";
+   QTextStream out(&file);
+   out << writeBaseProject(m_scenario.project3dPath());
+   out << writeLoadState(m_scenario.runLocation() + "/" + m_scenario.iterationDirName() + "/" + m_scenario.stateFileNameMCMC());
+   out << "generateCalibratedCase \"" + m_optimalProjectName + "\" 1\n";
 
-  Logger::log() << "- \""  << filename << "\" will be in \"" << scenario_.runLocation() << "\"" << Logger::endl();
+   Logger::log() << "- \""  << m_optimalProjectName << "\" will be in \"" << m_scenario.runLocation() << "\"" << Logger::endl();
 }
 
 } // namespace ua

@@ -80,8 +80,9 @@ endmacro(add_casa_gtest)
 
 add_casa_gtest( NAME BLRSTest SOURCES test/BLRSTest.cpp )
 
-add_casa_gtest( NAME DoETest SOURCES test/DoETest.cpp
-)
+add_casa_gtest( NAME ScenarioAnalysisTest SOURCES test/ScenarioAnalysisTest.cpp )
+
+add_casa_gtest( NAME DoETest SOURCES test/DoETest.cpp)
 
 add_casa_gtest( NAME MutatorTest SOURCES test/MutatorTest.cpp )
 

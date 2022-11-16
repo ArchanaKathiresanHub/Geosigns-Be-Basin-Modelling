@@ -30,5 +30,6 @@ TEST_F(AddCasesScriptTest, testWriteScript)
    casaWizard::ua::AddCasesScript script(scenario);
    EXPECT_TRUE(script.writeScript());
 
-   expectFileEq(expectedFile, actualFile,{8});
+   const int lineWithTimeStamp = 8; //skip line with time stamp in equality check
+   expectFileEq(expectedFile, actualFile,{lineWithTimeStamp});
 }

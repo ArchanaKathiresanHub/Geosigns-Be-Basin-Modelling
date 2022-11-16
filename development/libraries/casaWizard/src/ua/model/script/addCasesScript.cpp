@@ -34,6 +34,7 @@ void AddCasesScript::writeScriptContents(QFile& file) const
 
    out << writeLocation(uaScenario().runLocation(), true);
    out << writeRun(uaScenario().clusterName());
+
    out << writeExportDataTxt("RunCasesSimulationStates", uaScenario().simStatesTextFileName());
    out << writeExportDataTxt("DoeIndices", uaScenario().doeIndicesTextFileName());
 

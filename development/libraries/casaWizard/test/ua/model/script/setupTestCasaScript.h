@@ -33,11 +33,11 @@ public:
     ptManager.addDepthTarget(1000.0, 1500.0, 400.0, {"V"}); // Without time series (present day only)
 
     // Tornado doe
-    scenario.setIsDoeOptionSelected(0, true);
+    scenario.setIsDoeOptionSelected(1, true);
 
     // SpaceFilling doe
-    scenario.setIsDoeOptionSelected(5, true);
-    scenario.updateDoeArbitraryNDesignPoints(5, 50);
+    scenario.setIsDoeOptionSelected(6, true);
+    scenario.updateDoeArbitraryNDesignPoints(6, 50);
 
     // Set doe options for QC (also applied to UA).
     scenario.setIsQcDoeOptionSelected(0, true);

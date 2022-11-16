@@ -12,6 +12,8 @@
 #include "model/output/workspaceGenerator.h"
 #include "model/logger.h"
 
+#include "model/output/cmbProjectWriter.h"
+
 #include <QDir>
 #include <QFile>
 #include <QTextStream>
@@ -54,12 +56,20 @@ bool checkExists(const QString& path)
    return true;
 }
 
-void exportOptimalCase(const QString& optimalCaseDirectory, const QString& workingDirectory)
+void writeDerivedMapsToInputsFile(const QString& optimalCaseDirectory, QString optimalProjectName)
 {
-   if (!checkExists(optimalCaseDirectory + "/Project.project3d")) return;
+   CMBProjectWriter writer(optimalCaseDirectory + "/" + optimalProjectName);
+   writer.addAllMapsToInputsFile();
+}
+
+void exportOptimalCase(const QString& optimalCaseDirectory, const QString& workingDirectory, QString optimalProjectName, QString timeStamp)
+{
+   if (!checkExists(optimalCaseDirectory + "/" + optimalProjectName)) return;
 
    if (!tryCopy(workingDirectory, optimalCaseDirectory, "Project.txt")) return;
    if (!tryCopy(workingDirectory, optimalCaseDirectory, "Inputs.HDF")) return;
+
+   writeDerivedMapsToInputsFile(optimalCaseDirectory, optimalProjectName);
 
    QFile project(optimalCaseDirectory + "/Project.txt");
    QString text;
@@ -82,7 +92,7 @@ void exportOptimalCase(const QString& optimalCaseDirectory, const QString& worki
                }
                else
                {
-                  scenarioTitle = workspaceGenerator::getTimeStamp(scenarioTitle);
+                  scenarioTitle += timeStamp;
                }
                line = fields.first() + ": " + scenarioTitle;
             }
@@ -91,6 +101,7 @@ void exportOptimalCase(const QString& optimalCaseDirectory, const QString& worki
       }
    }
    project.close();
+
    //Write
    if(project.open(QIODevice::WriteOnly | QFile::Truncate)) //Truncate clears the file
    {
@@ -116,7 +127,11 @@ void exportOptimalCase(const QString& optimalCaseDirectory, const QString& worki
       return;
    }
 
-   functions::zipFolderContent(tmpdir, optimalCaseDirectory, "optimal");
+   QFile::rename(tmpdir.absolutePath() + "/" + optimalProjectName, tmpdir.absolutePath() + "/" + "Project.project3d");
+   functions::cleanFolder(tmpdir);
+
+   QString zipFolderName = "optimal" + timeStamp;
+   functions::zipFolderContent(tmpdir, optimalCaseDirectory, zipFolderName);
    tmpdir.removeRecursively();
 }
 

@@ -168,7 +168,7 @@ TEST_F( MutatorTest, TornadoBB2PrmsMutations )
       for ( size_t i = 0; i < sc.doeCaseSet().size(); ++i )
       {
          ibs::FilePath casePath( pathToIter.path( ) );
-         casePath << ( std::string( "Case_" ) + ibs::to_string( i + 1 + expNum * 5 ) ) << m_projectFileName;
+         casePath << ( std::string( "Case_" ) + ibs::to_string( i + 1 ) ) << m_projectFileName;
 
          // check that all files were generated correctly
          ASSERT_TRUE( casePath.exists() );

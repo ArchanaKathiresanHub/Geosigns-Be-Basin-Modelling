@@ -30,7 +30,7 @@ void TopCrustHeatProduction::fillArguments(const ProjectReader& projectReader)
    const double heatProductionRate = projectReader.heatProductionRate();
    if (Utilities::isValueUndefined(heatProductionRate))
    {
-      throw std::runtime_error("TopCrustHeatProduction can't be used as its not defined in the base project.");
+      throw std::runtime_error("TopCrustHeatProduction can't be used as it is not defined in the base project.");
    }
    arguments().setDoubleArguments({0.9*heatProductionRate, 1.1*heatProductionRate});
 }

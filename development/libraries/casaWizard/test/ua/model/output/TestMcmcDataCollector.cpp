@@ -60,8 +60,8 @@ TEST(McmcDataCollector, testCollecting )
    EXPECT_TRUE(exportData.targetData.size() == 1);
 
    //DoE type and order is used to determine if the base case is run.
-   scenario.setIsDoeOptionSelected(4,true);
-   EXPECT_EQ(scenario.doeOptions()[4]->name(),"FullFactorial");
+   scenario.setIsDoeOptionSelected(0,true);
+   EXPECT_EQ(scenario.doeOptions()[0]->name(),"BaseCase");
 
    exportData = McmcOutputDataCollector::collectMcmcOutputData(scenario);
    const TargetDataSingleProperty& prop = exportData.targetData.first().targetOutputs["Temperature"];
@@ -72,7 +72,11 @@ TEST(McmcDataCollector, testCollecting )
 
    QVector<TargetQC> targetQCs;
    TargetQC t1(0.0,"Temperature","","",false,0.0, 0.0, 0,0,0, {65},{66});
+   t1.setValBaseSim(65.0);
+   t1.setValBaseProxy(66.0);
    TargetQC t2(1.0,"VRe","","",false,0.0, 0.0, 0, 0, 0, {55},{56});
+   t2.setValBaseSim(55.0);
+   t2.setValBaseProxy(56.0);
    targetQCs.push_back(t1);
    targetQCs.push_back(t2);
    scenario.setTargetQCs(targetQCs);
@@ -113,15 +117,4 @@ TEST(McmcDataCollector, testCollecting )
       EXPECT_TRUE(isnan(prop.p90));
    }
 
-   {
-      scenario.setIsDoeOptionSelected(2,true);
-      EXPECT_EQ(scenario.doeOptions()[2]->name(),"PlackettBurman");
-      exportData = McmcOutputDataCollector::collectMcmcOutputData(scenario);
-      const TargetDataSingleProperty& prop = exportData.targetData.first().targetOutputs["temperature"];
-
-      //If PlackettBurman was run, the base case is not the first case and is not guaranteed to be there, its not read.
-      //(if however, Tornado of Box-Behnken was run before PlackettBurman, we do read the base case as the first case.)
-      EXPECT_TRUE(isnan(prop.baseProxy));
-      EXPECT_TRUE(isnan(prop.baseSim));
-   }
 }

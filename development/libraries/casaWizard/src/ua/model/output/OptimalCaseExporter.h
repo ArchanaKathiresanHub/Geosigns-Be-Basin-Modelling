@@ -16,7 +16,7 @@ namespace ua
 {
 namespace optimalCaseExporter
 {
-void exportOptimalCase(const QString& optimal, const QString& workingDirectory);
+void exportOptimalCase(const QString& optimal, const QString& workingDirectory, QString optimalProjectName = "Project.project3d", QString timeStamp = "");
 } //optimalCaseExporter
 } //ua
 } //casaWizard
