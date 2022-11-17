@@ -43,7 +43,7 @@ public:
 
   QStringList lithologyTypesForLayer(const int /*layerIndex*/) const override
   {
-    return {"Type1", "Type2"};
+    return {"Type1", "Type2",""};
   }
 
   QVector<double> lithologyValuesForLayerAtLocation(const int layerIndex, const double xLoc, const double yLoc) const override

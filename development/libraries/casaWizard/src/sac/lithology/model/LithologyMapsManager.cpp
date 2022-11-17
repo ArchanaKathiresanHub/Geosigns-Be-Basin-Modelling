@@ -78,11 +78,16 @@ void LithologyMapsManager::exportOptimizedMapsToZycor(const ProjectReader& proje
       int iLithoName = 0;
       for (const VectorVectorMap& lithoMap : lithoMaps)
       {
-         writer.writeToFile(targetPath.toStdString() + "/" +
-                            projectReader.layerNames()[i].toStdString() + "_" +
-                            lithoNames[iLithoName].toStdString() + ".zyc",
-                            lithoMap.getData(),
-                            metaData);
+         QString lithoName =  lithoNames[iLithoName];
+         if (!lithoName.isEmpty()) //Don't make maps if there is no lithology
+         {
+             writer.writeToFile(targetPath.toStdString() + "/" +
+                                projectReader.layerNames()[i].toStdString() + "_" +
+                                lithoNames[iLithoName].toStdString() + ".zyc",
+                                lithoMap.getData(),
+                                metaData);
+         }
+
 
          iLithoName++;
       }

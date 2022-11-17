@@ -27,7 +27,7 @@ public:
   }
   std::vector<VectorVectorMap> getOptimizedLithoMapsInLayer(const int /*layerIndex*/) const override
   {
-    return {VectorVectorMap({{1.0, 2.0}, {3.0, 4.0}}), VectorVectorMap({{5.0, 6.0}, {7.0, 8.0}})};
+    return {VectorVectorMap({{1.0, 2.0}, {3.0, 4.0}}), VectorVectorMap({{5.0, 6.0}, {7.0, 8.0}}), VectorVectorMap({{0.0, 0.0}, {0.0, 0.0}})};
   }
   std::vector<VectorVectorMap> getInputLithoMapsInLayer(const int /*layerIndex*/) const override {return {};}
   VectorVectorMap getTopCrustHeatProductionMap() const override { return VectorVectorMap({{1.0, 2.0}, {3.0, 4.0}}); }
