@@ -725,10 +725,6 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::applyMutations(RunCaseSet & rcs , c
       baseCasePath.create();
       baseCasePath << projectFileName;
       baseRunCase->mutateCaseTo( baseCase(), baseCasePath.path().c_str() );
-
-      //Needed to enable added points simulations in cases with surface temperature as influential parameter,
-      //if the age at which the parameter is varied is not in the initial base project.
-      defineBaseCase(baseCasePath.path().c_str());
    }
 
    //Find the first un used case num.
