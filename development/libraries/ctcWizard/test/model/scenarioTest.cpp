@@ -12,8 +12,6 @@
 #include "gtest/gtest.h"
 #include "../../src/model/ctcScenario.h"
 
-#include <QStringList>
-
 // Test Fixture SetUp
 namespace ctcWizard {
 	class TestCTCWizard : public ::testing::Test {

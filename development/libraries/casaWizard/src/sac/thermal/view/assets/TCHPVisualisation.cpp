@@ -44,7 +44,7 @@ TCHPVisualisation::TCHPVisualisation(QWidget *parent) :
    setSizePolicy(retainSize);
 
    QPalette pal = palette();
-   pal.setColor(QPalette::Window, Qt::white);
+   pal.setColor(QPalette::Background, Qt::white);
    setAutoFillBackground(true);
    setPalette(pal);
 }

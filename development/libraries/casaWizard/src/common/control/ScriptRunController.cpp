@@ -13,7 +13,6 @@
 
 #include <QApplication>
 #include <QDialog>
-#include <QElapsedTimer>
 #include <QProcess>
 #include <QPushButton>
 #include <QTime>
@@ -48,7 +47,7 @@ ScriptRunController::ScriptRunController(QObject* parent) :
 bool ScriptRunController::processCommand(const RunCommand& command)
 {
    m_process->setWorkingDirectory(m_script->baseDirectory() + "/" + command.relativeDirectory);
-   m_process->start(command.command, command.commandArguments);
+   m_process->start(command.command);
    if (!m_process->waitForStarted())
    {
       m_process->kill();
@@ -96,27 +95,20 @@ bool ScriptRunController::runScript(RunScript& script, QObject * receiver, const
       return false;
    }
    QTime time;
-   QElapsedTimer elapsedTimer;
-   elapsedTimer.start();
-   Logger::log() << "Start processing: " << time.toString() << Logger::endl();
+   time.start();
+   Logger::log() << "Start processing: " << time.currentTime().toString() << Logger::endl();
 
    for (const RunCommand& command : script.commands())
    {
       if (m_processCancelled) break;
 
-      QString commandText = command.command;
-      for (const QString& commandArgument : command.commandArguments)
-      {
-         commandText += " " + commandArgument;
-      }
-
-      m_dialog.setText( commandText );
+      m_dialog.setText( command.command );
       m_dialog.raise();
-      Logger::log() << commandText << Logger::endl();
+      Logger::log() << command.command << Logger::endl();
 
       if (!processCommand(command))
       {
-         Logger::log() << "Last command failed: " << command.command << " " << command.commandArguments[0] << Logger::endl();
+         Logger::log() << "Last command failed: " << command.command << Logger::endl();
          m_processCancelled = true;
          break;
       }
@@ -137,7 +129,7 @@ bool ScriptRunController::runScript(RunScript& script, QObject * receiver, const
       QMetaObject::invokeMethod(receiver, slot);
    }
 
-   int elapsed = elapsedTimer.elapsed();
+   int elapsed = time.elapsed();
    const int hours = elapsed/3600000; elapsed = elapsed % 3600000;
    const int minutes = elapsed/60000; elapsed = elapsed % 60000;
    const int seconds = elapsed/1000; elapsed = elapsed % 1000;

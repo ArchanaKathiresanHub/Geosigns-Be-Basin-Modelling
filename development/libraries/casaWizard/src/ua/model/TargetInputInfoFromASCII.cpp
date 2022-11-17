@@ -51,7 +51,7 @@ QVector<TargetInputInfo::XYName> TargetInputInfoFromASCII::getTargetLocations() 
       {
          counter ++;
          QString line = in.readLine();
-         QStringList variables{line.split(",", Qt::SkipEmptyParts)};
+         QStringList variables{line.split(",", QString::SplitBehavior::SkipEmptyParts)};
 
          if (variables.size() >= 2 && variables.size() <= 3){
             TargetInputInfo::XYName entry;

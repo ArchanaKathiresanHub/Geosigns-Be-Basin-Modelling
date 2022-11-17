@@ -19,7 +19,7 @@ include(cmake/AddPackage.cmake)
 message(STATUS "BLAS vendor is set to ${BLA_VENDOR}" )
 
 set(INTEL_MKL_ROOT "INTEL_MKL_ROOT-NOTFOUND" CACHE PATH "Path to Intel MKL" )
-set(INTEL_MKL_VERSION "oneMKL 2021.2" CACHE STRING "Intel MKL version")
+set(INTEL_MKL_VERSION "11.3.1.150" CACHE STRING "Intel MKL version")
 
 if (UNIX)
    if ( BLA_VENDOR STREQUAL "MKL" )
@@ -35,7 +35,7 @@ if (UNIX)
             "-Wl,--end-group" 
          )
          set( BLAS_FOUND ON )
-         #set( BLAS_ROOT "${INTEL_MKL_ROOT}" CACHE PATH "Path to BLAS library" ) # To be used if BLAS is not found from path
+         set( BLAS_ROOT "${INTEL_MKL_ROOT}" CACHE PATH "Path to BLAS library" )
       else()
          set( MKL_LIBRARIES "BLAS_LIBRARIES-NOTFOUND")
          set( BLAS_FOUND OFF )
@@ -83,7 +83,7 @@ add_external_package_info(
        VENDOR       "Intel"
        VERSION      "${INTEL_MKL_VERSION}"
        LICENSE_TYPE "Commercial"
-       LICENSE_FILE "${INTEL_MKL_ROOT}/licensing/license.txt"
+       LICENSE_FILE "${INTEL_CXX_ROOT}/Documentation/en_US/clicense"
        URL          "http://software.intel.com/en-us/intel-mkl"
        DESCRIPTION  "Intel Math Kernel Library"
        REQUIRED_AT  "Runtime"

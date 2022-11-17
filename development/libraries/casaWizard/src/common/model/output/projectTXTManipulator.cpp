@@ -41,7 +41,7 @@ void ProjectTXTManipulator::appendStampToScenarioName(const QString& stamp) cons
       line += "_" + stamp;
     }
 
-    out << line << Qt::endl;
+    out << line << endl;
   }
 
   textFile.close();

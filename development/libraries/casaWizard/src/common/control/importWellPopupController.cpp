@@ -19,7 +19,6 @@
 #include <QSet>
 #include <QString>
 #include <QTableWidget>
-#include <QPushButton>
 
 namespace casaWizard
 {
@@ -30,9 +29,7 @@ ImportWellPopupController::ImportWellPopupController(QObject* parent, CasaScenar
   waitingDialog_{}
 {
   waitingDialog_.setIcon(QMessageBox::Icon::Information);
-  waitingDialog_.setStandardButtons(QMessageBox::Cancel);
-  waitingDialog_.button(QMessageBox::Cancel)->hide();
-  waitingDialog_.setWindowFlags(Qt::Window | Qt::WindowTitleHint | Qt::CustomizeWindowHint);
+  waitingDialog_.setStandardButtons(nullptr);
 }
 
 void ImportWellPopupController::importOnSeparateThread(CalibrationTargetCreator& calibrationTargetCreator)

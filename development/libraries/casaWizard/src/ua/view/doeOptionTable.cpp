@@ -51,7 +51,7 @@ void DoeOptionTable::updateTable(const QVector<DoeOption*>& doeOptions, const QV
 
     if (doeOption->hasCalculatedDesignPoints())
     {
-      itemNDesignPoints->setForeground(Qt::gray);
+      itemNDesignPoints->setTextColor(Qt::gray);
       itemNDesignPoints->setFlags(itemNDesignPoints->flags() ^ Qt::ItemIsEditable);
     }
 

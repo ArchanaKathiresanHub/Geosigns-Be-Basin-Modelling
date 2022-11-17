@@ -22,12 +22,6 @@ TEST(OptimizedTCHPScriptTest, testGenerateCommands)
   // Then
   EXPECT_EQ(script.commands()[1].relativeDirectory, "Folder1"); // starts at 1, since the first command is "which casa"
   EXPECT_EQ(script.commands()[2].relativeDirectory, "Folder2");
-  EXPECT_EQ(script.commands()[1].command, "casa.exe");
-  EXPECT_EQ(script.commands()[2].command, "casa.exe");
-
-
-  EXPECT_EQ(script.commands()[1].commandArguments.size(), 1);
-  EXPECT_EQ(script.commands()[1].commandArguments[0], "obtainTCHP.casa");
-  EXPECT_EQ(script.commands()[2].commandArguments.size(), 1);
-  EXPECT_EQ(script.commands()[2].commandArguments[0], "obtainTCHP.casa");
+  EXPECT_EQ(script.commands()[1].command, "casa.exe obtainTCHP.casa");
+  EXPECT_EQ(script.commands()[2].command, "casa.exe obtainTCHP.casa");
 }

@@ -148,10 +148,10 @@ char* CauldronIO::DataStoreLoad::decompress(const char* inputData, size_t& eleme
 char* CauldronIO::DataStoreLoad::decompress_lz4(const char* inputData, size_t compressedSize, size_t uncompressedSize)
 {
     char* dest = new char[uncompressedSize];
-    int actualDecompressedSize = LZ4_decompress_safe(inputData, dest, compressedSize, (int)uncompressedSize);
+    size_t actualCompressedSize = (size_t)LZ4_decompress_fast(inputData, dest, (int)uncompressedSize);
 
     // Check for success
-    if (actualDecompressedSize < 0)
+    if (compressedSize != actualCompressedSize)
         throw CauldronIOException("Error during decompression");
 
     return dest;

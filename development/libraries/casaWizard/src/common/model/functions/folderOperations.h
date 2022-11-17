@@ -21,7 +21,7 @@ void zipFolderContent(const QDir& sourceDir, const QString &targetDestination, c
 
 void exportScenarioToZip(const QDir& sourceDir, const QString& workingDirectory, const QString& projectFile, InfoGenerator& infoGenerator);
 
-void processCommand(QProcess& process, const QString& command, const QStringList& arguments);
+void processCommand(QProcess& process, const QString& command);
 
 void cleanFolder(const QDir& folder);
 

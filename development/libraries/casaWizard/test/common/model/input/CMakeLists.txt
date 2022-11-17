@@ -13,6 +13,9 @@ add_casawizard_common_gtest( NAME CalibrationTargetCreator
 configure_file( testWellData.xlsx testWellData.xlsx COPYONLY )
 configure_file( testWellDataWithDeletes.xlsx testWellDataWithDeletes.xlsx COPYONLY )
 
+add_casawizard_common_gtest( NAME XlsxFileMapCreator
+                             SOURCES testXlsxFileMapCreator.cpp )
+
 add_casawizard_common_gtest( NAME CMBProjectReader
                              SOURCES testCMBProjectReader.cpp )
 configure_file( CMBProjectReaderTest.project3d CMBProjectReaderTest.project3d COPYONLY )

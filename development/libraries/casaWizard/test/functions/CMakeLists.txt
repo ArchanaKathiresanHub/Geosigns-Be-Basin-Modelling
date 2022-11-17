@@ -1,5 +1,10 @@
 set(CFGFLS "${PROJECT_SOURCE_DIR}/geocase/misc")
 
+add_gtest( NAME casaWizard_functions::CheckQMapKeysAreUnique
+           SOURCES testCheckQMapKeysAreUnique.cpp checkQMapKeysAreUnique.h
+           ENV_VARS CTCDIR=${CFGFLS} EOSPACKDIR=${CFGFLS}/eospack
+           LIBRARIES Qt5::Core )
+
 add_gtest( NAME casaWizard_functions::ExpectFileEq
            SOURCES testExpectFileEq.cpp expectFileEq.h
            ENV_VARS CTCDIR=${CFGFLS} EOSPACKDIR=${CFGFLS}/eospack )

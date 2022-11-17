@@ -624,8 +624,8 @@ QVector<QVector<const CalibrationTarget*> > CalibrationTargetManager::extractWel
    }
 
    // Remove duplicate properties
-   QSet<QString> setProperties = QSet<QString>(propertyUserNames.begin(), propertyUserNames.end());
-   propertyUserNames = setProperties.values();
+   QSet<QString> setProperties = propertyUserNames.toSet();
+   propertyUserNames = setProperties.toList();
    std::sort(propertyUserNames.begin(), propertyUserNames.end());
    return targetsInWells;
 }

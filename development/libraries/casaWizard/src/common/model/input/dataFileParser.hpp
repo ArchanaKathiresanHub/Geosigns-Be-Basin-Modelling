@@ -38,7 +38,7 @@ template<class Type>
 QVector<Type> readRowToVector(const QString& line)
 {
    QVector<Type> rowData;
-   const QStringList entries{line.split(" ", Qt::SkipEmptyParts)};
+   const QStringList entries{line.split(" ", QString::SplitBehavior::SkipEmptyParts)};
 
    for (const QString& entry : entries)
    {

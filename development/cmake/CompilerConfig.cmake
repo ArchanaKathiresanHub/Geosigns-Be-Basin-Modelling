@@ -15,14 +15,10 @@ include(cmake/EnvSetup.cmake)
 
 # Some of the below variables are already set by Go*.cmake files
 set(INTEL_CXX_ROOT "INTEL_CXX_ROOT-NOTFOUND" CACHE PATH "Path to Intel's compiler collection")
-message (STATUS "This is the CXX IN CONFIG ${INTEL_CXX_ROOT}")
-set(INTEL_MPI_VERSION "2021a" CACHE STRING "Intel MPI version")
-set(INTEL_MPI_ENV_VAR_PATH "env/vars.sh" CACHE STRING "Set the environment variable sourcing script for Intel MPI." )
+
+set(INTEL_MPI_VERSION "2019a" CACHE STRING "Intel MPI version")
 set(INTEL_MPI_ROOT "INTEL_MPI_ROOT-NOTFOUND" CACHE PATH "Path to Intel MPI library" )
 set(INTEL_MPI_FLAVOUR "opt" CACHE STRING "Intel MPI library type. Choose from: opt, opt_mt, dbg, dbg_mt, log, log_mt" )
-
-set(INTEL_COMPILER_ENV_VAR_PATH "compiler/latest/env/vars.sh" CACHE STRING "Set the environment variable sourcing script for Intel compilers." )
-set(TARGET_ARCHI "intel64" CACHE STRING "Set target architechture.")
 
 option(BM_USE_INTEL_COMPILER "Whether to use the Intel compiler (UNIX only)" OFF)
 option(BM_USE_INTEL_MPI "Whether to use the Intel MPI (UNIX only)" OFF)
@@ -55,12 +51,13 @@ if (UNIX)
    if (BM_USE_INTEL_COMPILER)
 
       # Add environment set-up scripts to generated script
-      add_environment_source_script(BOURNE "${INTEL_CXX_ROOT}/${INTEL_COMPILER_ENV_VAR_PATH} ${TARGET_ARCHI}")
+      add_environment_source_script(CSHELL "${INTEL_CXX_ROOT}/bin/compilervars.csh intel64")
+      add_environment_source_script(BOURNE "${INTEL_CXX_ROOT}/bin/compilervars.sh intel64")
 
-      add_environment_source_script_to_wrapper( cc "${INTEL_CXX_ROOT}/${INTEL_COMPILER_ENV_VAR_PATH} ${TARGET_ARCHI}")
-      add_environment_source_script_to_wrapper( cxx "${INTEL_CXX_ROOT}/${INTEL_COMPILER_ENV_VAR_PATH} ${TARGET_ARCHI}")
-      add_environment_source_script_to_wrapper( ccwl "${INTEL_CXX_ROOT}/${INTEL_COMPILER_ENV_VAR_PATH} ${TARGET_ARCHI}")
-      add_environment_source_script_to_wrapper( cxxwl "${INTEL_CXX_ROOT}/${INTEL_COMPILER_ENV_VAR_PATH} ${TARGET_ARCHI}")
+      add_environment_source_script_to_wrapper( cc "${INTEL_CXX_ROOT}/bin/compilervars.sh intel64")
+      add_environment_source_script_to_wrapper( cxx "${INTEL_CXX_ROOT}/bin/compilervars.sh intel64")
+      add_environment_source_script_to_wrapper( ccwl "${INTEL_CXX_ROOT}/bin/compilervars.sh intel64")
+      add_environment_source_script_to_wrapper( cxxwl "${INTEL_CXX_ROOT}/bin/compilervars.sh intel64")
 
       # Add package info
       add_external_package_info(
@@ -112,12 +109,13 @@ if (UNIX)
          endif()
 
          #  Add MPI to the environment set-up script and wrappers
-         add_environment_source_script_to_wrapper( cc "${INTEL_MPI_ROOT}/${INTEL_MPI_ENV_VAR_PATH}")
-         add_environment_source_script_to_wrapper( cxx "${INTEL_MPI_ROOT}/${INTEL_MPI_ENV_VAR_PATH}")
-         add_environment_source_script_to_wrapper( ccwl "${INTEL_MPI_ROOT}/${INTEL_MPI_ENV_VAR_PATH}")
-         add_environment_source_script_to_wrapper( cxxwl "${INTEL_MPI_ROOT}/${INTEL_MPI_ENV_VAR_PATH}")
+         add_environment_source_script_to_wrapper( cc "${INTEL_MPI_ROOT}/intel64/bin/mpivars.sh")
+         add_environment_source_script_to_wrapper( cxx "${INTEL_MPI_ROOT}/intel64/bin/mpivars.sh")
+         add_environment_source_script_to_wrapper( ccwl "${INTEL_MPI_ROOT}/intel64/bin/mpivars.sh")
+         add_environment_source_script_to_wrapper( cxxwl "${INTEL_MPI_ROOT}/intel64/bin/mpivars.sh")
 
-         add_environment_source_script(BOURNE "${INTEL_MPI_ROOT}/${INTEL_MPI_ENV_VAR_PATH}")
+         add_environment_source_script(CSHELL "${INTEL_MPI_ROOT}/intel64/bin/mpivars.csh")
+         add_environment_source_script(BOURNE "${INTEL_MPI_ROOT}/intel64/bin/mpivars.sh")
 
          if (BM_USE_INTEL_COMPILER)
             # Use the MPI compiler frontends to the Intel compiler -- mpiicc and mpiicpc -- as compilers.
@@ -128,8 +126,8 @@ if (UNIX)
             finish_wrapper( cxxwl "mpiicpc ${args}" CXX_Compiler_Without_Linking ADDITIVE)
 
             # start generating environment for mpiexec and mpirun utilitise
-            add_environment_source_script_to_wrapper( mpiexec "${INTEL_CXX_ROOT}/${INTEL_COMPILER_ENV_VAR_PATH} ${TARGET_ARCHI}")
-            add_environment_source_script_to_wrapper( mpirun "${INTEL_CXX_ROOT}/${INTEL_COMPILER_ENV_VAR_PATH} ${TARGET_ARCHI}")
+            add_environment_source_script_to_wrapper( mpiexec "${INTEL_CXX_ROOT}/bin/compilervars.sh intel64")
+            add_environment_source_script_to_wrapper( mpirun "${INTEL_CXX_ROOT}/bin/compilervars.sh intel64")
 
          else(BM_USE_INTEL_COMPILER)
 
@@ -176,8 +174,8 @@ if (UNIX)
          endif()
 
          # Write wrappers for mpiexec and mpirun utilities
-         add_environment_source_script_to_wrapper( mpiexec "${INTEL_MPI_ROOT}/${INTEL_MPI_ENV_VAR_PATH}")
-         add_environment_source_script_to_wrapper( mpirun "${INTEL_MPI_ROOT}/${INTEL_MPI_ENV_VAR_PATH}")
+         add_environment_source_script_to_wrapper( mpiexec "${INTEL_MPI_ROOT}/intel64/bin/mpivars.sh")
+         add_environment_source_script_to_wrapper( mpirun "${INTEL_MPI_ROOT}/intel64/bin/mpivars.sh")
 
          finish_wrapper( mpiexec "mpiexec ${args}" MpiExec ADDITIVE)
          finish_wrapper( mpirun "mpirun ${args}" MpiRun ADDITIVE)
@@ -189,7 +187,7 @@ if (UNIX)
              VENDOR       "Intel"
              VERSION      "${INTEL_MPI_VERSION}"
              LICENSE_TYPE "Commercial"
-             LICENSE_FILE "${INTEL_MPI_ROOT}/licensing/license.txt"
+             LICENSE_FILE "${INTEL_MPI_ROOT}/mpiEULA.txt"
              URL          "http://software.intel.com/en-us/intel-mpi-library"
              DESCRIPTION  "Intel's MPI implementation"
              REQUIRED_AT  "Runtime"

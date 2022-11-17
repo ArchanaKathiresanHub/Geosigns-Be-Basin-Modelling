@@ -160,13 +160,13 @@ void PlotBase::PlotBasePrivate::updatePlotRange(const int width, const int heigh
 {
    calculateTicks();
 
-  QFontMetrics fm(font_);
-  maxYtickWidth_ = 0;
-  for(const double yTick : majorYticks_)
-  {
-    double yTickSize = fm.horizontalAdvance(QString::number(yTick, 'g', 4));
-    maxYtickWidth_ = (maxYtickWidth_ > yTickSize) ? maxYtickWidth_ : yTickSize;
-  }
+   QFontMetrics fm(font_);
+   maxYtickWidth_ = 0;
+   for(const double yTick : majorYticks_)
+   {
+      double yTickSize = fm.width(QString::number(yTick, 'g', 4));
+      maxYtickWidth_ = (maxYtickWidth_ > yTickSize) ? maxYtickWidth_ : yTickSize;
+   }
 
    const double offsetHeight = majorTickLength + 2*fm.height() + 3*textSpacing;
    const double offsetWidth = majorTickLength + fm.height() + maxYtickWidth_ + 3*textSpacing;
@@ -235,24 +235,24 @@ void PlotBase::PlotBasePrivate::drawTicks(QPainter& painter)
       const QPointF p1 = valToPoint(xTick, yAxisMinValue_);
       const QPointF p2 = p1 + QPointF(0.0, majorTickLength);
 
-    text = QString::number(xTick, 'g', 4);
-    const double halfTextWidth = fm.horizontalAdvance(text)/2;
-    if (rightSideOFPreviousTick < 0 || p1.x() - halfTextWidth - rightSideOFPreviousTick >= margin)
-    {
+      text = QString::number(xTick, 'g', 4);
+      const double halfTextWidth = fm.width(text)/2;
+      if (rightSideOFPreviousTick < 0 || p1.x() - halfTextWidth - rightSideOFPreviousTick >= margin)
+      {
+         painter.drawLine(p1, p2);
+         painter.drawText(p2 + QPointF(-fm.width(text)/2, fm.height() + textSpacing), text);
+         rightSideOFPreviousTick = p1.x() + halfTextWidth;
+      }
+   }
+   for (const double& yTick : majorYticks_)
+   {
+      const QPointF p1 = valToPoint(xAxisMinValue_, yTick);
+      const QPointF p2 = p1 - QPointF(majorTickLength, 0.0);
       painter.drawLine(p1, p2);
-      painter.drawText(p2 + QPointF(-fm.horizontalAdvance(text)/2, fm.height() + textSpacing), text);
-      rightSideOFPreviousTick = p1.x() + halfTextWidth;
-    }
-  }
-  for (const double& yTick : majorYticks_)
-  {
-    const QPointF p1 = valToPoint(xAxisMinValue_, yTick);
-    const QPointF p2 = p1 - QPointF(majorTickLength, 0.0);
-    painter.drawLine(p1, p2);
-    text = invertYAxisLabel_ ? QString::number(-yTick,'g',4) : QString::number(yTick,'g',4) ;
-    painter.drawText(p2 + QPointF(-(fm.horizontalAdvance(text) + textSpacing), fm.height()/4.0), text);
-  }
-  painter.restore();
+      text = invertYAxisLabel_ ? QString::number(-yTick,'g',4) : QString::number(yTick,'g',4) ;
+      painter.drawText(p2 + QPointF(-(fm.width(text) + textSpacing), fm.height()/4.0), text);
+   }
+   painter.restore();
 }
 
 void PlotBase::PlotBasePrivate::drawLabels(QPainter& painter, const int height)
@@ -264,14 +264,14 @@ void PlotBase::PlotBasePrivate::drawLabels(QPainter& painter, const int height)
 
    const QPointF plotCenter = valToPoint( (xAxisMinValue_+xAxisMaxValue_)/2, (yAxisMinValue_+yAxisMaxValue_)/2);
 
-  const QPointF xLabelPosition( plotCenter.x() - fm.horizontalAdvance(xLabel_)/2, plotRangeBottomRight_.y() + textSpacing + 2*fm.height() + textSpacing);
-  painter.drawText(xLabelPosition, tmpXLabel);
+   const QPointF xLabelPosition( plotCenter.x() - fm.width(tmpXLabel)/2, plotRangeBottomRight_.y() + textSpacing + 2*fm.height() + textSpacing);
+   painter.drawText(xLabelPosition, tmpXLabel);
 
-  QPointF yLabelPosition( plotRangeTopLeft().x() - textSpacing - fm.height() - fm.horizontalAdvance(QString::number(majorYticks_[0],'g',4)), plotCenter.y() + fm.horizontalAdvance(tmpYLabel)/2);
-  painter.translate(yLabelPosition);
-  painter.rotate(-90);
-  painter.drawText(QPoint(0,0), tmpYLabel);
-  painter.restore();
+   QPointF yLabelPosition( plotRangeTopLeft().x() - textSpacing - fm.height() - fm.width(QString::number(majorYticks_[0],'g',4)), plotCenter.y() + fm.width(tmpYLabel)/2);
+   painter.translate(yLabelPosition);
+   painter.rotate(-90);
+   painter.drawText(QPoint(0,0), tmpYLabel);
+   painter.restore();
 }
 
 void PlotBase::PlotBasePrivate::calculateTicks()

@@ -29,7 +29,7 @@ Track1DAllWellScript::Track1DAllWellScript(const QString& baseDirectory,
 
 bool Track1DAllWellScript::generateCommands()
 {
-  addCommand("which", QStringList() << "track1d");
+  addCommand("which track1d");
 
   const int nCoordinates = xCoordinates_.size();
   if (properties_.size() == 0 || nCoordinates == 0 || nCoordinates != yCoordinates_.size())
@@ -37,29 +37,26 @@ bool Track1DAllWellScript::generateCommands()
     return false;
   }
 
-  QString command = "track1d";
+  QString command = "track1d -coordinates ";
 
-  QStringList arguments;
-  arguments << "-coordinates";
-
-  arguments << QString::number(xCoordinates_[0],'f') + ","
+  command += QString::number(xCoordinates_[0],'f') + ","
            + QString::number(yCoordinates_[0],'f');
 
   if (nCoordinates>1)
   {
     for (int i=1; i<nCoordinates; ++i)
     {
-      arguments.last() += "," + QString::number(xCoordinates_[i], 'f')
+      command += "," + QString::number(xCoordinates_[i], 'f')
                + "," + QString::number(yCoordinates_[i], 'f');
     }
   }
 
-  arguments << "-properties" << properties_.join(',')
-             << "-age" << "0"
-             << "-project" << projectFileName_
-             << "-save" << "welldata.csv";
+  command += " -properties " + properties_.join(',')
+             + " -age 0"
+             + " -project " + projectFileName_
+             + " -save welldata.csv";
 
-  addCommand(command, arguments);
+  addCommand(command);
 
   return true;
 }

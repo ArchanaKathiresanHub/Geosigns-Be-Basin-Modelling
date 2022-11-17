@@ -28,7 +28,7 @@ void Legend::paintEvent(QPaintEvent* /*event*/)
   double maxLegendWidth = 0;
   for( int i = 0; i<nNames; ++i)
   {
-    const double w = fm.horizontalAdvance(entries_[i]);
+    const double w = fm.width(entries_[i]);
     maxLegendWidth = (w>maxLegendWidth)?w:maxLegendWidth;
   }
 
@@ -62,7 +62,7 @@ void Legend::paintEvent(QPaintEvent* /*event*/)
         break;
     }
 
-    previousPoint = y + h*3/2 + QPointF(fm.horizontalAdvance(entries_[iEntry]),0);
+    previousPoint = y + h*3/2 + QPointF(fm.width(entries_[iEntry]),0);
 
     ++iEntry;
   }

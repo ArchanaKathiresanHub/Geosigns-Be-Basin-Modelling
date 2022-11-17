@@ -55,7 +55,7 @@ void SacMapsTab::disableWellAtIndex(const int index)
    itemCheckBox->enable(false);
 
    QTableWidgetItem* toDisable = m_activeWellsTable->item(index, 1);
-   toDisable->setForeground(Qt::red);
+   toDisable->setTextColor(Qt::red);
    toDisable->setFlags(toDisable->flags().setFlag(Qt::ItemIsEnabled, false));
 }
 

@@ -132,7 +132,7 @@ void SacResultsController::initializeWellSelection()
          {
             if ( wellID == selectedWellID)
             {
-               wellsList->item(i)->setSelected(true);
+               wellsList->setItemSelected(wellsList->item(i), true);
                break;
             }
          }

@@ -9,6 +9,7 @@
 #include "../src/PrmLithoFraction.h"
 #include "ConstantsNumerical.h"
 
+
 #include <gtest/gtest.h>
 
 TEST( PrmLithoFractionTest, testPercentageExtractionUndefinedIdx1 )

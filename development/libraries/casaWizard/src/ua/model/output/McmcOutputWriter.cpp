@@ -71,12 +71,12 @@ bool McmcOutputWriter::writeData()
 
 bool McmcOutputWriter::writeTarget(const McmcSingleTargetExportData& d)
 {
-   m_writeData += (qtutils::escapeSpecialCharacters(d.locationName) + "; "
+   m_writeData += qtutils::escapeSpecialCharacters(d.locationName) + "; "
          + QString::number(d.xCor)  + "; "
          + QString::number(d.yCor)  + "; "
          + QString::number(d.zCor)  + "; "
          + d.stratigraphicSurface + "; "
-         + QString::number(d.age)  + "; ").toUtf8();
+         + QString::number(d.age)  + "; ";
 
    const QMap<QString,TargetDataSingleProperty>& targetOutputs = d.targetOutputs;
 
@@ -89,13 +89,13 @@ bool McmcOutputWriter::writeTarget(const McmcSingleTargetExportData& d)
       {
          targetPropDataWritten = true;
          const TargetDataSingleProperty& targetDataSingleProp = targetOutputs[propName];
-         m_writeData += (QString::number(targetDataSingleProp.p10) + "; "
+         m_writeData += QString::number(targetDataSingleProp.p10) + "; "
                + QString::number(targetDataSingleProp.p50)  + "; "
                + QString::number(targetDataSingleProp.p90)  + "; "
                + QString::number(targetDataSingleProp.baseSim)  + "; "
                + QString::number(targetDataSingleProp.baseProxy) + "; "
                + QString::number(targetDataSingleProp.optimalSim)  + "; "
-               + QString::number(targetDataSingleProp.optimalProxy)  + "; ").toUtf8();
+               + QString::number(targetDataSingleProp.optimalProxy)  + "; ";
       }
       else
       {
@@ -125,13 +125,13 @@ bool McmcOutputWriter::writeHeader()
       const QString propName = qtutils::escapeSpecialCharacters(pn);
       const QString propUnit = targetParameterMapCreator::lookupSIUnit(propName);
 
-      m_writeData += (propName + " P10 " + propUnit + "; "
+      m_writeData += propName + " P10 " + propUnit + "; "
             + propName + " P50 " + propUnit + "; "
             + propName + " P90 " + propUnit + "; "
             + propName + " Base sim " + propUnit + "; "
             + propName + " Base proxy " + propUnit + "; "
             + propName + " Optimal sim " + propUnit + "; "
-            + propName + " Optimal proxy " + propUnit + "; ").toUtf8();
+            + propName + " Optimal proxy " + propUnit + "; ";
    }
    m_writeData += "\n";
 

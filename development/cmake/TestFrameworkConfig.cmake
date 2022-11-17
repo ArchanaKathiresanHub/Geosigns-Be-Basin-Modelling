@@ -27,7 +27,7 @@ if (MSVC11)
   add_definitions(-D_VARIADIC_MAX=10)
 endif()
     
-add_subdirectory(${THIRD_PARTY_DIR}/googletest-release-1.12.1 gmock EXCLUDE_FROM_ALL) ## retaining this for the future to upgrade gtest version
+add_subdirectory(${THIRD_PARTY_DIR}/googletest-master gmock EXCLUDE_FROM_ALL) ## retaining this for the future to upgrade gtest version
 
 # Mark internal Google test variables as advanced
 mark_as_advanced( 
@@ -45,7 +45,7 @@ add_external_package_info(
        VENDOR   "Google, Inc."
        VERSION  "1.10.0"
        LICENSE_TYPE "BSD 3-Clause"
-       LICENSE_FILE "${THIRD_PARTY_DIR}/googletest-release-1.12.1/googletest/LICENSE"
+       LICENSE_FILE "${THIRD_PARTY_DIR}/googletest-master/googletest/LICENSE"
        URL      "https://code.google.com/p/googletest"
        DESCRIPTION "Google's Unit Testing framework"
        REQUIRED_AT  "Test"
@@ -63,7 +63,7 @@ add_external_package_info(
        VENDOR   "Google, Inc."
        VERSION  "1.10.0"
        LICENSE_TYPE "BSD 3-Clause"
-       LICENSE_FILE "${THIRD_PARTY_DIR}/googletest-release-1.12.1/googlemock/LICENSE"
+       LICENSE_FILE "${THIRD_PARTY_DIR}/googletest-master/googlemock/LICENSE"
        URL      "https://code.google.com/p/googlemock"
        DESCRIPTION "Google's Mocking framework"
        REQUIRED_AT  "Test"

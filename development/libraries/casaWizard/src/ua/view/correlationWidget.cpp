@@ -86,18 +86,18 @@ void CorrelationWidget::updateLayoutPlots(const QVector<InfluentialParameter*> i
 
 void CorrelationWidget::wheelEvent(QWheelEvent* event)
 {
-  if (event->modifiers().testFlag(Qt::ControlModifier))
-  {
-    if (event->angleDelta().y() > 0)
-    {
-      plotWidth_ *= 1.1;
-      plotHeight_ *= 1.1;
-    }
-    else if (event->angleDelta().y() < 0)
-    {
-      plotWidth_ /= 1.1;
-      plotHeight_ /= 1.1;
-    }
+   if (event->modifiers().testFlag(Qt::ControlModifier))
+   {
+      if (event->delta() > 0)
+      {
+         plotWidth_ *= 1.1;
+         plotHeight_ *= 1.1;
+      }
+      else if (event->delta() < 0)
+      {
+         plotWidth_ /= 1.1;
+         plotHeight_ /= 1.1;
+      }
 
       setFixedSize(nInfluentialParameters_*plotWidth_, nInfluentialParameters_*plotHeight_);
       update();

@@ -14,7 +14,7 @@
 #include <QDateTime>
 #include <QDebug>
 #include <QScrollBar>
-#include <QtGlobal>
+
 
 #include "Qt_Utils.h"					 
 namespace ctcWizard
@@ -358,47 +358,43 @@ namespace ctcWizard
 		QTextStream oldStream(&oldFile);
 		QTextStream newStream(&newFile);
 		QString line = oldStream.readLine();
-		newStream << line << "\r\n";
+		newStream << line << endl;
 
 
 		while (!line.isNull()) {
 			line = oldStream.readLine();
-			newStream << line << "\r\n";
+			newStream << line << endl;
 			//        
 			//[GridMapIoTbl]
 			if (line.contains("[GridMapIoTbl]", Qt::CaseSensitive)) {
 				line = oldStream.readLine();
-				newStream << line << "\r\n";
+				newStream << line << endl;
 				line = oldStream.readLine();
-				newStream << line << "\r\n";
+				newStream << line << endl;
 				line = oldStream.readLine();
-				newStream << line << "\r\n";
+				newStream << line << endl;
 
 				line = oldStream.readLine();
-				newStream << line << "\r\n";
+				newStream << line << endl;
 				while (!line.contains("[End]", Qt::CaseSensitive)) {
 					line = oldStream.readLine();
-#if QT_VERSION >  QT_VERSION_CHECK(5, 12, 10)
-					QStringList theLines = line.split(QRegExp("\\s+"), Qt::SkipEmptyParts);
-#else
 					QStringList theLines = line.split(QRegExp("\\s+"), QString::SkipEmptyParts);
-#endif
 					if (theLines[0].compare("\"CTCRiftingHistoryIoTbl\""))
-						newStream << line << "\r\n";
+						newStream << line << endl;
 				}
 			}
 
 			//[CTCRiftingHistoryIoTbl]
 			if (line.contains("[CTCRiftingHistoryIoTbl]", Qt::CaseSensitive)) {
 				line = oldStream.readLine();
-				newStream << line << "\r\n";
+				newStream << line << endl;
 				line = oldStream.readLine();
-				newStream << line << "\r\n";
+				newStream << line << endl;
 				line = oldStream.readLine();
-				newStream << line << "\r\n";
+				newStream << line << endl;
 
 				line = oldStream.readLine();
-				newStream << line << "\r\n";
+				newStream << line << endl;
 				while (!line.contains("[End]", Qt::CaseSensitive)) {
 					line = oldStream.readLine();
 
@@ -428,7 +424,7 @@ namespace ctcWizard
 #endif
 						}
 					}
-					newStream << line << "\r\n";
+					newStream << line << endl;
 				}
 			}
 		}

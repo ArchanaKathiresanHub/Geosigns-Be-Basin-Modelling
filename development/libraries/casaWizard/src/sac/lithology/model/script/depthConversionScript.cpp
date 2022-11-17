@@ -10,8 +10,6 @@
 #include <QTextStream>
 #include <QCoreApplication>
 
-#include <QStringList>
-
 #ifndef _WIN32
 #include <sys/stat.h>
 #endif
@@ -45,6 +43,12 @@ DepthConversionScript::~DepthConversionScript()
 
 bool DepthConversionScript::generateCommands()
 {
+  if (runLocally())
+  {
+    addCommand(getDepthConversionCommand());
+  }
+  else
+  {
     QFile file(scriptFilename_);
 
     if (!file.open(QIODevice::WriteOnly | QIODevice::Text) || !workloadManager_)
@@ -61,8 +65,8 @@ bool DepthConversionScript::generateCommands()
     file.close();
     Logger::log() << "- Finished writing depth conversion file to " << scriptFilename_ << Logger::endl();
 
-    addCommand("sh", QStringList() << "-c" << scriptFilename_);
-
+    addCommand(scriptFilename_);
+  }
   return true;
 }
 

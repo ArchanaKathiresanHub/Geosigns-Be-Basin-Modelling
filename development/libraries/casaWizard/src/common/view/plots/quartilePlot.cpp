@@ -173,7 +173,7 @@ void QuartilePlot::drawLegend(QPainter& painter, const QPen& penPoint, const QSt
 
    //get max width
    for (QString str : items){
-      int s = fm.horizontalAdvance(str);
+      int s = fm.width(str);
       if (textWidth < s)
       {
          textWidth = s;

@@ -345,16 +345,4 @@ TEST_F(CMBProjectReaderTest, testTopCrustHeatProdAtLocation)
    EXPECT_DOUBLE_EQ(reader_.topCrustHeatProdAtLocation(179250, 603750), 4321.0);
 }
 
-TEST_F( CMBProjectReaderTest, testGetAgesFromMajorSnapshots)
-{
-   const QVector<double> agesExpected = {0, 23, 66, 100, 201, 252, 255, 299};
-   const QVector<double> agesActual = reader_.agesFromMajorSnapshots();
-
-   ASSERT_EQ(agesActual.size(), agesExpected.size());
-   for (int i = 0; i < agesActual.size(); i++)
-   {
-      EXPECT_DOUBLE_EQ(agesExpected[i], agesActual[i]);
-   }
-}
-
 

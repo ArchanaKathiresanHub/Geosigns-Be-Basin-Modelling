@@ -16,23 +16,18 @@ if ( Qt5_FOUND )
       add_definitions( -Wno-invalid-offsetof )
    endif()
    
-   set( LIB_NAME QtUtils )
+   set( QT_Utils_LIBNAME QtUtils )
    
    set( CMAKE_AUTOMOC ON )
    
    include_directories( ${QTXLSX_INCLUDE_DIRS} )
    
-   create_bm_library( TARGET ${LIB_NAME}
+   create_bm_library( TARGET ${QT_Utils_LIBNAME}
       LIBRARIES Qt5::Core Qt5::Gui Qt5::Widgets
       INSTALLTARGET )
 
-   target_include_directories( ${LIB_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} )
+   target_include_directories( ${QT_Utils_LIBNAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} )
 
-   add_gtest(   NAME ${LIB_NAME}::Qt_Utils
-                SOURCES test/TestQt_Utils.cpp
-                LIBRARIES Qt5::Core Qt5::Gui Qt5::Widgets QtUtils
-                INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}
-                FOLDER "${BASE_FOLDER}/${LIB_NAME}"
-   )
+   add_subdirectory( test )
 
 endif()
