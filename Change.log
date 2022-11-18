@@ -13,7 +13,7 @@
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Version				Date of update
 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-Cauldron-v2.10.6		2022-11-16 15:05:46 +0000
+Cauldron-v2.10.9		2022-11-18 10:35:08 +0000
 =============================================================
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Third-party Software 		version
@@ -36,6 +36,25 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2022-11-18  Borgohain, Preetirekha SOMLOG-SOMLOGr  <P.Borgohain@shell.com>
+
+	chg: dev: usr: Buoyancy calculation is updated for TrapperIoTbl.
+	 * Hard coded brine density value is replaced to use the B&W equation in buoyancy calculation in trackTraps application
+
+	Related work items: #481815
+
+	================== COMMIT-END ========================
+	Commit-ID:<0eeffb7018515be47c4cd539c37e8d54a6d7d349>	  (tag: refs/tags/v2.10.9, refs/heads/Developers/Preetirekha.Borgohain/feature-481815/ChangeLogUpdate)
+
+2022-11-17  Marnix.vandenBerg  <Marnix.vandenBerg@shell.com>
+
+	fix: usr: SACLithology: Prevent exporting zyc maps for undefined lithologies.
+	Related work items: #485679
+
+	================== COMMIT-END ========================
+	Commit-ID:<6efcf0dcf9bce8129f5d6d3299a5463568411abf>	  (tag: refs/tags/v2.10.8)
+
+++
 2022-11-16  Marnix.vandenBerg  <Marnix.vandenBerg@shell.com>
 
 	fix: usr: Fixes for several bugs in UAThermal wizard found during release testing.
