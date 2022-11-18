@@ -83,6 +83,8 @@ namespace PersistentTraps
          inline void setSealPermeability (double sealPermeability);
          inline double getSealPermeability (void);
 
+         inline double getBrineSalinity();
+
          void save (database::Table * table);
 
          /// print some debugging info.
@@ -103,6 +105,7 @@ namespace PersistentTraps
 
          double m_porosity;
          double m_sealPermeability;
+         double m_brineSalinity;//This is used in buoyancy calculation for TrapperIoTbl
 
          PersistentTrap * m_persistentTrap;
    };
@@ -136,6 +139,11 @@ void PersistentTraps::TrackTrap::setSealPermeability (double sealPereability)
 double PersistentTraps::TrackTrap::getSealPermeability (void)
 {
    return m_sealPermeability;
+}
+
+inline double PersistentTraps::TrackTrap::getBrineSalinity()
+{
+   return m_brineSalinity;
 }
 
 #endif // PERSISTENTTRAPS_TRAP_H

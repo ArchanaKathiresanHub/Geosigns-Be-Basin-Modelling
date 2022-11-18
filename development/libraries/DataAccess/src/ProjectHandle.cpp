@@ -263,14 +263,14 @@ ProjectHandle::ProjectHandle(database::ProjectFileHandlerPtr pfh, const string &
    loadMobileLayers();
    loadAllochthonousLithologies();
    loadAllochthonousLithologyDistributions();
-   loadAllochthonousLithologyInterpolations();
-   loadTraps();
-   loadTrappers();
-   loadMigrations();
+   loadAllochthonousLithologyInterpolations();  
    loadInputValues();
    numberInputValues();
    loadPermafrostData();
    loadFluidTypes();
+   loadTraps();
+   loadTrappers();
+   loadMigrations();
    loadFluidThermalConductivitySamples();
    loadFluidHeatCapacitySamples();
 
@@ -2305,8 +2305,8 @@ bool ProjectHandle::loadTraps( void )
    database::Table::iterator tblIter;
    for ( tblIter = trapTbl->begin(); tblIter != trapTbl->end(); ++tblIter )
    {
-      Record * trapRecord = *tblIter;
-      m_traps.push_back( getFactory()->produceTrap( *this, trapRecord ) );
+      Record * trapRecord = *tblIter;     
+      m_traps.push_back( getFactory()->produceTrap( *this, trapRecord) );
    }
    return true;
 }

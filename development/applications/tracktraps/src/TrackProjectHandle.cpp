@@ -55,8 +55,8 @@ bool TrackProjectHandle::createPersistentTraps (void)
       bool result = extractRelevantTraps (snapshot);
       if (!result)
       {
-   cerr << "Error in extracting the traps" << endl;
-   return false;
+         cerr << "Error in extracting the traps" << endl;
+         return false;
       }
 
       if (result) result = determineTrapExtents (snapshot);
@@ -65,8 +65,8 @@ bool TrackProjectHandle::createPersistentTraps (void)
 
       if (!result)
       {
-   cerr << "Could not find one or more maps, output is incomplete" << endl;
-   return false;
+         cerr << "Could not find one or more maps, output is incomplete" << endl;
+         return false;
       }
 
       // Compute the PersistentTraps
@@ -227,9 +227,10 @@ void TrackProjectHandle::savePersistentTraps (void)
 
    for (reservoirIter = reservoirs->begin (); reservoirIter != reservoirs->end (); ++reservoirIter)
    {
-     TrackReservoir * reservoir = (TrackReservoir *) * reservoirIter;
-
-      cerr << "Saving persistent traps of reservoir " << reservoir->getName () << endl;
+      TrackReservoir * reservoir = (TrackReservoir *) * reservoirIter;
+     
+      
+      cerr << "Saving persistent traps of reservoir " << reservoir->getName() << endl;
 
       reservoir->savePersistentTraps (trapperIoTbl);
    }
