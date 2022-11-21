@@ -45,7 +45,7 @@ void PersistentTrap::findFittingTrap (map < unsigned int, Trap *, less < unsigne
 
       if (isPenetratedByTrap && penetratesTrap)
       {
-	 cerr << "trap " << trap->getId () << " penetrates AND is penetrated by persistent trap " << getId () << endl;
+          LogHandler(LogHandler::INFO_SEVERITY) << "trap " << trap->getId () << " penetrates AND is penetrated by persistent trap " << getId () << endl;
 	 closestTrap = trap;
 	 break;
       }

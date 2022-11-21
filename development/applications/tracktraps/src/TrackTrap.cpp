@@ -40,6 +40,8 @@ using Utilities::Maths::CelciusToKelvin;
 using Utilities::Numerical::IbsNoDataValue;
 #include "FluidType.h"
 
+#include "LogHandler.h"
+
 using namespace PersistentTraps;
 
 TrackTrap::TrackTrap(Interface::ProjectHandle& projectHandle, database::Record* record)
@@ -69,7 +71,7 @@ TrackTrap::~TrackTrap(void)
 
 void TrackTrap::addExtent(unsigned int i, unsigned int j)
 {
-	// cerr << "adding (" << i << ", " << j << ") to " << getReservoir ()->getName () << "::" << getId () << endl;
+	// LogHandler(LogHandler::DEBUG_SEVERITY) << "adding (" << i << ", " << j << ") to " << getReservoir ()->getName () << "::" << getId () ;
 	m_extent[0].push_back(i);
 	m_extent[1].push_back(j);
 }
@@ -95,7 +97,7 @@ PersistentTrap* TrackTrap::findMatchingPersistentTrap(vector < PersistentTrap* >
 
 		if (isPenetrated && penetrates)
 		{
-			cerr << "trap " << getId() << " penetrates AND is penetrated by " << persistentTrap->getId() << endl;
+			LogHandler(LogHandler::INFO_SEVERITY) << "trap " << getId() << " penetrates AND is penetrated by " << persistentTrap->getId();
 			return persistentTrap;
 		}
 	}
@@ -126,7 +128,7 @@ PersistentTrap* TrackTrap::findClosestPersistentTrap(vector < PersistentTrap* >&
 
 		if (isPenetrated && penetrates)
 		{
-			cerr << "trap " << getId() << " illegally penetrates AND is penetrated by " << persistentTrap->getId() << endl;
+			LogHandler(LogHandler::INFO_SEVERITY) << "trap " << getId() << " illegally penetrates AND is penetrated by " << persistentTrap->getId();
 			return persistentTrap;
 		}
 
@@ -146,7 +148,7 @@ PersistentTrap* TrackTrap::findClosestPersistentTrap(vector < PersistentTrap* >&
 
 bool TrackTrap::contains(unsigned int i, unsigned int j) const
 {
-	// cerr << "checking (" << i << ", " << j << ") with " << getReservoir ()->getName () << "::" << getId () << endl;
+	// LogHandler(LogHandler::DEBUG_SEVERITY) << "checking (" << i << ", " << j << ") with " << getReservoir ()->getName () << "::" << getId () ;
 	vector < unsigned int >::const_iterator extentIter[2];
 
 	for (extentIter[0] = m_extent[0].begin(), extentIter[1] = m_extent[1].begin();
@@ -155,11 +157,11 @@ bool TrackTrap::contains(unsigned int i, unsigned int j) const
 	{
 		if (i == *extentIter[0] && j == *extentIter[1])
 		{
-			// cerr << "---> found" << endl;
+			// LogHandler(LogHandler::DEBUG_SEVERITY) << "---> found" ;
 			return true;
 		}
 	}
-	// cerr << "---> not found" << endl;
+	// LogHandler(LogHandler::DEBUG_SEVERITY) << "---> not found" ;
 	return false;
 }
 

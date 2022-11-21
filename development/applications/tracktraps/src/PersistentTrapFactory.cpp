@@ -18,21 +18,21 @@
 
 using namespace PersistentTraps;
 
-DataAccess::Interface::ProjectHandle *
-PersistentTrapFactory::produceProjectHandle (database::ProjectFileHandlerPtr database,
-                                             const std::string & name) const
+DataAccess::Interface::ProjectHandle*
+PersistentTrapFactory::produceProjectHandle(database::ProjectFileHandlerPtr database,
+	const std::string& name) const
 {
-   return new TrackProjectHandle (database, name, this);
+	return new TrackProjectHandle(database, name, this);
 }
 
-DataAccess::Interface::Trap *
-PersistentTrapFactory::produceTrap (DataAccess::Interface::ProjectHandle& projectHandle, database::Record * record) const
+DataAccess::Interface::Trap*
+PersistentTrapFactory::produceTrap(DataAccess::Interface::ProjectHandle& projectHandle, database::Record* record) const
 {
-   return new PersistentTraps::TrackTrap (projectHandle, record);
+	return new PersistentTraps::TrackTrap(projectHandle, record);
 }
 
-DataAccess::Interface::Reservoir *
-PersistentTrapFactory::produceReservoir (DataAccess::Interface::ProjectHandle& projectHandle, database::Record * record) const
+DataAccess::Interface::Reservoir*
+PersistentTrapFactory::produceReservoir(DataAccess::Interface::ProjectHandle& projectHandle, database::Record* record) const
 {
-   return new TrackReservoir (projectHandle, record);
+	return new TrackReservoir(projectHandle, record);
 }

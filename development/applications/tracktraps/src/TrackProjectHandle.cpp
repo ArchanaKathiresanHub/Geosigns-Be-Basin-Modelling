@@ -24,280 +24,280 @@
 #include "PersistentTrap.h"
 
 #include "Snapshot.h"
+#include "LogHandler.h"
 
 using namespace database;
 using namespace DataAccess;
 using namespace PersistentTraps;
 using namespace std;
 
-static bool reservoirSorter (const Interface::Reservoir * reservoir1, const Interface::Reservoir * reservoir2);
+static bool reservoirSorter(const Interface::Reservoir* reservoir1, const Interface::Reservoir* reservoir2);
 
-TrackProjectHandle::TrackProjectHandle (database::ProjectFileHandlerPtr database,
-                              const string & name,
-                              const Interface::ObjectFactory* factory)
-   : Interface::ProjectHandle (database, name, factory)
+TrackProjectHandle::TrackProjectHandle(database::ProjectFileHandlerPtr database,
+	const string& name,
+	const Interface::ObjectFactory* factory)
+	: Interface::ProjectHandle(database, name, factory)
 {
 }
 
-TrackProjectHandle::~TrackProjectHandle (void)
+TrackProjectHandle::~TrackProjectHandle(void)
 {
 }
 
-bool TrackProjectHandle::createPersistentTraps (void)
+bool TrackProjectHandle::createPersistentTraps(void)
 {
-   std::unique_ptr<Interface::SnapshotList> snapshots( getSnapshots (MAJOR) );
+	std::unique_ptr<Interface::SnapshotList> snapshots(getSnapshots(MAJOR));
 
-   const Interface::Snapshot * previousSnapshot = 0;
+	const Interface::Snapshot* previousSnapshot = 0;
 
-   for ( const Interface::Snapshot * snapshot : *snapshots )
-   {
-      cerr << "Snapshot: " << snapshot->getTime () << endl;
-      bool result = extractRelevantTraps (snapshot);
-      if (!result)
-      {
-         cerr << "Error in extracting the traps" << endl;
-         return false;
-      }
+	for (const Interface::Snapshot* snapshot : *snapshots)
+	{
+		LogHandler(LogHandler::INFO_SEVERITY) << "Snapshot: " << snapshot->getTime();
+		bool result = extractRelevantTraps(snapshot);
+		if (!result)
+		{
+			LogHandler(LogHandler::ERROR_SEVERITY) << "Error in extracting the traps";
+			return false;
+		}
 
-      if (result) result = determineTrapExtents (snapshot);
-      if (result) result = determineTrapPorosities (snapshot);
-      if (result) result = determineReservoirDepths (snapshot);
+		if (result) result = determineTrapExtents(snapshot);
+		if (result) result = determineTrapPorosities(snapshot);
+		if (result) result = determineReservoirDepths(snapshot);
 
-      if (!result)
-      {
-         cerr << "Could not find one or more maps, output is incomplete" << endl;
-         return false;
-      }
+		if (!result)
+		{
+			LogHandler(LogHandler::ERROR_SEVERITY) << "Could not find one or more maps, output is incomplete";
+			return false;
+		}
 
-      // Compute the PersistentTraps
-      computePersistentTraps (snapshot, previousSnapshot);
-      previousSnapshot = snapshot;
-   }
+		// Compute the PersistentTraps
+		computePersistentTraps(snapshot, previousSnapshot);
+		previousSnapshot = snapshot;
+	}
 
-   savePersistentTraps ();
-   deletePersistentTraps ();
-   return true;
+	savePersistentTraps();
+	deletePersistentTraps();
+	return true;
 }
 
-bool TrackProjectHandle::extractRelevantTraps (const Interface::Snapshot * snapshot)
+bool TrackProjectHandle::extractRelevantTraps(const Interface::Snapshot* snapshot)
 {
-   bool result = true;
-   Interface::ReservoirList * reservoirs = getReservoirs (0);
-   Interface::ReservoirList::const_iterator reservoirIter;
+	bool result = true;
+	Interface::ReservoirList* reservoirs = getReservoirs(0);
+	Interface::ReservoirList::const_iterator reservoirIter;
 
-   const Interface::Formation* srFormation = getBottomSourceRockFormation ();
-   if (srFormation == nullptr)
-      return true;
+	const Interface::Formation* srFormation = getBottomSourceRockFormation();
+	if (srFormation == nullptr)
+		return true;
 
-   for (reservoirIter = reservoirs->begin (); reservoirIter != reservoirs->end (); ++reservoirIter)
-   {
-      TrackReservoir * reservoir = (TrackReservoir *) * reservoirIter;
+	for (reservoirIter = reservoirs->begin(); reservoirIter != reservoirs->end(); ++reservoirIter)
+	{
+		TrackReservoir* reservoir = (TrackReservoir*)*reservoirIter;
 
-      if (!reservoir->isActive (snapshot) or !isDeposited (srFormation, snapshot)) continue;
+		if (!reservoir->isActive(snapshot) or !isDeposited(srFormation, snapshot)) continue;
 
-      if (!reservoir->extractRelevantTraps (snapshot)) result = false;
-   }
-   delete reservoirs;
-   return result;
+		if (!reservoir->extractRelevantTraps(snapshot)) result = false;
+	}
+	delete reservoirs;
+	return result;
 }
 
 
-bool TrackProjectHandle::determineTrapExtents (const Interface::Snapshot * snapshot)
+bool TrackProjectHandle::determineTrapExtents(const Interface::Snapshot* snapshot)
 {
-   bool result = true;
-   Interface::ReservoirList * reservoirs = getReservoirs (0);
-   Interface::ReservoirList::const_iterator reservoirIter;
+	bool result = true;
+	Interface::ReservoirList* reservoirs = getReservoirs(0);
+	Interface::ReservoirList::const_iterator reservoirIter;
 
-   const Interface::Formation* srFormation = getBottomSourceRockFormation ();
-   if (srFormation == nullptr)
-      return true;
+	const Interface::Formation* srFormation = getBottomSourceRockFormation();
+	if (srFormation == nullptr)
+		return true;
 
-   for (reservoirIter = reservoirs->begin (); reservoirIter != reservoirs->end (); ++reservoirIter)
-   {
-      TrackReservoir * reservoir = (TrackReservoir *) * reservoirIter;
+	for (reservoirIter = reservoirs->begin(); reservoirIter != reservoirs->end(); ++reservoirIter)
+	{
+		TrackReservoir* reservoir = (TrackReservoir*)*reservoirIter;
 
-      if (!reservoir->isActive (snapshot) or !isDeposited (srFormation, snapshot)) continue;
-      if ( reservoir->getActivityMode() == "ActiveFrom" && snapshot->getTime()>reservoir->getActivityStart()) continue;
-      if (!reservoir->determineTrapExtents (snapshot)) result = false;
-   }
-   delete reservoirs;
-   return result;
+		if (!reservoir->isActive(snapshot) or !isDeposited(srFormation, snapshot)) continue;
+		if (reservoir->getActivityMode() == "ActiveFrom" && snapshot->getTime() > reservoir->getActivityStart()) continue;
+		if (!reservoir->determineTrapExtents(snapshot)) result = false;
+	}
+	delete reservoirs;
+	return result;
 }
 
-bool TrackProjectHandle::determineTrapSealPermeabilities (const Interface::Snapshot * snapshot)
+bool TrackProjectHandle::determineTrapSealPermeabilities(const Interface::Snapshot* snapshot)
 {
-   bool result = true;
-   Interface::ReservoirList * reservoirs = getReservoirs (0);
-   Interface::ReservoirList::const_iterator reservoirIter;
+	bool result = true;
+	Interface::ReservoirList* reservoirs = getReservoirs(0);
+	Interface::ReservoirList::const_iterator reservoirIter;
 
-   const Interface::Formation* srFormation = getBottomSourceRockFormation ();
-   if (srFormation == nullptr)
-      return true;
+	const Interface::Formation* srFormation = getBottomSourceRockFormation();
+	if (srFormation == nullptr)
+		return true;
 
-   for (reservoirIter = reservoirs->begin (); reservoirIter != reservoirs->end (); ++reservoirIter)
-   {
-      TrackReservoir * reservoir = (TrackReservoir *) * reservoirIter;
+	for (reservoirIter = reservoirs->begin(); reservoirIter != reservoirs->end(); ++reservoirIter)
+	{
+		TrackReservoir* reservoir = (TrackReservoir*)*reservoirIter;
 
-      if (!reservoir->isActive (snapshot) or !isDeposited (srFormation, snapshot)) continue;
+		if (!reservoir->isActive(snapshot) or !isDeposited(srFormation, snapshot)) continue;
 
-      if (!reservoir->determineTrapSealPermeabilities (snapshot)) result = false;
-   }
-   delete reservoirs;
-   return result;
+		if (!reservoir->determineTrapSealPermeabilities(snapshot)) result = false;
+	}
+	delete reservoirs;
+	return result;
 }
 
-bool TrackProjectHandle::determineTrapPorosities (const Interface::Snapshot * snapshot)
+bool TrackProjectHandle::determineTrapPorosities(const Interface::Snapshot* snapshot)
 {
-   bool result = true;
-   Interface::ReservoirList * reservoirs = getReservoirs (0);
-   Interface::ReservoirList::const_iterator reservoirIter;
+	bool result = true;
+	Interface::ReservoirList* reservoirs = getReservoirs(0);
+	Interface::ReservoirList::const_iterator reservoirIter;
 
-   const Interface::Formation* srFormation = getBottomSourceRockFormation ();
-   if (srFormation == nullptr)
-      return true;
+	const Interface::Formation* srFormation = getBottomSourceRockFormation();
+	if (srFormation == nullptr)
+		return true;
 
-   for (reservoirIter = reservoirs->begin (); reservoirIter != reservoirs->end (); ++reservoirIter)
-   {
-      TrackReservoir * reservoir = (TrackReservoir *) * reservoirIter;
+	for (reservoirIter = reservoirs->begin(); reservoirIter != reservoirs->end(); ++reservoirIter)
+	{
+		TrackReservoir* reservoir = (TrackReservoir*)*reservoirIter;
 
-      if (!reservoir->isActive (snapshot) or !isDeposited (srFormation, snapshot)) continue;
-      if ( reservoir->getActivityMode() == "ActiveFrom" && snapshot->getTime()>reservoir->getActivityStart()) continue;
-      if (!reservoir->determineTrapPorosities (snapshot)) result = false;
-   }
-   delete reservoirs;
-   return result;
+		if (!reservoir->isActive(snapshot) or !isDeposited(srFormation, snapshot)) continue;
+		if (reservoir->getActivityMode() == "ActiveFrom" && snapshot->getTime() > reservoir->getActivityStart()) continue;
+		if (!reservoir->determineTrapPorosities(snapshot)) result = false;
+	}
+	delete reservoirs;
+	return result;
 }
 
-bool TrackProjectHandle::determineReservoirDepths (const Interface::Snapshot * snapshot)
+bool TrackProjectHandle::determineReservoirDepths(const Interface::Snapshot* snapshot)
 {
-   bool result = true;
-   Interface::ReservoirList * reservoirs = getReservoirs (0);
-   Interface::ReservoirList::const_iterator reservoirIter;
+	bool result = true;
+	Interface::ReservoirList* reservoirs = getReservoirs(0);
+	Interface::ReservoirList::const_iterator reservoirIter;
 
-   const Interface::Formation* srFormation = getBottomSourceRockFormation ();
-   if (srFormation == nullptr)
-      return true;
+	const Interface::Formation* srFormation = getBottomSourceRockFormation();
+	if (srFormation == nullptr)
+		return true;
 
-   for (reservoirIter = reservoirs->begin (); reservoirIter != reservoirs->end (); ++reservoirIter)
-   {
-     TrackReservoir * reservoir = (TrackReservoir *) * reservoirIter;
+	for (reservoirIter = reservoirs->begin(); reservoirIter != reservoirs->end(); ++reservoirIter)
+	{
+		TrackReservoir* reservoir = (TrackReservoir*)*reservoirIter;
 
-      if (!reservoir->isActive (snapshot) or !isDeposited (srFormation, snapshot)) continue;
-      if ( reservoir->getActivityMode() == "ActiveFrom" && snapshot->getTime()>reservoir->getActivityStart()) continue;
-      if (!reservoir->determineAverageDepth (snapshot)) result = false;
-   }
-   delete reservoirs;
-   return result;
+		if (!reservoir->isActive(snapshot) or !isDeposited(srFormation, snapshot)) continue;
+		if (reservoir->getActivityMode() == "ActiveFrom" && snapshot->getTime() > reservoir->getActivityStart()) continue;
+		if (!reservoir->determineAverageDepth(snapshot)) result = false;
+	}
+	delete reservoirs;
+	return result;
 }
 
-bool TrackProjectHandle::computePersistentTraps (const Interface::Snapshot * snapshot, const Interface::Snapshot * previousSnapshot)
+bool TrackProjectHandle::computePersistentTraps(const Interface::Snapshot* snapshot, const Interface::Snapshot* previousSnapshot)
 {
-   bool result = true;
+	bool result = true;
 
-   Interface::ReservoirList * reservoirs = getReservoirs (0);
+	Interface::ReservoirList* reservoirs = getReservoirs(0);
 
-   Interface::ReservoirList::const_iterator reservoirIter;
+	Interface::ReservoirList::const_iterator reservoirIter;
 
-   const Interface::Formation* srFormation = getBottomSourceRockFormation ();
-   if (srFormation == nullptr)
-      return true;
+	const Interface::Formation* srFormation = getBottomSourceRockFormation();
+	if (srFormation == nullptr)
+		return true;
 
-   for (reservoirIter = reservoirs->begin (); reservoirIter != reservoirs->end (); ++reservoirIter)
-   {
-     TrackReservoir * reservoir = (TrackReservoir *) * reservoirIter;
+	for (reservoirIter = reservoirs->begin(); reservoirIter != reservoirs->end(); ++reservoirIter)
+	{
+		TrackReservoir* reservoir = (TrackReservoir*)*reservoirIter;
 
-      if (!reservoir->isActive (snapshot) or !isDeposited (srFormation, snapshot)) continue;
+		if (!reservoir->isActive(snapshot) or !isDeposited(srFormation, snapshot)) continue;
 
-      reservoir->computePersistentTraps (previousSnapshot);
-   }
-   delete reservoirs;
-   return result;
+		reservoir->computePersistentTraps(previousSnapshot);
+	}
+	delete reservoirs;
+	return result;
 }
 
-void TrackProjectHandle::savePersistentTraps (void)
+void TrackProjectHandle::savePersistentTraps(void)
 {
-   Table *trapperIoTbl = getTable ("TrapperIoTbl");
+	Table* trapperIoTbl = getTable("TrapperIoTbl");
 
-   if (!trapperIoTbl) return;
+	if (!trapperIoTbl) return;
 
-   trapperIoTbl->clear ();
+	trapperIoTbl->clear();
 
-   Interface::ReservoirList * reservoirs = getReservoirs (0);
-   Interface::ReservoirList::const_iterator reservoirIter;
+	Interface::ReservoirList* reservoirs = getReservoirs(0);
+	Interface::ReservoirList::const_iterator reservoirIter;
 
-   for (reservoirIter = reservoirs->begin (); reservoirIter != reservoirs->end (); ++reservoirIter)
-   {
-      TrackReservoir * reservoir = (TrackReservoir *) * reservoirIter;
-     
-      
-      cerr << "Saving persistent traps of reservoir " << reservoir->getName() << endl;
+	for (reservoirIter = reservoirs->begin(); reservoirIter != reservoirs->end(); ++reservoirIter)
+	{
+		TrackReservoir* reservoir = (TrackReservoir*)*reservoirIter;
 
-      reservoir->savePersistentTraps (trapperIoTbl);
-   }
-   delete reservoirs;
+		LogHandler(LogHandler::INFO_SEVERITY) << "Saving persistent traps of reservoir " << reservoir->getName();
+
+		reservoir->savePersistentTraps(trapperIoTbl);
+	}
+	delete reservoirs;
 }
 
-void TrackProjectHandle::deletePersistentTraps (void)
+void TrackProjectHandle::deletePersistentTraps(void)
 {
-   Interface::ReservoirList * reservoirs = getReservoirs (0);
-   Interface::ReservoirList::const_iterator reservoirIter;
+	Interface::ReservoirList* reservoirs = getReservoirs(0);
+	Interface::ReservoirList::const_iterator reservoirIter;
 
-   for (reservoirIter = reservoirs->begin (); reservoirIter != reservoirs->end (); ++reservoirIter)
-   {
-     TrackReservoir * reservoir = (TrackReservoir *) * reservoirIter;
+	for (reservoirIter = reservoirs->begin(); reservoirIter != reservoirs->end(); ++reservoirIter)
+	{
+		TrackReservoir* reservoir = (TrackReservoir*)*reservoirIter;
 
-      reservoir->deletePersistentTraps ();
-   }
-   delete reservoirs;
+		reservoir->deletePersistentTraps();
+	}
+	delete reservoirs;
 }
 
-void TrackProjectHandle::saveProject (const string & fileName)
+void TrackProjectHandle::saveProject(const string& fileName)
 {
 
-   if ( getProjectFileHandler () != nullptr ) {
-      getProjectFileHandler ()->saveToFile (fileName);
-   }
+	if (getProjectFileHandler() != nullptr) {
+		getProjectFileHandler()->saveToFile(fileName);
+	}
 
 }
 
 
 /// Used in the sorting of the Reservoirs, lowest Reservoir first
-bool reservoirSorter (const Interface::Reservoir * reservoir1, const Interface::Reservoir * reservoir2)
+bool reservoirSorter(const Interface::Reservoir* reservoir1, const Interface::Reservoir* reservoir2)
 {
 #if DEBUG
-   cerr << "Depth (" << reservoir1->getName () << ") = " << ((PersistentTraps::Reservoir *) reservoir1)->getAverageDepth ();
-   cerr << "\tDepth (" << reservoir2->getName () << ") = " << ((PersistentTraps::Reservoir *) reservoir2)->getAverageDepth ();
-   cerr << endl;
+	LogHandler(LogHandler::INFO_SEVERITY) << "Depth (" << reservoir1->getName() << ") = " << ((PersistentTraps::Reservoir*)reservoir1)->getAverageDepth();
+	LogHandler(LogHandler::INFO_SEVERITY) << "\tDepth (" << reservoir2->getName() << ") = " << ((PersistentTraps::Reservoir*)reservoir2)->getAverageDepth();
+	LogHandler(LogHandler::INFO_SEVERITY);
 #endif
 
-   return ((PersistentTraps::TrackReservoir *) reservoir1)->getAverageDepth () > ((PersistentTraps::TrackReservoir *) reservoir2)->getAverageDepth ();
+	return ((PersistentTraps::TrackReservoir*)reservoir1)->getAverageDepth() > ((PersistentTraps::TrackReservoir*)reservoir2)->getAverageDepth();
 }
 
-Interface::Formation * TrackProjectHandle::getBottomSourceRockFormation ()
+Interface::Formation* TrackProjectHandle::getBottomSourceRockFormation()
 {
-   Interface::FormationList * formations = getFormations ();
-   Interface::FormationList::iterator formationIter;
+	Interface::FormationList* formations = getFormations();
+	Interface::FormationList::iterator formationIter;
 
-   Interface::Formation * bottomSourceRockFormation = 0;
-   for (formationIter = formations->begin (); formationIter != formations->end (); ++formationIter)
-   {
-      Interface::Formation * formation = const_cast<Interface::Formation *> (*formationIter);
+	Interface::Formation* bottomSourceRockFormation = 0;
+	for (formationIter = formations->begin(); formationIter != formations->end(); ++formationIter)
+	{
+		Interface::Formation* formation = const_cast<Interface::Formation*> (*formationIter);
 
-      if (formation->isSourceRock ()) bottomSourceRockFormation = formation;
-   }
+		if (formation->isSourceRock()) bottomSourceRockFormation = formation;
+	}
 
-   delete formations;
+	delete formations;
 
-   return bottomSourceRockFormation;
+	return bottomSourceRockFormation;
 }
 
-bool TrackProjectHandle::isDeposited (const Interface::Formation * formation, const Interface::Snapshot * snapshot)
+bool TrackProjectHandle::isDeposited(const Interface::Formation* formation, const Interface::Snapshot* snapshot)
 {
-   const Interface::Surface * bottomSurface = formation->getBottomSurface ();
-   const Interface::Snapshot * bottomSnapshot = bottomSurface->getSnapshot ();
+	const Interface::Surface* bottomSurface = formation->getBottomSurface();
+	const Interface::Snapshot* bottomSnapshot = bottomSurface->getSnapshot();
 
-   if (bottomSnapshot->getTime () > snapshot->getTime ())
-      return true;
-   else
-      return false;
+	if (bottomSnapshot->getTime() > snapshot->getTime())
+		return true;
+	else
+		return false;
 }
