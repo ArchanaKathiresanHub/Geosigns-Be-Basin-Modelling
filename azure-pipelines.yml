@@ -9,8 +9,9 @@ pool:
 resources:
   repositories:
   - repository : Basin-Modelling-Windows-3rdparty
-    name: Basin-Modelling-Windows-3rdparty
-    type: git
+    name: sede-x/Geosigns-Be-Basin-Modelling-Windows-3rdparty
+    type: GitHub
+    endpoint: GitHub
     branch: master
 
 
