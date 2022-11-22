@@ -24,8 +24,10 @@ jobs:
   
   steps:
   - checkout: self
+    lfs: true
     path: "s/"
   - checkout: Basin-Modelling-Windows-3rdparty
+    lfs: true
     path: "s/opt"
 
   - task: ExtractFiles@1
