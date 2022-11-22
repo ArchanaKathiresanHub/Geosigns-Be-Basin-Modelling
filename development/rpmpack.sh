@@ -37,7 +37,7 @@ else
 	#convert to linuxrhel_79ws-x86_64
 	SUF=$(printf '%s' "${array[0]}" | tr -d '0123456789')
 	rpm_version=$SUF"_"${array[3]};
-	specPath="./Basin-Modelling/development/rpm_ibs_version.spec "
+	specPath="./Geosigns-Be-Basin-Modelling/development/rpm_ibs_version.spec "
 fi
 
 echo "The OS is ${archi} and rpm_version is ${rpm_version}"
