@@ -9,8 +9,9 @@ pool:
 resources:
   repositories:
   - repository : Basin-Modelling-Windows-3rdparty
-    name: Basin-Modelling-Windows-3rdparty
-    type: git
+    name: sede-x/Geosigns-Be-Basin-Modelling-Windows-3rdparty
+    type: GitHub
+    endpoint: GitHub
     branch: master
 
 
@@ -23,8 +24,10 @@ jobs:
   
   steps:
   - checkout: self
+    lfs: true
     path: "s/"
   - checkout: Basin-Modelling-Windows-3rdparty
+    lfs: true
     path: "s/opt"
 
   - task: ExtractFiles@1
