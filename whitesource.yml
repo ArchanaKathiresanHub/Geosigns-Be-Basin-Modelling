@@ -16,6 +16,7 @@ jobs:
     clean: all 
   steps:
   - checkout: self
+    lfs: true
   - task: JavaToolInstaller@0
     displayName: 'Use Java 17'
     inputs:
