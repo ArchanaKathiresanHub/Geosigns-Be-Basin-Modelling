@@ -65,11 +65,11 @@ UAResultsController::UAResultsController(UAResultsTab* uaResultsTab,
                                          UAScenario& casaScenario,
                                          ScriptRunController& scriptRunController,
                                          QObject* parent) :
-    QObject(parent),
-    m_uaResultsTab{uaResultsTab},
-    m_casaScenario{casaScenario},
-    m_scriptRunController{scriptRunController},
-    m_targetTableController{m_uaResultsTab->targetTable()}
+   QObject(parent),
+   m_uaResultsTab{uaResultsTab},
+   m_casaScenario{casaScenario},
+   m_scriptRunController{scriptRunController},
+   m_targetTableController{m_uaResultsTab->targetTable()}
 {
    connect(parent, SIGNAL(signalUpdateTabGUI(int)), this, SLOT(slotUpdateTabGUI(int)));
 
@@ -324,10 +324,13 @@ void UAResultsController::slotPushButtonRunOptimalCasesClicked()
    m_casaScenario.setNumberOfManualDesignPoints();
    m_casaScenario.changeUserDefinedPointStatus(true);
 
+   const QString oldStateFileNameDoE = m_casaScenario.stateFileNameDoE();
    AddCasesScript addCasesScript{m_casaScenario};
    if (!casaScriptWriter::writeCasaScript(addCasesScript) ||
        !m_scriptRunController.runScript(addCasesScript))
    {
+      manualDesignPointManager.removeDesignPoint(manualDesignPointManager.numberOfVisiblePoints()-1);
+      m_casaScenario.setStateFileNameDoE(oldStateFileNameDoE);
       return;
    }
 
