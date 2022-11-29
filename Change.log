@@ -13,7 +13,7 @@
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Version				Date of update
 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-Cauldron-v2.10.9		2022-11-18 10:35:08 +0000
+Cauldron-v2.10.11		2022-11-28 15:54:44 +0100
 =============================================================
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Third-party Software 		version
@@ -36,6 +36,22 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2022-11-28  MAvdBerg  <103995555+MAvdBerg@users.noreply.github.com>
+
+	fix: usr: UA Thermal: Implemented going back to old autosave name upon cancelling run of optimal case.
+	https://sede-pt-ssw.visualstudio.com/Basin-Evaluation/_workitems/edit/485552
+	
+	================== COMMIT-END ========================Commit-ID:<922813323967962fa14e41b4c9b6a1bb3081a510>	  (tag: refs/tags/v2.10.11, refs/heads/master)
+
+2022-11-21  arijit.khan Khan  <arijit.khan@shell.com>
+
+	dev: chg: cerr with LogHandler !minor.
+	 * replace cerr with LogHandler !minor
+
+	Related work items: #485829================== COMMIT-END ========================
+	Commit-ID:<bd3507625578dc669c5e58c4b19b41326e908970>	  (tag: refs/tags/v2.10.10)
+
+++
 2022-11-18  Borgohain, Preetirekha SOMLOG-SOMLOGr  <P.Borgohain@shell.com>
 
 	chg: dev: usr: Buoyancy calculation is updated for TrapperIoTbl.
