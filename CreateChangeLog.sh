@@ -66,7 +66,7 @@ echo "Using the source directory location as "$srcdir
 				TAGS=`git -C $srcdir tag`
 				if [ ${#TAGS[@]} -ge 0 ]; then
 				git -C $srcdir fetch --tags
-				vers=`git -C $srcdir describe --abbrev=0`
+				vers=`git -C $srcdir describe --abbrev=0 --tags`
 					if test -z "$vers"; then
 						echo "no version tag in this branch!"
 					else
