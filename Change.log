@@ -13,7 +13,7 @@
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Version				Date of update
 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-Cauldron-v2.10.11		2022-11-28 15:54:44 +0100
+Cauldron-v2.10.12		2022-12-05 13:11:58 +0530
 =============================================================
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Third-party Software 		version
@@ -36,6 +36,14 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2022-12-05  gitExplorePreeti  <96466211+gitExplorePreeti@users.noreply.github.com>
+
+	new: dev: Unit Tests added for TrackTraps.
+	Related work items: 481815
+	
+	================== COMMIT-END ========================Commit-ID:<335289f8e244d56dc9c906fc7adfa9772f7a3304>	  (tag: refs/tags/v2.10.12, refs/heads/master, refs/heads/Developers/Preetirekha.Borgohain/feature-481815/ChangeLogUpdate)
+
+++
 2022-11-28  MAvdBerg  <103995555+MAvdBerg@users.noreply.github.com>
 
 	fix: usr: UA Thermal: Implemented going back to old autosave name upon cancelling run of optimal case.
