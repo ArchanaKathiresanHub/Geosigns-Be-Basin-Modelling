@@ -39,6 +39,8 @@ using Utilities::Maths::CelciusToKelvin;
 #include "ConstantsNumerical.h"
 using Utilities::Numerical::IbsNoDataValue;
 #include "FluidType.h"
+#include "LogHandler.h"
+#include "UndefinedValues.h"
 
 #include "LogHandler.h"
 
@@ -56,7 +58,7 @@ TrackTrap::TrackTrap(Interface::ProjectHandle& projectHandle, database::Record* 
 	std::string resName = database::getReservoirName(record);
 	for (const auto formation : *formations)
 	{
-		if (formation->getName() == resName)
+		if (formation->getName() == resName)// The resName from TrapIoTbl and reservoirFormationName are same in BPA2 unlike BPA1
 		{
 			const Interface::FluidType* fluidtype = formation->getFluidType();
 			m_brineSalinity = fluidtype->salinity();
@@ -319,9 +321,19 @@ void TrackTrap::saveReservoirChargeProperties(database::Record* record,
 	double buoyancy = 0;
 	double temperature = database::getTemperature(getRecord());
 	double pressure = database::getPressure(getRecord());
+	double brineDensity;
 
 	double brineSalinity = getBrineSalinity();
-	double brineDensity = CBMGenerics::waterDensity::compute(CBMGenerics::waterDensity::FluidDensityModel::Calculated, 1000.0, brineSalinity, temperature, pressure);
+
+	if (!Utilities::isValueUndefined(brineSalinity))
+	{
+		brineDensity = CBMGenerics::waterDensity::compute(CBMGenerics::waterDensity::FluidDensityModel::Calculated, 1000.0, brineSalinity, temperature, pressure);
+	}
+	else//precaution for cases where reservoir Name and reservoir formation Name in ReservoirIoTbl may not same (BPA1 behavior)
+	{
+		brineDensity = 1000.0;
+		LogHandler(LogHandler::DEBUG_SEVERITY) << "Actual brine density of reservoir fluid can't be calculated due to the unavailability of brine salinity value... Using the approximate value of density of water i.e. 1000 kgm^3";
+	}
 
 	if (massTotal[ComponentManager::VAPOUR] > 1)
 	{

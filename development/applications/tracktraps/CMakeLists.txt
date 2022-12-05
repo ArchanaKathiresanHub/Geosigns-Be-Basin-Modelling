@@ -50,3 +50,15 @@ target_link_libraries(${APP_NAME}
 install(TARGETS ${APP_NAME}
    RUNTIME DESTINATION bin
 )
+
+set(CFGFLS "${PROJECT_SOURCE_DIR}/geocase/misc")
+
+configure_file(test/testData/Project.project3d ${CMAKE_CURRENT_BINARY_DIR}/Project.project3d COPYONLY)
+configure_file(test/testData/Inputs.HDF ${CMAKE_CURRENT_BINARY_DIR}/Inputs.HDF COPYONLY)
+
+add_gtest( NAME ${APP_NAME}::TrapperProperties
+   SOURCES test/TrackTrapTest.cpp src/TrackTrap.cpp src/generics.cpp src/PersistentTrap.cpp src/PersistentTrapFactory.cpp src/TrackReservoir.cpp src/TrackProjectHandle.cpp
+   LIBRARIES DataAccess EosPack TableIO SerialDataAccess utilities CBMGenerics ${HDF5_LIBRARIES}
+   ENV_VARS EOSPACKDIR=${CFGFLS}/eospack GENEX5DIR=${CFGFLS}/genex50 CTCDIR=${CFGFLS}/
+   FOLDER "${BASE_FOLDER}/${APP_NAME}"
+)
