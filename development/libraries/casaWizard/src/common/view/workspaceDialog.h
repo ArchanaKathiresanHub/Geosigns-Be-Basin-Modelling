@@ -20,7 +20,6 @@ public:
   WorkspaceDialog(const QString originalPath, const QString suggestedPath, const QString& windowTitle = "Select workspace", QWidget* parent = nullptr);
 
   QString optionSelected() const;
-  QString userWorkspaceLocation(const QString startingPath = "") const;
 
   void addOption(const QString& variableName, const double value = 0);
   void addComboBox(const QString& variableName, const QStringList& options, const QString& selectedOption = "");
@@ -35,7 +34,6 @@ private:
 
   CustomRadioButton *radio1_;
   CustomRadioButton *radio2_;
-  CustomRadioButton *radio3_;
 };
 
 } // namespace casaWizard
