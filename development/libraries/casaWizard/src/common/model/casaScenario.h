@@ -71,6 +71,8 @@ public:
   void updateObjectiveFunctionFromTargets();
   bool propertyIsActive(const QString& property) const;
 
+  QString defaultDirectoryLocation() const;
+
 private:
   QString applicationName_;
   CalibrationTargetManager calibrationTargetManager_;

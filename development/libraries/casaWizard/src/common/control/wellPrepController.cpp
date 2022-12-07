@@ -261,7 +261,7 @@ void WellPrepController::slotPushSelectCalibrationClicked()
 {
    QStringList fileNames = QFileDialog::getOpenFileNames(wellPrepTab_,
                                                          "Add well data",
-                                                         QDir::currentPath(),
+                                                         casaScenario_.defaultDirectoryLocation(),
                                                          "Well data files (*.xlsx *.las *.vs)");
 
    if (importWellPopupController_)
@@ -338,7 +338,7 @@ void WellPrepController::slotExportToCSVClicked()
       return;
    }
 
-   QString fileName = QFileDialog::getSaveFileName(wellPrepTab_, "Save as", QDir::currentPath(), "comma seperated value file (*.csv)");
+   QString fileName = QFileDialog::getSaveFileName(wellPrepTab_, "Save as", casaScenario_.defaultDirectoryLocation(), "comma seperated value file (*.csv)");
    if (fileName.isEmpty())
    {
       return;
@@ -364,7 +364,7 @@ void WellPrepController::slotPushSaveDataClicked()
       return;
    }
 
-   QString fileName = QFileDialog::getSaveFileName(wellPrepTab_, "Save as", QDir::currentPath(), "Spreadsheet (*.xlsx)");
+   QString fileName = QFileDialog::getSaveFileName(wellPrepTab_, "Save as", casaScenario_.defaultDirectoryLocation(), "Spreadsheet (*.xlsx)");
    if (fileName == "")
    {
       return;

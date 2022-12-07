@@ -130,7 +130,7 @@ void SacMapsController::slotExportOptimizedToZycor()
       return;
    }
 
-   QString targetPath = QFileDialog::getExistingDirectory(nullptr, "Choose a location for the exported zycor maps", QDir::currentPath(),
+   QString targetPath = QFileDialog::getExistingDirectory(nullptr, "Choose a location for the exported zycor maps", scenario().defaultDirectoryLocation(),
                                                           QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
 
    QDir targetDir(targetPath);

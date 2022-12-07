@@ -22,7 +22,7 @@ namespace workspaceGenerationController
 
 bool generateWorkSpace(QString directory, CasaScenario& scenario)
 {
-  WorkspaceDialog popupWorkspace{QDir::currentPath(), workspaceGenerator::getSuggestedWorkspaceCurrentDirectory()};
+  WorkspaceDialog popupWorkspace{scenario.defaultDirectoryLocation(), workspaceGenerator::getSuggestedWorkspaceCurrentDirectory()};
   if (popupWorkspace.exec() != QDialog::Accepted)
   {
     return false;

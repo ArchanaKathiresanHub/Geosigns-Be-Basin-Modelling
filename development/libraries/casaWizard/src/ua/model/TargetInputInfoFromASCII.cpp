@@ -8,8 +8,8 @@
 
 #include "model/TargetInputInfoFromASCII.h"
 #include "model/logger.h"
-#include <QFileDialog>
 #include <QTextStream>
+#include <QFile>
 
 namespace casaWizard
 {

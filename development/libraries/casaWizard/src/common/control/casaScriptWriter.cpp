@@ -14,7 +14,6 @@
 #include "view/textEditDialog.h"
 
 #include <QFile>
-#include <QFileDialog>
 #include <QMessageBox>
 #include <QTextStream>
 

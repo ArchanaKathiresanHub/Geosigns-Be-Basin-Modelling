@@ -142,7 +142,7 @@ void exportScenarioToZip(const QDir& sourceDir, const QString& workingDirectory,
       return;
    }
 
-   QString targetPath = QFileDialog::getExistingDirectory(nullptr, "Choose a location for the exported scenario", QDir::currentPath(),
+   QString targetPath = QFileDialog::getExistingDirectory(nullptr, "Choose a location for the exported scenario", workingDirectory,
                                                           QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
 
    QDir targetDir(targetPath);

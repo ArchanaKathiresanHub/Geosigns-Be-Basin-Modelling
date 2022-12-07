@@ -11,6 +11,7 @@
 #include <QSet>
 #include <QStringList>
 #include <QTextStream>
+#include <QDir>
 
 namespace casaWizard
 {
@@ -35,6 +36,10 @@ CasaScenario::CasaScenario(ProjectReader* projectReader) :
   runLocation_(defaultRunLocation),
   workingDirectory_("")
 {
+   const auto test = defaultDirectoryLocation();
+
+   const auto test2 = test;
+
 }
 
 QString CasaScenario::clusterName() const
@@ -105,7 +110,31 @@ void CasaScenario::updateObjectiveFunctionFromTargets()
 
 bool CasaScenario::propertyIsActive(const QString& property) const
 {
-  return objectiveFunctionManager_.enabled(objectiveFunctionManager_.indexOfUserName(property));
+   return objectiveFunctionManager_.enabled(objectiveFunctionManager_.indexOfUserName(property));
+}
+
+QString CasaScenario::defaultDirectoryLocation() const
+{
+   if (workingDirectory() != "")
+   {
+      return workingDirectory();
+   }
+
+   const QString pathToBPA2Tools = "/pt.sgs/data.nobackup/bpa2tools";
+
+   QDir houstonDir("/glb/hou");
+   if (houstonDir.exists())
+   {
+      return houstonDir.path() + pathToBPA2Tools;
+   }
+
+   QDir amsterdamDir("/glb/ams/");
+   if (amsterdamDir.exists())
+   {
+      return amsterdamDir.path() + pathToBPA2Tools;
+   }
+
+   return "./";
 }
 
 void CasaScenario::updateRelevantProperties(ProjectWriter& projectWriter)
