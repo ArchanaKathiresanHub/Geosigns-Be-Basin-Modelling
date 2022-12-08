@@ -73,6 +73,10 @@ public:
 
   QString defaultDirectoryLocation(const bool oneFolderHigher = false) const;
 
+  virtual QString amsterdamDirPath() const;
+  virtual QString houstonDirPath() const;
+
+
 private:
   QString applicationName_;
   CalibrationTargetManager calibrationTargetManager_;

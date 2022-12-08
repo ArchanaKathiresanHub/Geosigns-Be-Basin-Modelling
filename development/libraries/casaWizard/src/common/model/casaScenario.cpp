@@ -119,7 +119,7 @@ QString CasaScenario::defaultDirectoryLocation(const bool oneFolderHigher) const
    {
       if (oneFolderHigher)
       {
-         return QFileInfo(workingDirectory()).absoluteDir().absolutePath();
+         return QFileInfo(workingDirectory()).dir().path();
       }
 
       return workingDirectory();
@@ -127,19 +127,30 @@ QString CasaScenario::defaultDirectoryLocation(const bool oneFolderHigher) const
 
    const QString pathToBPA2Tools = "/pt.sgs/data.nobackup/bpa2tools";
 
-   QDir houstonDir("/glb/hou");
-   if (houstonDir.exists())
-   {
-      return houstonDir.path() + pathToBPA2Tools;
-   }
-
-   QDir amsterdamDir("/glb/ams/");
+   QDir amsterdamDir(amsterdamDirPath());
    if (amsterdamDir.exists())
    {
       return amsterdamDir.path() + pathToBPA2Tools;
    }
 
+   QDir houstonDir(houstonDirPath());
+   if (houstonDir.exists())
+   {
+      return houstonDir.path() + pathToBPA2Tools;
+   }
+
+
    return "./";
+}
+
+QString CasaScenario::amsterdamDirPath() const
+{
+   return "/glb/ams/";
+}
+
+QString CasaScenario::houstonDirPath() const
+{
+   return "/glb/hou";
 }
 
 void CasaScenario::updateRelevantProperties(ProjectWriter& projectWriter)

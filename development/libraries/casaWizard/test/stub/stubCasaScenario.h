@@ -21,6 +21,12 @@ public:
     CasaScenario(new StubProjectReader())
   {
   }
+
+   QString amsterdamDirPath() const override {return m_amsterdamDirPath;}
+   QString houstonDirPath() const override {return m_houstonDirPath;}
+
+   QString m_amsterdamDirPath;
+   QString m_houstonDirPath;
 };
 
 } // casaWizard
