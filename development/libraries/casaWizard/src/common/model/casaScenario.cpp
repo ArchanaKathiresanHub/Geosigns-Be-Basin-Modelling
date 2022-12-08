@@ -113,10 +113,15 @@ bool CasaScenario::propertyIsActive(const QString& property) const
    return objectiveFunctionManager_.enabled(objectiveFunctionManager_.indexOfUserName(property));
 }
 
-QString CasaScenario::defaultDirectoryLocation() const
+QString CasaScenario::defaultDirectoryLocation(const bool oneFolderHigher) const
 {
    if (workingDirectory() != "")
    {
+      if (oneFolderHigher)
+      {
+         return QFileInfo(workingDirectory()).absoluteDir().absolutePath();
+      }
+
       return workingDirectory();
    }
 

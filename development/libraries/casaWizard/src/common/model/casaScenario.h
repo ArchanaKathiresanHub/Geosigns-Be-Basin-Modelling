@@ -71,7 +71,7 @@ public:
   void updateObjectiveFunctionFromTargets();
   bool propertyIsActive(const QString& property) const;
 
-  QString defaultDirectoryLocation() const;
+  QString defaultDirectoryLocation(const bool oneFolderHigher = false) const;
 
 private:
   QString applicationName_;

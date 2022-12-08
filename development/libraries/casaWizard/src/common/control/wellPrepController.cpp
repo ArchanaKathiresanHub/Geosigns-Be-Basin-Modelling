@@ -261,7 +261,7 @@ void WellPrepController::slotPushSelectCalibrationClicked()
 {
    QStringList fileNames = QFileDialog::getOpenFileNames(wellPrepTab_,
                                                          "Add well data",
-                                                         casaScenario_.defaultDirectoryLocation(),
+                                                         casaScenario_.defaultDirectoryLocation(true),
                                                          "Well data files (*.xlsx *.las *.vs)");
 
    if (importWellPopupController_)
