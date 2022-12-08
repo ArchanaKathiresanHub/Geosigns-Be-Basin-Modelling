@@ -56,7 +56,7 @@ void ThermalInputController::slotImportTargetsClicked()
 {
    QString fileName = QFileDialog::getOpenFileName(inputTab(),
                                                    "Select calibration targets",
-                                                   scenario().defaultDirectoryLocation(),
+                                                   scenario().defaultFileDialogLocation(),
                                                    "Spreadsheet (*.xlsx)");
 
    if(fileName.isEmpty())

@@ -74,7 +74,7 @@ void MainController::slotNew()
 
 void MainController::slotSave()
 {
-   QString fileName = QFileDialog::getSaveFileName(&mainWindow(), "Save scenario", scenario().defaultDirectoryLocation(), ".dat (*.dat)");
+   QString fileName = QFileDialog::getSaveFileName(&mainWindow(), "Save scenario", scenario().defaultFileDialogLocation(), ".dat (*.dat)");
 
    if (fileName.isEmpty())
    {
@@ -94,7 +94,7 @@ void MainController::slotSave()
 
 void MainController::slotOpen()
 {
-   const QString fileName = QFileDialog::getOpenFileName(&mainWindow(), "Open scenario", scenario().defaultDirectoryLocation(), ".dat (*.dat)");
+   const QString fileName = QFileDialog::getOpenFileName(&mainWindow(), "Open scenario", scenario().defaultFileDialogLocation(), ".dat (*.dat)");
 
    if (fileName.isEmpty())
    {

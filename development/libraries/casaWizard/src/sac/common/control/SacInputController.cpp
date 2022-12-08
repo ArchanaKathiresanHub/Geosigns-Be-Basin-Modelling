@@ -315,7 +315,7 @@ bool SacInputController::selectWorkspace()
 {
    const QString fileName = QFileDialog::getOpenFileName(inputTab(),
                                                          "Select project file",
-                                                         scenario().defaultDirectoryLocation(true),
+                                                         scenario().defaultFileDialogLocation(true),
                                                          "Project files (*.project3d)");
    if (fileName == "")
    {

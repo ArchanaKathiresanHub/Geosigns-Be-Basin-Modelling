@@ -36,10 +36,6 @@ CasaScenario::CasaScenario(ProjectReader* projectReader) :
   runLocation_(defaultRunLocation),
   workingDirectory_("")
 {
-   const auto test = defaultDirectoryLocation();
-
-   const auto test2 = test;
-
 }
 
 QString CasaScenario::clusterName() const
@@ -113,7 +109,7 @@ bool CasaScenario::propertyIsActive(const QString& property) const
    return objectiveFunctionManager_.enabled(objectiveFunctionManager_.indexOfUserName(property));
 }
 
-QString CasaScenario::defaultDirectoryLocation(const bool oneFolderHigher) const
+QString CasaScenario::defaultFileDialogLocation(const bool oneFolderHigher) const
 {
    if (workingDirectory() != "")
    {

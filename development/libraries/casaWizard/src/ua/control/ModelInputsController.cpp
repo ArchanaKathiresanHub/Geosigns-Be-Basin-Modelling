@@ -300,7 +300,7 @@ void ModelInputsController::slotPushSelectProject3dClicked()
 {
    QString fileName = QFileDialog::getOpenFileName(m_modelInputsTab,
                                                    "Select project file",
-                                                   m_casaScenario.defaultDirectoryLocation(),
+                                                   m_casaScenario.defaultFileDialogLocation(),
                                                    "Project files (*.project3d)");
    if (fileName == "")
    {

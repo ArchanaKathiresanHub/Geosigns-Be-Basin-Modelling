@@ -124,7 +124,7 @@ void TargetController::slotPushSelectCalibrationClicked()
 {
    QString fileName = QFileDialog::getOpenFileName(targetTab_,
                                                    "Select calibration targets",
-                                                   scenario_.defaultDirectoryLocation(),
+                                                   scenario_.defaultFileDialogLocation(),
                                                    "Spreadsheet (*.xlsx)");
    targetTab_->lineEditCalibration()->setText(fileName);
    emit signalRefreshChildWidgets();

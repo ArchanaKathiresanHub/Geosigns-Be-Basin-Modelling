@@ -273,7 +273,7 @@ void T2Zcontroller::slotExportT2ZMapsToZycorClicked()
 
   QDir sourceDir(t2zDir_ + "/" + iterations.last());
 
-  QString targetPath = QFileDialog::getExistingDirectory(nullptr, "Choose a location for the exported zycor maps", casaScenario_.defaultDirectoryLocation(),
+  QString targetPath = QFileDialog::getExistingDirectory(nullptr, "Choose a location for the exported zycor maps", casaScenario_.defaultFileDialogLocation(),
                                                            QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
 
   QDir targetDir(targetPath);
