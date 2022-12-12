@@ -24,9 +24,11 @@ public:
 
    QString amsterdamDirPath() const override {return m_amsterdamDirPath;}
    QString houstonDirPath() const override {return m_houstonDirPath;}
+   QString bpa2ToolsPath() const override {return m_bpa2ToolsPath;}
 
    QString m_amsterdamDirPath;
    QString m_houstonDirPath;
+   QString m_bpa2ToolsPath;
 };
 
 } // casaWizard

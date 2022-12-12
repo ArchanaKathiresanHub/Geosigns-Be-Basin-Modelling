@@ -72,8 +72,11 @@ public:
   bool propertyIsActive(const QString& property) const;
 
   QString defaultFileDialogLocation(const bool oneFolderHigherThanWorkingDir = false) const;
+
+protected:
   virtual QString amsterdamDirPath() const;
   virtual QString houstonDirPath() const;
+  virtual QString bpa2ToolsPath() const;
 
 private:
   QString applicationName_;

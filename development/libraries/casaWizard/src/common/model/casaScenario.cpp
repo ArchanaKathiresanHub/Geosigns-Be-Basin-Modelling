@@ -21,7 +21,6 @@ const static QString defaultApplication{"fastcauldron \"-itcoupled\""};
 const static QString defaultRunLocation{"CaseSet"};
 const static bool defaultExpertUser{false};
 const static int defaultNumberCPUs{1};
-const static QString pathToBPA2Tools = "/pt.sgs/data.nobackup/bpa2tools";
 
 CasaScenario::CasaScenario(ProjectReader* projectReader) :
   applicationName_(defaultApplication),
@@ -122,29 +121,34 @@ QString CasaScenario::defaultFileDialogLocation(const bool oneFolderHigherThanWo
       return workingDirectory();
    }
 
-   QDir amsterdamDir(amsterdamDirPath());
-   if (amsterdamDir.exists())
+   QDir amsterdamBPA2ToolsDir(amsterdamDirPath() + bpa2ToolsPath());
+   if (amsterdamBPA2ToolsDir.exists())
    {
-      return amsterdamDir.path() + pathToBPA2Tools;
+      return amsterdamBPA2ToolsDir.path();
    }
 
-   QDir houstonDir(houstonDirPath());
-   if (houstonDir.exists())
+   QDir houstonBPA2ToolsDir(houstonDirPath() + bpa2ToolsPath());
+   if (houstonBPA2ToolsDir.exists())
    {
-      return houstonDir.path() + pathToBPA2Tools;
+      return houstonBPA2ToolsDir.path();
    }
 
-   return "./";
+   return "";
 }
 
 QString CasaScenario::amsterdamDirPath() const
 {
-   return "/glb/ams/";
+   return "/glb/ams";
 }
 
 QString CasaScenario::houstonDirPath() const
 {
    return "/glb/hou";
+}
+
+QString CasaScenario::bpa2ToolsPath() const
+{
+   return "/pt.sgs/data.nobackup/bpa2tools";
 }
 
 void CasaScenario::updateRelevantProperties(ProjectWriter& projectWriter)

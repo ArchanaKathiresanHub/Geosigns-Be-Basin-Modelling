@@ -1,7 +1,7 @@
 add_casawizard_common_gtest( NAME CalibrationTargetManager SOURCES testCalibrationTargetManager.cpp )
 add_casawizard_common_gtest( NAME CasaScenario             SOURCES testCasaScenario.cpp )
-file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/AMS/pt.sgs/data.nobackup/bpa2tools/emptyFile.txt" "")
-file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/HOU/pt.sgs/data.nobackup/bpa2tools/emptyFile.txt" "")
+file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/AMS/pt.sgs/data.nobackup/BPA2tools/emptyFile.txt" "")
+file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/HOU/pt.sgs/data.nobackup/BPA2tools/emptyFile.txt" "")
 file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/BaseFolder/WorkingDir/emptyFile.txt" "")
 
 add_casawizard_common_gtest( NAME HistogramGenerator       SOURCES testHistogramGenerator.cpp )

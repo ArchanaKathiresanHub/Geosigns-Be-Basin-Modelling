@@ -206,8 +206,9 @@ TEST(CasaScenarioTest, testGetDefaultFileDialogFolderNonExistingPaths)
 
    scenario.m_amsterdamDirPath = "./NonExistentPath";
    scenario.m_houstonDirPath = "./NonExistentPath";
+   scenario.m_bpa2ToolsPath = "/NonExistentPath";
 
-   EXPECT_EQ(scenario.defaultFileDialogLocation(), "./");
+   EXPECT_EQ(scenario.defaultFileDialogLocation(), "");
 }
 
 TEST(CasaScenarioTest, testGetDefaultFileDialogFolderAMSPathExists)
@@ -216,8 +217,20 @@ TEST(CasaScenarioTest, testGetDefaultFileDialogFolderAMSPathExists)
 
    scenario.m_amsterdamDirPath = "./AMS";
    scenario.m_houstonDirPath = "./NonExistentPath";
+   scenario.m_bpa2ToolsPath = "/BPA2Tools";
 
-   EXPECT_EQ(scenario.defaultFileDialogLocation().toStdString(), "./AMS/pt.sgs/data.nobackup/bpa2tools");
+   EXPECT_EQ(scenario.defaultFileDialogLocation().toStdString(), "./AMS/BPA2Tools");
+}
+
+TEST(CasaScenarioTest, testGetDefaultFileDialogFolderAMSPathExistsButBPA2ToolsDoesNotExist)
+{
+   casaWizard::StubCasaScenario scenario{};
+
+   scenario.m_amsterdamDirPath = "./AMS";
+   scenario.m_houstonDirPath = "./NonExistentPath";
+   scenario.m_bpa2ToolsPath = "/NonExistentPath";
+
+   EXPECT_EQ(scenario.defaultFileDialogLocation().toStdString(), "");
 }
 
 TEST(CasaScenarioTest, testGetDefaultFileDialogFolderHOUPathExists)
@@ -226,8 +239,9 @@ TEST(CasaScenarioTest, testGetDefaultFileDialogFolderHOUPathExists)
 
    scenario.m_amsterdamDirPath = "./NonExistentPath";
    scenario.m_houstonDirPath = "./HOU";
+   scenario.m_bpa2ToolsPath = "/BPA2Tools";
 
-   EXPECT_EQ(scenario.defaultFileDialogLocation().toStdString(), "./HOU/pt.sgs/data.nobackup/bpa2tools");
+   EXPECT_EQ(scenario.defaultFileDialogLocation().toStdString(), "./HOU/BPA2Tools");
 }
 
 TEST(CasaScenarioTest, testGetDefaultFileDialogFolderHOUPathExistsAndWorkingDirectoryIsSet)
@@ -237,6 +251,7 @@ TEST(CasaScenarioTest, testGetDefaultFileDialogFolderHOUPathExistsAndWorkingDire
 
    scenario.m_amsterdamDirPath = "./NonExistentPath";
    scenario.m_houstonDirPath = "./HOU";
+   scenario.m_bpa2ToolsPath = "/BPA2Tools";
 
    EXPECT_EQ(scenario.defaultFileDialogLocation().toStdString(), "./BaseFolder/WorkingDir");
 }
@@ -245,9 +260,6 @@ TEST(CasaScenarioTest, testGetDefaultFileDialogFolderWorkingDirectoryIsSetWithOn
 {
    casaWizard::StubCasaScenario scenario{};
    scenario.setWorkingDirectory("./BaseFolder/WorkingDir");
-
-   scenario.m_amsterdamDirPath = "./NonExistentPath";
-   scenario.m_houstonDirPath = "./NonExistentPath";
 
    const bool oneFolderHigher = true;
    EXPECT_EQ(scenario.defaultFileDialogLocation(oneFolderHigher).toStdString(), "./BaseFolder");
