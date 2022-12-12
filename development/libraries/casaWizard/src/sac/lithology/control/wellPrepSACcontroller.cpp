@@ -45,7 +45,7 @@ void WellPrepSACcontroller::slotToSAC()
 {
   if (scenario_.workingDirectory().isEmpty())
   {
-    if (!workspaceGenerationController::generateWorkSpace(QDir::currentPath(),scenario_))
+    if (!workspaceGenerationController::generateWorkSpace("", scenario_))
     {
       return;
     }

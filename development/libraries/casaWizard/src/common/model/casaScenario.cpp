@@ -11,15 +11,16 @@
 #include <QSet>
 #include <QStringList>
 #include <QTextStream>
+#include <QDir>
 
 namespace casaWizard
 {
 
-const QString defaultClusterName{"LOCAL"};
-const QString defaultApplication{"fastcauldron \"-itcoupled\""};
-const QString defaultRunLocation{"CaseSet"};
-const bool defaultExpertUser{false};
-const int defaultNumberCPUs{1};
+const static QString defaultClusterName{"LOCAL"};
+const static QString defaultApplication{"fastcauldron \"-itcoupled\""};
+const static QString defaultRunLocation{"CaseSet"};
+const static bool defaultExpertUser{false};
+const static int defaultNumberCPUs{1};
 
 CasaScenario::CasaScenario(ProjectReader* projectReader) :
   applicationName_(defaultApplication),
@@ -105,7 +106,49 @@ void CasaScenario::updateObjectiveFunctionFromTargets()
 
 bool CasaScenario::propertyIsActive(const QString& property) const
 {
-  return objectiveFunctionManager_.enabled(objectiveFunctionManager_.indexOfUserName(property));
+   return objectiveFunctionManager_.enabled(objectiveFunctionManager_.indexOfUserName(property));
+}
+
+QString CasaScenario::defaultFileDialogLocation(const bool oneFolderHigherThanWorkingDir) const
+{
+   if (workingDirectory() != "")
+   {
+      if (oneFolderHigherThanWorkingDir)
+      {
+         return QFileInfo(workingDirectory()).dir().path();
+      }
+
+      return workingDirectory();
+   }
+
+   QDir amsterdamBPA2ToolsDir(amsterdamDirPath() + bpa2ToolsPath());
+   if (amsterdamBPA2ToolsDir.exists())
+   {
+      return amsterdamBPA2ToolsDir.path();
+   }
+
+   QDir houstonBPA2ToolsDir(houstonDirPath() + bpa2ToolsPath());
+   if (houstonBPA2ToolsDir.exists())
+   {
+      return houstonBPA2ToolsDir.path();
+   }
+
+   return "";
+}
+
+QString CasaScenario::amsterdamDirPath() const
+{
+   return "/glb/ams";
+}
+
+QString CasaScenario::houstonDirPath() const
+{
+   return "/glb/hou";
+}
+
+QString CasaScenario::bpa2ToolsPath() const
+{
+   return "/pt.sgs/data.nobackup/bpa2tools";
 }
 
 void CasaScenario::updateRelevantProperties(ProjectWriter& projectWriter)

@@ -48,7 +48,6 @@
 
 #include <QCheckBox>
 #include <QComboBox>
-#include <QDir>
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QPushButton>
@@ -423,7 +422,7 @@ void UAResultsController::slotPushButtonExportMcmcOutputClicked()
       Logger::log() << "No data to export." << Logger::endl();
       return;
    }
-   QString fileName = QFileDialog::getSaveFileName(m_uaResultsTab, "Save as", QDir::currentPath(), "comma separated file (*.csv)");
+   QString fileName = QFileDialog::getSaveFileName(m_uaResultsTab, "Save as", m_casaScenario.defaultFileDialogLocation(), "comma separated file (*.csv)");
    if (fileName == "")
    {
       return;

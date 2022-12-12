@@ -16,26 +16,30 @@ QString getTimeStamp(const QString& prefix)
   return prefix + now.toString("yyyyMMdd-HHmmss");
 }
 
-QString getSuggestedWorkspace(const QString &currentPath)
+QString getSuggestedWorkspace(const QString &path)
 {
-  const QDir originWspace = QFileInfo(currentPath).absoluteDir();
-  const QString rootPath=originWspace.absolutePath();
+  const QDir originWspace(path);
+  const QString rootPath = originWspace.absolutePath();
 
   const QString workspaceName = "/casaWorkspace-" + getTimeStamp();
   return rootPath + workspaceName;
 }
 
-QString getSuggestedWorkspaceCurrentDirectory()
-{
-  const QString workspaceName = "/casaWorkspace-" + getTimeStamp();
-  return QDir::currentPath() + workspaceName;
-}
-
 bool createWorkspace(const QString& currentPath, const QString& newFolderPath)
 {    
-  QDir originalWorkspacelocation{currentPath};
-  const QDir newWorkspaceLocation{newFolderPath};
+  QDir newWorkspaceLocation{newFolderPath};
+  newWorkspaceLocation.mkdir(newFolderPath);
+  if (!newWorkspaceLocation.exists())
+  {
+    return false;
+  }
 
+  if (currentPath == "")
+  {
+     return true; // no need for copying in that case
+  }
+
+  QDir originalWorkspacelocation{currentPath};
   if (originalWorkspacelocation.exists() && currentPath == newFolderPath)
   {
     QString tempPath = newFolderPath + "_1";
@@ -49,12 +53,6 @@ bool createWorkspace(const QString& currentPath, const QString& newFolderPath)
       originalWorkspacelocation.rename(tempPath, newFolderPath);
       return true;
     }
-    return false;
-  }
-
-  originalWorkspacelocation.mkdir(newFolderPath);
-  if (!newWorkspaceLocation.exists())
-  {
     return false;
   }
 

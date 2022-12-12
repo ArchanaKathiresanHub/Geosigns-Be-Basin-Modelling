@@ -16,7 +16,6 @@
 #include <QStringList>
 #include <QMessageBox>
 #include <QPushButton>
-#include <QFileDialog>
 
 namespace casaWizard
 {

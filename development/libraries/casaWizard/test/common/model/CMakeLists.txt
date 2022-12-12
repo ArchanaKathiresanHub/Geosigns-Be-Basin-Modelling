@@ -1,5 +1,9 @@
 add_casawizard_common_gtest( NAME CalibrationTargetManager SOURCES testCalibrationTargetManager.cpp )
 add_casawizard_common_gtest( NAME CasaScenario             SOURCES testCasaScenario.cpp )
+file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/AMS/pt.sgs/data.nobackup/BPA2tools/emptyFile.txt" "")
+file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/HOU/pt.sgs/data.nobackup/BPA2tools/emptyFile.txt" "")
+file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/BaseFolder/WorkingDir/emptyFile.txt" "")
+
 add_casawizard_common_gtest( NAME HistogramGenerator       SOURCES testHistogramGenerator.cpp )
 add_casawizard_common_gtest( NAME SurfaceToDepthConverter  SOURCES TestSurfaceToDepthConverter.cpp )
 file( COPY ${CMAKE_CURRENT_SOURCE_DIR}/surfaceToDepthConverterTestInputs DESTINATION ${CMAKE_CURRENT_BINARY_DIR} )

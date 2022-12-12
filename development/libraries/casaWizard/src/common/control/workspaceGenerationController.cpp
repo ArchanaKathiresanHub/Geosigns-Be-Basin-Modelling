@@ -14,6 +14,9 @@
 #include "model/casaScenario.h"
 #include "view/workspaceDialog.h"
 
+#include <QDir>
+#include <QFileDialog>
+
 namespace casaWizard
 {
 
@@ -22,7 +25,11 @@ namespace workspaceGenerationController
 
 bool generateWorkSpace(QString directory, CasaScenario& scenario)
 {
-  WorkspaceDialog popupWorkspace{QDir::currentPath(), workspaceGenerator::getSuggestedWorkspaceCurrentDirectory()};
+  const QString fileDialogLocation = directory == "" ? scenario.defaultFileDialogLocation() : directory;
+  const QDir casaCaseDir(QFileDialog::getExistingDirectory(nullptr, "Select your workspace directory", fileDialogLocation,
+                                                           QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks));
+
+  WorkspaceDialog popupWorkspace{casaCaseDir.absolutePath(), workspaceGenerator::getSuggestedWorkspace(casaCaseDir.absolutePath())};
   if (popupWorkspace.exec() != QDialog::Accepted)
   {
     return false;

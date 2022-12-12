@@ -21,7 +21,8 @@
 #include "model/script/track1dAllWellScript.h"
 #include "model/output/cmbProjectWriter.h"
 
-#include <QFileDialog>
+#include <QFileInfo>
+#include <QDir>
 #include <QInputDialog>
 #include <QStringList>
 
