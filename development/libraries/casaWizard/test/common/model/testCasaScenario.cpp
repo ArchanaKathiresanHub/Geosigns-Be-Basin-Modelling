@@ -265,5 +265,15 @@ TEST(CasaScenarioTest, testGetDefaultFileDialogFolderWorkingDirectoryIsSetWithOn
    EXPECT_EQ(scenario.defaultFileDialogLocation(oneFolderHigher).toStdString(), "./BaseFolder");
 }
 
+TEST(CasaScenarioTest, testDefaultFolders)
+{
+   casaWizard::StubCasaScenario scenario{};
+
+   EXPECT_EQ(scenario.amsterdamDirPath(), "/glb/ams");
+   EXPECT_EQ(scenario.houstonDirPath(), "/glb/hou");
+   EXPECT_EQ(scenario.bpa2ToolsPath(), "/pt.sgs/data.nobackup/bpa2tools");
+}
+
+
 
 
