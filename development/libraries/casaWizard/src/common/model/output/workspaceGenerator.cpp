@@ -16,10 +16,10 @@ QString getTimeStamp(const QString& prefix)
   return prefix + now.toString("yyyyMMdd-HHmmss");
 }
 
-QString getSuggestedWorkspace(const QString &currentPath)
+QString getSuggestedWorkspace(const QString &path)
 {
-  const QDir originWspace(currentPath);
-  const QString rootPath=originWspace.absolutePath();
+  const QDir originWspace(path);
+  const QString rootPath = originWspace.absolutePath();
 
   const QString workspaceName = "/casaWorkspace-" + getTimeStamp();
   return rootPath + workspaceName;

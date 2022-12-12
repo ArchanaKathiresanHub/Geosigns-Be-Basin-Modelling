@@ -48,7 +48,6 @@
 
 #include <QCheckBox>
 #include <QComboBox>
-#include <QDir>
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QPushButton>

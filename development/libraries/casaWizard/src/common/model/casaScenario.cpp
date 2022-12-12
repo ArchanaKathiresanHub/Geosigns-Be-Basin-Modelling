@@ -16,11 +16,12 @@
 namespace casaWizard
 {
 
-const QString defaultClusterName{"LOCAL"};
-const QString defaultApplication{"fastcauldron \"-itcoupled\""};
-const QString defaultRunLocation{"CaseSet"};
-const bool defaultExpertUser{false};
-const int defaultNumberCPUs{1};
+const static QString defaultClusterName{"LOCAL"};
+const static QString defaultApplication{"fastcauldron \"-itcoupled\""};
+const static QString defaultRunLocation{"CaseSet"};
+const static bool defaultExpertUser{false};
+const static int defaultNumberCPUs{1};
+const static QString pathToBPA2Tools = "/pt.sgs/data.nobackup/bpa2tools";
 
 CasaScenario::CasaScenario(ProjectReader* projectReader) :
   applicationName_(defaultApplication),
@@ -121,8 +122,6 @@ QString CasaScenario::defaultFileDialogLocation(const bool oneFolderHigherThanWo
       return workingDirectory();
    }
 
-   const QString pathToBPA2Tools = "/pt.sgs/data.nobackup/bpa2tools";
-
    QDir amsterdamDir(amsterdamDirPath());
    if (amsterdamDir.exists())
    {
@@ -134,7 +133,6 @@ QString CasaScenario::defaultFileDialogLocation(const bool oneFolderHigherThanWo
    {
       return houstonDir.path() + pathToBPA2Tools;
    }
-
 
    return "./";
 }
