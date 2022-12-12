@@ -25,8 +25,7 @@ namespace workspaceGenerationController
 
 bool generateWorkSpace(QString directory, CasaScenario& scenario)
 {
-  QString fileDialogLocation = directory == "" ? scenario.defaultFileDialogLocation() : directory;
-
+  const QString fileDialogLocation = directory == "" ? scenario.defaultFileDialogLocation() : directory;
   const QDir casaCaseDir(QFileDialog::getExistingDirectory(nullptr, "Select your workspace directory", fileDialogLocation,
                                                            QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks));
 
