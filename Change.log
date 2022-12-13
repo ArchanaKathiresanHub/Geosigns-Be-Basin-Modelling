@@ -13,7 +13,7 @@
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Version				Date of update
 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-Cauldron-v2.10.12		2022-12-05 13:11:58 +0530
+Cauldron-v2.10.13		2022-12-12 16:34:32 +0100
 =============================================================
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Third-party Software 		version
@@ -36,6 +36,14 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2022-12-12  RichardFaasse  <115148814+RichardFaasse@users.noreply.github.com>
+
+	chg: usr: Improve the default folder selection for the LiTs.
+	 * This includes the folder selection in the QFileDialogs in the casa wizards
+	 * The default is the bpa2tools folder (either on AMS or HOU), if the working directory is not set yet. However, if that does not exist, we default back to the last chosen folder 
+         ================== COMMIT-END ========================Commit-ID:<8cedbb445100fc2cb3c0cfe4ac850f4c42d5f8a4>	  (tag: refs/tags/v2.10.13, refs/heads/master)
+
+++
 2022-12-05  gitExplorePreeti  <96466211+gitExplorePreeti@users.noreply.github.com>
 
 	new: dev: Unit Tests added for TrackTraps.
