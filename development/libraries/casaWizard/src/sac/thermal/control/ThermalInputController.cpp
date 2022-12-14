@@ -54,9 +54,10 @@ ThermalInputController::ThermalInputController(ThermalInputTab* inputTab,
 
 void ThermalInputController::slotImportTargetsClicked()
 {
+   const bool oneFolderHigherThanWorkingDir = true;
    QString fileName = QFileDialog::getOpenFileName(inputTab(),
                                                    "Select calibration targets",
-                                                   scenario().defaultFileDialogLocation(),
+                                                   scenario().defaultFileDialogLocation(oneFolderHigherThanWorkingDir),
                                                    "Spreadsheet (*.xlsx)");
 
    if(fileName.isEmpty())
