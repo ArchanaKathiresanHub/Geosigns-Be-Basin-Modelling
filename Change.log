@@ -13,7 +13,7 @@
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Version				Date of update
 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-Cauldron-v2.10.13		2022-12-12 16:34:32 +0100
+Cauldron-v2.10.14		2022-12-14 14:01:50 +0100
 =============================================================
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Third-party Software 		version
@@ -36,6 +36,12 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2022-12-14  RichardFaasse  <115148814+RichardFaasse@users.noreply.github.com>
+
+	chg: usr: Fixed default location for selecting calibration data SAC/UA thermal
+	================== COMMIT-END ========================Commit-ID:<5ad35d55b3f38feda1d2ae0508b3ea3455657c5c>	  (tag: refs/tags/v2.10.14, refs/heads/master)
+
+++
 2022-12-12  RichardFaasse  <115148814+RichardFaasse@users.noreply.github.com>
 
 	chg: usr: Improve the default folder selection for the LiTs.
