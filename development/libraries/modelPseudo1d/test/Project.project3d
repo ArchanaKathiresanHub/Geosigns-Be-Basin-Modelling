@@ -347,6 +347,7 @@ ReferredBy MapName MapType MapFileName MapSeqNbr
 "TwoWayTimeIoTbl" "MAP-1511782125-4" "HDF5" "Inputs.HDF" 11
 "StratIoTbl" "MAP-1511782127-4" "HDF5" "Inputs.HDF" 12
 "TwoWayTimeIoTbl" "MAP-1511782129-4" "HDF5" "Inputs.HDF" 13
+"ReservoirIoTbl" "ReservoirThicknessMap" "HDF5" "Inputs.HDF" 14
 "OceaCrustalThicknessIoTbl" "OceanicCrustThicknessFromLegacyALC_0.000000" "HDF5" "Input.HDF" 0
 "OceaCrustalThicknessIoTbl" "OceanicCrustThicknessFromLegacyALC_23.000000" "HDF5" "Input.HDF" 1
 "OceaCrustalThicknessIoTbl" "OceanicCrustThicknessFromLegacyALC_66.000000" "HDF5" "Input.HDF" 2
@@ -632,8 +633,9 @@ FtClWeightBinStart FtClWeightBinWidth
 ;
 [ReservoirIoTbl]
 ;v100
-ReservoirName DetectedReservoir FormationName TrapCapacity ActivityMode ActivityStart NetToGross NetToGrossGrid BioDegradInd OilToGasCrackingInd DiffusionInd MinOilColumnHeight MinGasColumnHeight BlockingInd BlockingPermeability BlockingPorosity
+ReservoirName DetectedReservoir FormationName TrapCapacity ActivityMode ActivityStart Thickness ThicknessGrid NetToGross NetToGrossGrid BioDegradInd OilToGasCrackingInd DiffusionInd MinOilColumnHeight MinGasColumnHeight BlockingInd BlockingPermeability BlockingPorosity
   ()   ()   () (m3)   () (Ma) (percent) (percent) () () () (m) (m) () (mD)  (%)
+"Chalk" 0 "Chalk" 500000 "AlwaysActive" 0 -9999 "ReservoirThicknessMap" -9999 "" 0 1 0 1 1 0 1e-09 0
 [End]
 ;
 ;

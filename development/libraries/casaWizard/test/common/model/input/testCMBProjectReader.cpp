@@ -47,7 +47,8 @@ TEST_F( CMBProjectReaderTest, testMapNames )
     "MAP-1511782125-4",
     "MAP-1511782127-4",
     "MAP-1511782129-4",
-    "HeatMap"
+    "HeatMap",
+    "MAP-85749"
   };
 
   const int nMapsActual = mapNamesActual.size();
@@ -337,6 +338,11 @@ TEST_F( CMBProjectReaderTest, testDepthDefinedInAllLayers)
 TEST_F(CMBProjectReaderTest, testReadSubSamplingFactor)
 {
    EXPECT_EQ(5, reader_.subSamplingFactor());
+}
+
+TEST_F(CMBProjectReaderTest, testProjectHasFaults)
+{
+   EXPECT_TRUE(reader_.projectHasFaultCuts());
 }
 
 TEST_F(CMBProjectReaderTest, testTopCrustHeatProdAtLocation)

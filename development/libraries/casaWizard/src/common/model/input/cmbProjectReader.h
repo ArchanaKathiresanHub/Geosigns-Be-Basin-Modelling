@@ -57,6 +57,7 @@ public:
   QString getLayerUnderSurface(const QString& surfaceName) const override;
   QString getSurfaceOnTopOfLayer(const QString& layerName) const override;
   int subSamplingFactor() const override;
+  bool projectHasFaultCuts() const override;
 
 private:
   std::unique_ptr<mbapi::Model> cmbModel_;

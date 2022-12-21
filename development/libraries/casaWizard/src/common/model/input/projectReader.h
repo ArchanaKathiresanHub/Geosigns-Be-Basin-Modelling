@@ -42,6 +42,7 @@ public:
   virtual QString getSurfaceOnTopOfLayer(const QString& layerName) const = 0;
 
   virtual int subSamplingFactor() const = 0;
+  virtual bool projectHasFaultCuts() const = 0;
 };
 
 } // namespace casaWizard

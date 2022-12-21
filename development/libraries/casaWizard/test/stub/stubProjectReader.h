@@ -143,6 +143,11 @@ public:
   {
      return 5;
   }
+
+  bool projectHasFaultCuts() const override
+  {
+     return false;
+  }
 };
 
 } // namespace casaWizard

@@ -159,6 +159,7 @@ void ModelPseudo1dInputMapProperties::setReservoirIoTbl()
 {
   std::vector<ModelPseudo1dTableProperty> tablePropertyVector = {
     ModelPseudo1dTableProperty("NetToGross", "NetToGrossGrid"),
+    ModelPseudo1dTableProperty("Thickness", "ThicknessGrid")
   };
 
   m_tableMapProperty["ReservoirIoTbl"] = tablePropertyVector;

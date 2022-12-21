@@ -20,6 +20,7 @@ add_casawizard_common_gtest( NAME CMBProjectReader
                              SOURCES testCMBProjectReader.cpp )
 configure_file( CMBProjectReaderTest.project3d CMBProjectReaderTest.project3d COPYONLY )
 configure_file( HeatMap.hdf HeatMap.hdf COPYONLY )
+configure_file( MAP-85749.FLT MAP-85749.FLT COPYONLY )
 
 add_casawizard_common_gtest( NAME MapReader
                              SOURCES testMapReader.cpp )

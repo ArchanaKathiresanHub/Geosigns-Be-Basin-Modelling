@@ -395,4 +395,9 @@ int CMBProjectReader::subSamplingFactor() const
    return subsamplingX > subsamplingY ? subsamplingX : subsamplingY;
 }
 
+bool CMBProjectReader::projectHasFaultCuts() const
+{
+   return cmbModel_->tableSize("PalinspasticIoTbl") > 0;
+}
+
 } // namespace casaWizard

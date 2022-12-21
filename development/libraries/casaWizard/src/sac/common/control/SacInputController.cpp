@@ -336,6 +336,14 @@ bool SacInputController::selectWorkspace()
       return false;
    }
 
+   if (tempProjectReader.projectHasFaultCuts())
+   {
+      QMessageBox box(QMessageBox::Information, "Fault cuts detected in the project",
+                      "Fault cuts are supported in the SAC workflow, but especially wells close to fault cut locations might not optimize correctly",
+                      QMessageBox::Ok);
+      box.exec();
+   }
+
    if (scenario().workingDirectory().isEmpty() || !scenario().project3dPath().isEmpty())
    {
       scenario().clear();

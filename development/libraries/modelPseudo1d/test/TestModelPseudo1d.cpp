@@ -38,6 +38,7 @@ TEST(TestModelPseudo1d, TestExtractScalarsFromInputMaps)
   ASSERT_EQ(ErrorHandler::NoError, testModel.loadModelFromProjectFile("Project.project3d"));
 
   modelPseudo1d::ModelPseudo1d mdlPseudo1d(testModel,171000,613500);
+  mdlPseudo1d.initialize();
 
   EXPECT_NO_THROW(mdlPseudo1d.extractScalarsFromInputMaps());
 }
@@ -48,8 +49,11 @@ TEST(TestModelPseudo1d, TestSetScalarsInModel)
   ASSERT_EQ(ErrorHandler::NoError, testModel.loadModelFromProjectFile("Project.project3d"));
 
   modelPseudo1d::ModelPseudo1d mdlPseudo1d(testModel,181000,600500);
+  mdlPseudo1d.initialize();
+  mdlPseudo1d.extractScalarsFromInputMaps();
 
   EXPECT_NO_THROW(mdlPseudo1d.setScalarsInModel());
+  EXPECT_EQ(testModel.tableSize("GridMapIoTbl"), 0); // All maps references should be gone
 }
 
 TEST(TestModelPseudo1d, TestSetSingleCellwindowXY)

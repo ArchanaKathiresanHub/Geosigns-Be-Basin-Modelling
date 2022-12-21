@@ -493,6 +493,7 @@ ReferredBy MapName MapType MapFileName FileId MD5Checksum MapSeqNbr HDF5FileName
 "StratIoTbl" "MAP-1511782127-4" "HDF5" "Inputs.HDF" -1 "" 12 ""
 "TwoWayTimeIoTbl" "MAP-1511782129-4" "HDF5" "Inputs.HDF" -1 "" 13 ""
 "BasementIoTbl" "HeatMap" "HDF5" "HeatMap.hdf" -1 0 ""
+"PalinspasticIoTbl" "MAP-85749" "FLT" "MAP-85749.FLT" 85749
 [End]
 ;
 ;
@@ -881,9 +882,10 @@ DiffusionModel SealThicknessModel MaximumSealThickness DiffSalinity ActEnergy Ga
 ; PalinspasticIoTbl
 ;
 [PalinspasticIoTbl]
-;
-DepthGrid FaultcutsMap SurfaceName BottomFormationName Age Depth MapSeqNbr OilSlope GasSlope MinimumSGR SGRIndicator ErrOilSlope ErrGasSlope ErrMinimumSGR
-() () () () () () () () () () () () () ()
+;v100
+DepthGrid FaultcutsMap SurfaceName BottomFormationName Age Depth MapSeqNbr
+ (m)  (m)   ()   () (Ma)  (m)   ()
+  "" "MAP-85749" "Water bottom" "Triassic" 0 -9999 0
 [End]
 ;
 ;
