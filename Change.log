@@ -13,7 +13,7 @@
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Version				Date of update
 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-Cauldron-v2.10.14		2022-12-14 14:01:50 +0100
+Cauldron-v2.10.15		2022-12-21 16:29:43 +0100
 =============================================================
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Third-party Software 		version
@@ -36,6 +36,14 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2022-12-21  RichardFaasse  <115148814+RichardFaasse@users.noreply.github.com>
+
+	fix: usr: Bugfix for SAC workflow issue for sac maps issue.
+	 * Contains the bugfix for the SAC workflow with reservoir thickness maps
+	 * Also contains a warning pop-up for the user when the project used in the workflow contains faults
+        ================== COMMIT-END ========================Commit-ID:<8bc31fb5a4c3f4b958099e1802cdcbe0eef0fb16>	  (tag: refs/tags/v2.10.15, refs/heads/master)
+
+++
 2022-12-14  RichardFaasse  <115148814+RichardFaasse@users.noreply.github.com>
 
 	chg: usr: Fixed default location for selecting calibration data SAC/UA thermal
