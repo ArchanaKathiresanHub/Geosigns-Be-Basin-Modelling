@@ -13,7 +13,7 @@
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Version				Date of update
 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-Cauldron-v2.10.15		2022-12-21 16:29:43 +0100
+Cauldron-v2.10.16		2023-01-03 12:07:03 +0100
 =============================================================
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Third-party Software 		version
@@ -36,6 +36,16 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2023-01-03  Sven van Leeuwen  <113355692+NLSLFG@users.noreply.github.com>
+
+	chg: usr: export SSV xy locations in SAC.
+	* Added well SSV export in to wellprep & maps & t2z when running the normal export.
+	* Added test
+	* Missed lithology namespace inclusions
+	
+	================== COMMIT-END ========================Commit-ID:<5d9cf14a0843630ac66dfdd3d37843b7afe55dd0>	  (tag: refs/tags/v2.10.16, refs/heads/master)
+
+++
 2022-12-21  RichardFaasse  <115148814+RichardFaasse@users.noreply.github.com>
 
 	fix: usr: Bugfix for SAC workflow issue for sac maps issue.
