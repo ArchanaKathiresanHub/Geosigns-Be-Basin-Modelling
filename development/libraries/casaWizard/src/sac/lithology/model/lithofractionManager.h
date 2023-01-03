@@ -23,6 +23,9 @@ namespace casaWizard
 namespace sac
 {
 
+namespace lithology
+{
+
 class LithofractionManager : public Writable
 {
 public:
@@ -60,6 +63,8 @@ private:
 
 };
 
-}  // namespace sac
+} // namespace lithology
 
-}  // namespace casaWizard
+} // namespace sac
+
+} // namespace casaWizard

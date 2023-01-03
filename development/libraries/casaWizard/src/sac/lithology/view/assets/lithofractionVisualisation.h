@@ -24,6 +24,10 @@ class Well;
 
 namespace sac
 {
+
+namespace lithology
+{
+
 class LithoGrid2DPlot;
 class OptimizedLithofraction;
 
@@ -77,6 +81,8 @@ private slots:
    void slotUpdateWellsVisibility(int state);
    void slotUpdateActivePlot(int activePlot);
 };
+
+} // namespace lithology
 
 } // namespace sac
 

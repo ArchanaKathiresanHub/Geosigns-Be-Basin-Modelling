@@ -18,6 +18,9 @@ namespace casaWizard
 namespace sac
 {
 
+namespace lithology
+{
+
 const int defaultReferenceSurface{0};
 const int defaultt2zNumberCPUs{1};
 
@@ -315,6 +318,8 @@ bool LithologyScenario::openMaps(MapReader& mapReader, const int layerID) const
 {
    return SacScenario::openMaps(mapReader, QString::number(layerID) + "_percent_1");
 }
+
+} // namespace lithology
 
 } // namespace sac
 

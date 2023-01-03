@@ -21,6 +21,7 @@
 #include "model/SacScenario.h"
 #include "model/scenarioBackup.h"
 #include "model/script/Generate3DScenarioScript.h"
+#include "model/output/calibrationTargetSaver.h"
 
 #include "view/assets/activeWellsTable.h"
 #include "view/SacMapsTab.h"
@@ -118,7 +119,9 @@ void SacMapsController::slotExportOptimized()
    }
 
    QDir sourceDir(scenario().optimizedProjectDirectory());
-   functions::exportScenarioToZip(sourceDir, scenario().workingDirectory(), scenario().project3dFilename(), *infoGenerator());
+   const QString exportPath = functions::exportScenarioToZip(sourceDir, scenario().workingDirectory(), scenario().project3dFilename(), *infoGenerator());
+   CalibrationTargetSaver saver(scenario().calibrationTargetManager(), exportPath);
+   saver.saveRawLocationsToText("IncludedWells", ' ', true);
 }
 
 void SacMapsController::slotExportOptimizedToZycor()
@@ -130,7 +133,9 @@ void SacMapsController::slotExportOptimizedToZycor()
       return;
    }
 
-   QString targetPath = QFileDialog::getExistingDirectory(nullptr, "Choose a location for the exported zycor maps", scenario().defaultFileDialogLocation(),
+   QString targetPath = QFileDialog::getExistingDirectory(nullptr,
+                                                          "Choose a location for the exported zycor maps",
+                                                          scenario().defaultFileDialogLocation(),
                                                           QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
 
    QDir targetDir(targetPath);
@@ -141,6 +146,9 @@ void SacMapsController::slotExportOptimizedToZycor()
    }
 
    scenario().exportOptimizedMapsToZycor(targetPath);
+
+   CalibrationTargetSaver saver(scenario().calibrationTargetManager(), targetPath + "/");
+   saver.saveRawLocationsToText("IncludedWells", ' ', true);
 
    Logger::log() << "Finished exporting optimized map(s) to Zycor" << Logger::endl();
 }

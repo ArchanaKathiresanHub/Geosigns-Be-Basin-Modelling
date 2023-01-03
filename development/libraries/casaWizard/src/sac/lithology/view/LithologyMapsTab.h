@@ -20,6 +20,9 @@ class CustomCheckbox;
 namespace sac
 {
 
+namespace lithology
+{
+
 class LithologyMapsTab : public SacMapsTab
 {
   Q_OBJECT
@@ -37,6 +40,8 @@ private:
   LithofractionVisualisation* m_lithofractionVisualisation;
   CustomCheckbox* m_smartGridding;
 };
+
+} // namespace lithology
 
 } // namespace sac
 

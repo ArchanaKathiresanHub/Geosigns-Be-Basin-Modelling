@@ -11,6 +11,9 @@ namespace casaWizard
 namespace sac
 {
 
+namespace lithology
+{
+
 class LithologyScenario;
 
 class OptimizedLithofractionExtractor : public CaseExtractor
@@ -27,6 +30,8 @@ private:
   OptimizedLithofractionScript script_;
   OptimizedLithofractionDataCreator dataCreator_;
 };
+
+} // namespace lithology
 
 } // namespace sac
 

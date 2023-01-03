@@ -21,6 +21,9 @@ class ProjectReader;
 namespace sac
 {
 
+namespace lithology
+{
+
 class LithofractionManager;
 class LithofractionTable;
 class LithologyScenario;
@@ -46,6 +49,8 @@ private:
 
   void updateLithoPercentages(const int index);
 };
+
+} // namespace lithology
 
 } // namespace sac
 

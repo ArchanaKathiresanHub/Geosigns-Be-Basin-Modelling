@@ -22,6 +22,9 @@ class ColorMap;
 namespace sac
 {
 
+namespace lithology
+{
+
 class OptimizedLithofraction;
 
 class LithoPercent2DView : public SacMap2DView
@@ -49,6 +52,8 @@ private:
   void drawPieChartsSelectedWells(QPainter& painter);
   void drawPieChartsWells(QPainter& painter);
 };
+
+} // namespace lithology
 
 } // namespace sac
 

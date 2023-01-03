@@ -11,14 +11,13 @@ class WellPrepTab;
 namespace sac
 {
 
-class LithologyMapsTab;
-class T2Ztab;
-
 namespace lithology
 {
 
 class LithologyInputTab;
 class LithologyResultsTab;
+class LithologyMapsTab;
+class T2Ztab;
 
 class LithologyWindow : public sac::Window
 {

@@ -20,6 +20,9 @@ namespace casaWizard
 namespace sac
 {
 
+namespace lithology
+{
+
 DepthConversionScript::DepthConversionScript(const LithologyScenario& scenario, const QString& baseDirectoryVar, const workloadmanagers::WorkLoadManagerType& workloadManagerType) :
   RunScript(baseDirectoryVar),
   scenario_{scenario},
@@ -111,6 +114,8 @@ QString DepthConversionScript::getDepthConversionCommand() const
                    " -preserveErosion" +
                    " -noCalculatedTWToutput");				   
 }
+
+} // namespace lithology
 
 } // namespace sac
 

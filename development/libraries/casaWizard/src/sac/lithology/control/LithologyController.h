@@ -19,16 +19,14 @@ namespace casaWizard
 namespace sac
 {
 
-class LithologyMapsController;
-class ResultsController;
-class T2Zcontroller;
-class WellPrepSACcontroller;
-
 namespace lithology
 {
 
+class WellPrepSACcontroller;
 class LithologyInputController;
 class LithologyResultsController;
+class LithologyMapsController;
+class LithologyT2Zcontroller;
 
 class LithologyController : public MainController
 {
@@ -47,7 +45,7 @@ private:
   WellPrepSACcontroller* m_wellPrepSACcontroller;
   LithologyInputController* m_inputController;
   LithologyMapsController* m_mapsController;
-  T2Zcontroller* m_t2zController;
+  LithologyT2Zcontroller* m_t2zController;
   LithologyResultsController* m_resultsController;
 };
 

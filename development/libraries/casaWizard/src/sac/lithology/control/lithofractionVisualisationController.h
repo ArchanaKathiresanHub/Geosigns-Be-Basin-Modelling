@@ -21,6 +21,9 @@ class Well;
 namespace sac
 {
 
+namespace lithology
+{
+
 class LithofractionVisualisation;
 class OptimizedLithofraction;
 class LithologyScenario;
@@ -60,6 +63,8 @@ private slots:
   void toolTipCreated(const QPointF& point, const int plotID);
   void slotUpdateSingleMapLayout(int state);
 };
+
+} // namespace lithology
 
 } // namespace sac
 

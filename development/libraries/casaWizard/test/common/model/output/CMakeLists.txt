@@ -25,6 +25,7 @@ configure_file( SAC/sacScript.casa SAC/sacScript.casa COPYONLY )
 configure_file( SAC/Input.HDF SAC/Input.HDF COPYONLY )
 configure_file( testWellData.xlsx testWellData.xlsx COPYONLY )
 configure_file( testExpectedASCII.csv testExpectedASCII.csv COPYONLY )
+configure_file( testExpectedASCII.txt testExpectedASCII.txt COPYONLY )
 
 configure_file( CMBProjectWriterTest.project3d CMBProjectWriterTest.project3d COPYONLY )
 configure_file( Inputs.HDF Inputs.HDF COPYONLY )

@@ -7,6 +7,8 @@
 
 #include <gtest/gtest.h>
 #include <memory>
+
+using namespace casaWizard::sac::lithology;
 using namespace casaWizard::sac;
 using namespace casaWizard;
 

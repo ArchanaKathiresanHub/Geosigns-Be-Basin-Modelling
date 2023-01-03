@@ -16,7 +16,7 @@
 #include "control/LithologyInputController.h"
 #include "control/LithologyResultsController.h"
 #include "control/LithologyMapsController.h"
-#include "control/t2zController.h"
+#include "control/LithologyT2ZController.h"
 
 #include "model/input/cmbProjectReader.h"
 
@@ -36,7 +36,7 @@ LithologyController::LithologyController() :
   m_wellPrepSACcontroller{new WellPrepSACcontroller{m_ui.wellPrepTab(), m_scenario, scriptRunController(), this}},
   m_inputController{new LithologyInputController{m_ui.inputTab(), m_scenario, scriptRunController(), this}},
   m_mapsController{new LithologyMapsController{m_ui.mapsTab(), m_scenario, scriptRunController(), this}},
-  m_t2zController{new T2Zcontroller{m_ui.t2zTab(), m_scenario, scriptRunController(), this}},
+  m_t2zController{new LithologyT2Zcontroller{m_ui.t2zTab(), m_scenario, scriptRunController(), this}},
   m_resultsController{new LithologyResultsController{m_ui.resultsTab(), m_scenario, scriptRunController(), this}}
 {
   connect(this, SIGNAL(signalUpdateTabGUI(int)), m_wellPrepSACcontroller, SLOT(slotUpdateTabGUI(int)));

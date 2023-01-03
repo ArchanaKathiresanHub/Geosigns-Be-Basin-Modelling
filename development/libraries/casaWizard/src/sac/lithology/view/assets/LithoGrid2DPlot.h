@@ -20,6 +20,9 @@ namespace casaWizard
 namespace sac
 {
 
+namespace lithology
+{
+
 class LithoGrid2DPlot : public Grid2DPlot
 {
   Q_OBJECT
@@ -33,6 +36,7 @@ private:
   LithoPercent2DView* m_lithoPercent2dView;
 };
 
+} // namespace lithology
 
 } // namespace sac
 

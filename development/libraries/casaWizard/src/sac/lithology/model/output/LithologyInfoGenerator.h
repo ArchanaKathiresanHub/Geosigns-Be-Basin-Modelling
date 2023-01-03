@@ -18,6 +18,9 @@ namespace casaWizard
 namespace sac
 {
 
+namespace lithology
+{
+
 class LithologyInfoGenerator : public SacInfoGenerator
 {
 public:
@@ -37,6 +40,8 @@ private:
    const LithologyMapsManager& m_mapsManager;
    const LithologyScenario& m_scenario;
 };
+
+} // namespace lithology
 
 } // namespace sac
 

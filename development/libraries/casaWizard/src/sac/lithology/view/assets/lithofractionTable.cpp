@@ -29,6 +29,9 @@ namespace casaWizard
 namespace sac
 {
 
+namespace lithology
+{
+
 LithofractionTable::LithofractionTable(QWidget* parent) :
   QTableWidget(parent)
 {
@@ -240,6 +243,8 @@ QString LithofractionTable::fractionToQString(const double d)
 {
   return QString::number(d, 'f', 3);
 }
+
+} // namespace lithology
 
 } // namespace sac
 

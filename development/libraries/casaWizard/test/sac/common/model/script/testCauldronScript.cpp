@@ -20,7 +20,7 @@
 TEST(CauldronScriptTest, testInitialization)
 {
   // Given
-  casaWizard::sac::LithologyScenario scenario{new casaWizard::StubProjectReader()};
+  casaWizard::sac::lithology::LithologyScenario scenario{new casaWizard::StubProjectReader()};
   scenario.setWorkingDirectory(".");
   scenario.setProject3dFileNameAndLoadFile("projStub.project3d");
   casaWizard::sac::CauldronScript script(scenario, "baseDirectory");
@@ -35,7 +35,7 @@ TEST(CauldronScriptTest, testInitialization)
 TEST(CauldronScriptTest, testWriteScript)
 {
   // Given
-  casaWizard::sac::LithologyScenario scenario{new casaWizard::StubProjectReader()};
+  casaWizard::sac::lithology::LithologyScenario scenario{new casaWizard::StubProjectReader()};
   scenario.setWorkingDirectory(".");
   scenario.setProject3dFileNameAndLoadFile("projStub.project3d");
   scenario.setNumberCPUs(10);
