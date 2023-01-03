@@ -8,8 +8,7 @@ namespace casaWizard
 namespace sac
 {
 
-namespace lithology
-{
+namespace lithology {
 
 LithologyInputTab::LithologyInputTab(QWidget* parent) :
    SacInputTab(parent),

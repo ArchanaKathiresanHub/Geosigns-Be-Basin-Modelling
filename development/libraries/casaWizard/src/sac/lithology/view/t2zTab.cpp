@@ -15,9 +15,6 @@ namespace casaWizard
 namespace sac
 {
 
-namespace lithology
-{
-
 T2Ztab::T2Ztab(QWidget* parent) :
   QWidget(parent),
   pushButtonSACrunT2Z_{new EmphasisButton("Run Depth Conversion", this)},
@@ -114,8 +111,6 @@ bool T2Ztab::noProjectAvailable() const
 {
   return comboBoxProjectSelection_->count() == 0;
 }
-
-} // namespace lithology
 
 } // namespace sac
 

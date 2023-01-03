@@ -22,9 +22,6 @@ namespace casaWizard
 namespace sac
 {
 
-namespace lithology
-{
-
 LithofractionTableRow::LithofractionTableRow(const Lithofraction& lithofraction, const QStringList& lithoTypes) :
   lithofraction_{lithofraction},
   lithoTypes_{lithoTypes}
@@ -117,8 +114,6 @@ const Lithofraction& LithofractionTableRow::lithofraction() const
 {
   return lithofraction_;
 }
-
-} // namespace lithology
 
 } // namespace sac
 

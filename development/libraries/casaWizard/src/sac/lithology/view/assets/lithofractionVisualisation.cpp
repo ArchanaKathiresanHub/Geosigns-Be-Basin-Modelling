@@ -22,9 +22,6 @@ namespace casaWizard
 namespace sac
 {
 
-namespace lithology
-{
-
 LithofractionVisualisation::LithofractionVisualisation(QWidget *parent) :
    SacMapsVisualisation(parent),
    plotOptions_{new MapPlotOptionsLithofraction(this)},
@@ -296,8 +293,6 @@ void LithofractionVisualisation::updateSelectedWells(const QVector<int> selected
       plot->get2DView()->setSelectedWells(selectedWells);
    }
 }
-
-} // namespace lithology
 
 } // namespace sac
 

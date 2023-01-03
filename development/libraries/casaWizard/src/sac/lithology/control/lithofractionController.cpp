@@ -21,9 +21,6 @@ namespace casaWizard
 namespace sac
 {
 
-namespace lithology
-{
-
 LithofractionController::LithofractionController(LithofractionTable* table, LithologyScenario& scenario, QObject* parent) :
   QObject(parent),
   lithofractionManager_{scenario.lithofractionManager()},
@@ -87,8 +84,6 @@ void LithofractionController::updateLithofractionTable()
 {
   table_->updateTable(lithofractionManager_.lithofractions(), projectReader_);
 }
-
-} // namespace lithology
 
 } // namespace sac
 

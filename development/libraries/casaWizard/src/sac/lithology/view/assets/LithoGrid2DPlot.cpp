@@ -17,9 +17,6 @@ namespace casaWizard
 namespace sac
 {
 
-namespace lithology
-{
-
 LithoGrid2DPlot::LithoGrid2DPlot(const ColorMap& colormap, QWidget *parent) :
    Grid2DPlot(colormap, parent),
    m_lithoPercent2dView(new LithoPercent2DView(colormap, this))
@@ -36,8 +33,6 @@ void LithoGrid2DPlot::setTitle(const QString& lithoType, int id, bool inputMap)
 {
    title()->setText(QString(inputMap ? "INPUT MAP - " : "") + "Lithotype " + QString::number(id + 1) + ": " + lithoType);
 }
-
-} // namespace lithology
 
 } // namespace sac
 

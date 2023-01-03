@@ -20,7 +20,6 @@
 
 #include <gtest/gtest.h>
 
-using namespace casaWizard::sac::lithology;
 using namespace casaWizard::sac;
 using namespace casaWizard;
 

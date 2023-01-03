@@ -16,9 +16,6 @@ namespace casaWizard
 namespace sac
 {
 
-namespace lithology
-{
-
 Generate3DScenarioScriptLithology::Generate3DScenarioScriptLithology(const LithologyScenario& scenario):
    Generate3DScenarioScript(scenario),
    m_mapsManager(scenario.mapsManager())
@@ -36,8 +33,6 @@ QString Generate3DScenarioScriptLithology::setFilterOneDResults() const
    addWellIndicesToFilter1DResults(command);
    return command;
 }
-
-} // namespace lithology
 
 } // namespace sac
 

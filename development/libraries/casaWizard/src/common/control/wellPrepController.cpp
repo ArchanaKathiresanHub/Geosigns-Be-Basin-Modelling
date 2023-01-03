@@ -344,10 +344,15 @@ void WellPrepController::slotExportToCSVClicked()
       return;
    }
 
-   CalibrationTargetSaver saver(casaScenario_.calibrationTargetManagerWellPrep());
-   if (saver.saveRawLocationsToCSV(fileName) && saver.saveRawLocationsToText(fileName))
+   if (!fileName.endsWith(".csv"))
    {
-      Logger::log() << "Wells exported To Comma & Space Separated Values files! " << Logger::endl();
+      fileName += ".csv";
+   }
+
+   CalibrationTargetSaver saver(casaScenario_.calibrationTargetManagerWellPrep());
+   if (saver.saveRawLocationsToCSV(fileName))
+   {
+      Logger::log() << "Done!" << Logger::endl();
    }
 }
 

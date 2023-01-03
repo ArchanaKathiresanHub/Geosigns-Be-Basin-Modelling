@@ -18,9 +18,6 @@ namespace casaWizard
 namespace sac
 {
 
-namespace lithology
-{
-
 class LithologyScenario;
 
 class T2ZInfoGenerator : public LithologyInfoGenerator
@@ -36,8 +33,6 @@ private:
 
    void getOptionValue(const QString& surface, const int id);
 };
-
-} // namespace lithology
 
 } // namespace sac
 

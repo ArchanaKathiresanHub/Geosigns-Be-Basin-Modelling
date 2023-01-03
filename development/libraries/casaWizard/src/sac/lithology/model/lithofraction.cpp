@@ -18,9 +18,6 @@ namespace casaWizard
 namespace sac
 {
 
-namespace lithology
-{
-
 const QStringList Lithofraction::percentNames = {"Percent1", "Percent2", "Percent3", "None"};
 
 Lithofraction::Lithofraction(const QString& layerName,
@@ -201,8 +198,6 @@ void Lithofraction::setDoSecondOptimization(bool doSecondOptimization)
 {
   doSecondOptimization_ = doSecondOptimization;
 }
-
-} // namespace lithology
 
 } // namespace sac
 

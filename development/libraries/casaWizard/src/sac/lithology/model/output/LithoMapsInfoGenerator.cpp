@@ -17,15 +17,10 @@ namespace casaWizard
 namespace sac
 {
 
-namespace lithology
-{
-
 LithoMapsInfoGenerator::LithoMapsInfoGenerator(const LithologyScenario& scenario, std::unique_ptr<ProjectReader> projectReader) :
    LithologyInfoGenerator(scenario, *projectReader),
    m_projectReader(std::move(projectReader))
 {}
-
-} // namespace lithology
 
 } // namespace sac
 

@@ -14,9 +14,6 @@ namespace casaWizard
 namespace sac
 {
 
-namespace lithology
-{
-
 LithologyInfoGenerator::LithologyInfoGenerator(const LithologyScenario& scenario, ProjectReader& projectReader) :
    SacInfoGenerator(projectReader),
    m_mapsManager(scenario.mapsManager()),
@@ -69,8 +66,6 @@ void LithologyInfoGenerator::addSmartGridding()
 {
    addOption("Smart gridding", m_mapsManager.smartGridding() ? "Enabled" : "Disabled");
 }
-
-} // namespace lithology
 
 } // namespace sac
 

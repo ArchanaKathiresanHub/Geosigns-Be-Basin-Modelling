@@ -21,9 +21,6 @@ class CustomCheckbox;
 namespace sac
 {
 
-namespace lithology
-{
-
 class MapPlotOptionsLithofraction : public SacMapPlotOptions
 {
    Q_OBJECT
@@ -48,8 +45,6 @@ private slots:
    void slotUpdateSingleMapLayout(int state);
 };
 
-} // namespace lithology
+} //sac
 
-} // namespace sac
-
-} // namespace casaWizard
+} //casaWizard

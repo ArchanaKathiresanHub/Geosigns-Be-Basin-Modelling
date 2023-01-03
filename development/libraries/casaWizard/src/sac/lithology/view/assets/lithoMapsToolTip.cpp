@@ -25,9 +25,6 @@ namespace casaWizard
 namespace sac
 {
 
-namespace lithology
-{
-
 LithoMapsToolTip::LithoMapsToolTip(QWidget *parent) :
   SacMapToolTip(parent),
   pieChart_{new QChart()},
@@ -138,8 +135,6 @@ void LithoMapsToolTip::setLithoNames(const QStringList& lithoNames)
     updatePieSliceColors();
   }
 }
-
-} // namespace lithology
 
 } // namespace sac
 

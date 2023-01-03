@@ -64,7 +64,7 @@ TEST(CalibrationTargetSaverTest, testSave)
   EXPECT_EQ(wellsRead[0]->metaData(), "SomeMetaData");
 }
 
-TEST(CalibrationTargetSaverTest, exportCSV)
+TEST(CalibrationTargetSaverTest, exportTest)
 {
    casaWizard::StubCasaScenario scenario{};
    std::remove("testExportASCII.csv");
@@ -75,22 +75,6 @@ TEST(CalibrationTargetSaverTest, exportCSV)
 
    CalibrationTargetSaver saver(scenario.calibrationTargetManager());
 
-   saver.saveRawLocationsToCSV("testExportASCII.csv", ',', false);
+   saver.saveRawLocationsToCSV("testExportASCII.csv");
    expectFileEq("testExportASCII.csv", "testExpectedASCII.csv");
-}
-
-TEST(CalibrationTargetSaverTest, exportTXT)
-{
-   casaWizard::StubCasaScenario scenario{};
-   std::remove("testExportASCII.txt");
-
-   scenario.calibrationTargetManager().addWell("name", 100, 100);
-   scenario.calibrationTargetManager().addWell("name2", 200, 200);
-   scenario.calibrationTargetManager().addWell("", 300.3, 2e13);
-   scenario.calibrationTargetManager().setWellIsExcluded(true, 2);
-
-   CalibrationTargetSaver saver(scenario.calibrationTargetManager());
-
-   saver.saveRawLocationsToText("testExportASCII.txt", ' ', true);
-   expectFileEq("testExportASCII.txt", "testExpectedASCII.txt");
 }

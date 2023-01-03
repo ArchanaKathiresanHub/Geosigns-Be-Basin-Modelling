@@ -18,9 +18,6 @@ namespace casaWizard
 namespace sac
 {
 
-namespace lithology
-{
-
 const double minPercentage{0.0};
 const double maxPercentage{100.0};
 const double minFraction{0.0};
@@ -215,8 +212,7 @@ void LithofractionManager::clear()
   optimizedLithofractions_.clear();
 }
 
-} // namespace lithology
 
-} // namespace sac
+}  // namespace sac
 
-} // namespace casaWizard
+}  // namespace casaWizard

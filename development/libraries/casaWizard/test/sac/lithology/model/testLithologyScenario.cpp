@@ -10,14 +10,14 @@
 
 TEST(LithologyScenarioTest, testWriteRead)
 {
-  casaWizard::sac::lithology::LithologyScenario writeScenario{new casaWizard::StubProjectReader()};
+  casaWizard::sac::LithologyScenario writeScenario{new casaWizard::StubProjectReader()};
 
   writeScenario.setT2zReferenceSurface(321);
   writeScenario.setT2zNumberCPUs(12);
   writeScenario.setT2zSubSampling(3);
   writeScenario.mapsManager().setSmartGridding(false);
 
-  casaWizard::sac::lithology::LithofractionManager& lithofractionManagerWrite = writeScenario.lithofractionManager();
+  casaWizard::sac::LithofractionManager& lithofractionManagerWrite = writeScenario.lithofractionManager();
 
   lithofractionManagerWrite.addLithofraction("Litho1");
   lithofractionManagerWrite.addLithofraction("Litho2");
@@ -29,7 +29,7 @@ TEST(LithologyScenarioTest, testWriteRead)
   lithofractionManagerWrite.setLithofractionSecondMinFraction(0, 0.5);
   lithofractionManagerWrite.setLithofractionSecondMaxFraction(0, 0.6);
 
-  casaWizard::sac::lithology::OptimizedLithofraction optim(10, 11, 12, 13);
+  casaWizard::sac::OptimizedLithofraction optim(10, 11, 12, 13);
   lithofractionManagerWrite.addOptimizedLithofraction(optim);
 
   casaWizard::sac::WellTrajectoryManager& wellTrajectoryManagerWrite = writeScenario.wellTrajectoryManager();
@@ -43,7 +43,7 @@ TEST(LithologyScenarioTest, testWriteRead)
 
   writer.close();
 
-  casaWizard::sac::lithology::LithologyScenario readScenario{new casaWizard::StubProjectReader()};
+  casaWizard::sac::LithologyScenario readScenario{new casaWizard::StubProjectReader()};
   casaWizard::ScenarioReader reader{"scenario.dat"};
   readScenario.readFromFile(reader);
 
@@ -61,9 +61,9 @@ TEST(LithologyScenarioTest, testWriteRead)
   EXPECT_TRUE(writeScenario.t2zRunOnOriginalProject());
 
 
-  const casaWizard::sac::lithology::LithofractionManager& lithofractionManagerRead = readScenario.lithofractionManager();
+  const casaWizard::sac::LithofractionManager& lithofractionManagerRead = readScenario.lithofractionManager();
 
-  const QVector<casaWizard::sac::lithology::Lithofraction>& lithofractions = lithofractionManagerRead.lithofractions();
+  const QVector<casaWizard::sac::Lithofraction>& lithofractions = lithofractionManagerRead.lithofractions();
   ASSERT_EQ(lithofractions.size(), 2);
   EXPECT_EQ(lithofractions[0].layerName().toStdString(), "Litho1");
   EXPECT_EQ(lithofractions[0].firstComponent(), 1);
@@ -74,7 +74,7 @@ TEST(LithologyScenarioTest, testWriteRead)
   EXPECT_DOUBLE_EQ(lithofractions[0].maxFractionSecondComponent(), 0.6);
   EXPECT_EQ(lithofractions[1].layerName().toStdString(), "Litho2");
 
-  const QVector<casaWizard::sac::lithology::OptimizedLithofraction>& optimized = lithofractionManagerRead.optimizedLithofractions();
+  const QVector<casaWizard::sac::OptimizedLithofraction>& optimized = lithofractionManagerRead.optimizedLithofractions();
   ASSERT_EQ(optimized.size(), 1);
   EXPECT_EQ(optimized[0].wellId(), 10);
   EXPECT_EQ(optimized[0].lithofractionId(), 11);
@@ -117,7 +117,7 @@ TEST(LithologyScenarioTest, testWriteRead)
 TEST(LithologyScenarioTest, testWellPrepToSAC)
 {
   // Given
-  casaWizard::sac::lithology::LithologyScenario scenario{new casaWizard::StubProjectReader()};
+  casaWizard::sac::LithologyScenario scenario{new casaWizard::StubProjectReader()};
 
   scenario.calibrationTargetManagerWellPrep().addWell("WellName", 1.0, 2.0);
   scenario.setWorkingDirectory(".");
@@ -142,7 +142,7 @@ TEST(LithologyScenarioTest, testWellPrepToSAC)
   EXPECT_EQ(trajectories[3].size(), 1);
 }
 
-void createScenarioWithOptimizedLithofractions(casaWizard::sac::lithology::LithologyScenario& scenario)
+void createScenarioWithOptimizedLithofractions(casaWizard::sac::LithologyScenario& scenario)
 {
   scenario.calibrationTargetManager().addWell("ActiveWell1", 1000, 1000);
   scenario.calibrationTargetManager().addWell("ActiveWell2", 3000, 3000);
@@ -151,9 +151,9 @@ void createScenarioWithOptimizedLithofractions(casaWizard::sac::lithology::Litho
   scenario.calibrationTargetManager().setWellIsActive(false, 2);
   scenario.calibrationTargetManager().setWellHasActiveProperties(false, 3);
 
-  casaWizard::sac::lithology::OptimizedLithofraction optimizedLithofractionWell1(0, 0, 60, 0.5);
-  casaWizard::sac::lithology::OptimizedLithofraction optimizedLithofractionWell2(1, 0, 50, 0.2);
-  casaWizard::sac::lithology::OptimizedLithofraction optimizedLithofractionNonActiveWell(2, 0, 40, 0.5);
+  casaWizard::sac::OptimizedLithofraction optimizedLithofractionWell1(0, 0, 60, 0.5);
+  casaWizard::sac::OptimizedLithofraction optimizedLithofractionWell2(1, 0, 50, 0.2);
+  casaWizard::sac::OptimizedLithofraction optimizedLithofractionNonActiveWell(2, 0, 40, 0.5);
 
   scenario.lithofractionManager().addOptimizedLithofraction(optimizedLithofractionWell1);
   scenario.lithofractionManager().addOptimizedLithofraction(optimizedLithofractionWell2);
@@ -164,7 +164,7 @@ void createScenarioWithOptimizedLithofractions(casaWizard::sac::lithology::Litho
 TEST(LithologyScenarioTest, testGetLithopercentagesOfClosestWell)
 {
   // Given
-  casaWizard::sac::lithology::LithologyScenario scenario{new casaWizard::StubProjectReader()};
+  casaWizard::sac::LithologyScenario scenario{new casaWizard::StubProjectReader()};
   createScenarioWithOptimizedLithofractions(scenario);
 
   // When
@@ -181,7 +181,7 @@ TEST(LithologyScenarioTest, testGetLithopercentagesOfClosestWell)
 TEST(LithologyScenarioTest, testGetLithopercentagesOfClosestWellNoLithoFractionInLayer)
 {
   // Given
-  casaWizard::sac::lithology::LithologyScenario scenario{new casaWizard::StubProjectReader()};
+  casaWizard::sac::LithologyScenario scenario{new casaWizard::StubProjectReader()};
   createScenarioWithOptimizedLithofractions(scenario);
 
   // When
@@ -195,7 +195,7 @@ TEST(LithologyScenarioTest, testGetLithopercentagesOfClosestWellNoLithoFractionI
 
 TEST(LithologyScenarioTest, getSurfaceValuesForWell)
 {
-   casaWizard::sac::lithology::LithologyScenario scenario(new casaWizard::StubProjectReader());
+   casaWizard::sac::LithologyScenario scenario(new casaWizard::StubProjectReader());
 
    casaWizard::Well well;
    well.setX(100);
@@ -213,7 +213,7 @@ TEST(LithologyScenarioTest, getSurfaceValuesForWell)
 TEST(LithologyScenarioTest, testSetCalibrationTargetsBasedOnObjectiveFunctions)
 {
    // Given
-   casaWizard::sac::lithology::LithologyScenario scenario{new casaWizard::StubProjectReader()};
+   casaWizard::sac::LithologyScenario scenario{new casaWizard::StubProjectReader()};
 
    const int activeWellID = scenario.calibrationTargetManager().addWell("ActiveWell", 1000, 1000);
    const int multiWellID = scenario.calibrationTargetManager().addWell("MultiWell", 20000, 2000);

@@ -17,9 +17,6 @@ namespace casaWizard
 namespace sac
 {
 
-namespace lithology
-{
-
 class LithologyScenario;
 
 class DepthConversionScript : public RunScript
@@ -38,8 +35,6 @@ private:
   QString scriptFilename_;
   std::unique_ptr<workloadmanagers::WorkLoadManager> workloadManager_;
 };
-
-} // namespace lithology
 
 } // namespace sac
 

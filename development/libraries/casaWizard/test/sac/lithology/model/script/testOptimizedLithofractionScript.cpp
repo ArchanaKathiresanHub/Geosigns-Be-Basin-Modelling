@@ -10,9 +10,9 @@
 TEST(OptimizedLithofractionScriptTest, testGenerateCommands)
 {
   // Given
-  casaWizard::sac::lithology::LithologyScenario scenario{new casaWizard::StubProjectReader()};
+  casaWizard::sac::LithologyScenario scenario{new casaWizard::StubProjectReader()};
   scenario.setWorkingDirectory(".");
-  casaWizard::sac::lithology::OptimizedLithofractionScript script("baseDirectory");
+  casaWizard::sac::OptimizedLithofractionScript script("baseDirectory");
 
   // When
   script.addCase("Folder1");

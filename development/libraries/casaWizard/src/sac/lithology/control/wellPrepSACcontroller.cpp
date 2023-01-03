@@ -26,9 +26,6 @@ namespace casaWizard
 namespace sac
 {
 
-namespace lithology
-{
-
 WellPrepSACcontroller::WellPrepSACcontroller(WellPrepTab* wellPrepTab,
                                              LithologyScenario& scenario,
                                              ScriptRunController& scriptRunController,
@@ -88,8 +85,6 @@ void WellPrepSACcontroller::slotToSAC()
 
   emit switchToTab(static_cast<int>(lithology::TabID::Input));
 }
-
-} // namespace lithology
 
 } // namespace sac
 

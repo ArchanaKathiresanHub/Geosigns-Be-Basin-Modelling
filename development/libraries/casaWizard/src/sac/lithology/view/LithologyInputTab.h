@@ -9,10 +9,9 @@ namespace casaWizard
 namespace sac
 {
 
-namespace lithology
-{
-
 class LithofractionTable;
+
+namespace lithology {
 
 class LithologyInputTab : public SacInputTab
 {

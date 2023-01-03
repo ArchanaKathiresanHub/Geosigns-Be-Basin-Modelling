@@ -13,9 +13,6 @@ namespace casaWizard
 namespace sac
 {
 
-namespace lithology
-{
-
 class T2Ztab : public QWidget
 {
   Q_OBJECT
@@ -46,8 +43,6 @@ private:
   QPushButton* exportT2ZScenario_;
   QPushButton* exportT2ZMapsToZycor_;
 };
-
-} // namespace lithology
 
 } // namespace sac
 

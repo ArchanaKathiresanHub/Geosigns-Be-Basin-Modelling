@@ -14,7 +14,7 @@
 
 #include <gtest/gtest.h>
 
-using namespace casaWizard::sac::lithology;
+using namespace casaWizard::sac;
 
 TEST( LithoMapsInfoGenerator, testInfoGenerator )
 {
@@ -29,7 +29,7 @@ TEST( LithoMapsInfoGenerator, testInfoGenerator )
    scenario.calibrationTargetManager().addToMapping("Density", "BulkDensity");
    scenario.calibrationTargetManager().addToMapping("Velocity", "Velocity");
 
-   LithologyMapsManager& mapsManager = scenario.mapsManager();
+   casaWizard::sac::LithologyMapsManager& mapsManager = scenario.mapsManager();
    mapsManager.setPIDW(3);
    mapsManager.setSmoothingOption(1);
    mapsManager.setRadiusSmoothing(5000);

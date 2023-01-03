@@ -9,9 +9,6 @@ namespace casaWizard
 namespace sac
 {
 
-namespace lithology
-{
-
 class OptimizedLithofraction
 {
 public:
@@ -40,8 +37,6 @@ private:
   double optimizedPercentageFirstComponent_;
   double optimizedFractionSecondComponent_;
 };
-
-} // namespace lithology
 
 } // namespace sac
 

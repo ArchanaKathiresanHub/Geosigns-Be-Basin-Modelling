@@ -20,9 +20,6 @@ namespace casaWizard
 namespace sac
 {
 
-namespace lithology
-{
-
 class Lithofraction;
 
 class LithologyScript : public SACScript
@@ -38,8 +35,6 @@ private:
    const LithologyScenario& m_scenario;
 };
 
-} // namespace lithology
-
-} // namespace sac
+} // sac
 
 } // namespace casaWizard

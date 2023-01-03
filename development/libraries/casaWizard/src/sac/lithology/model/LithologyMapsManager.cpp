@@ -19,9 +19,6 @@ namespace casaWizard
 namespace sac
 {
 
-namespace lithology
-{
-
 LithologyMapsManager::LithologyMapsManager():
    m_smartGridding{true}
 {}
@@ -96,8 +93,6 @@ void LithologyMapsManager::exportOptimizedMapsToZycor(const ProjectReader& proje
       }
    }
 }
-
-} // namespace lithology
 
 } // namespace sac
 

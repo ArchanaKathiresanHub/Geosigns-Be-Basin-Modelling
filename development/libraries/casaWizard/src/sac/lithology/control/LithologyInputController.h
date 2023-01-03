@@ -21,10 +21,10 @@ namespace casaWizard
 namespace sac
 {
 
+class LithofractionController;
+
 namespace lithology
 {
-
-class LithofractionController;
 
 class LithologyInputController : public SacInputController
 {

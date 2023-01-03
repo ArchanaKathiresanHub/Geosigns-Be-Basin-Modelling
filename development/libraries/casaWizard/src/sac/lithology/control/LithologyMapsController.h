@@ -25,13 +25,9 @@ namespace sac
 {
 
 class ActiveWellsController;
+class LithologyMapsTab;
 class Generate3DScenarioScript;
 class SacInfoGenerator;
-
-namespace lithology
-{
-
-class LithologyMapsTab;
 
 class LithologyMapsController : public SacMapsController
 {
@@ -63,8 +59,6 @@ private:
    LithologyScenario& m_scenario;
    LithofractionVisualisationController* m_lithofractionVisualisationController;
 };
-
-} // namespace lithology
 
 } // namespace sac
 

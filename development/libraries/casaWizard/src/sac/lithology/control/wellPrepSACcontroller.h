@@ -15,13 +15,12 @@
 namespace casaWizard
 {
 
+class CalibrationTargetWellPrepControllertroller;
+class CasaScenario;
 class ScriptRunController;
 class WellPrepTab;
 
 namespace sac
-{
-
-namespace lithology
 {
 
 class LithologyScenario;
@@ -48,8 +47,6 @@ signals:
 private:
   LithologyScenario& scenario_;
 };
-
-} // namespace lithology
 
 } // namespace sac
 

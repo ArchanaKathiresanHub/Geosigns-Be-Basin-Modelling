@@ -23,9 +23,6 @@ namespace casaWizard
 namespace sac
 {
 
-namespace lithology
-{
-
 LithologyScript::LithologyScript(const LithologyScenario& scenario, const QString& baseDirectory, const bool doOptimization) :
    SACScript(baseDirectory, doOptimization),
    m_scenario(scenario)
@@ -72,8 +69,6 @@ QString LithologyScript::writeLithofraction(const Lithofraction& lithofraction) 
 
    return scriptLine;
 }
-
-} // namespace lithology
 
 } // sac
 

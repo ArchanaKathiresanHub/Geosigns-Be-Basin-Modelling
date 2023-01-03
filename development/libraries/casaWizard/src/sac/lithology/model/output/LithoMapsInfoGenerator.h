@@ -18,9 +18,6 @@ class CMBProjectReader;
 namespace sac
 {
 
-namespace lithology
-{
-
 class LithologyScenario;
 
 class LithoMapsInfoGenerator : public LithologyInfoGenerator
@@ -32,8 +29,6 @@ public:
 private:
    std::unique_ptr<ProjectReader> m_projectReader;
 };
-
-} // namespace lithology
 
 } // namespace sac
 

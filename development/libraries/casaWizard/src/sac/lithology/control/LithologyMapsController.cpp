@@ -30,9 +30,6 @@ namespace casaWizard
 namespace sac
 {
 
-namespace lithology
-{
-
 LithologyMapsController::LithologyMapsController(LithologyMapsTab* mapsTab,
                                                  LithologyScenario& scenario,
                                                  ScriptRunController& scriptRunController,
@@ -102,8 +99,6 @@ std::unique_ptr<SacInfoGenerator> LithologyMapsController::infoGenerator()
    std::unique_ptr<CMBProjectReader> projectReader = std::unique_ptr<CMBProjectReader>(new CMBProjectReader);
    return std::unique_ptr<SacInfoGenerator>(new LithoMapsInfoGenerator(scenario(), std::move(projectReader)));
 }
-
-} // namespace lithology
 
 } // namespace sac
 

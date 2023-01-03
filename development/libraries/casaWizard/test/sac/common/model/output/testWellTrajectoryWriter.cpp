@@ -16,7 +16,7 @@
 class WellTrajectoryWriterTest : public ::testing::Test
 {
 public:
-  casaWizard::sac::lithology::LithologyScenario scenario{new casaWizard::StubProjectReader()};
+  casaWizard::sac::LithologyScenario scenario{new casaWizard::StubProjectReader()};
   casaWizard::CalibrationTargetManager& ctManager{scenario.calibrationTargetManager()};
   const std::string wellName1{"Well1"};
   const std::string wellName2{"Well2"};

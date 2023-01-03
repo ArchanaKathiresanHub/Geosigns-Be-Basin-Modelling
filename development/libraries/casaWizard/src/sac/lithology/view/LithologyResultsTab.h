@@ -10,11 +10,11 @@ namespace casaWizard
 namespace sac
 {
 
-namespace lithology
-{
-
 struct Lithofraction;
 struct OptimizedLithofraction;
+
+namespace lithology
+{
 
 class LithologyResultsTab : public SacResultsTab
 {

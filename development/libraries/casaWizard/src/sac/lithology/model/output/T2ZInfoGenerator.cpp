@@ -16,9 +16,6 @@ namespace casaWizard
 namespace sac
 {
 
-namespace lithology
-{
-
 T2ZInfoGenerator::T2ZInfoGenerator(const LithologyScenario& scenario, ProjectReader& t2zProjectReader) :
   LithologyInfoGenerator(scenario, t2zProjectReader)
 {}
@@ -98,8 +95,6 @@ void T2ZInfoGenerator::addSurfaceInfo()
     id++;
   }
 }
-
-} // namespace lithology
 
 } // namespace sac
 

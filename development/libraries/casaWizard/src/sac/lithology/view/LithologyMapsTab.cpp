@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2012-2023 Shell International Exploration & Production.
+// Copyright (C) 2021 Shell International Exploration & Production.
 // All rights reserved.
 //
 // Confidential and proprietary source code of Shell.
@@ -26,9 +26,6 @@ namespace casaWizard
 {
 
 namespace sac
-{
-
-namespace lithology
 {
 
 LithologyMapsTab::LithologyMapsTab(QWidget* parent) :
@@ -85,8 +82,6 @@ CustomCheckbox* LithologyMapsTab::smartGridding() const
 {
    return m_smartGridding;
 }
-
-} // namespace lithology
 
 } // namespace sac
 

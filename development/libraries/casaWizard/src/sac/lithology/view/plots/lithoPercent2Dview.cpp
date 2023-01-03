@@ -28,9 +28,6 @@ namespace casaWizard
 namespace sac
 {
 
-namespace lithology
-{
-
 LithoPercent2DView::LithoPercent2DView(const ColorMap& colormap, QWidget* parent) :
   SacMap2DView(colormap, parent),
   m_lithoMapsToolTip{new LithoMapsToolTip(this)}
@@ -128,8 +125,6 @@ void LithoPercent2DView::setToolTipLithotypes(const QStringList& lithotypes)
 {
   m_lithoMapsToolTip->setLithoNames(lithotypes);
 }
-
-} // namespace lithology
 
 } // namespace sac
 

@@ -134,12 +134,12 @@ bool overwriteIfDirectoryExists(const QString& directory)
    return true;
 }
 
-QString exportScenarioToZip(const QDir& sourceDir, const QString& workingDirectory, const QString& projectFile, InfoGenerator& infoGenerator)
+void exportScenarioToZip(const QDir& sourceDir, const QString& workingDirectory, const QString& projectFile, InfoGenerator& infoGenerator)
 {
    if (!sourceDir.exists())
    {
       Logger::log() << "Source directory for the export is not available" << Logger::endl();
-      return "";
+      return;
    }
 
    QString targetPath = QFileDialog::getExistingDirectory(nullptr, "Choose a location for the exported scenario", workingDirectory,
@@ -149,7 +149,7 @@ QString exportScenarioToZip(const QDir& sourceDir, const QString& workingDirecto
    if (!targetDir.exists() || targetPath == "")
    {
       Logger::log() << "Target directory is not set" << Logger::endl();
-      return "";
+      return;
    }
 
    const QString timeStamp = workspaceGenerator::getTimeStamp("SAC_");
@@ -162,7 +162,7 @@ QString exportScenarioToZip(const QDir& sourceDir, const QString& workingDirecto
    {
       Logger::log() << "Failed exporting, no files were copied" << Logger::endl();
       tmpdir.removeRecursively();
-      return "";
+      return;
    }
 
    QString projectTextFile = projectFile;
@@ -171,7 +171,7 @@ QString exportScenarioToZip(const QDir& sourceDir, const QString& workingDirecto
    {
       Logger::log() << "Project.txt does not exist, please add it to working directory: " << workingDirectory << Logger::endl();
       tmpdir.removeRecursively();
-      return "";
+      return;
    }
 
    infoGenerator.setFileName((targetDir.absolutePath() + "/" + timeStamp + "_info.txt").toStdString());
@@ -190,7 +190,7 @@ QString exportScenarioToZip(const QDir& sourceDir, const QString& workingDirecto
    {
       Logger::log() << e.what() << Logger::endl();
       tmpdir.removeRecursively();
-      return "";
+      return;
    }
 
 
@@ -200,8 +200,7 @@ QString exportScenarioToZip(const QDir& sourceDir, const QString& workingDirecto
 
    tmpdir.removeRecursively();
 
-   Logger::log() << "Finished exporting the scenario to " + targetDir.absolutePath() + "/*.zip" << Logger::endl();
-   return targetDir.absolutePath();
+   Logger::log() << "Finished exporting the scenario to .zip" << Logger::endl();
 }
 
 void cleanFolder(const QDir& folder)

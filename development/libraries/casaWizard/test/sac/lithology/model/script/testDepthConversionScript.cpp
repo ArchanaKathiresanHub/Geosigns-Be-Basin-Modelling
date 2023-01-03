@@ -11,13 +11,13 @@
 TEST(DepthConversionScriptTest, testGenerateCommandsLocal)
 {
   // Given
-  casaWizard::sac::lithology::LithologyScenario scenario{new casaWizard::StubProjectReader()};
+  casaWizard::sac::LithologyScenario scenario{new casaWizard::StubProjectReader()};
   scenario.setWorkingDirectory(".");
   scenario.setClusterName("LOCAL");
   scenario.setProject3dFileNameAndLoadFile("./Project.project3d");
   scenario.setT2zNumberCPUs(10);
   scenario.setApplicationName("fastcauldron \"-temperature\"");
-  std::unique_ptr<casaWizard::RunScript> script(new casaWizard::sac::lithology::DepthConversionScript(scenario, scenario.workingDirectory() + "/T2Z_step2", workloadmanagers::WorkLoadManagerType::AUTO));
+  std::unique_ptr<casaWizard::RunScript> script(new casaWizard::sac::DepthConversionScript(scenario, scenario.workingDirectory() + "/T2Z_step2", workloadmanagers::WorkLoadManagerType::AUTO));
 
   script->generateCommands();
   std::string expectedCommand = "mpirun_wrap.sh -n 10 fastdepthconversion -project Project.project3d -temperature -onlyat 0 -referenceSurface 0 -endSurface 10 -preserveErosion -noCalculatedTWToutput";
@@ -35,12 +35,12 @@ TEST(DepthConversionScriptTest, testGenerateCommandsLocal)
 TEST(DepthConversionScriptTest, testGenerateCommandsClusterSLURM)
 {
   // Given
-  casaWizard::sac::lithology::LithologyScenario scenario{new casaWizard::StubProjectReader()};
+  casaWizard::sac::LithologyScenario scenario{new casaWizard::StubProjectReader()};
   scenario.setWorkingDirectory(".");
   scenario.setClusterName("Cluster");
   scenario.setProject3dFileNameAndLoadFile("./Project.project3d");
   scenario.setApplicationName("fastcauldron \"-temperature\"");
-  std::unique_ptr<casaWizard::RunScript> script(new casaWizard::sac::lithology::DepthConversionScript(scenario, scenario.workingDirectory() + "/T2Z_step2", workloadmanagers::WorkLoadManagerType::SLURM));
+  std::unique_ptr<casaWizard::RunScript> script(new casaWizard::sac::DepthConversionScript(scenario, scenario.workingDirectory() + "/T2Z_step2", workloadmanagers::WorkLoadManagerType::SLURM));
 
   script->generateCommands();
 
@@ -55,12 +55,12 @@ TEST(DepthConversionScriptTest, testGenerateCommandsClusterSLURM)
 TEST(DepthConversionScriptTest, testGenerateCommandsClusterLSF)
 {
   // Given
-  casaWizard::sac::lithology::LithologyScenario scenario{new casaWizard::StubProjectReader()};
+  casaWizard::sac::LithologyScenario scenario{new casaWizard::StubProjectReader()};
   scenario.setWorkingDirectory(".");
   scenario.setClusterName("Cluster");
   scenario.setProject3dFileNameAndLoadFile("./Project.project3d");
   scenario.setApplicationName("fastcauldron \"-temperature\"");
-  std::unique_ptr<casaWizard::RunScript> script(new casaWizard::sac::lithology::DepthConversionScript(scenario, scenario.workingDirectory() + "/T2Z_step2", workloadmanagers::WorkLoadManagerType::IBM_LSF));
+  std::unique_ptr<casaWizard::RunScript> script(new casaWizard::sac::DepthConversionScript(scenario, scenario.workingDirectory() + "/T2Z_step2", workloadmanagers::WorkLoadManagerType::IBM_LSF));
 
   script->generateCommands();
 
@@ -75,10 +75,10 @@ TEST(DepthConversionScriptTest, testGenerateCommandsClusterLSF)
 TEST(DepthConversionScriptTest, testGenerateCommandsInvalidScriptLocation)
 {
   // Given
-  casaWizard::sac::lithology::LithologyScenario scenario{new casaWizard::StubProjectReader()};
+  casaWizard::sac::LithologyScenario scenario{new casaWizard::StubProjectReader()};
   scenario.setWorkingDirectory("doesNotExist");
   scenario.setClusterName("Cluster");
-  std::unique_ptr<casaWizard::RunScript> script(new casaWizard::sac::lithology::DepthConversionScript(scenario, scenario.workingDirectory() + "/T2Z_step2/", workloadmanagers::WorkLoadManagerType::SLURM));
+  std::unique_ptr<casaWizard::RunScript> script(new casaWizard::sac::DepthConversionScript(scenario, scenario.workingDirectory() + "/T2Z_step2/", workloadmanagers::WorkLoadManagerType::SLURM));
 
   // Then
   EXPECT_FALSE(script->generateCommands());
