@@ -10,6 +10,9 @@ namespace casaWizard
 namespace sac
 {
 
+namespace lithology
+{
+
 class OptimizedLithofractionScript : public OptimalValueExtractionScript
 {
 public:
@@ -17,6 +20,8 @@ public:
 private:
    void writeScript(QFile* file) override;
 };
+
+} // namespace lithology
 
 } // namespace sac
 

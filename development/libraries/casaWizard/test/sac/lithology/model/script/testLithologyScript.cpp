@@ -10,8 +10,8 @@
 
 TEST(SACScriptTest, testWriteLithologyScript)
 {
-  casaWizard::sac::LithologyScenario scenario{new casaWizard::StubProjectReader()};
-  casaWizard::sac::LithofractionManager& lithofractionManager{scenario.lithofractionManager()};
+  casaWizard::sac::lithology::LithologyScenario scenario{new casaWizard::StubProjectReader()};
+  casaWizard::sac::lithology::LithofractionManager& lithofractionManager{scenario.lithofractionManager()};
   casaWizard::sac::WellTrajectoryManager& wellTrajectoryManager{scenario.wellTrajectoryManager()};
   scenario.setWorkingDirectory(".");
   scenario.setProject3dFileNameAndLoadFile("projStub.project3d");
@@ -50,7 +50,7 @@ TEST(SACScriptTest, testWriteLithologyScript)
   const std::string expectedFile{"SACLithologyScriptExpected.casa"};
   const std::string actualFile{"sacScript.casa"};
 
-  casaWizard::sac::LithologyScript script(scenario, scenario.workingDirectory());
+  casaWizard::sac::lithology::LithologyScript script(scenario, scenario.workingDirectory());
   script.writeScript();
 
   expectFileEq(expectedFile, actualFile);

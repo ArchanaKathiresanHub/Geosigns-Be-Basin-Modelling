@@ -18,6 +18,9 @@ namespace casaWizard
 namespace sac
 {
 
+namespace lithology
+{
+
 class LithologyScenario;
 
 class Generate3DScenarioScriptLithology : public Generate3DScenarioScript
@@ -31,6 +34,8 @@ private:
 
    const LithologyMapsManager& m_mapsManager;
 };
+
+} // namespace lithology
 
 } // namespace sac
 

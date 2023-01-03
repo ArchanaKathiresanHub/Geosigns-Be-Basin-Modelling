@@ -18,7 +18,7 @@ namespace casaWizard
 namespace sac
 {
 
-class StubSacLithologyScenario : public LithologyScenario
+class StubSacLithologyScenario : public lithology::LithologyScenario
 {
 public:
   explicit StubSacLithologyScenario() :
@@ -36,7 +36,6 @@ public:
   }
 };
 
+} // namespace sac
 
-} // sac
-
-} // casaWizard
+} // namespace casaWizard

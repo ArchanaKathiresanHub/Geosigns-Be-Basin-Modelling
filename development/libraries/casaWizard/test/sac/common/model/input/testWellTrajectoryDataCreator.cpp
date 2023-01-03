@@ -8,7 +8,7 @@
 
 TEST( WellTrajectoryDataCreatorTest, testReadTrack1DFile )
 {
-  casaWizard::sac::LithologyScenario scenario{new casaWizard::StubProjectReader()};
+  casaWizard::sac::lithology::LithologyScenario scenario{new casaWizard::StubProjectReader()};
   scenario.setProject3dFileNameAndLoadFile("bestMatchedCase.project3d");
 
   casaWizard::CalibrationTargetManager& ctManager = scenario.calibrationTargetManager();

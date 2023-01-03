@@ -17,6 +17,9 @@ namespace casaWizard
 namespace sac
 {
 
+namespace lithology
+{
+
 class Lithofraction
 {
 public:
@@ -72,6 +75,8 @@ private:
   bool doSecondOptimization_;
 
 };
+
+} // namespace lithology
 
 } // namespace sac
 

@@ -23,6 +23,9 @@ class CustomCheckbox;
 namespace sac
 {
 
+namespace lithology
+{
+
 class Lithofraction;
 
 class LithofractionTableRow
@@ -55,6 +58,8 @@ private:
   void initializeCheckBoxes();
   QWidget* createOptimizationCheckBox();
 };
+
+} // namespace lithology
 
 } // namespace sac
 

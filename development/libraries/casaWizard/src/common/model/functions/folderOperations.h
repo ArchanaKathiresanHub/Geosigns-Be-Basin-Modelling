@@ -19,7 +19,7 @@ bool overwriteIfDirectoryExists(const QString& directory);
 
 void zipFolderContent(const QDir& sourceDir, const QString &targetDestination, const QString &zipName);
 
-void exportScenarioToZip(const QDir& sourceDir, const QString& workingDirectory, const QString& projectFile, InfoGenerator& infoGenerator);
+QString exportScenarioToZip(const QDir& sourceDir, const QString& workingDirectory, const QString& projectFile, InfoGenerator& infoGenerator);
 
 void processCommand(QProcess& process, const QString& command);
 

@@ -20,6 +20,10 @@ class RunScript;
 
 namespace sac
 {
+
+namespace lithology
+{
+
 class StubCaseExtractor : public CaseExtractor
 {
 public :
@@ -46,7 +50,8 @@ void StubCaseExtractor::updateCaseScript(const int wellIndex, const QString rela
   updatedCases_.insert({wellIndex, relativeDataFolder});
 }
 
+} // namespace lithology
 
-}
+} // namespace sac
 
-}
+} // namespace casaWizard

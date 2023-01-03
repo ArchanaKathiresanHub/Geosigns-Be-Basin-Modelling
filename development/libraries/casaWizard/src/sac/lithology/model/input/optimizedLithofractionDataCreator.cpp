@@ -10,6 +10,9 @@ namespace casaWizard
 namespace sac
 {
 
+namespace lithology
+{
+
 OptimizedLithofractionDataCreator::OptimizedLithofractionDataCreator(LithologyScenario& scenario, const QString& iterationPath) :
   CaseDataCreator(scenario.calibrationTargetManager(), iterationPath),
   lithofractionManager_{scenario.lithofractionManager()}
@@ -55,6 +58,8 @@ void OptimizedLithofractionDataCreator::readCase(const int wellIndex, const int 
     lithofractionManager_.addOptimizedLithofraction(newOptimal);
   }
 }
+
+} // namespace lithology
 
 } // namespace sac
 

@@ -22,6 +22,10 @@ class MapReader;
 
 namespace sac
 {
+
+namespace lithology
+{
+
 class LithologyMapsManager : public SacMapsManager
 {
 public:
@@ -39,6 +43,8 @@ public:
 private:
    bool m_smartGridding;
 };
+
+} // namespace lithology
 
 } // namespace sac
 

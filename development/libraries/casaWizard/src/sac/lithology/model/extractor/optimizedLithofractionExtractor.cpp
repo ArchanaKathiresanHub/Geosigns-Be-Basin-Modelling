@@ -7,6 +7,9 @@ namespace casaWizard
 namespace sac
 {
 
+namespace lithology
+{
+
 OptimizedLithofractionExtractor::OptimizedLithofractionExtractor(LithologyScenario& scenario) :
   CaseExtractor(scenario),
   script_{iterationPath()},
@@ -30,6 +33,8 @@ void OptimizedLithofractionExtractor::updateCaseScript(const int /*wellIndex*/, 
 {
   script_.addCase(relativeDataFolder);
 }
+
+} // namespace lithology
 
 } // namespace sac
 

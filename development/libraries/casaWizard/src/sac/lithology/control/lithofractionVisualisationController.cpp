@@ -32,6 +32,9 @@ namespace casaWizard
 namespace sac
 {
 
+namespace lithology
+{
+
 LithofractionVisualisationController::LithofractionVisualisationController(LithofractionVisualisation* lithofractionVisualisation,
                                                                            LithologyScenario& casaScenario,
                                                                            QObject* parent) :
@@ -238,6 +241,8 @@ void LithofractionVisualisationController::slotRefresh()
    updateAvailableLayers();
    updateBirdsView();
 }
+
+} // namespace lithology
 
 } // namespace sac
 

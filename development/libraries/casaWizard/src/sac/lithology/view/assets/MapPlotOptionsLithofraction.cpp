@@ -21,6 +21,8 @@ namespace casaWizard
 namespace sac
 {
 
+namespace lithology
+{
 
 MapPlotOptionsLithofraction::MapPlotOptionsLithofraction(QWidget *parent) :
    SacMapPlotOptions(parent),
@@ -90,6 +92,8 @@ void MapPlotOptionsLithofraction::slotUpdateSingleMapLayout(int state)
    lithotypeSelection_->setVisible(state == Qt::CheckState::Checked);
    lithoSelectionLabel_->setVisible(state == Qt::CheckState::Checked);
 }
+
+} // namespace lithology
 
 } //sac
 

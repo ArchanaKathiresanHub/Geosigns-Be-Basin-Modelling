@@ -13,7 +13,7 @@
 
 #include <gtest/gtest.h>
 
-using namespace casaWizard::sac;
+using namespace casaWizard::sac::lithology;
 
 TEST( T2ZInfoGenerator, testGenerateOnOriginalProject )
 {

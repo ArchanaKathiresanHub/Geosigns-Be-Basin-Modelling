@@ -21,6 +21,9 @@ class VectorVectorMap;
 namespace sac
 {
 
+namespace lithology
+{
+
 class LithologyScenario : public SacScenario
 {
 public:
@@ -74,6 +77,8 @@ private:
    bool m_t2zRunOnOriginalProject;
    int m_t2zNumberCPUs;
 };
+
+} // namespace lithology
 
 } // namespace sac
 

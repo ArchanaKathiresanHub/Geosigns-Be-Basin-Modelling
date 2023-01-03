@@ -26,6 +26,9 @@ namespace casaWizard
 namespace sac
 {
 
+namespace lithology
+{
+
 class LithoMapsToolTip : public SacMapToolTip
 {
   Q_OBJECT
@@ -48,6 +51,8 @@ private:
   void initializePieChart();
   void updatePieSliceColors();
 };
+
+} // namespace lithology
 
 } // namespace sac
 

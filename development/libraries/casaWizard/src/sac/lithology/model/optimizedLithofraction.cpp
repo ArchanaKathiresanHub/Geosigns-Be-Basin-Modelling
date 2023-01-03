@@ -10,6 +10,9 @@ namespace casaWizard
 namespace sac
 {
 
+namespace lithology
+{
+
 OptimizedLithofraction::OptimizedLithofraction(const int wellId,
                                                const int lithofractionId,
                                                const double optimizedPercentageFirstComponent,
@@ -85,6 +88,8 @@ double OptimizedLithofraction::optimizedPercentageThirdComponent() const
 {
   return 100.0 - optimizedPercentageFirstComponent() - optimizedPercentageSecondComponent();
 }
+
+} // namespace lithology
 
 } // namespace sac
 

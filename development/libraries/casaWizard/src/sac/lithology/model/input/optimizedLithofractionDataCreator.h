@@ -9,6 +9,9 @@ namespace casaWizard
 namespace sac
 {
 
+namespace lithology
+{
+
 class LithofractionManager;
 class LithologyScenario;
 
@@ -22,6 +25,8 @@ private:
 
   LithofractionManager& lithofractionManager_;
 };
+
+} // namespace lithology
 
 } // namespace sac
 

@@ -21,6 +21,9 @@ class ProjectReader;
 namespace sac
 {
 
+namespace lithology
+{
+
 class Lithofraction;
 class LithofractionTableRow;
 
@@ -45,7 +48,7 @@ signals:
 
 private:
   void addRow(const int row, const Lithofraction& lithofraction, const ProjectReader& projectReader, const QStringList& layerNames);
-  void addItemsToTable(const int row, const casaWizard::sac::LithofractionTableRow& tableRow);
+  void addItemsToTable(const int row, const LithofractionTableRow& tableRow);
   void connectCheckBoxSignals(const int row, const LithofractionTableRow tableRow);
   void checkOptimizations(const int row);
   void checkNumberOfLithotypes(const int row);
@@ -61,6 +64,8 @@ private:
   void setTableHeader();  
   void stretchColumns();
 };
+
+} // namespace lithology
 
 } // namespace sac
 
