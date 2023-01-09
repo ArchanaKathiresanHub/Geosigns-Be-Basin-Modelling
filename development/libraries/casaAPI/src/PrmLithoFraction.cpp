@@ -101,7 +101,14 @@ std::vector<double> PrmLithoFraction::createLithoFractions( const std::vector<do
 
    if ( perc1 == 100.0 )
    {
-      lithoFractions.push_back( 0.5 ); //here we assume that both fractions shares the same 0% left
+      if (Utilities::isValueUndefined(lithoPercentages.at(2)))
+      {
+         lithoFractions.push_back( 1.0 ); //There is no third lithofaction
+      }
+      else
+      {
+         lithoFractions.push_back( 0.5 ); //here we assume that both fractions share the same 0% left
+      }
    }
    else
    {
