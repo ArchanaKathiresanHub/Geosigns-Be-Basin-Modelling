@@ -13,7 +13,7 @@
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Version				Date of update
 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-Cauldron-v2.10.16		2023-01-03 12:07:03 +0100
+Cauldron-v2.10.17		2023-01-09 15:09:55 +0100
 =============================================================
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Third-party Software 		version
@@ -36,6 +36,16 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2023-01-09  Marnix van den Berg  <103995555+MAvdBerg@users.noreply.github.com>
+
+	chg: usr: Fix for SACLithology error when optimizing with 2 lithologies (#1037)
+	 * Fix for SACLithology error when optimizing with 2 lithologies when the first lithology is at 100%.
+	
+	Related work items: 490088
+	
+	================== COMMIT-END ========================Commit-ID:<4689e3f79c1db7cb3cdc0a94713e21c9ad0171fd>	  (tag: refs/tags/v2.10.17, refs/heads/master, refs/heads/changeLog)
+
+++
 2023-01-03  Sven van Leeuwen  <113355692+NLSLFG@users.noreply.github.com>
 
 	chg: usr: export SSV xy locations in SAC.
