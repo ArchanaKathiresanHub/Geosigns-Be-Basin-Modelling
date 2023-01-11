@@ -21,7 +21,8 @@ class CalibrationTargetManager;
 class CalibrationTargetSaver
 {
 public:
-  CalibrationTargetSaver(const CalibrationTargetManager& calibrationTargetManager, const QString& targetPath = QDir::currentPath());
+  CalibrationTargetSaver(const CalibrationTargetManager& calibrationTargetManager, const QString& targetPath  = "");
+
   void saveToExcel(const QString& excelFilename) const;
   bool saveRawLocationsToCSV(const QString& filename, const char& seperator = ',', const bool included = false) const;
   bool saveRawLocationsToText(const QString& filename, const char& seperator = ' ', const bool included = false) const;

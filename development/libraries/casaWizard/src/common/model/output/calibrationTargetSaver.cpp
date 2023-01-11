@@ -22,7 +22,7 @@ namespace casaWizard
 
 CalibrationTargetSaver::CalibrationTargetSaver(const CalibrationTargetManager& calibrationTargetManager, const QString& targetPath) :
    calibrationTargetManager_{calibrationTargetManager},
-   m_targetPath(targetPath + "/")
+   m_targetPath(targetPath)
 {
 }
 
@@ -95,7 +95,7 @@ bool CalibrationTargetSaver::saveRawLocationsToText(const QString& fileName, con
 
 bool CalibrationTargetSaver::saveRawLocationsToFile(const QString& fileName, const char& separator, const bool onlyIncluded) const
 {
-   QFile file(m_targetPath + fileName);
+   QFile file(m_targetPath.isEmpty() ? fileName :  m_targetPath + "/" + fileName);
    QFileInfo fi(file);
    Logger::log() << m_targetPath << Logger::endl();
    if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
