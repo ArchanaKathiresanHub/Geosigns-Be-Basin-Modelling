@@ -207,6 +207,9 @@ double DerivedPropertyDriller::calculateProperty( const std::string& propertyNam
     }
   }
 
+  // Since the lithology percentages are inputs, we need the i, j indices related to the high-res
+  // input grid instead of the low res output grid
+  m_dataDriller->getProjectHandle().getInputGrid()->getGridPoint( x, y, i, j );
   const GeoPhysics::CompoundLithology* lithology = getLithology( i, j, formation );
   if (!lithology)
   {

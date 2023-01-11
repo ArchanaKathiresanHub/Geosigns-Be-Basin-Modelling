@@ -5309,8 +5309,9 @@ void ProjectHandle::deleteFaultCollections() {
 
 void ProjectHandle::deleteIrreducibleWaterSaturationSample() {
 
-   if ( m_irreducibleWaterSample != 0 ) {
+   if ( m_irreducibleWaterSample != nullptr ) {
       delete m_irreducibleWaterSample;
+      m_irreducibleWaterSample = nullptr;
    }
 }
 
