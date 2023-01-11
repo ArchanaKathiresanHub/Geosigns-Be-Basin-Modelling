@@ -13,7 +13,7 @@
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Version				Date of update
 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-Cauldron-v2.10.17		2023-01-09 15:09:55 +0100
+Cauldron-v2.10.17		2023-01-11 08:36:12 +0100
 =============================================================
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Third-party Software 		version
@@ -36,6 +36,13 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2023-01-11  RichardFaasse  <115148814+RichardFaasse@users.noreply.github.com>
+
+	fix: usr: Fix for Genex on the Fly slowness for scenarios with lithology maps in the source rock layer
+	 * Fix wrong indexing for lithology inputs
+	================== COMMIT-END ========================Commit-ID:<e9a033c38aa49884b98ab5045b1225f577253820>	  (tag: refs/tags/v2.10.17, refs/heads/master)
+
+++
 2023-01-09  Marnix van den Berg  <103995555+MAvdBerg@users.noreply.github.com>
 
 	chg: usr: Fix for SACLithology error when optimizing with 2 lithologies (#1037)
