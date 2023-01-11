@@ -13,7 +13,7 @@
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Version				Date of update
 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-Cauldron-v2.10.17		2023-01-11 08:36:12 +0100
+Cauldron-v2.10.18		2023-01-11 15:32:46 +0100
 =============================================================
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Third-party Software 		version
@@ -36,6 +36,13 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2023-01-11  Sven van Leeuwen  <113355692+NLSLFG@users.noreply.github.com>
+
+	fix: Export wells to text in wellprep tab now works in SAC Lithology !minor
+	* There were some issues with the previous pr and some changes didn't get merged, this merge fixes that.
+	================== COMMIT-END ========================Commit-ID:<866a78924e45ba010d9d0e05949e8cd742cb1b07>	  (tag: refs/tags/v2.10.18, refs/heads/master)
+
+++
 2023-01-11  RichardFaasse  <115148814+RichardFaasse@users.noreply.github.com>
 
 	fix: usr: Fix for Genex on the Fly slowness for scenarios with lithology maps in the source rock layer
