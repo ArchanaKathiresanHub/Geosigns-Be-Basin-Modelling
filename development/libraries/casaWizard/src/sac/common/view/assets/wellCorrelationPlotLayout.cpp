@@ -34,6 +34,8 @@ WellCorrelationPlotLayout::WellCorrelationPlotLayout(QWidget *parent) :
 
    QWidget* options = createOptions();
 
+   absoluteErrorRange_->setObjectName("absoluteErrorRange");
+   relativeErrorRange_->setObjectName("relativeErrorRange");
    layout->addWidget(options,1,1, Qt::AlignLeft|Qt::AlignTop);
    connect(properties_, SIGNAL(currentIndexChanged(QString)), this, SIGNAL(propertyChanged(QString)));
    connect(absoluteErrorRange_, SIGNAL(valueChanged(double)), this, SLOT(slotAbsoluteErrorChanged(double)));

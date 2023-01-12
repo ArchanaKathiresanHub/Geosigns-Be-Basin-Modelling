@@ -36,7 +36,6 @@ public:
   explicit SacResultsController(SacResultsTab* resultsTab,
                                 ScriptRunController& scriptRunController,
                                 QObject* parent);
-  void updateTab();
 
   virtual SacScenario& scenario() = 0;
   virtual SacScenario& scenario() const = 0;
@@ -45,7 +44,6 @@ protected slots:
   virtual void slotTogglePlotType(const int currentIndex);
 
 protected:
-
   void refreshGUI();
   void refreshPlot();
   void updateWellPlot();

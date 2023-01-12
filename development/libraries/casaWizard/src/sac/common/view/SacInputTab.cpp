@@ -105,6 +105,66 @@ SacInputTab::SacInputTab(QWidget* parent) :
    m_subLayoutActivationWidget->setEnabled(false);
 }
 
+CalibrationTargetTable* SacInputTab::calibrationTargetTable() const
+{
+   return m_calibrationTargetTable;
+}
+
+ObjectiveFunctionTableSAC* SacInputTab::objectiveFunctionTable() const
+{
+   return m_objectiveFunctionTable;
+}
+
+QLineEdit* SacInputTab::lineEditProject3D() const
+{
+   return m_lineEditProject3D;
+}
+
+QComboBox* SacInputTab::comboBoxApplication() const
+{
+   return m_comboBoxApplication;
+}
+
+QComboBox* SacInputTab::comboBoxCluster() const
+{
+   return m_comboBoxCluster;
+}
+
+const QPushButton* SacInputTab::pushSelectProject3D() const
+{
+   return m_pushSelectProject3D;
+}
+
+const QPushButton* SacInputTab::pushButtonSelectAllWells() const
+{
+   return m_pushSelectAllWells;
+}
+
+const QPushButton* SacInputTab::pushButtonClearSelection() const
+{
+   return m_pushClearSelection;
+}
+
+const QPushButton* SacInputTab::pushButtonRun1DOptimization() const
+{
+   return m_pushButtonRun1DOptimalization;
+}
+
+const QPushButton* SacInputTab::pushButtonRunOriginal1D() const
+{
+   return m_buttonRunOriginal1D;
+}
+
+const QPushButton* SacInputTab::pushButtonRunOriginal3D() const
+{
+   return m_buttonRunOriginal3D;
+}
+
+QWidget* SacInputTab::subLayoutActivationWidget() const
+{
+   return m_subLayoutActivationWidget;
+}
+
 void SacInputTab::setContentsActive(bool state)
 {
    m_subLayoutActivationWidget->setEnabled(state);
@@ -127,62 +187,6 @@ QVBoxLayout* SacInputTab::layoutRunOptions() const
 {
    return m_layoutRunOptions;
 }
-
-CalibrationTargetTable* SacInputTab::calibrationTargetTable() const
-{
-   return m_calibrationTargetTable;
-}
-
-ObjectiveFunctionTableSAC* SacInputTab::objectiveFunctionTable() const
-{
-   return m_objectiveFunctionTable;
-}
-
-QLineEdit* SacInputTab::lineEditProject3D() const
-{
-   return m_lineEditProject3D;
-}
-
-const QPushButton* SacInputTab::pushSelectProject3D() const
-{
-   return m_pushSelectProject3D;
-}
-
-QComboBox* SacInputTab::comboBoxApplication() const
-{
-   return m_comboBoxApplication;
-}
-
-QComboBox* SacInputTab::comboBoxCluster() const
-{
-   return m_comboBoxCluster;
-}
-
-const QPushButton*SacInputTab::pushSelectAllWells() const
-{
-   return m_pushSelectAllWells;
-}
-
-const QPushButton*SacInputTab::pushClearSelection() const
-{
-   return m_pushClearSelection;
-}
-
-const QPushButton* SacInputTab::pushRun1DOptimalization() const
-{
-   return m_pushButtonRun1DOptimalization;
-}
-
-const QPushButton* SacInputTab::buttonRunOriginal1D() const
-{
-   return m_buttonRunOriginal1D;
-}
-
-const QPushButton* SacInputTab::buttonRunOriginal3D() const
-{
-   return m_buttonRunOriginal3D;
-}
-
 } // namespace sac
 
 } // namespace casaWizard

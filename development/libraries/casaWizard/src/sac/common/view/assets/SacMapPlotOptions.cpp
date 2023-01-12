@@ -27,6 +27,7 @@ SacMapPlotOptions::SacMapPlotOptions(QWidget *parent) :
 {
    colorMapSelection_->insertItems(0, {"Viridis", "Gray scale", "Rainbow"});
    wellsVisible_->setCheckState(Qt::CheckState::Checked);
+   wellsVisible_->setAccessibleName("wellsVisible");
    stretched_->setCheckState(Qt::CheckState::Unchecked);
 }
 

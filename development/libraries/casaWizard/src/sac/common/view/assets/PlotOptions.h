@@ -25,31 +25,31 @@ namespace sac
 
 class PlotOptions : public QWidget
 {
-  Q_OBJECT
+   Q_OBJECT
 
 public:
-  explicit PlotOptions(QWidget* parent = 0);
+   explicit PlotOptions(QWidget* parent = 0);
 
-  QVector<bool> activePlots() const;
-  void setActivePlots(const QVector<bool> activePlots);
+   QVector<bool> activePlots() const;
+   void setActivePlots(const QVector<bool> activePlots);
 
 signals:
-  void activeChanged();
-  void plotTypeChange(int currentIndex);
+   void activeChanged();
+   void plotTypeChange(int currentIndex);
 
 private slots:
-  void plotTypeButtonToggle(int index, bool checked);
+   void plotTypeButtonToggle(int index, bool checked);
 
 private:
-  QCheckBox* original1d_;
-  QCheckBox* optimized1d_;
-  QCheckBox* original3d_;
-  QCheckBox* optimized3d_;
+   QCheckBox* original1d_;
+   QCheckBox* optimized1d_;
+   QCheckBox* original3d_;
+   QCheckBox* optimized3d_;
 
-  QButtonGroup* plotType_;
-  CustomRadioButton* table_;
-  CustomRadioButton* depthPlot_;
-  CustomRadioButton* correlationPlot_;
+   QButtonGroup* plotType_;
+   CustomRadioButton* table_;
+   CustomRadioButton* depthPlot_;
+   CustomRadioButton* correlationPlot_;
 };
 
 }  // namespace sac

@@ -18,14 +18,16 @@ namespace sac
 {
 
 class SacInputTab;
+class SacResultsTab;
+class SacMapsTab;
 
-class Window : public MainWindow
+class SacWindow : public MainWindow
 {
    Q_OBJECT
 
 public:
-   Window(QWidget* parent = nullptr);
-   virtual ~Window() override = default;
+   SacWindow(QWidget* parent = nullptr);
+   virtual ~SacWindow() override = default;
    MenuBar* menu() const override;
 
 private:

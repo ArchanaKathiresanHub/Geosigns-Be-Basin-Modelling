@@ -38,15 +38,16 @@ public:
    ObjectiveFunctionTableSAC* objectiveFunctionTable() const;
 
    QLineEdit* lineEditProject3D() const;
-   const QPushButton* pushSelectProject3D() const;
    QComboBox* comboBoxApplication() const;
    QComboBox* comboBoxCluster() const;
-   const QPushButton* pushSelectAllWells() const;
-   const QPushButton* pushClearSelection() const;
-   const QPushButton* pushRun1DOptimalization() const;
-   const QPushButton* buttonRunOriginal1D() const;
-   const QPushButton* buttonRunOriginal3D() const;
+   const QPushButton* pushSelectProject3D() const;
+   const QPushButton* pushButtonSelectAllWells() const;
+   const QPushButton* pushButtonClearSelection() const;
+   const QPushButton* pushButtonRun1DOptimization() const;
+   const QPushButton* pushButtonRunOriginal1D() const;
+   const QPushButton* pushButtonRunOriginal3D() const;
 
+   QWidget* subLayoutActivationWidget() const;
    void setContentsActive(bool state);
 
 protected:

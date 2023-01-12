@@ -48,11 +48,11 @@ public:
    void finalizeTooltip(const double& TCHPAtPoint, const QString& wellName);
 
 private:
-   virtual const ThermalMapPlotOptions* plotOptions() const override;
-
    ThermalGrid2DPlot* m_TCHPPlot;
    ThermalMapPlotOptions* m_plotOptions;
    QVBoxLayout* m_plotsAndOptions;
+
+   const ThermalMapPlotOptions* plotOptions() const override;
 
 signals:
    void updateAvailableLayers();

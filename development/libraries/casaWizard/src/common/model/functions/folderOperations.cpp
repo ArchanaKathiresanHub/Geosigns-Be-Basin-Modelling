@@ -22,11 +22,9 @@ bool copyCaseFolder(const QDir sourceDir, const QDir targetDir)
    bool filesCopied = false;
    if (!targetDir.exists())
    {
-      QMessageBox doesNotExist(QMessageBox::Icon::Question,
-                               "Destination folder not found",
-                               "The destination folder does not exist, do you want to create it and proceed?",
-                               QMessageBox::Yes | QMessageBox::No);
-      if (doesNotExist.exec() == QMessageBox::Yes)
+      if (QMessageBox::question(nullptr, "Destination folder not found",
+                                "The destination folder does not exist, do you want to create it and proceed?",
+                                QMessageBox::Yes|QMessageBox::No, QMessageBox::Yes) == QMessageBox::Yes)
       {
          targetDir.mkpath(".");
          Logger::log() << "Created the folder " + targetDir.absolutePath() << Logger::endl();

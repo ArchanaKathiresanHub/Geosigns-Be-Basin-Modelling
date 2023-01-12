@@ -35,14 +35,14 @@ public:
    virtual void hideAllTooltips() = 0;
 
    QCheckBox* wellsVisible() const;
+   const ColorMap& colormap() const;
+   ColorMap& colormap();
 
 public slots:
    virtual  void setColorMapType(const std::string& colorMapType) = 0;
 
 protected:
    virtual const SacMapPlotOptions* plotOptions() const= 0;
-   ColorMap& colormap();
-   const ColorMap& colormap() const;
 
 private:
    std::unique_ptr<ColorMap> colormap_;

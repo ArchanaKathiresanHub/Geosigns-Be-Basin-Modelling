@@ -52,16 +52,16 @@ void SacMapsController::init()
 
    connect(mapsTab()->activeWellsTable(), SIGNAL(checkBoxSelectionChanged()), this, SLOT(slotUpdateWellSelection()));
    connect(&visualisationController(), SIGNAL(wellClicked(const QString&)), this, SLOT(slotWellClicked(const QString&)));
-   connect(mapsTab()->pushSelectAllWells(), SIGNAL(clicked()), this, SLOT(slotSelectAllWells()));
-   connect(mapsTab()->pushClearWellSelection(), SIGNAL(clicked()), this, SLOT(slotDeselectAllWells()));
+   connect(mapsTab()->pushButtonSelectAllWells(), SIGNAL(clicked()), this, SLOT(slotSelectAllWells()));
+   connect(mapsTab()->pushButtonClearWellSelection(), SIGNAL(clicked()), this, SLOT(slotDeselectAllWells()));
    connect(mapsTab()->pValue(),            SIGNAL(valueChanged(int)),        this, SLOT(slotPvalueChanged(int)));
    connect(mapsTab()->smoothingType(),     SIGNAL(currentIndexChanged(int)), this, SLOT(slotSmoothingTypeCurrentIndexChanged(int)));
    connect(mapsTab()->smoothingRadius(),   SIGNAL(valueChanged(int)),        this, SLOT(slotSmoothingRadiusValueChanged(int)));
    connect(mapsTab()->createGridsButton(), SIGNAL(clicked()),                this, SLOT(slotGenerateMaps()));
    connect(mapsTab()->interpolationType(), SIGNAL(currentIndexChanged(int)), this, SLOT(slotInterpolationTypeCurrentIndexChanged(int)));
-   connect(mapsTab()->buttonExportOptimized(), SIGNAL(clicked()), this, SLOT(slotExportOptimized()));
-   connect(mapsTab()->buttonRunOptimized(),    SIGNAL(clicked()), this, SLOT(slotRunOptimized()));
-   connect(mapsTab()->buttonExportOptimizedToZycor(), SIGNAL(clicked()), this, SLOT(slotExportOptimizedToZycor()));
+   connect(mapsTab()->pushButtonExportOptimized(), SIGNAL(clicked()), this, SLOT(slotExportOptimized()));
+   connect(mapsTab()->pushButtonRunOptimized(),    SIGNAL(clicked()), this, SLOT(slotRunOptimized()));
+   connect(mapsTab()->pushButtonExportOptimizedToZycor(), SIGNAL(clicked()), this, SLOT(slotExportOptimizedToZycor()));
    connect(&visualisationController(), SIGNAL(clearWellListHighlightSelection()), m_activeWellsController, SLOT(slotClearWellListHighlightSelection()));
    connect(mapsTab()->activeWellsTable(), SIGNAL(itemSelectionChanged()), this, SLOT(slotUpdateBirdView()));
 }

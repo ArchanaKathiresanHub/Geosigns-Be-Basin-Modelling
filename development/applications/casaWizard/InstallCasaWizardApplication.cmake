@@ -30,7 +30,7 @@ export GENEX6DIR=$MISCDIR/genex60
 export OTGCDIR=$MISCDIR/OTGC
 export EOSPACKDIR=$MISCDIR/eospack
 
-$DIR/$EXEC_NAME
+$DIR/$EXEC_NAME \"$@\" # Added the \"$@\" to pass on the arguments to the application
 " )
   install( PROGRAMS ${SCRIPTNAME} DESTINATION bin )
 endif(UNIX)

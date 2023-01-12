@@ -245,12 +245,12 @@ QVBoxLayout* SacResultsTab::layoutWellList() const
    return m_layoutWellList;
 }
 
-QPushButton*SacResultsTab::selectAll() const
+QPushButton* SacResultsTab::selectAll() const
 {
    return m_selectAll;
 }
 
-QPushButton*SacResultsTab::selectClear() const
+QPushButton* SacResultsTab::selectClear() const
 {
    return m_selectClear;
 }

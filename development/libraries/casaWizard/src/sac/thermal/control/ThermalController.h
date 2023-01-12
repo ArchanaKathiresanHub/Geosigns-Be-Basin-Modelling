@@ -34,6 +34,8 @@ public:
    MainWindow& mainWindow() final;
    ThermalScenario& scenario() final;
 
+   const ThermalWindow& gui() const;
+
 private:
    ThermalWindow m_ui;
    ThermalScenario m_scenario;

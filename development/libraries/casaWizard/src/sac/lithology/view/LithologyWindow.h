@@ -19,7 +19,7 @@ class LithologyResultsTab;
 class LithologyMapsTab;
 class T2Ztab;
 
-class LithologyWindow : public sac::Window
+class LithologyWindow : public sac::SacWindow
 {
    Q_OBJECT
 
@@ -28,9 +28,9 @@ public:
 
    WellPrepTab* wellPrepTab() const;
    LithologyInputTab* inputTab() const;
-   T2Ztab* t2zTab() const;
    LithologyResultsTab* resultsTab() const;
    LithologyMapsTab* mapsTab() const;
+   T2Ztab* t2zTab() const;
 
 private:
    WellPrepTab* m_wellPrepTab;

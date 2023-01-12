@@ -49,6 +49,11 @@ ThermalScenario& ThermalController::scenario()
    return m_scenario;
 }
 
+const ThermalWindow& ThermalController::gui() const
+{
+   return m_ui;
+}
+
 } // namespace thermal
 
 } // namespace sac

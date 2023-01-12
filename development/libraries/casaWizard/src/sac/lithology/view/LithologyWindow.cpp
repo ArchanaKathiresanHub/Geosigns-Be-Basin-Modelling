@@ -21,7 +21,7 @@ namespace lithology
 {
 
 LithologyWindow::LithologyWindow(QWidget* parent) :
-   sac::Window(parent),
+   sac::SacWindow(parent),
    m_wellPrepTab{new WellPrepTab{this}},
    m_inputTab{new LithologyInputTab{this}},
    m_resultsTab{new LithologyResultsTab{this}},

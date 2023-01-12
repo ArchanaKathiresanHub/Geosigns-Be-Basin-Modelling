@@ -27,5 +27,18 @@ if ( Qt5_FOUND )
    add_subdirectory( src/sac/common )
    add_subdirectory( src/sac/lithology )
    add_subdirectory( src/sac/thermal )
+
+   set( CASAWIZARD_COMMON_GUITEST_LIBNAME casawizard_common_guiTest )
+   set( CASAWIZARD_SAC_GUITEST_LIBNAME casawizard_sac_guiTest )
+   set( CASAWIZARD_SACTHERMAL_GUITEST_LIBNAME casawizard_sacThermal_guiTest )
+   set( CASAWIZARD_SACLITHO_GUITEST_LIBNAME casawizard_sacLitho_guiTest )
+   set( CASAWIZARD_UA_GUITEST_LIBNAME casawizard_ua_guiTest )
+
+   add_subdirectory( guiTest/common )
+   add_subdirectory( guiTest/sac/common )
+   add_subdirectory( guiTest/sac/lithology )
+   add_subdirectory( guiTest/sac/thermal )
+   add_subdirectory( guiTest/ua )
+
    add_subdirectory( test )
 endif()

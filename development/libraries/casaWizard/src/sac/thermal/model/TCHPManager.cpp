@@ -13,6 +13,8 @@
 #include "model/scenarioWriter.h"
 
 static const int version = 0;
+static const double defaultMinTCHP = 0.0;
+static const double defaultMaxTCHP = 5.0;
 
 namespace casaWizard
 {
@@ -24,8 +26,8 @@ namespace thermal
 {
 
 TCHPManager::TCHPManager() :
-   m_minHeatProduction{0},
-   m_maxHeatProduction{5},
+   m_minHeatProduction{defaultMinTCHP},
+   m_maxHeatProduction{defaultMaxTCHP},
    m_optimizedTCHPs{}
 {
 }
@@ -96,6 +98,8 @@ void TCHPManager::readFromFile(const ScenarioReader& reader)
 
 void TCHPManager::clear()
 {
+   setMinTCHP(defaultMinTCHP);
+   setMaxTCHP(defaultMaxTCHP);
    m_optimizedTCHPs.clear();
 }
 

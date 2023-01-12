@@ -40,13 +40,13 @@ public:
    QSpinBox* pValue() const;
    QSpinBox* smoothingRadius() const;
    QComboBox* smoothingType() const;
-   QPushButton* buttonExportOptimized() const;
-   QPushButton* buttonExportOptimizedToZycor() const;
-   QPushButton* buttonRunOptimized() const;
+   QPushButton* pushButtonExportOptimized() const;
+   QPushButton* pushButtonExportOptimizedToZycor() const;
+   QPushButton* pushButtonRunOptimized() const;
    QComboBox* interpolationType() const;
 
-   QPushButton* pushSelectAllWells() const;
-   QPushButton* pushClearWellSelection() const;
+   QPushButton* pushButtonSelectAllWells() const;
+   QPushButton* pushButtonClearWellSelection() const;
 
    void highlightWell(const QString& wellName);
    void disableWellAtIndex(const int index);

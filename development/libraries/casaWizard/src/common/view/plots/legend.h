@@ -16,6 +16,8 @@ public:
   Legend(const casaWizard::PlotSettings& plotSettings, const QVector<PlotData>& plotData, const QStringList& entries, QWidget* parent = nullptr);
   void paintEvent(QPaintEvent* event) override;
 
+  const QStringList* getEntries();
+
 private:
   const PlotSettings& plotSettings_;
   QStringList entries_;

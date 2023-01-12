@@ -24,7 +24,7 @@ class ThermalInputTab;
 class ThermalResultsTab;
 class ThermalMapTab;
 
-class ThermalWindow : public sac::Window
+class ThermalWindow : public sac::SacWindow
 {
   Q_OBJECT
 

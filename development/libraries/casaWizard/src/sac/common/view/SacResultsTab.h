@@ -52,6 +52,7 @@ public:
    WellCorrelationPlot* wellCorrelationPlot() const;
    WellCorrelationPlotLayout* wellCorrelationPlotLayout() const;
    MultiWellPlot* multiWellPlot() const;
+   QTableWidget* optimizedResultsTable() const;
 
    void clearWellCorrelationPlot();
 
@@ -72,9 +73,9 @@ public:
    virtual void setPlotType(const int currentIndex);
 
    void setRangeBirdsView(const double xMin, const double xMax, const double yMin, const double yMax);
+
 protected:
    QTableWidgetItem* createHeaderItem(const QString& name, int align);
-   QTableWidget* optimizedResultsTable() const;
    QVBoxLayout* layoutWellList() const;
    QPushButton* selectAll() const;
    QPushButton* selectClear() const;

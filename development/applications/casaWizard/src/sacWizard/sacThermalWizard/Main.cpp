@@ -8,6 +8,7 @@
 
 // SAC themal wizard user interface
 #include "control/ThermalController.h"
+#include "ThermalGuiTester.h"
 
 #include <QApplication>
 #include <QDebug>
@@ -16,17 +17,26 @@
 
 int main(int argc, char* argv[])
 {
-  QApplication a(argc, argv);
-  casaWizard::sac::thermal::ThermalController controller;
+   QApplication a(argc, argv);
+   casaWizard::sac::thermal::ThermalController controller;
 
-  try
-  {
-    return a.exec();
-  }
-  catch (const std::exception& error)
-  {
-    qDebug() << error.what();
-    return 1;
-  }
+   for (int i = 1; i < argc; i++)
+   {
+      if (std::string(argv[i]) == "-testGUI")
+      {
+         casaWizard::sac::thermal::ThermalGuiTester tester(controller);
+         return tester.run();
+      }
+   }
+
+   try
+   {
+      return a.exec();
+   }
+   catch (const std::exception& error)
+   {
+      qDebug() << error.what();
+      return 1;
+   }
 }
 

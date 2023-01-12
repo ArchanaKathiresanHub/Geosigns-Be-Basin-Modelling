@@ -12,7 +12,6 @@
 #include "view/plots/SacMap2DView.h"
 #include "view/assets/TCHPMapToolTip.h"
 
-
 #include "vector"
 
 namespace casaWizard
@@ -41,6 +40,11 @@ public:
   void finalizeTooltip(const double& TCHPAtPoint, const QString& wellName);
 
   void drawData(QPainter &painter) override;
+
+  const QVector<OptimizedTCHP>& getOptimizedTCHPs()
+  {
+     return m_optimizedTCHPs;
+  }
 
 private:
   TCHPMapToolTip* mapToolTip() final;

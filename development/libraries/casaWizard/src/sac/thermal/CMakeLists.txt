@@ -19,7 +19,8 @@ file(GLOB CASAWIZARD_SACTHERMAL_MODEL_H_HEADERS
    model/output/*.h
    model/script/*.h )
 
-file(GLOB CASAWIZARD_SACTHERMAL_MODEL_CPP_SOURCES model/*.cpp
+file(GLOB CASAWIZARD_SACTHERMAL_MODEL_CPP_SOURCES
+   model/*.cpp
    model/extractor/*.cpp
    model/input/*.cpp
    model/output/*.cpp
@@ -28,7 +29,7 @@ file(GLOB CASAWIZARD_SACTHERMAL_MODEL_CPP_SOURCES model/*.cpp
 include_directories( ${QTXLSX_INCLUDE_DIRS} )
 
 create_bm_library( TARGET ${CASAWIZARD_SACTHERMAL_LIBNAME}
-   LIBRARIES Qt5::Core Qt5::Gui Qt5::Widgets Qt5::Charts Qt5::Svg ${CASAWIZARD_COMMON_LIBNAME} ${CASAWIZARD_SAC_LIBNAME} utilities WorkLoadManagers
+   LIBRARIES Qt5::Core Qt5::Gui Qt5::Widgets Qt5::Charts Qt5::Svg Qt5::Test ${CASAWIZARD_COMMON_LIBNAME} ${CASAWIZARD_SAC_LIBNAME} utilities WorkLoadManagers
    ADD_SOURCES ${CASAWIZARD_SACTHERMAL_CPP_SOURCES}
    ADD_SOURCES ${CASAWIZARD_SAC_CPP_SOURCES} )
 

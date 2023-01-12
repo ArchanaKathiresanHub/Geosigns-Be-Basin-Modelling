@@ -133,18 +133,18 @@ QVBoxLayout* SacMapsTab::setWellsAndOptionsLayout()
    wellsAndOptions->addWidget(gridGenerationOptions());
    wellsAndOptions->addWidget(label3);
    QHBoxLayout* exportOptimized = new QHBoxLayout();
-   exportOptimized->addWidget(buttonExportOptimized());
+   exportOptimized->addWidget(pushButtonExportOptimized());
    HelpLabel* helpLabelExport = new HelpLabel(this, "Create a zip-file for import into BPA2-Basin");
    exportOptimized->addWidget(helpLabelExport);
    wellsAndOptions->addLayout(exportOptimized);
    QHBoxLayout* exportOptimizedToZycor = new QHBoxLayout();
-   exportOptimizedToZycor->addWidget(buttonExportOptimizedToZycor());
+   exportOptimizedToZycor->addWidget(pushButtonExportOptimizedToZycor());
    HelpLabel* helpLabelExportToZycor = new HelpLabel(this, "Export the optimized map(s) to the zycor format");
    exportOptimizedToZycor->addWidget(helpLabelExportToZycor);
    wellsAndOptions->addLayout(exportOptimizedToZycor);
 
    QHBoxLayout* runOptimized = new QHBoxLayout();
-   runOptimized->addWidget(buttonRunOptimized());
+   runOptimized->addWidget(pushButtonRunOptimized());
    HelpLabel* helpLabelRun = new HelpLabel(this, "For plotting and QC purposes under 'Well log plots and Results' tab");
 
    runOptimized->addWidget(helpLabelRun);
@@ -206,17 +206,17 @@ QComboBox* SacMapsTab::smoothingType() const
    return m_smoothingType;
 }
 
-QPushButton* SacMapsTab::buttonExportOptimized() const
+QPushButton* SacMapsTab::pushButtonExportOptimized() const
 {
    return m_buttonExportOptimized;
 }
 
-QPushButton* SacMapsTab::buttonExportOptimizedToZycor() const
+QPushButton* SacMapsTab::pushButtonExportOptimizedToZycor() const
 {
    return m_buttonExportOptimizedToZycor;
 }
 
-QPushButton* SacMapsTab::buttonRunOptimized() const
+QPushButton* SacMapsTab::pushButtonRunOptimized() const
 {
    return m_buttonRunOptimized;
 }
@@ -226,12 +226,12 @@ QComboBox* SacMapsTab::interpolationType() const
    return m_interpolationType;
 }
 
-QPushButton* SacMapsTab::pushSelectAllWells() const
+QPushButton* SacMapsTab::pushButtonSelectAllWells() const
 {
    return m_pushSelectAllWells;
 }
 
-QPushButton* SacMapsTab::pushClearWellSelection() const
+QPushButton* SacMapsTab::pushButtonClearWellSelection() const
 {
    return m_pushClearWellSelection;
 }

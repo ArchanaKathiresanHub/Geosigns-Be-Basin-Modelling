@@ -22,10 +22,11 @@ namespace casaWizard
 namespace sac
 {
 
-namespace thermal {
+namespace thermal
+{
 
 ThermalWindow::ThermalWindow(QWidget* parent) :
-  sac::Window(parent),
+  sac::SacWindow(parent),
   m_inputTab{new ThermalInputTab{this}},
   m_resultsTab{new ThermalResultsTab{this}},
   m_mapsTab{new ThermalMapTab{this}}

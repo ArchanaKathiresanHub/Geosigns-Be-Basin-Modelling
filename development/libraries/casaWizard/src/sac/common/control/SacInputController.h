@@ -44,7 +44,6 @@ public:
 signals:
    void signalRefreshChildWidgets();
 
-
 protected slots:
    virtual void slotUpdateTabGUI(int tabID) = 0;
    virtual void slotPushButtonSelectProject3dClicked() = 0;

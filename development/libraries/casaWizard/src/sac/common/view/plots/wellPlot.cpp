@@ -109,7 +109,7 @@ void WellPlot::setData(const QVector<const CalibrationTarget*>& targets,
   QStringList newLegend;
   newLegend.append(completeLegend_[0]);
 
-  for (int i = 0; i<trajectories.size(); ++i)
+  for (int i = 0; i < trajectories.size(); ++i)
   {
     if (activePlots[i])
     {

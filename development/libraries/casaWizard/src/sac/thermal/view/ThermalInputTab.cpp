@@ -56,7 +56,7 @@ ThermalInputTab::ThermalInputTab(QWidget* parent) :
    layoutCalibrationOptions()->insertWidget(1, m_pushImportTargets);
 }
 
-const QPushButton* ThermalInputTab::pushButtonImportTargets() const
+QPushButton* ThermalInputTab::pushButtonImportTargets() const
 {
    return m_pushImportTargets;
 }

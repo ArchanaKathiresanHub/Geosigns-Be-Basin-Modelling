@@ -52,8 +52,8 @@ PlotOptions::PlotOptions(QWidget* parent) :
 
   setLayout(layout);
 
-  connect(original1d_, SIGNAL(released()), this, SIGNAL(activeChanged()));
-  connect(original3d_, SIGNAL(released()), this, SIGNAL(activeChanged()));
+  connect(original1d_,  SIGNAL(released()), this, SIGNAL(activeChanged()));
+  connect(original3d_,  SIGNAL(released()), this, SIGNAL(activeChanged()));
   connect(optimized1d_, SIGNAL(released()), this, SIGNAL(activeChanged()));
   connect(optimized3d_, SIGNAL(released()), this, SIGNAL(activeChanged()));
 
@@ -87,7 +87,6 @@ void PlotOptions::setActivePlots(const QVector<bool> activePlots)
   original3d_->setChecked(activePlots[TrajectoryType::Original3D]);
   optimized3d_->setChecked(activePlots[TrajectoryType::Optimized3D]);
 }
-
 
 }  // namespace sac
 

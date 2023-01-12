@@ -13,13 +13,15 @@ file(GLOB CASAWIZARD_COMMON_MODEL_CPP_SOURCES
    model/output/*.cpp
    model/script/*.cpp )
 
-file(GLOB CASAWIZARD_COMMON_H_HEADERS view/*.h
+file(GLOB CASAWIZARD_COMMON_H_HEADERS
+   view/*.h
    view/plots/*.h
    view/sharedComponents/*.h
    control/*.h
    model/functions/*.h )
 
-file(GLOB CASAWIZARD_COMMON_CPP_SOURCES view/*.cpp
+file(GLOB CASAWIZARD_COMMON_CPP_SOURCES
+   view/*.cpp
    view/plots/*.cpp
    view/sharedComponents/*.cpp
    view/sharedComponents/resources.qrc
@@ -32,9 +34,8 @@ include_directories( SYSTEM
    ${QTXLSX_INCLUDE_DIRS}
    )
 
-
 create_bm_library( TARGET ${CASAWIZARD_COMMON_LIBNAME}
-   LIBRARIES Qt5::Core Qt5::Gui Qt5::Widgets Qt5::Svg utilities QtUtils
+   LIBRARIES Qt5::Core Qt5::Gui Qt5::Widgets Qt5::Svg Qt5::Test utilities QtUtils
    ADD_SOURCES ${CASAWIZARD_COMMON_CPP_SOURCES}
    ADD_HEADERS ${CASAWIZARD_COMMON_H_HEADERS} )
 
@@ -42,7 +43,6 @@ create_bm_library( TARGET ${CASAWIZARD_COMMON_MODEL_LIBNAME}
    LIBRARIES Qt5::Core QtXlsx utilities TableIO DataModel DataExtraction QtUtils cmbapi
    ADD_SOURCES ${CASAWIZARD_COMMON_MODEL_CPP_SOURCES}
    ADD_HEADERS ${CASAWIZARD_COMMON_MODEL_H_HEADERS} )
-
 
 target_include_directories( ${CASAWIZARD_COMMON_LIBNAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_include_directories( ${CASAWIZARD_COMMON_MODEL_LIBNAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})

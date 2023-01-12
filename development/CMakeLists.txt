@@ -254,13 +254,13 @@ find_package(LZlib REQUIRED CONFIG)
 ## download and install Qt5 from the official site_name
 ## make sure Qt5 directory path is added to %PATH% evn var on Windows.
 if (WIN32)
-	find_package(Qt5 COMPONENTS Core Gui Widgets Svg CONFIG) 
+   find_package(Qt5 COMPONENTS Core Gui Widgets Svg Test CONFIG)
 endif(WIN32)
 
 if (UNIX)
    find_package(FlexLM REQUIRED CONFIG)
    find_package(ZLIB REQUIRED)
-   find_package(Qt5 COMPONENTS Core Gui Widgets Charts Svg CONFIG)
+   find_package(Qt5 COMPONENTS Core Gui Widgets Charts Svg Test CONFIG)
 
    if (BM_BUILD_PARAVIEW_PLUGIN)
       find_package(ParaView REQUIRED CONFIG)

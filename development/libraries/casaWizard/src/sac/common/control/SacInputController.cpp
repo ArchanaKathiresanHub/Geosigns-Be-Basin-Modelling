@@ -66,13 +66,13 @@ SacInputController::SacInputController(SacInputTab* sacInputTab,
    sacInputTab->lineEditProject3D()->setText("");
    sacInputTab->comboBoxCluster()->setCurrentText(scenario.clusterName());
 
-   connect(parent,                                 SIGNAL(signalReload1Ddata()),          this,                          SLOT(slotExtractData()));
-   connect(sacInputTab->pushRun1DOptimalization(), SIGNAL(clicked()),                     this,                          SLOT(slotPushButton1DOptimalizationClicked()));
-   connect(sacInputTab->pushSelectProject3D(),     SIGNAL(clicked()),                     this,                          SLOT(slotPushButtonSelectProject3dClicked()));
-   connect(sacInputTab->pushSelectAllWells(),      SIGNAL(clicked()),                     m_calibrationTargetController, SLOT(slotSelectAllWells()));
-   connect(sacInputTab->pushClearSelection(),      SIGNAL(clicked()),                     m_calibrationTargetController, SLOT(slotClearWellSelection()));
-   connect(sacInputTab->buttonRunOriginal1D(),     SIGNAL(clicked()),                     this,                          SLOT(slotRunOriginal1D()));
-   connect(sacInputTab->buttonRunOriginal3D(),     SIGNAL(clicked()),                     this,                          SLOT(slotRunOriginal3D()));
+   connect(parent,                                     SIGNAL(signalReload1Ddata()),          this,                          SLOT(slotExtractData()));
+   connect(sacInputTab->pushButtonRun1DOptimization(), SIGNAL(clicked()),                     this,                          SLOT(slotPushButton1DOptimalizationClicked()));
+   connect(sacInputTab->pushSelectProject3D(),         SIGNAL(clicked()),                     this,                          SLOT(slotPushButtonSelectProject3dClicked()));
+   connect(sacInputTab->pushButtonSelectAllWells(),    SIGNAL(clicked()),                     m_calibrationTargetController, SLOT(slotSelectAllWells()));
+   connect(sacInputTab->pushButtonClearSelection(),    SIGNAL(clicked()),                     m_calibrationTargetController, SLOT(slotClearWellSelection()));
+   connect(sacInputTab->pushButtonRunOriginal1D(),     SIGNAL(clicked()),                     this,                          SLOT(slotRunOriginal1D()));
+   connect(sacInputTab->pushButtonRunOriginal3D(),     SIGNAL(clicked()),                     this,                          SLOT(slotRunOriginal3D()));
    connect(sacInputTab->comboBoxCluster(),         SIGNAL(currentTextChanged(QString)),   this,                          SLOT(slotComboBoxClusterCurrentTextChanged(QString)));
    connect(sacInputTab->comboBoxApplication(),     SIGNAL(currentTextChanged(QString)),   this,                          SLOT(slotComboBoxApplicationChanged(QString)));
    connect(m_objectiveFunctionController,          SIGNAL(refresh()),                     m_calibrationTargetController, SLOT(slotRefresh()));

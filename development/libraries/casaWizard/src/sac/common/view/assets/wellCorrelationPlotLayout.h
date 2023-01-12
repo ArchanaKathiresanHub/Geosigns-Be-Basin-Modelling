@@ -37,6 +37,21 @@ public:
                              const QVector<bool> activePlots, const double minValue, const double maxValue, const QVector<int>& wellIndices);
   void setProperties(const QStringList& properties, const int activeIndex);
 
+  QComboBox* properties()
+  {
+     return properties_;
+  }
+
+  QDoubleSpinBox* absoluteErrorRange()
+  {
+     return absoluteErrorRange_;
+  }
+
+  QDoubleSpinBox* relativeErrorRange()
+  {
+     return relativeErrorRange_;
+  }
+
 signals:
   void propertyChanged(QString property);
 

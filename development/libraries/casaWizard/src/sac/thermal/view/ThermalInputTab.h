@@ -22,7 +22,7 @@ class ThermalInputTab : public SacInputTab
 public:
    explicit ThermalInputTab(QWidget* parent = nullptr);
 
-   const QPushButton* pushButtonImportTargets() const;
+   QPushButton* pushButtonImportTargets() const;
    QLineEdit* lineEditMinTCHP() const;
    QLineEdit* lineEditMaxTCHP() const;
 private:

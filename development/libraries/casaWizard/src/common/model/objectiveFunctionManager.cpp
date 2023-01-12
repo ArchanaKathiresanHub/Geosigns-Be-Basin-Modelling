@@ -181,6 +181,7 @@ void ObjectiveFunctionManager::readFromFile(const ScenarioReader& reader)
 
 void ObjectiveFunctionManager::clear()
 {
+   userNameToCauldronNameMapping_.clear();
    values_.clear();
 }
 

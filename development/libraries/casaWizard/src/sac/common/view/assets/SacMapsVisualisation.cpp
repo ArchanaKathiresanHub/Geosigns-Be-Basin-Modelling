@@ -22,12 +22,12 @@ SacMapsVisualisation::SacMapsVisualisation(QWidget *parent) :
    colormap_{new ColorMap}
 {}
 
-ColorMap& SacMapsVisualisation::colormap()
+const ColorMap& SacMapsVisualisation::colormap() const
 {
    return *colormap_;
 }
 
-const ColorMap& SacMapsVisualisation::colormap() const
+ColorMap& SacMapsVisualisation::colormap()
 {
    return *colormap_;
 }
