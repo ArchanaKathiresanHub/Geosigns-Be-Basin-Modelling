@@ -13,7 +13,7 @@
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Version				Date of update
 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-Cauldron-v2.10.18		2023-01-11 15:32:46 +0100
+Cauldron-v2.10.19		2023-01-12 16:04:20 +0100
 =============================================================
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Third-party Software 		version
@@ -36,6 +36,13 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2023-01-12  Sven van Leeuwen  <113355692+NLSLFG@users.noreply.github.com>
+
+	new: test: Added automated regression tests for SACThermal !test.
+	* Added Automated workflow/regression test for SACThermal + framework for new tests. Usable by adding the "-testGUI" command when launching SACThermal
+	================== COMMIT-END ========================Commit-ID:<5dd407b35a18a15419845dfd658de848bfa5cc8e>	  (tag: refs/tags/v2.10.19, refs/heads/master)
+
+++
 2023-01-11  Sven van Leeuwen  <113355692+NLSLFG@users.noreply.github.com>
 
 	fix: Export wells to text in wellprep tab now works in SAC Lithology !minor
