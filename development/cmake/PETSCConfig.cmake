@@ -24,7 +24,8 @@ add_external_project_to_repository(
       DEPENDS_NAME "Hypre"
       DEPENDS_VER "2.18.2"
       CONFIGURE_COMMAND
-         "./configure"
+            "python3"
+            "./configure"
             "--prefix={ROOT}"
             #"--with-clanguage=cxx"
             "--with-large-file-io=1"
@@ -74,7 +75,8 @@ add_external_project_to_repository(
       ARCHIVE "${THIRD_PARTY_DIR}/sources/petsc-${PETSC_VERSION}.tar.gz"
       ARCHIVE_MD5 "E21EC10AEA4111A315DF83DD398E141A"
       CONFIGURE_COMMAND
-         "./configure"
+            "python3"
+            "./configure"
             "--prefix={ROOT}"
             #"--with-clanguage=cxx"
             "--with-large-file-io=1"

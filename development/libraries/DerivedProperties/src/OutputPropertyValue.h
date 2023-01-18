@@ -93,7 +93,7 @@ namespace  DerivedProperties {
    }
 
    inline bool OutputPropertyValue::checkForNANPropertyValue(const double& value)const {
-       return isnan(value);
+       return std::isnan(value);
    }
 }
 

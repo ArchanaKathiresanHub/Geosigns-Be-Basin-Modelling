@@ -10,6 +10,8 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
+#include <cmath>
+
 const double epsilon = 1.e-6;
 
 // These test values were obtained from a test run with the Ottoland example.
@@ -168,7 +170,7 @@ TEST_F(RSProxyCalcTest, calculateR2AndR2adjFromObservables)
 
    EXPECT_DOUBLE_EQ(r2Adjs[0],0.625);
    EXPECT_DOUBLE_EQ(r2Adjs[1],0.25);
-   EXPECT_TRUE(isinf(r2Adjs[2]));
+   EXPECT_TRUE(std::isinf(r2Adjs[2]));
    EXPECT_DOUBLE_EQ(r2Adjs[3],0.625);
 }
 
