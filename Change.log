@@ -13,7 +13,7 @@
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Version				Date of update
 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-Cauldron-v2.10.19		2023-01-12 16:04:20 +0100
+Cauldron-v2.10.20		2023-01-18 14:43:58 +0100
 =============================================================
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Third-party Software 		version
@@ -36,6 +36,13 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2023-01-18  RichardFaasse  <115148814+RichardFaasse@users.noreply.github.com>
+
+	fix: Fixed rhel8.4 build !minor.
+	 * Fixed the build for a RHEL8.4 machine by specifying the python version in the PETSC config and fixing some minor std:: references
+	================== COMMIT-END ========================Commit-ID:<a4e3be9f51180a3c786b830e5736d6a30206708f>	  (tag: refs/tags/v2.10.20, refs/heads/master)
+
+++
 2023-01-12  Sven van Leeuwen  <113355692+NLSLFG@users.noreply.github.com>
 
 	new: test: Added automated regression tests for SACThermal !test.
